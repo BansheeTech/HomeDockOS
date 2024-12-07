@@ -1,0 +1,33 @@
+---
+version: '3.8'
+services:
+  ollama-gpt:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ollama-gpt
+    volumes:
+      - [[INSTALL_PATH]]/ollama-gpt/ollama-webui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - 3535:8080
+    environment:
+      - 'WEBUI_SECRET_KEY=[[HD_SYSTEM_PASSWORD]]'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    labels:
+      HDGroup: "ollama-gpt"
+      HDRole: "main"
+      
+  ollama:
+    volumes:
+      - [[INSTALL_PATH]]/ollama-gpt/ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:latest
+    network_mode: host
+    labels:
+      HDGroup: "ollama-gpt"
+      HDRole: "dependency"

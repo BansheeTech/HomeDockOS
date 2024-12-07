@@ -1,0 +1,35 @@
+---
+version: '3'
+services:
+    wordpress:
+        image: wordpress:latest
+        container_name: wordpress
+        depends_on:
+            - wordpress_mariadb
+        volumes:
+            - [[INSTALL_PATH]]/wordpress/wordpress:/var/www/html
+        environment:
+            - WORDPRESS_DB_USER=[[HD_USER_NAME]]
+            - WORDPRESS_DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+            - WORDPRESS_DB_HOST=wordpress_mariadb
+        ports:
+            - 38080:80
+        restart: unless-stopped
+        labels:
+          HDGroup: "wordpress"
+          HDRole: "main"
+    wordpress_mariadb:
+        image: mariadb:latest
+        container_name: wordpress_mariadb
+        volumes:
+            - [[INSTALL_PATH]]/wordpress/mariadb:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+            - MYSQL_DATABASE=wordpress
+            - MYSQL_USER=[[HD_USER_NAME]]
+            - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+        restart: unless-stopped
+        labels:
+          HDGroup: "wordpress"
+          HDRole: "dependency"
+

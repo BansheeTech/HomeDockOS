@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/overseerr:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped

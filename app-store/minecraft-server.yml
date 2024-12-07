@@ -1,0 +1,18 @@
+---
+version: "3.8"
+services:
+  minecraft-server:
+    container_name: minecraft-server
+    image: itzg/minecraft-server:latest
+    environment:
+      EULA: "true"
+      TYPE: PAPER
+      MEMORY: 1G
+    ports:
+      - "25565:25565"
+    volumes:
+      - [[INSTALL_PATH]]/minecraft-server:/data
+      - [[APP_MOUNT_POINT]]/minecraft-server/plugins:/plugins
+    stdin_open: true
+    tty: true
+    restart: unless-stopped

@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  digikam:
+    image: lscr.io/linuxserver/digikam:latest
+    container_name: digikam
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUBFOLDER=/ #optional
+    volumes:
+      - [[INSTALL_PATH]]/digikam:/config
+    ports:
+      - 3000:3000 #optional
+      - 3001:3001 #optional
+    restart: unless-stopped

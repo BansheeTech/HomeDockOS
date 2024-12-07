@@ -1,0 +1,21 @@
+---
+services:
+  msedge:
+    image: lscr.io/linuxserver/msedge:latest
+    container_name: msedge
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - EDGE_CLI=https://www.linuxserver.io/ #optional
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/msedge:/config
+    ports:
+      - 33266:3000
+      - 33267:3001
+    shm_size: "1gb"
+    restart: unless-stopped

@@ -1,0 +1,42 @@
+---
+version: "2.1"
+services:
+  kimai:
+    image: lscr.io/linuxserver/kimai:latest
+    container_name: kimai
+    depends_on:
+      - kimai_mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DATABASE_URL=mysql://[[HD_USER_NAME]]:[[HD_SYSTEM_PASSWORD]]@[[HD_LOCAL_IP]]:14306/kimai?charset=utf8&serverVersion=10.11.5
+    volumes:
+      - [[INSTALL_PATH]]/kimai/kimai:/config
+    ports:
+      - 14080:80
+      - 14081:443
+    labels:
+      HDGroup: "kimai"
+      HDRole: "main"
+    restart: unless-stopped
+
+  kimai_mariadb:
+    image: lscr.io/linuxserver/mariadb:10.11.5
+    container_name: kimai_mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MYSQL_ROOT_PASSWORD=[[HD_PASSWORD]]
+      - MYSQL_DATABASE=kimai
+      - MYSQL_USER=[[HD_USER_NAME]]
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/kimai/kimai_mariadb:/config
+    ports:
+      - 14306:3306
+    labels:
+      HDGroup: "kimai"
+      HDRole: "dependency"
+    restart: unless-stopped

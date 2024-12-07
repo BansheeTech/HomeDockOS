@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  minisatip:
+    image: lscr.io/linuxserver/minisatip:latest
+    container_name: minisatip
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - RUN_OPTS=
+    volumes:
+      - [[INSTALL_PATH]]/minisatip:/config
+    ports:
+      - 8875:8875
+      - 554:554
+      - 1900:1900/udp
+    devices:
+      - /dev/dvb:/dev/dvb
+    restart: unless-stopped

@@ -1,0 +1,14 @@
+---
+version: "2.1"
+services:
+  hishtory-server:
+    image: lscr.io/linuxserver/hishtory-server:latest
+    container_name: hishtory-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - HISHTORY_POSTGRES_DB=postgresql://${HISHTORY_DB_USER}:${HISHTORY_DB_PASS}@hishtory-db:5432/hishtory?sslmode=disable
+    ports:
+      - 8080:8080
+    restart: unless-stopped

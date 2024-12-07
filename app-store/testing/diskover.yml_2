@@ -1,0 +1,44 @@
+version: '2'
+services:
+  diskover:
+    image: lscr.io/linuxserver/diskover
+    container_name: diskover
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+    volumes:
+      - [[INSTALL_PATH]]/diskover:/config
+      - [[INSTALL_PATH]]/diskover/data:/data
+    ports:
+      - 80:80
+    mem_limit: 4096m
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - [[INSTALL_PATH]]/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    depends_on:
+      - elasticsearch-helper
+    restart: unless-stopped
+  elasticsearch-helper:
+    image: alpine
+    command: sh -c "sysctl -w vm.max_map_count=262144"
+    privileged: true
+WIPPPPPPP

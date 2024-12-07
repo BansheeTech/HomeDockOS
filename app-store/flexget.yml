@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  flexget:
+    image: lscr.io/linuxserver/flexget:latest
+    container_name: flexget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - FG_LOG_LEVEL=info
+      - FG_LOG_FILE=/config/flexget.log
+      - FG_CONFIG_FILE=/config/.flexget/config.yml
+      - FG_WEBUI_PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/flexget:/config
+      - [[APP_MOUNT_POINT]]/flexget/downloads:/data #optional
+    ports:
+      - 5050:5050
+    restart: unless-stopped

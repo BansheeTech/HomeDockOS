@@ -1,0 +1,45 @@
+---
+services:
+  monica:
+    image: lscr.io/linuxserver/monica:latest
+    container_name: monica
+    depends_on:
+      - monica_mysql
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DB_HOST=monica_mysql
+      - DB_PORT=
+      - DB_USERNAME=[[HD_USER_NAME]]_monica
+      - DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - DB_DATABASE=monicadb
+      - APP_URL=http://localhost:80 #optional
+      - TRUSTED_PROXIES= #optional
+      - APP_ENV=local #optional
+      - APP_DISABLE_SIGNUP=true #optional
+    volumes:
+      - [[INSTALL_PATH]]/monica:/config
+    labels:
+      HDGroup: "monica"
+      HDRole: "main"
+    ports:
+      - 23480:80
+      - 23443:443
+    restart: unless-stopped
+  monica_mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password   
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=monicadb
+      - MYSQL_USER=[[HD_USER_NAME]]_monica
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+    labels:
+      HDGroup: "monica"
+      HDRole: "dependency"
+    volumes:
+      - [[INSTALL_PATH]]/monica/mysql:/var/lib/mysql
+    restart: unless-stopped
+
+WIPPPPPPP

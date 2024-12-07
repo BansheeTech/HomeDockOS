@@ -1,0 +1,20 @@
+---
+services:
+  librewolf:
+    image: lscr.io/linuxserver/librewolf:latest
+    container_name: librewolf
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/librewolf:/config
+    ports:
+      - 45541:3000
+      - 45542:3001
+    shm_size: "1gb"
+    restart: unless-stopped

@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  calligra:
+    image: lscr.io/linuxserver/calligra:latest
+    container_name: calligra
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - TITLE="Calligra - HomeDock"
+    volumes:
+      - [[INSTALL_PATH]]/calligra:/config
+    ports:
+      - 4414:3000
+      - 4415:3001
+    restart: unless-stopped

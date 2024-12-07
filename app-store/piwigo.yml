@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  piwigo:
+    image: lscr.io/linuxserver/piwigo:latest
+    container_name: piwigo
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/piwigo:/config
+      - [[APP_MOUNT_POINT]]/piwigo/gallery:/gallery
+    ports:
+      - 80:80
+    restart: unless-stopped

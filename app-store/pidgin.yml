@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  pidgin:
+    image: lscr.io/linuxserver/pidgin:latest
+    container_name: pidgin
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/pidgin:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

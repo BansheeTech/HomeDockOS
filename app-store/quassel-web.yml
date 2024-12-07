@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  quassel-web:
+    image: lscr.io/linuxserver/quassel-web:latest
+    container_name: quassel-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - QUASSEL_CORE=[[HD_LOCAL_IP]]
+      - QUASSEL_PORT=4242
+      - URL_BASE=/quassel #optional
+    volumes:
+      - [[INSTALL_PATH]]/quassel-web:/config
+    ports:
+      - 64443:64443
+    restart: unless-stopped

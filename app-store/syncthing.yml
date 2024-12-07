@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    hostname: syncthing #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/syncthing:/config
+      - [[APP_MOUNT_POINT]]/syncthing/data1:/data1
+      - [[APP_MOUNT_POINT]]/syncthing/data2:/data2
+    ports:
+      - 8384:8384
+      - 22000:22000/tcp
+      - 22000:22000/udp
+      - 21027:21027/udp
+    restart: unless-stopped

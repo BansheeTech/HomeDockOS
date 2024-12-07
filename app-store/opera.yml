@@ -1,0 +1,22 @@
+---
+version: "2.1"
+services:
+  opera:
+    image: lscr.io/linuxserver/opera:latest
+    container_name: opera
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - OPERA_CLI=https://www.linuxserver.io/ #optional
+    volumes:
+      - [[INSTALL_PATH]]/opera:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    shm_size: "1gb"
+    restart: unless-stopped

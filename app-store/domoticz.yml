@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  domoticz:
+    image: lscr.io/linuxserver/domoticz:latest
+    container_name: domoticz
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - WEBROOT=domoticz #optional
+      - "DBASE=<path to database>" #optional
+    volumes:
+      - [[INSTALL_PATH]]/domoticz:/config
+    ports:
+      - 8080:8080
+      - 6144:6144
+      - 1443:1443
+    devices:
+      - path to device:path to device
+    restart: unless-stopped

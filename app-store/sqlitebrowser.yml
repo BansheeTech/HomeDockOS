@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  sqlitebrowser:
+    image: lscr.io/linuxserver/sqlitebrowser:latest
+    container_name: sqlitebrowser
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/sqlitebrowser:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

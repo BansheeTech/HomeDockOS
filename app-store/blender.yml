@@ -1,0 +1,19 @@
+---
+version: "2.1"
+services:
+  blender:
+    image: lscr.io/linuxserver/blender:latest
+    container_name: blender
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUBFOLDER=/ #optional
+    volumes:
+      - [[INSTALL_PATH]]/blender:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

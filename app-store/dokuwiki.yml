@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  dokuwiki:
+    image: lscr.io/linuxserver/dokuwiki:latest
+    container_name: dokuwiki
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/dokuwiki:/config
+    ports:
+      - 9880:80
+      - 9881:443
+    restart: unless-stopped

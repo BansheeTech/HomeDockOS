@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  gimp:
+    image: lscr.io/linuxserver/gimp:latest
+    container_name: gimp
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/gimp:/config
+    ports:
+      - 3020:3000
+      - 3021:3001
+    restart: unless-stopped

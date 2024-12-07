@@ -1,0 +1,19 @@
+---
+services:
+  shotcut:
+    image: lscr.io/linuxserver/shotcut:latest
+    container_name: shotcut
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/shotcut:/config
+    ports:
+      - 12222:3000
+      - 12223:3001
+    restart: unless-stopped

@@ -1,0 +1,15 @@
+---
+version: "3.2"
+services:
+  picoshare:
+    image: mtlynch/picoshare:latest
+    container_name: picoshare
+    environment:
+      - PORT=4001
+      - PS_SHARED_SECRET=[[HD_PASSWORD]]
+    ports:
+      - 4001:4001
+    command: -db /data/store.db
+    volumes:
+      - [[INSTALL_PATH]]/picoshare:/data
+    restart: unless-stopped

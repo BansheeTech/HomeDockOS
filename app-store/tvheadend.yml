@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  tvheadend:
+    image: lscr.io/linuxserver/tvheadend:latest
+    container_name: tvheadend
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - RUN_OPTS= #optional
+    volumes:
+      - [[INSTALL_PATH]]/tvheadend:/config
+      - [[APP_MOUNT_POINT]]/tvheadend/recordings:/recordings
+    ports:
+      - 9981:9981
+      - 9982:9982
+    devices:
+      - /dev/dri:/dev/dri #optional
+      - /dev/dvb:/dev/dvb #optional
+    restart: unless-stopped

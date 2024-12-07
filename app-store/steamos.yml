@@ -1,0 +1,38 @@
+---
+version: "2.1"
+services:
+  steamos:
+    image: lscr.io/linuxserver/steamos:latest
+    container_name: steamos
+    hostname: hostname #optional
+    cap_add:
+      - NET_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - DRINODE=/dev/dri/renderD128
+      - HOST_IP=[[HD_LOCAL_IP]]
+      - STARTUP=KDE #optional
+      - RESOLUTION=1920x1080 #optional
+    volumes:
+      - [[INSTALL_PATH]]/steamos:/config
+      - /dev/input:/dev/input #optional
+      - /run/udev/data:/run/udev/data #optional
+    ports:
+      - 3000:3000
+      - 3001:3001
+      - 27031-27036:27031-27036/udp #optional
+      - 27031-27036:27031-27036 #optional
+      - 47984-47990:47984-47990:47984-47990:47984-47990/tcp #optional
+      - 48010:48010:48010:48010 #optional
+      - 47998-48000:47998-48000:47998-48000:47998-48000/udp #optional
+    devices:
+      - /dev/dri:/dev/dri
+    shm_size: "1gb"
+    restart: unless-stopped

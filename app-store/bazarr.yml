@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/bazarr:/config
+      - [[APP_MOUNT_POINT]]/bazarr/movies:/movies
+      - [[APP_MOUNT_POINT]]/bazarr/tv:/tv
+    ports:
+      - 6767:6767
+    restart: unless-stopped

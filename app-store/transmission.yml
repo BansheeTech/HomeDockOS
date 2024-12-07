@@ -1,0 +1,25 @@
+---
+version: "2.1"
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - TRANSMISSION_WEB_HOME= #optional
+      - USER=[[HD_USER_NAME]]
+      - PASS=[[HD_PASSWORD]]
+      - WHITELIST= #optional
+      - PEERPORT= #optional
+      - HOST_WHITELIST= #optional
+    volumes:
+      - [[INSTALL_PATH]]/transmission:/config
+      - [[APP_MOUNT_POINT]]/transmission/downloads:/downloads
+      - [[APP_MOUNT_POINT]]/transmission/watch:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped

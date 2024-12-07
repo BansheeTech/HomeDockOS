@@ -1,0 +1,13 @@
+---
+version: "2.1"
+services:
+  synclounge:
+    image: lscr.io/linuxserver/synclounge:latest
+    container_name: synclounge
+    environment:
+      - AUTH_LIST=plexuser1,plexuser2,email1,machineid1 #optional
+      - AUTOJOIN_ENABLED=false #optional
+      - AUTOJOIN_ROOM=roomname #optional
+    ports:
+      - 8088:8088
+    restart: unless-stopped

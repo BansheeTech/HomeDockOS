@@ -1,0 +1,14 @@
+---
+version: "2.1"
+services:
+  ldap-auth:
+    image: lscr.io/linuxserver/ldap-auth:latest
+    container_name: ldap-auth
+    environment:
+      - FERNETKEY= #optional
+      - CERTFILE= #optional
+      - KEYFILE= #optional
+    ports:
+      - 8888:8888
+      - 9000:9000
+    restart: unless-stopped

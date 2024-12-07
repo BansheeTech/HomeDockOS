@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  changedetection:
+    image: lscr.io/linuxserver/changedetection.io:latest
+    container_name: changedetection
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - BASE_URL= #optional
+    volumes:
+      - [[INSTALL_PATH]]/changedetection:/config
+    ports:
+      - 5000:5000
+    restart: unless-stopped

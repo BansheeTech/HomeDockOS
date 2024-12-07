@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  htpcmanager:
+    image: lscr.io/linuxserver/htpcmanager:latest
+    container_name: htpcmanager
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/htpcmanager:/config
+    ports:
+      - 8085:8085
+    restart: unless-stopped

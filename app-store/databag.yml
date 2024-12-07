@@ -1,0 +1,11 @@
+---
+version: "3.9"
+services:
+  databag:
+    container_name: databag
+    image: balzack/databag:latest
+    restart: unless-stopped
+    ports:
+    - "7999:7000"
+    volumes:
+    - [[INSTALL_PATH]]/databag:/var/lib/databag

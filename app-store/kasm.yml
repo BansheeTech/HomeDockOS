@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  kasm:
+    image: lscr.io/linuxserver/kasm:latest
+    container_name: kasm
+    privileged: true
+    environment:
+      - KASM_PORT=443
+      - DOCKER_HUB_USERNAME=USER #optional
+      - DOCKER_HUB_PASSWORD=PASS #optional
+      - DOCKER_MTU=1500 #optional
+    volumes:
+      - [[INSTALL_PATH]]/kasm:/opt
+      - [[INSTALL_PATH]]/kasm/profiles:/profiles #optional
+      - /dev/input:/dev/input #optional
+      - /run/udev/data:/run/udev/data #optional
+    ports:
+      - 3000:3000
+      - 443:443
+    restart: unless-stopped

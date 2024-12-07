@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  raneto:
+    image: lscr.io/linuxserver/raneto:latest
+    container_name: raneto
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/raneto:/config
+    ports:
+      - 3000:3000
+    restart: unless-stopped

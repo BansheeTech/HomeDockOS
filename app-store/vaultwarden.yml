@@ -1,0 +1,11 @@
+---
+version: '3.3'
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    volumes:
+      - [[INSTALL_PATH]]/vaultwarden:/data/
+    restart: unless-stopped
+    ports:
+      - 4444:80

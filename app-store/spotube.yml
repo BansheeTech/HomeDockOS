@@ -1,0 +1,19 @@
+---
+services:
+  spotube:
+    image: lscr.io/linuxserver/spotube:latest
+    container_name: spotube
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/spotube:/config
+    ports:
+      - 26495:3000
+      - 26496:3001
+    restart: unless-stopped

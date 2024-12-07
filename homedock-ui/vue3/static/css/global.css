@@ -1,0 +1,92 @@
+/* src/static/css/global.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Utilities */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0px;
+    height: 0px;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Global Styles */
+body,
+html {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body.theme-default {
+  background-color: rgb(243, 244, 246);
+}
+
+body.theme-noir {
+  background-color: rgb(39, 39, 42);
+}
+
+body.theme-aeroplus {
+  background-color: rgb(39, 39, 42);
+}
+
+a img {
+  -webkit-user-drag: none;
+  -moz-user-drag: none;
+  -ms-user-drag: none;
+  user-drag: none;
+}
+
+/* Unescoped Animation Styles */
+@keyframes noscript-gradient {
+  0% {
+    background-position: 94% 0%;
+  }
+  50% {
+    background-position: 7% 100%;
+  }
+  100% {
+    background-position: 94% 0%;
+  }
+}
+
+/* Regular View Animation Styles */
+.holder {
+  animation: modernSlideFade 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--index) * 0.05s);
+}
+
+@keyframes modernSlideFade {
+  0% {
+    transform: scaleX(0.95);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Transition View Animation Styles */
+.container-scroller {
+  animation: fallOpac 0.7s ease-in-out forwards;
+}
+
+@keyframes fallOpac {
+  0% {
+    opacity: 0;
+    transform: scale(2) perspective(600px) rotateX(45deg) translateZ(-100px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) perspective(600px) rotateX(0deg) translateZ(0px);
+  }
+}

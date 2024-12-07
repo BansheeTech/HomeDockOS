@@ -1,0 +1,20 @@
+---
+services:
+  freetube:
+    image: lscr.io/linuxserver/freetube:latest
+    container_name: freetube
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/freetube:/config
+    ports:
+      - 19485:3000
+      - 19486:3001
+    shm_size: "1gb"
+    restart: unless-stopped

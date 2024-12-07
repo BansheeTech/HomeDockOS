@@ -1,0 +1,11 @@
+---
+version: "3.9"
+services:
+  the-atlas:
+    image: bansheetech/atlas:latest
+    container_name: the-atlas
+    ports:
+      - 42424:5000
+    volumes:
+      - [[INSTALL_PATH]]/the-atlas:/app
+    restart: unless-stopped

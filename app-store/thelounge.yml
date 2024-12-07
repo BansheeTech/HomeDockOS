@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  thelounge:
+    image: lscr.io/linuxserver/thelounge:latest
+    container_name: thelounge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/thelounge:/config
+    ports:
+      - 9000:9000
+    restart: unless-stopped

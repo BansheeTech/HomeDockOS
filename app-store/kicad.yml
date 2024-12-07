@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  kicad:
+    image: lscr.io/linuxserver/kicad:latest
+    container_name: kicad
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/kicad:/config
+    ports:
+      - 5510:3000
+      - 5511:3001
+    restart: unless-stopped

@@ -1,0 +1,15 @@
+---
+version: "3.7"
+
+services:
+  audiobookshelf:
+    container_name: audiobookshelf
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    ports:
+      - 13378:80
+    volumes:
+      - [[INSTALL_PATH]]/audiobookshelf:/config
+      - [[APP_MOUNT_POINT]]/audiobookshelf/audiobooks:/audiobooks
+      - [[APP_MOUNT_POINT]]/audiobookshelf/podcasts:/podcasts
+      - [[APP_MOUNT_POINT]]/audiobookshelf/metadata:/metadata
+    restart: unless-stopped

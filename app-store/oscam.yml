@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  oscam:
+    image: lscr.io/linuxserver/oscam:latest
+    container_name: oscam
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/oscam:/config
+    ports:
+      - 8888:8888
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    restart: unless-stopped

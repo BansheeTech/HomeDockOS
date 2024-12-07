@@ -1,0 +1,43 @@
+version: "3"
+services:
+  lychee:
+    image: lscr.io/linuxserver/lychee:latest
+    container_name: lychee
+    restart: unless-stopped
+    depends_on:
+      - lychee_mariadb
+    volumes:
+      - [[INSTALL_PATH]]/lychee/lychee:/config
+      - [[APP_MOUNT_POINT]]/lychee/pictures:/pictures
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=lychee_mariadb
+      - DB_PORT=3306
+      - DB_USERNAME=[[HD_USER_NAME]]
+      - DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - DB_DATABASE=lychee
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/London
+    ports:
+      - 3164:80
+    labels:
+      HDGroup: "lychee"
+      HDRole: "main"
+  lychee_mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: lychee_mariadb
+    restart: unless-stopped
+    volumes:
+      - [[INSTALL_PATH]]/lychee/lychee_mariadb:/config
+    environment:
+      - MYSQL_ROOT_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - MYSQL_DATABASE=lychee
+      - MYSQL_USER=[[HD_USER_NAME]]
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/London
+    labels:
+      HDGroup: "lychee"
+      HDRole: "dependency"

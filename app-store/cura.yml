@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  cura:
+    image: lscr.io/linuxserver/cura:latest
+    container_name: cura
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/cura:/config
+    ports:
+      - 6466:3000
+      - 6467:3001
+    restart: unless-stopped

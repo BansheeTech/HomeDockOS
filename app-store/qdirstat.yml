@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  qdirstat:
+    image: lscr.io/linuxserver/qdirstat:latest
+    container_name: qdirstat
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/qdirstat:/config
+      - [[APP_MOUNT_POINT]]/qdirstat/data:/data
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

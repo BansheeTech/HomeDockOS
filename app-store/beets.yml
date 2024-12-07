@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  beets:
+    image: lscr.io/linuxserver/beets:latest
+    container_name: beets
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/beets:/config
+      - [[APP_MOUNT_POINT]]/beets/music/library:/music
+      - [[APP_MOUNT_POINT]]/beets/downloads:/downloads
+    ports:
+      - 8337:8337
+    restart: unless-stopped

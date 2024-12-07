@@ -1,0 +1,76 @@
+version: "3"
+
+services:
+  owncloud:
+    image: owncloud/server:latest
+    container_name: owncloud
+    restart: unless-stopped
+    ports:
+      - 10999:8080
+    depends_on:
+      - owncloud_mariadb
+      - owncloud_redis
+    environment:
+      - OWNCLOUD_DOMAIN=[[HD_LOCAL_IP]]:10999
+      - OWNCLOUD_TRUSTED_DOMAINS=localhost,[[HD_LOCAL_IP]],[[HD_DYN_DNS]],[[HD_INTERNET_IP]]
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=owncloud
+      - OWNCLOUD_DB_USERNAME=[[HD_USER_NAME]]_owncloud
+      - OWNCLOUD_DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - OWNCLOUD_DB_HOST=owncloud_mariadb
+      - OWNCLOUD_ADMIN_USERNAME=[[HD_USER_NAME]]
+      - OWNCLOUD_ADMIN_PASSWORD=[[HD_PASSWORD]]
+      - OWNCLOUD_MYSQL_UTF8MB4=true
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=owncloud_redis
+    labels:
+      HDGroup: "owncloud"
+      HDRole: "main"
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - [[INSTALL_PATH]]/owncloud/config:/var/www/html/config
+      - [[INSTALL_PATH]]/owncloud/apps:/var/www/html/apps
+      - [[INSTALL_PATH]]/owncloud/sessions:/var/www/html/sessions
+      - [[APP_MOUNT_POINT]]/owncloud/files:/mnt/data
+
+  owncloud_mariadb:
+    image: mariadb:10.11
+    container_name: owncloud_mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - MYSQL_USER=[[HD_USER_NAME]]_owncloud
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - MYSQL_DATABASE=owncloud
+    labels:
+      HDGroup: "owncloud"
+      HDRole: "dependency"
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=[[HD_SYSTEM_PASSWORD]]"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - [[INSTALL_PATH]]/owncloud/mariadb:/var/lib/mysql
+
+  owncloud_redis:
+    image: redis:6
+    container_name: owncloud_redis
+    restart: unless-stopped
+    labels:
+      HDGroup: "owncloud"
+      HDRole: "dependency"
+    command: ["--databases", "1"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - [[INSTALL_PATH]]/owncloud/redis:/data
+

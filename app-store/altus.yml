@@ -1,0 +1,21 @@
+---
+version: "2.1"
+services:
+  altus:
+    image: lscr.io/linuxserver/altus:latest
+    container_name: altus
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/altus:/config
+    ports:
+      - 4963:3000
+      - 4964:3001
+    shm_size: "1gb"
+    restart: unless-stopped

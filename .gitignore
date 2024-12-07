@@ -1,0 +1,13 @@
+__pycache__/
+.vscode/
+HomeDockVenvDEV/
+pymodules/__pycache__/
+compose-link/
+logs/
+otherfiles/
+homedock_ports.conf
+homedock_server.conf
+homedock-ui/static/images/wallpapers/back_custom.jpg
+node_modules/
+.deprecated/
+.vite/

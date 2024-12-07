@@ -1,0 +1,12 @@
+---
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: lscr.io/linuxserver/homeassistant:latest
+    volumes:
+      - [[INSTALL_PATH]]/homeassistant:/config
+      - /run/dbus:/run/dbus:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    network_mode: host

@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  webgrabplus:
+    image: lscr.io/linuxserver/webgrabplus:latest
+    container_name: webgrabplus
+    hostname: webgrabplus
+    mac_address: 00:00:00:00:00:00
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/webgrabplus:/config
+      - [[APP_MOUNT_POINT]]/webgrabplus/data:/data
+    restart: unless-stopped

@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  fleet:
+    image: lscr.io/linuxserver/fleet:latest
+    container_name: fleet
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - fleet_admin_authentication_type=DATABASE
+      - fleet_database_url=jdbc:mariadb://<url>:3306/fleet
+      - fleet_database_username=fleet_user
+      - fleet_database_password=dbuserpassword
+      - fleet_admin_secret=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/fleet:/config
+    ports:
+      - 8080:8080
+    restart: unless-stopped

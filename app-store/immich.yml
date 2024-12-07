@@ -1,0 +1,60 @@
+version: "2.1"
+services:
+  immich:
+    image: ghcr.io/imagegenius/immich:latest
+    container_name: immich
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DB_HOSTNAME=[[HD_LOCAL_IP]]
+      - DB_USERNAME=[[HD_USER_NAME]]
+      - DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=[[HD_LOCAL_IP]]
+      - DISABLE_MACHINE_LEARNING=false #optional
+      - DISABLE_TYPESENSE=false #optional
+      - DB_PORT=5432 #optional
+      - REDIS_PORT=6379 #optional
+      - REDIS_PASSWORD= #optional
+      - MACHINE_LEARNING_WORKERS=1 #optional
+      - MACHINE_LEARNING_WORKER_TIMEOUT=120 #optional
+    labels:
+      HDGroup: "immich"
+      HDRole: "main"
+    volumes:
+      - [[INSTALL_PATH]]/immich/immich:/config
+      - [[INSTALL_PATH]]/immich/immich/machine-learning:/config/machine-learning #optional
+      - [[INSTALL_PATH]]/immich/immich/imports:/import #optional
+      - [[APP_MOUNT_POINT]]/immich/photos:/photos
+    ports:
+      - 17486:8080
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres15
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    container_name: immich_redis
+    labels:
+      HDGroup: "immich"
+      HDRole: "dependency"
+    restart: unless-stopped
+  postgres15:
+    image: tensorchord/pgvecto-rs:pg15-v0.2.0
+    ports:
+      - 5432:5432
+    container_name: immich_postgres15
+    environment:
+      - POSTGRES_USER=[[HD_USER_NAME]]
+      - POSTGRES_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - POSTGRES_DB=immich
+    labels:
+      HDGroup: "immich"
+      HDRole: "dependency"
+    volumes:
+      - [[INSTALL_PATH]]/immich/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+

@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  grav:
+    image: lscr.io/linuxserver/grav:latest
+    container_name: grav
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/grav:/config
+    ports:
+      - 55380:80
+    restart: unless-stopped

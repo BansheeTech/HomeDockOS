@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  syslog-ng:
+    image: lscr.io/linuxserver/syslog-ng:latest
+    container_name: syslog-ng
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/syslog-ng:/config
+      - /path/to/log:/var/log #optional
+    ports:
+      - 514:5514/udp
+      - 601:6601/tcp
+      - 6514:6514/tcp
+    restart: unless-stopped

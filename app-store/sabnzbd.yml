@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/sabnzbd:/config
+      - [[APP_MOUNT_POINT]]/sabnzbd/downloads:/downloads #optional
+      - [[APP_MOUNT_POINT]]/sabnzbd/incomplete-downloads:/incomplete-downloads #optional
+    ports:
+      - 8080:8080
+    restart: unless-stopped

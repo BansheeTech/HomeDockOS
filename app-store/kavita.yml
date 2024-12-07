@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: kavita
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/kavita:/config
+      - [[APP_MOUNT_POINT]]/kavita/reading-data:/data
+    ports:
+      - 5000:5000
+    restart: unless-stopped

@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  pylon:
+    image: lscr.io/linuxserver/pylon:latest
+    container_name: pylon
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - GITURL=https://github.com/linuxserver/docker-pylon.git #optional
+      - PYUSER=[[HD_USER_NAME]]
+      - PYPASS=[[HD_PASSWORD]]
+    volumes:
+      - [[APP_MOUNT_POINT]]/code:/code #optional
+    ports:
+      - 3131:3131
+    restart: unless-stopped

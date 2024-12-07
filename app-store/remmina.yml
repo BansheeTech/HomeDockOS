@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  remmina:
+    image: lscr.io/linuxserver/remmina:latest
+    container_name: remmina
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/remmina:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

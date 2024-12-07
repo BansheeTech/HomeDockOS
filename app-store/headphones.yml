@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  headphones:
+    image: lscr.io/linuxserver/headphones:latest
+    container_name: headphones
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/headphones:/config
+      - [[APP_MOUNT_POINT]]/headphones/downloads:/downloads
+      - [[APP_MOUNT_POINT]]/headphones/music:/music
+    ports:
+      - 8181:8181
+    restart: unless-stopped

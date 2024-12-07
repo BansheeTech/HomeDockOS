@@ -1,0 +1,16 @@
+---
+version: '3'
+services:
+  jdownloader-2:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader-2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    ports:
+      - "5800:5800"
+    volumes:
+      - [[INSTALL_PATH]]/jdownloader-2:/config:rw
+      - [[APP_MOUNT_POINT]]/jdownloader-2/downloads:/output:rw
+    restart: unless-stopped

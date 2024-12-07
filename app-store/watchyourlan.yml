@@ -1,0 +1,22 @@
+---
+version: "3.7"
+services:
+  watchyourlan:
+    container_name: watchyourlan
+    image: aceberg/watchyourlan:latest
+    restart: unless-stopped
+    stop_grace_period: 1m
+    init: true
+    ports:
+      - 8840:8840
+    environment:
+      TZ: "UTC"
+      IFACE: "eth0 wlan0 enp1s0"
+      DBPATH: "/data/db.sqlite"
+      GUIIP: "0.0.0.0"
+      GUIPORT: "8840"
+      TIMEOUT: "120"
+      THEME: "darkly"
+      IGNOREIP: "no"
+    volumes:
+      - [[INSTALL_PATH]]/watchyourlan:/data

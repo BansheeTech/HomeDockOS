@@ -1,0 +1,23 @@
+---
+version: "2.1"
+services:
+  airsonic-advanced:
+    image: lscr.io/linuxserver/airsonic-advanced:latest
+    container_name: airsonic-advanced
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CONTEXT_PATH= #optional
+      - JAVA_OPTS= #optional
+    volumes:
+      - [[INSTALL_PATH]]/airsonic-advanced:/config
+      - [[APP_MOUNT_POINT]]/airsonic-advanced/music:/music
+      - [[APP_MOUNT_POINT]]/airsonic-advanced/playlists:/playlists
+      - [[APP_MOUNT_POINT]]/airsonic-advanced/podcasts:/podcasts
+      - [[APP_MOUNT_POINT]]/airsonic-advanced/media:/media #optional
+    ports:
+      - 4040:4040
+    devices:
+      - /dev/snd:/dev/snd #optional
+    restart: unless-stopped

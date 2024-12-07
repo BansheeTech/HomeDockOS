@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  inkscape:
+    image: lscr.io/linuxserver/inkscape:latest
+    container_name: inkscape
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/inkscape:/config
+    ports:
+      - 12255:3000
+      - 12256:3001
+    restart: unless-stopped

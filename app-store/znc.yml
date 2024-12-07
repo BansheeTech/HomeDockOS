@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  znc:
+    image: lscr.io/linuxserver/znc:latest
+    container_name: znc
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/znc:/config
+    ports:
+      - 6501:6501
+    restart: unless-stopped

@@ -1,0 +1,13 @@
+---
+version: '3.3'
+services:
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirling-pdf
+    ports:
+      - '8080:8080'
+    volumes:
+      - [[INSTALL_PATH]]/stirling-pdf:/configs
+      - [[APP_MOUNT_POINT]]/stirling-pdf/customfiles:/customFiles/
+      - [[APP_MOUNT_POINT]]/stirling-pdf/training-data:/usr/share/tesseract-ocr/4.00/tessdata #Required for extra OCR languages
+    restart: unless-stopped

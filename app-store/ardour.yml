@@ -1,0 +1,18 @@
+---
+services:
+  ardour:
+    image: lscr.io/linuxserver/ardour:latest
+    container_name: ardour
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUBFOLDER=/ #optional
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/ardour:/config
+    ports:
+      - 3976:3000 #optional
+      - 3977:3001 #optional
+    restart: unless-stopped

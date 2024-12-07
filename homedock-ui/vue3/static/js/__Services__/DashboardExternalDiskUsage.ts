@@ -1,0 +1,65 @@
+// src/static/js/__Services__/DashboardExternalDiskUsage.ts
+// Copyright © 2023-2025 Banshee
+// https://www.banshee.pro
+
+import { onMounted, onUnmounted, ref } from "vue";
+import axios from "axios";
+
+export function useExternalDiskUsageUpdater(propCSRF: string, initialIntervalMs = 3000, initialExternalDiskUsage: string, maxIntervalMs = 60000) {
+  const externalDiskUsage = ref(initialExternalDiskUsage);
+  let currentIntervalMs = initialIntervalMs;
+  let previousValue = initialExternalDiskUsage;
+  let unchangedCount = 0;
+  let interval: ReturnType<typeof setInterval>;
+
+  async function fetchExternalDiskUsage() {
+    try {
+      const response = await axios.get("/thread/update_external_disk_usage", {
+        headers: {
+          "X-HomeDock-CSRF-Token": propCSRF,
+        },
+      });
+
+      if (response.data && typeof response.data.usage !== "undefined") {
+        let newValue: string;
+
+        if (typeof response.data.usage === "number") {
+          newValue = response.data.usage.toFixed(1);
+        } else if (typeof response.data.usage === "string" && response.data.usage !== "") {
+          newValue = response.data.usage;
+        } else {
+          console.warn("Invalid external disk usage data received:", response.data);
+          return;
+        }
+
+        if (newValue !== previousValue) {
+          currentIntervalMs = initialIntervalMs;
+          unchangedCount = 0;
+        } else {
+          unchangedCount++;
+          currentIntervalMs = Math.min(initialIntervalMs * Math.pow(2, unchangedCount), maxIntervalMs);
+        }
+
+        previousValue = newValue;
+        externalDiskUsage.value = newValue;
+
+        clearInterval(interval);
+        interval = setInterval(fetchExternalDiskUsage, currentIntervalMs);
+      } else {
+        console.warn("Invalid external disk usage data structure:", response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch external disk usage:", error);
+    }
+  }
+
+  onMounted(() => {
+    interval = setInterval(fetchExternalDiskUsage, currentIntervalMs);
+
+    onUnmounted(() => {
+      clearInterval(interval);
+    });
+  });
+
+  return externalDiskUsage;
+}

@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  bambustudio:
+    image: lscr.io/linuxserver/bambustudio:latest
+    container_name: bambustudio
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/bambustudio:/config
+    ports:
+      - 9975:3000
+      - 9976:3001
+    restart: unless-stopped

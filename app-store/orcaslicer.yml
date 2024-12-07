@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  orcaslicer:
+    image: lscr.io/linuxserver/orcaslicer:latest
+    container_name: orcaslicer
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/orcaslicer:/config
+    ports:
+      - 7778:3000
+      - 7779:3001
+    restart: unless-stopped

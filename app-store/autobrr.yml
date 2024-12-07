@@ -1,0 +1,11 @@
+---
+version: "3.7"
+services:
+  autobrr:
+    container_name: autobrr
+    image: ghcr.io/autobrr/autobrr:latest
+    restart: unless-stopped
+    volumes:
+      - [[INSTALL_PATH]]/autobrr:/config
+    ports:
+      - 7474:7474

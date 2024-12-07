@@ -1,0 +1,15 @@
+---
+version: "2.1"
+services:
+  daapd:
+    image: lscr.io/linuxserver/daapd:latest
+    container_name: daapd
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/daapd:/config
+      - [[APP_MOUNT_POINT]]/daapd/music:/music
+    restart: unless-stopped

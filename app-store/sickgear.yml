@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  sickgear:
+    image: lscr.io/linuxserver/sickgear:latest
+    container_name: sickgear
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/sickgear:/config
+      - [[APP_MOUNT_POINT]]/sickgear/tv:/tv
+      - [[APP_MOUNT_POINT]]/sickgear/downloads:/downloads
+    ports:
+      - 8081:8081
+    restart: unless-stopped

@@ -1,0 +1,17 @@
+---
+services:
+  keepassxc:
+    image: lscr.io/linuxserver/keepassxc:latest
+    container_name: keepassxc
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/keepassxc:/config
+    ports:
+      - 33551:3000
+      - 33552:3001
+    restart: unless-stopped

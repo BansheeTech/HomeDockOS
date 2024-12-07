@@ -1,0 +1,29 @@
+{# homedock-ui/template/shieldmode.html #}
+{# Copyright © 2023-2025 Banshee #}
+{# https://www.banshee.pro #}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="homedock_csrf_token" content="{{ session['homedock_csrf_token'] }}" />
+    {{ vitecss("global") | safe }}
+    {{ vitecss("__shieldmode__") | safe }}
+
+    <title>Shield Mode • HomeDock OS {{ version }}</title>
+  </head>
+
+  <body class="theme-{{ selected_theme }}">
+    <div id="app-shieldmode-root"></div>
+
+    <script id="data-theme" type="application/json">
+      {{ { "selected_theme": selected_theme, "selected_back": selected_back } | b64encode }}
+    </script>
+                
+    {{ vitejs("__shieldmode__") | safe }}
+
+    {% include 'partials/hd_UIPartialNoJavascript.html' %}
+  </body>
+</html>

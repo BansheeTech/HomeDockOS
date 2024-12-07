@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  cops:
+    image: lscr.io/linuxserver/cops:latest
+    container_name: cops
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/cops:/config
+      - [[APP_MOUNT_POINT]]/cops/books:/books
+    ports:
+      - 80:80
+    restart: unless-stopped

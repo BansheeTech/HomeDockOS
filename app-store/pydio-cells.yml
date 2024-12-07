@@ -1,0 +1,19 @@
+---
+version: "2.1"
+services:
+  pydio-cells:
+    image: lscr.io/linuxserver/pydio-cells:latest
+    container_name: pydio-cells
+    hostname: pydio-cells
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - EXTERNALURL=[[HD_INTERNET_IP]]
+      - SERVER_IP=[[HD_LOCAL_IP]]
+    volumes:
+      - [[INSTALL_PATH]]/pydio-cells:/config
+    ports:
+      - 8080:8080
+      - 33060:33060 #optional
+    restart: unless-stopped

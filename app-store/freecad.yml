@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  freecad:
+    image: lscr.io/linuxserver/freecad:latest
+    container_name: freecad
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/freecad:/config
+    ports:
+      - 4558:3000
+      - 4559:3001
+    restart: unless-stopped

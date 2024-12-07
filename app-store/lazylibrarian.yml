@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg #optional
+    volumes:
+      - [[INSTALL_PATH]]/lazylibrarian:/config
+      - [[APP_MOUNT_POINT]]/lazylibrarian/downloads:/downloads
+      - [[APP_MOUNT_POINT]]/lazylibrarian/books:/books
+    ports:
+      - 5299:5299
+    restart: unless-stopped

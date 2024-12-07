@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  medusa:
+    image: lscr.io/linuxserver/medusa:latest
+    container_name: medusa
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/medusa:/config
+      - [[APP_MOUNT_POINT]]/medusa/downloads:/downloads
+      - [[APP_MOUNT_POINT]]/medusa/tvshows:/tv
+    ports:
+      - 8081:8081
+    restart: unless-stopped

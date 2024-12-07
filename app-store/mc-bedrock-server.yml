@@ -1,0 +1,19 @@
+---
+version: "3.4"
+services:
+  mc-bedrock-server:
+    image: itzg/minecraft-bedrock-server
+    container_name: mc-bedrock-server
+    environment:
+      EULA: "TRUE"
+      SERVER_NAME: "HomeDock OS - Minecraft Bedrock Server"
+      MAX_PLAYERS: 10
+      GAMEMODE: survival
+      DIFFICULTY: normal
+    ports:
+      - 19132:19132/udp
+    volumes:
+      - [[INSTALL_PATH]]/mc-bedrock-server:/data
+    stdin_open: true
+    restart: unless-stopped
+    tty: true

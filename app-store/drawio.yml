@@ -1,0 +1,18 @@
+---
+version: "3.5"
+services:
+  drawio:
+    image: jgraph/drawio
+    container_name: drawio
+    restart: unless-stopped
+    ports:
+      - 5080:8080
+      - 5443:8443
+    environment:
+      LETS_ENCRYPT_ENABLED: "false"
+      PUBLIC_DNS: domain
+      ORGANISATION_UNIT: unit
+      ORGANISATION: org
+      CITY: city
+      STATE: state
+      COUNTRY_CODE: US

@@ -1,0 +1,19 @@
+---
+version: "2.1"
+services:
+  series-troxide:
+    image: lscr.io/linuxserver/series-troxide:latest
+    container_name: series-troxide
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/series-troxide:/config
+    ports:
+      - 4444:3000
+      - 4445:3001
+    shm_size: "1gb"
+    restart: unless-stopped

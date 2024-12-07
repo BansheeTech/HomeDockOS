@@ -1,0 +1,31 @@
+---
+version: "2.1"
+services:
+  doplarr:
+    image: lscr.io/linuxserver/doplarr:latest
+    container_name: doplarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DISCORD__TOKEN=
+      - OVERSEERR__API=
+      - OVERSEERR__URL=http://localhost:5055
+      - RADARR__API=
+      - RADARR__URL=http://localhost:7878
+      - SONARR__API=
+      - SONARR__URL=http://localhost:8989
+      - DISCORD__MAX_RESULTS=25 #optional
+      - DISCORD__REQUESTED_MSG_STYLE=:plain #optional
+      - SONARR__QUALITY_PROFILE= #optional
+      - RADARR__QUALITY_PROFILE= #optional
+      - SONARR__ROOTFOLDER= #optional
+      - RADARR__ROOTFOLDER= #optional
+      - SONARR__LANGUAGE_PROFILE= #optional
+      - OVERSEERR__DEFAULT_ID= #optional
+      - PARTIAL_SEASONS=true #optional
+      - LOG_LEVEL=:info #optional
+      - JAVA_OPTS= #optional
+    volumes:
+      - [[INSTALL_PATH]]/doplarr:/config
+    restart: unless-stopped

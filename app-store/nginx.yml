@@ -1,0 +1,16 @@
+---
+version: "2.1"
+services:
+  nginx:
+    image: lscr.io/linuxserver/nginx:latest
+    container_name: nginx
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/nginx:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped

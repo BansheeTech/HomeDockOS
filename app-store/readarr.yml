@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  readarr:
+    image: lscr.io/linuxserver/readarr:nightly
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - [[INSTALL_PATH]]/readarr:/config
+      - [[APP_MOUNT_POINT]]/readarr/books:/books
+      - [[APP_MOUNT_POINT]]/readarr/downloads:/downloads
+    ports:
+      - 8787:8787
+    restart: unless-stopped

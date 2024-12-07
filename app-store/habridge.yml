@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  habridge:
+    image: lscr.io/linuxserver/habridge:latest
+    container_name: habridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - "SEC_KEY=[[HD_SYSTEM_PASSWORD]]"
+    volumes:
+      - [[INSTALL_PATH]]/habridge:/config
+    ports:
+      - 8080:8080
+      - 50000:50000
+    restart: unless-stopped

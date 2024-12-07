@@ -1,0 +1,42 @@
+version: '3'
+services:
+  zipline:
+    container_name: zipline
+    image: ghcr.io/diced/zipline
+    ports:
+      - '18846:3000'
+    restart: unless-stopped
+    environment:
+      - CORE_RETURN_HTTPS=false
+      - CORE_SECRET=[[HD_SYSTEM_PASSWORD]]
+      - CORE_HOST=0.0.0.0
+      - CORE_PORT=3000
+      - CORE_DATABASE_URL=postgres://zipline_[[HD_USER_NAME]]:[[HD_SYSTEM_PASSWORD]]@zipline_postgres/zipline_pgdb
+      - CORE_LOGGER=true
+    volumes:
+      - [[INSTALL_PATH]]/zipline/uploads:/zipline/uploads
+      - [[APP_MOUNT_POINT]]/zipline/public:/zipline/public
+    depends_on:
+      - 'zipline_postgres'
+    labels:
+      HDGroup: "zipline"
+      HDRole: "main"
+
+  zipline_postgres:
+    container_name: zipline_postgres
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=zipline_[[HD_USER_NAME]]
+      - POSTGRES_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - POSTGRES_DATABASE=zipline_pgdb
+    volumes:
+      - [[INSTALL_PATH]]/zipline/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      HDGroup: "zipline"
+      HDRole: "dependency"

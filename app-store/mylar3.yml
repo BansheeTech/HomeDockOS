@@ -1,0 +1,17 @@
+---
+version: "2.1"
+services:
+  mylar3:
+    image: lscr.io/linuxserver/mylar3:latest
+    container_name: mylar3
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - [[INSTALL_PATH]]/mylar3:/config
+      - [[APP_MOUNT_POINT]]/mylar3/comics:/comics
+      - [[APP_MOUNT_POINT]]/mylar3/downloads:/downloads
+    ports:
+      - 8090:8090
+    restart: unless-stopped

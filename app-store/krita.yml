@@ -1,0 +1,20 @@
+---
+version: "2.1"
+services:
+  krita:
+    image: lscr.io/linuxserver/krita:latest
+    container_name: krita
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/krita:/config
+    ports:
+      - 9940:3000
+      - 9941:3001
+    restart: unless-stopped
