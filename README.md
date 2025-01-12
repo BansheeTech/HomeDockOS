@@ -121,4 +121,4 @@ A huge thanks to all [contributors, partners, and users who make HomeDock OS a r
 
 ---
 
-[Website](https://www.homedock.cloud) | [Docs](https://docs.homedock.cloud) | [GitHub](https://github.com/BansheeTech/HomeDockOS) | [Demo](https://demo.node1.homedockos.com) | [Company](https://www.banshee.pro)
+[Website](https://www.homedock.cloud) | [Docs](https://docs.homedock.cloud) | [GitHub](https://github.com/BansheeTech/HomeDockOS) | [Demo](https://demo.node1.homedock.cloud) | [Company](https://www.banshee.pro)
