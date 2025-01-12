@@ -1,5 +1,5 @@
 <!-- src/static/js/__Components__/TopComment.vue -->
-<!-- Copyright © 2023-2025 Banshee -->
+<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template></template>
@@ -41,7 +41,7 @@ const commentContent = `
 <!--                                            -->
 <!--  https://www.homedock.cloud                -->
 <!--                                            -->
-<!--  Copyright © 2023-2025 Banshee                  -->
+<!--  Copyright © 2023-2025 Banshee, All Rights Reserved                  -->
 <!--  https://www.banshee.pro                   -->
 <!--                                            -->
 `;

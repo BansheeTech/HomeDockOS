@@ -1,6 +1,6 @@
 """
 homedock.py
-Copyright © 2023-2025 Banshee
+Copyright © 2023-2025 Banshee, All Rights Reserved
 https://www.homedock.cloud
 """
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     print("  @@@@  #@@@   @@@                    ")
     print(" @@@@   @@@   @@@                     ")
     print()
-    print(" Copyright © 2023-2025 Banshee ")
+    print(" Copyright © 2023-2025 Banshee, All Rights Reserved ")
     print()
 
     print(" ⌂ \033[1;32;40mHomeDock OS Version\033[0m:", version)

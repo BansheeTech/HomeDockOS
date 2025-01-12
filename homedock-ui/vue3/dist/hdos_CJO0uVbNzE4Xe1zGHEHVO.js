@@ -1,0 +1,1 @@
+import{r as o,bl as r}from"./hdos_DmW9EhCwmmgKLqr07JF4X.js";const f=()=>{const a=o(new Map),e=t=>s=>{a.value.set(t,s)};return r(()=>{a.value=new Map}),[e,a]},l={width:24,height:24,body:'<path fill="currentColor" d="M15 9H5V5h10m-3 14a3 3 0 0 1-3-3a3 3 0 0 1 3-3a3 3 0 0 1 3 3a3 3 0 0 1-3 3m5-16H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Z"/>'};export{l as d,f as u};

@@ -1,5 +1,5 @@
 <!-- src/static/js/__Components__/BaseImage.vue -->
-<!-- Copyright © 2023-2025 Banshee -->
+<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template>

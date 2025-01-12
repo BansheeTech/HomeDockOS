@@ -1,6 +1,6 @@
 """
 update_requirements.py
-Copyright © 2023-2025 Banshee
+Copyright © 2023-2025 Banshee, All Rights Reserved
 https://www.homedock.cloud
 """
 

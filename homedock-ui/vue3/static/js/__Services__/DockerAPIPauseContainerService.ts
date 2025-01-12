@@ -1,5 +1,5 @@
 // src/static/js/__Services__/DockerAPIPauseContainerService.ts
-// Copyright © 2023-2025 Banshee
+// Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 
 import axios from "axios";

@@ -1,5 +1,5 @@
 // src/static/js/__Stores__/useAppStore.ts
-// Copyright © 2023-2025 Banshee
+// Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
