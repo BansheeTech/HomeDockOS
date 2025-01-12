@@ -9,7 +9,7 @@
       <Stats :showProgressBar="true" :title="'CPU Usage'" :progressText="cpuCores" :progressTextSecond="'core'" :value="cpuUsage" :nValue="'%'" :mdi_icon="StatsIconSpeed" />
       <Stats :showProgressBar="true" :title="'RAM Usage'" :progressText="totalRam" :progressTextSecond="'GBs'" :value="ramUsage" :nValue="'%'" :mdi_icon="StatsIconMemory" />
       <Stats :showProgressBar="true" :title="'System'" :progressText="hardDiskTotal" :progressTextSecond="'GBs'" :value="hardDiskUsage" :nValue="'%'" :mdi_icon="StatsIconMicroSD" />
-      <Stats v-if="externalDefaultDisk !== 'disabled'" :showProgressBar="true" :title="'External'" :progressText="(Number(externalDiskTotal) / 1024).toFixed(2)" :progressTextSecond="'TBs'" :value="externalDiskUsage" :nValue="'%'" :mdi_icon="StatsIconHardDisk" />
+      <Stats v-if="externalDefaultDisk !== 'disabled'" :showProgressBar="true" :title="'External'" :progressText="formattedExternalDiskTotal" :progressTextSecond="diskUnit" :value="externalDiskUsage" :nValue="'%'" :mdi_icon="StatsIconHardDisk" />
       <Stats :showProgressBar="false" :title="interfaceName" :value="downloadData" :nValue="'GBs'" :nValue2="'GBs'" :downText="uploadData" :mdi_icon="StatsIconNetwork" />
       <Stats :title="'Apps'" :value="totalContainers" :nValue="'total'" :nValue2="' running'" :downText="activeContainers" :mdi_icon="StatsIconDotsSquare" />
       <Stats :title="'Uptime'" :value="uptimeData" :nValue="'h'" :nValue2="'h'" :downText="startTime" :mdi_icon="StatsIconClockOutline" />
@@ -92,6 +92,15 @@ const externalDefaultDisk = ref(initialData.externalDefaultDisk);
 const dynExternalDiskUsage = useExternalDiskUsageUpdater(props.csrfToken, 3000, initialData.externalDiskUsage);
 const externalDiskUsage = computed(() => dynExternalDiskUsage.value || initialData.externalDiskUsage);
 const externalDiskTotal = ref(initialData.externalDiskTotal);
+const formattedExternalDiskTotal = computed(() => {
+  const totalGB = Number(externalDiskTotal.value);
+  if (isNaN(totalGB)) return "0";
+  return totalGB > 900 ? (totalGB / 1024).toFixed(2) : totalGB.toString();
+});
+const diskUnit = computed(() => {
+  const totalGB = Number(externalDiskTotal.value);
+  return totalGB > 900 ? "TBs" : "GBs";
+});
 
 const interfaceName = ref(initialData.interfaceName);
 const { downloadData: dynDownloadData, uploadData: dynUploadData } = useNetworkDataUpdater(props.csrfToken, 3000, initialData.downloadData, initialData.uploadData);

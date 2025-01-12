@@ -147,11 +147,7 @@ def get_total_external_disk():
             if partition.device == configured_drive[0]:
                 usage = psutil.disk_usage(partition.mountpoint)
                 total_disk_gb = usage.total / 1024 / 1024 / 1024
-
-                if total_disk_gb > 900:
-                    return f"{round(total_disk_gb / 1024, 2)}TB"
-                else:
-                    return f"{round(total_disk_gb)}GB"
+                return f"{round(total_disk_gb)}"
 
     except Exception as e:
         print("Error al obtener la cantidad total de espacio en disco externo:", e)
