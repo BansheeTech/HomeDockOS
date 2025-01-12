@@ -11,3 +11,4 @@ homedock-ui/static/images/wallpapers/back_custom.jpg
 node_modules/
 .deprecated/
 .vite/
+.DS_Store
