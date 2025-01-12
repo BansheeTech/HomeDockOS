@@ -1,4 +1,4 @@
-// src/static/js/__Services__/DashboardUptimeUsage.ts
+// homedock-ui/vue3/static/js/__Services__/DashboardUptimeUsage.ts
 // Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 

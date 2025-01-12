@@ -1,8 +1,9 @@
-<!-- src/static/js/__Layouts__/Dashboard.vue -->
+<!-- homedock-ui/vue3/static/js/__Layouts__/Dashboard.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template>
+  <Favicon />
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
@@ -45,6 +46,7 @@ import { ref } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
+import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";

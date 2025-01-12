@@ -1,4 +1,4 @@
-// src/static/js/__Services__/DockerAPIUpdateContainerService.ts
+// homedock-ui/vue3/static/js/__Services__/DockerAPIUpdateContainerService.ts
 // Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 
@@ -54,11 +54,7 @@ export async function updateContainers(applications: Application[], containerNam
 
     for (const name of containersWithUpdates) {
       store.setDesiredState(name, "updating");
-      console.log(`Updating container: ${name}`);
-
       await axios.post("/api/pull_and_update_containers", { container_names: [name] }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
-
-      console.log(`Container "${name}" updated successfully.`);
     }
   } catch (error) {
     console.error("Error during container update process:", error);

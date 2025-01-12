@@ -1,8 +1,9 @@
-<!-- src/static/js/__Layouts__/Settings.vue -->
+<!-- homedock-ui/vue3/static/js/__Layouts__/Settings.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template>
+  <Favicon />
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
@@ -121,6 +122,7 @@ import contentSaveIcon from "@iconify-icons/mdi/content-save";
 import viewMoreIcon from "@iconify-icons/mdi/unfold-more-vertical";
 import loadingIcon from "@iconify-icons/mdi/loading";
 
+import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
@@ -309,7 +311,7 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  console.log("Operación cancelada.");
+  window.location.href = "/dashboard";
 };
 </script>
 

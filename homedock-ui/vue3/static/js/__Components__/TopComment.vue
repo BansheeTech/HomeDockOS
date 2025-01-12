@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/TopComment.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/TopComment.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
@@ -41,7 +41,8 @@ const commentContent = `
 <!--                                            -->
 <!--  https://www.homedock.cloud                -->
 <!--                                            -->
-<!--  Copyright © 2023-2025 Banshee, All Rights Reserved                  -->
+<!--  Copyright © 2023-2025 Banshee             -->
+<!--  All Rights Reserved                       -->
 <!--  https://www.banshee.pro                   -->
 <!--                                            -->
 `;

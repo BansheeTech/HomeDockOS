@@ -30,6 +30,7 @@ def generate_csp(nonce, is_development, endpoint=""):
     if is_development:
         csp = csp.replace("script-src 'self' 'nonce-{{nonceMarker}}'", "script-src 'self' http://localhost:5173 'unsafe-eval' ")
         csp = csp.replace("style-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' http://localhost:5173 ")
+        # Uncomment this line to use nonces for style-src, gotta find CSP workaround for AntDVue inline styles
         # csp = csp.replace("style-src 'self' 'nonce-{{nonceMarker}}'", "style-src 'self' http://localhost:5173 ")
         csp = csp.replace("connect-src 'self'", "connect-src 'self' ws://localhost:5173 http://localhost:5173 ")
 

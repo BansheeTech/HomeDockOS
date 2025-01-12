@@ -1,4 +1,4 @@
-// src/static/js/__Services__/DockerAPIUninstallContainerService.ts
+// homedock-ui/vue3/static/js/__Services__/DockerAPIUninstallContainerService.ts
 // Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 
@@ -26,27 +26,26 @@ export async function uninstallContainers(applications: Application[], container
   const group = mainContainer.HDGroup;
   const isGrouped = !!group && mainContainer.HDRole === "main";
 
-  // 1. Determinar los contenedores afectados
+  // 1. Determine affected conts
   const dependencies = isGrouped ? applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group) : [];
   const containersToUninstall = [mainContainer, ...dependencies];
 
-  // 2. Marcar todos como "uninstalling"
+  // 2. Mark them all as "uninstalling"
   containersToUninstall.forEach((app) => store.setDesiredState(app.name, "uninstalling"));
 
   const namesToUninstall = containersToUninstall.map((app) => app.name);
 
   try {
-    // 3. Llamar a la API para desinstalar los contenedores
+    // 3. Call the API to uninstall the containers
     const response = await axios.post("/api/uninstall_containers", { container_names: namesToUninstall }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
 
-    console.log("Uninstallation successful:", response.data);
   } catch (error) {
     console.error("Error uninstalling containers:", error);
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
     }
   } finally {
-    // 4. Restaurar estados
+    // 4. Restore the desired state of the containers
     containersToUninstall.forEach((app) => store.setDesiredState(app.name, "idle"));
   }
 }

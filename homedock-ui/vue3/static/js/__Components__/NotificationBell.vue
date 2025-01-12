@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/NotificationBell.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/NotificationBell.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
@@ -92,8 +92,6 @@ const settingsData = inject<{
 if (!settingsData) {
   throw new Error("Settings data is missing!");
 }
-
-console.log(settingsData.userName);
 
 const { themeClasses } = useTheme();
 const showDropdown = ref(false);

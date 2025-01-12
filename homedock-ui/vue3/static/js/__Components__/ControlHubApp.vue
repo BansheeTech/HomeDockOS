@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/ControlHubApp.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/ControlHubApp.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
@@ -187,8 +187,6 @@ const saveCompose = async () => {
       homedock_csrf_token: csrfToken,
     });
 
-    console.log(response);
-
     if (response.data.success) {
       message.success("Configuration saved successfully!");
     } else {
@@ -210,7 +208,6 @@ const handleRecreateConfirm = () => {
 };
 
 const recreateContainer = async () => {
-  console.log("Starting container recreation...");
   isRecreating.value = true;
 
   try {
@@ -220,8 +217,6 @@ const recreateContainer = async () => {
       homedock_csrf_token: csrfToken,
     });
 
-    console.log("Update YML Response:", updateResponse);
-
     if (updateResponse.data.success) {
       buttonText.value = "Recreating...";
       const recreateResponse = await axios.post("/api/recreate-container", {
@@ -229,8 +224,6 @@ const recreateContainer = async () => {
         yml_content: composeInfo.value,
         homedock_csrf_token: csrfToken,
       });
-
-      console.log("Recreate Response:", recreateResponse);
 
       if (recreateResponse.data.message) {
         message.success("Application recreated successfully!");

@@ -23,6 +23,5 @@ def system_logs():
     network_device = get_active_network_interface()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
-    sidebar_collapsed = session.get("sidebar_collapsed", "false")
 
-    return render_template("system-logs.html", user_name=user_name, version=version, version_hash=version_hash, external_disk_disabled=external_disk_disabled, disk_path=disk_path, sidebar_collapsed=sidebar_collapsed, network_device=network_device, selected_theme=selected_theme, selected_back=selected_back, year=current_year, nonce=g.get("nonce", ""))
+    return render_template("system-logs.html", user_name=user_name, version=version, version_hash=version_hash, external_disk_disabled=external_disk_disabled, disk_path=disk_path, network_device=network_device, selected_theme=selected_theme, selected_back=selected_back, year=current_year, nonce=g.get("nonce", ""))

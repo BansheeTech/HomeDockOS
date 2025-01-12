@@ -1,6 +1,7 @@
-// src/static/js/appstore/__appstore__.ts
+// homedock-ui/vue3/static/js/MountPoints/__appstore__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
 import { createPinia } from "pinia";
 
 import AppStore from "../__Layouts__/AppStore.vue";
@@ -58,6 +59,9 @@ if (themeData && commonData && settingsData ) {
     app.provide("data-settings", {
       userName: settingsData.user_name,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-appstore-root");
   } catch (error) {

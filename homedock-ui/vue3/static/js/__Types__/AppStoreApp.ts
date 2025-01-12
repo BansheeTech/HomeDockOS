@@ -1,4 +1,4 @@
-// src/static/js/__Types__/AppStoreApp.ts
+// homedock-ui/vue3/static/js/__Types__/AppStoreApp.ts
 // Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 

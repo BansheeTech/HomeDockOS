@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/SplashScreen.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/SplashScreen.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
@@ -75,9 +75,7 @@ const triggerAnimations = (): void => {
 };
 
 const handleCloudImageClick = (): void => {
-  console.log("Cloud image clicked!");
   cloudImage.value!.classList.add("shootUp");
-  console.log(cloudImage.value!.classList); // Confirma que "shootUp" se añade
   cloudScreen.value!.style.opacity = "0";
   triggerAnimations();
 

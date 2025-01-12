@@ -43,9 +43,6 @@ def CSRF_Protect(f):
             if escaped_client_token is None or escaped_client_token != session.get("homedock_csrf_token"):
                 abort(403, description="Missing or invalid CSRF Token, please reload your window. If the problem persists contact service support.")
 
-        # print("Token en la sesión:", session.get("homedock_csrf_token"))
-        # print("Token enviado por el cliente:", client_token)
-
         return f(*args, **kwargs)
 
     return wrapper

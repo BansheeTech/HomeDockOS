@@ -1,6 +1,7 @@
-// src/static/js/systemlogs/__systemlogs__.ts
+// homedock-ui/vue3/static/js/MountPoints/__systemlogs__.ts
 
 import { createApp } from "vue";
+import { createHead } from "@vueuse/head";
 import { createPinia } from "pinia";
 
 import SystemLogs from "../__Layouts__/SystemLogs.vue";
@@ -60,6 +61,9 @@ if (themeData && commonData && settingsData) {
       userName: settingsData.user_name,
       externalDiskDisabled: settingsData.external_disk_disabled,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-systemlogs-root");
   } catch (error) {

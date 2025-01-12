@@ -13,7 +13,7 @@ class DockerClientManager:
     def __init__(self):
         if DockerClientManager._instance is not None:
             raise Exception("Use get_instance() to access DockerClientManager.")
-        self.client = None  # No inicializamos aún
+        self.client = None
 
     @classmethod
     def get_instance(cls):

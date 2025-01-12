@@ -1,8 +1,9 @@
-// src/static/js/systemlogs/__errorcode__.ts
+// homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
+
 import ErrorCode from "../__Layouts__/ErrorCode.vue";
-import { error } from "console";
 
 interface ThemeData {
   selected_theme: string;
@@ -36,6 +37,9 @@ if (base64ThemeData && base64ErrorData) {
       errorCode: errorData.error_code,
       errorMessage: errorData.error_message,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-errorcode-root");
   } catch (error) {

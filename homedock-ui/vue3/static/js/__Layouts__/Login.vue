@@ -1,8 +1,9 @@
-<!-- src/static/js/__Layouts__/Login.vue -->
+<!-- homedock-ui/vue3/static/js/__Layouts__/Login.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template>
+  <Favicon />
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
@@ -77,6 +78,7 @@ import { Form, Input, Button } from "ant-design-vue";
 import { message } from "ant-design-vue";
 import type { Rule } from "ant-design-vue/es/form";
 
+import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";

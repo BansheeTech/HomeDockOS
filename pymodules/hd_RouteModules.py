@@ -86,10 +86,6 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/recreate-container", "recreate_container", CSRF_Protect(recreate_container), methods=["POST"])
 
-    from pymodules.hd_UIAppStoreListApps import get_app_store_files
-
-    homedock_www.add_url_rule("/api/get-app-store-files", "get_app_store_files", CSRF_Protect(get_app_store_files))
-
     from pymodules.hd_UIAppStoreReadSaveYML import get_appstore_info, process_config
 
     homedock_www.add_url_rule("/api/get-appstore-info", "get_appstore_info", CSRF_Protect(get_appstore_info), methods=["GET"])

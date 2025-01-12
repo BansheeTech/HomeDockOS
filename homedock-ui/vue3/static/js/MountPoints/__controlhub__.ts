@@ -1,6 +1,7 @@
-// src/static/js/controlhub/__controlhub__.ts
+// homedock-ui/vue3/static/js/MountPoints/__controlhub__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
 import { createPinia } from "pinia";
 
 import ControlHub from "../__Layouts__/ControlHub.vue";
@@ -58,6 +59,9 @@ if (themeData && commonData && settingsData ) {
     app.provide("data-settings", {
       userName: settingsData.user_name,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-controlhub-root");
   } catch (error) {

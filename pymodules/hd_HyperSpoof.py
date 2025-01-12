@@ -155,5 +155,4 @@ class HeaderManager:
             self.request_count = 0
 
 
-# Instanciar HeaderManager
 header_manager = HeaderManager()

@@ -1,8 +1,9 @@
-<!-- src/static/js/__Layouts__/ErrorCode.vue -->
+<!-- homedock-ui/vue3/static/js/__Layouts__/ErrorCode.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
 <template>
+  <Favicon />
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
@@ -60,6 +61,7 @@ import _anim_normal from "@iconify-icons/mdi/robot";
 
 import { Button } from "ant-design-vue";
 
+import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";

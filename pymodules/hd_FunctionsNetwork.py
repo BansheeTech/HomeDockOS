@@ -4,10 +4,24 @@ Copyright © 2023-2025 Banshee, All Rights Reserved
 https://www.banshee.pro
 """
 
+import re
 import socket
 import requests
 
+from requests.adapters import HTTPAdapter
+
 ip_error_message_shown = False
+
+
+class IPv4Adapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        kwargs["socket_options"] = [(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]
+        return super().init_poolmanager(*args, **kwargs)
+
+
+def is_valid_ipv4(ip):
+    pattern = r"^\d{1,3}(\.\d{1,3}){3}$"
+    return re.match(pattern, ip) is not None
 
 
 def get_local_ip():
@@ -16,8 +30,11 @@ def get_local_ip():
         s.connect(("8.8.8.8", 80))
         local_ip = s.getsockname()[0]
         s.close()
-        return local_ip
-
+        if is_valid_ipv4(local_ip):
+            return local_ip
+        else:
+            print(" * Local IP is not a valid IPv4 address.")
+            return None
     except socket.error:
         return None
 
@@ -25,22 +42,40 @@ def get_local_ip():
 def get_internet_ip():
     global ip_error_message_shown
 
-    services = ["https://api.ipify.org?format=json", "http://ip-api.com/json/", "https://jsonip.com", "https://ifconfig.me/ip", "https://ipinfo.io/ip", "https://icanhazip.com/", "https://www.trackip.net/ip"]
+    ipv4_services = [
+        "https://ip.guide",
+        "https://api.ipify.org?format=json",
+        "http://ip-api.com/json/",
+        "https://jsonip.com",
+        "https://ifconfig.me/ip",
+        "https://ipinfo.io/ip",
+        "https://icanhazip.com/",
+        "https://www.trackip.net/ip",
+    ]
 
     failure_flag = False
 
-    for service in services:
+    for service in ipv4_services:
         try:
-            response = requests.get(service, timeout=1)
+            session = requests.Session()
+            session.mount("http://", IPv4Adapter())
+            session.mount("https://", IPv4Adapter())
+
+            response = session.get(service, timeout=2)
+
             if response.status_code == 200:
-                data = response.json()
-                public_ip = data.get("ip", None)
-                if public_ip:
+                if "json" in service:
+                    data = response.json()
+                    public_ip = data.get("ip", None)
+                else:
+                    public_ip = response.text.strip()
+
+                if public_ip and is_valid_ipv4(public_ip):
                     return public_ip
             else:
                 failure_flag = True
         except requests.RequestException as e:
-            print(f"Error fetching IP from {service}: {e}")
+            print(f" * Error fetching IP from {service}: {e}")
             failure_flag = True
 
     if failure_flag and not ip_error_message_shown:

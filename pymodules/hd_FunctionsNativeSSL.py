@@ -16,7 +16,8 @@ def check_ssl_files(cert_dir):
     return os.path.isfile(cert_path) and os.path.isfile(key_path) and os.path.isfile(fullchain_path) and os.path.isfile(chain_path)
 
 
-def ssl_enabled(cert_dir="/DATA/SSLCerts"): #Only Linux support atm
+# Only Linux support atm, workaround for Windows & macOS
+def ssl_enabled(cert_dir="/DATA/SSLCerts"):
     return check_ssl_files(cert_dir)
 
 

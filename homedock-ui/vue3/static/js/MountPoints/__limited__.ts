@@ -1,6 +1,8 @@
-// src/static/js/systemlogs/__limited__.ts
+// homedock-ui/vue3/static/js/MountPoints/__limited__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
+
 import Limited from "../__Layouts__/Limited.vue";
 
 interface ThemeData {
@@ -24,6 +26,9 @@ if (base64Data) {
       selectedTheme: themeData.selected_theme,
       selectedBack: themeData.selected_back,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-limited-root");
   } catch (error) {

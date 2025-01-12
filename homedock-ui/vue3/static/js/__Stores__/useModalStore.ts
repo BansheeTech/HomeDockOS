@@ -1,5 +1,5 @@
-// src/static/js/__Stores__/useModalStore.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// homedock-ui/vue3/static/js/__Stores__/useModalStore.ts
+// Copyright © 2023-2025 Banshee
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
@@ -84,16 +84,10 @@ export const useModalStore = defineStore("ModalStore", {
 
         await installationStore.trackInstallations(csrfToken);
 
-        const installResponse = await axios.post("/api/app-store-install-container", {
+        await axios.post("/api/app-store-install-container", {
           containerName,
           homedock_csrf_token: csrfToken,
         });
-
-        if (installResponse.data.success) {
-          console.log(`Installation queued: ${installResponse.data.message}`);
-        } else {
-          console.error(`Failed to queue installation: ${installResponse.data.message}`);
-        }
       } catch (error) {
         console.error("Error during installation process:", error);
       } finally {

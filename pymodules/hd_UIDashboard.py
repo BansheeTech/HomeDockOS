@@ -30,27 +30,19 @@ from pymodules.hd_LogExternalDiskUsage import get_external_disk_usage
 def dashboard():
     config = read_config()
     user_name = config["user_name"]
-    user_password = config["user_password"]
-    delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
-    run_port = config["run_port"]
     interface_name = get_active_network_interface()
     external_disk_device = get_configured_external_drives()
     external_path = external_disk_device[0] if external_disk_device else None
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
-    sidebar_collapsed = session.get("sidebar_collapsed", "false")
 
     return render_template(
         "dashboard.html",
         user_name=user_name,
-        user_password=user_password,
-        delete_old_image_containers_after_update=delete_old_image_containers_after_update,
         local_ip=local_ip,
-        run_port=run_port,
         internet_ip=internet_ip,
         version=version,
         version_hash=version_hash,
-        sidebar_collapsed=sidebar_collapsed,
         n_total_containers=get_total_containers(),
         n_active_containers=get_active_containers(),
         uptime_data=actual_uptime(),

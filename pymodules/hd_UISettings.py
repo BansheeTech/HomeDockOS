@@ -42,7 +42,6 @@ def homedocksettings():
     delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
-    sidebar_collapsed = session.get("sidebar_collapsed", "false")
 
     path_custom = os.path.join(current_directory, "homedock-ui/static/images/wallpapers/back_custom.jpg")
 
@@ -65,7 +64,6 @@ def homedocksettings():
         delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
         selected_theme=selected_theme,
         selected_back=selected_back,
-        sidebar_collapsed=sidebar_collapsed,
         valid_drives=valid_drives,
         year=current_year,
         custom_exists=custom_exists,

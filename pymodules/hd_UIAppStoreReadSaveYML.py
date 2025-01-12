@@ -241,6 +241,7 @@ def process_devhooks(yml_str):
     yml_str = yml_str.replace("[[HD_USER_NAME]]", user_name)
     yml_str = yml_str.replace("[[HD_PASSWORD]]", password)
     yml_str = yml_str.replace("[[HD_SYSTEM_PASSWORD]]", sys_password)
+
     yml_str = yml_str.replace("[[INSTALL_PATH]]", get_config_path())
     yml_str = yml_str.replace("[[APP_MOUNT_POINT]]", get_internal_storage_path())
 

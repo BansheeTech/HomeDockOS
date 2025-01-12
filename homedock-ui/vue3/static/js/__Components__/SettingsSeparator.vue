@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/SettingsSeparator.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/SettingsSeparator.vue -->
 <!-- Copyright © 2023-2024 Banshee -->
 <!-- https://www.banshee.pro -->
 

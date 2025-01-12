@@ -1,4 +1,4 @@
-<!-- src/static/js/__Components__/AppStoreSearch.vue -->
+<!-- homedock-ui/vue3/static/js/__Components__/AppStoreSearch.vue -->
 <!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
 <!-- https://www.banshee.pro -->
 
@@ -126,7 +126,6 @@ const handleSelect = (value: string | number | { value: string | number }) => {
     clearView();
   } else {
     selectedApp.value = appStore.apps.find((app) => app.name === appName) || null;
-    console.log("Selected App:", selectedApp.value);
   }
 };
 

@@ -1,4 +1,4 @@
-// src/static/js/__Stores__/useInstallationStore.ts
+// homedock-ui/vue3/static/js/__Stores__/useInstallationStore.ts
 // Copyright © 2023-2025 Banshee, All Rights Reserved
 // https://www.banshee.pro
 
@@ -59,7 +59,6 @@ export const useInstallationStore = defineStore("InstallationStore", {
     },
     async trackInstallations(csrfToken: string) {
       if (this.isTrackingActive) {
-        console.log("Tracking is already active.");
         return;
       }
 
@@ -72,10 +71,8 @@ export const useInstallationStore = defineStore("InstallationStore", {
           await this.fetchInstallationStatus(csrfToken);
 
           if (this.currentlyInstalling !== previousInstalling) {
-            console.log(`currentlyInstalling changed from ${previousInstalling} to ${this.currentlyInstalling}`);
 
             if (previousInstalling) {
-              console.log(`Application "${previousInstalling}" finished installing. Fetching containers to confirm.`);
               await this.fetchContainers(csrfToken);
             }
 
@@ -85,7 +82,6 @@ export const useInstallationStore = defineStore("InstallationStore", {
           if (!this.currentlyInstalling && this.queue.length === 0) {
             this.idleCheckCounter++;
             if (this.idleCheckCounter >= this.maxIdleChecks) {
-              console.log("No active installations detected. Stopping tracking.");
               this.isTrackingActive = false;
               this.idleCheckCounter = 0;
               return;

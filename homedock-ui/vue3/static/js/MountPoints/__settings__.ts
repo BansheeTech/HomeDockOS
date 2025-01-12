@@ -1,6 +1,7 @@
-// src/static/js/dashboard/__dashboard__.ts
+// homedock-ui/vue3/static/js/MountPoints/__settings__.ts
 
 import { createApp } from "vue";
+import { createHead } from "@vueuse/head";
 import { createPinia } from "pinia";
 
 import Dashboard from "../__Layouts__/Settings.vue";
@@ -75,6 +76,9 @@ if (themeData && commonData && settingsData) {
       defaultExternalDrive: settingsData.default_external_drive,
       validDrives: settingsData.valid_drives,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-settings-root");
   } catch (error) {

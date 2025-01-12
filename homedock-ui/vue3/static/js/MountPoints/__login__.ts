@@ -1,6 +1,8 @@
-// src/static/js/systemlogs/__login__.ts
+// homedock-ui/vue3/static/js/MountPoints/__login__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
+
 import Login from "../__Layouts__/Login.vue";
 
 interface ThemeData {
@@ -24,6 +26,9 @@ if (base64Data) {
       selectedTheme: themeData.selected_theme,
       selectedBack: themeData.selected_back,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-login-root");
   } catch (error) {

@@ -18,6 +18,5 @@ def controlhub():
     user_name = config["user_name"]
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
-    sidebar_collapsed = session.get("sidebar_collapsed", "false")
 
-    return render_template("control-hub.html", user_name=user_name, version=version, version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, sidebar_collapsed=sidebar_collapsed, year=current_year, nonce=g.get("nonce", ""))
+    return render_template("control-hub.html", user_name=user_name, version=version, version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, year=current_year, nonce=g.get("nonce", ""))

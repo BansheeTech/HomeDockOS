@@ -1,6 +1,7 @@
-// src/static/js/dashboard/__dashboard__.ts
+// homedock-ui/vue3/static/js/MountPoints/__dashboard__.ts
 
 import { createApp } from "vue";
+import { createHead } from '@vueuse/head';
 import { createPinia } from "pinia";
 
 import Dashboard from "../__Layouts__/Dashboard.vue";
@@ -102,6 +103,9 @@ if (themeData && commonData && settingsData  && initialData) {
       uptimeData: initialData.uptime_data,
       startTime: initialData.start_time,
     });
+
+    const faviconHeadAdder = createHead();
+    app.use(faviconHeadAdder);
 
     app.mount("#app-dashboard-root");
   } catch (error) {
