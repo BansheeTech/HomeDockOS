@@ -52,7 +52,7 @@ export function useTheme() {
       formIcon: "text-gray-300",
 
       // Dashboard
-      iconHolder: "ring-gray-300/50 bg-gradient-to-tr from-gray-200 via-white to-gray-1000",
+      iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-200 via-white to-gray-1000",
       appHolder: "hover:bg-gray-50 border-gray-200",
       appName: "text-gray-800",
       appRepo: "text-gray-400",
@@ -126,7 +126,8 @@ export function useTheme() {
       storeSearchAppName: "text-gray-700",
       storeSearchCategory: "text-gray-300",
       storeEmptyText: "text-gray-400",
-      storeModalImageBack: "bg-gradient-to-tr from-gray-200 via-white to-gray-100",
+      storeCardImageBack: "bg-gradient-to-tr from-gray-200 via-white to-gray-100 ring-gray-300/25",
+      storeModalImageBack: "bg-gradient-to-tr from-gray-200 via-white to-gray-100 ring-gray-300/25",
       storeModalAppName: "text-gray-900",
       storeModalAppType: "text-gray-800",
       storeModalAppCategory: "text-gray-400",
@@ -145,6 +146,7 @@ export function useTheme() {
       hubCardTextRepo: "text-gray-400",
       hubSeparator: "bg-gray-200",
       hubTextArea: "text-gray-500 bg-gray-200 text-[11px] leading-none p-2",
+      hubIconHolder: "bg-gradient-to-tr from-gray-200 via-white to-gray-100 ring-gray-300/25",
 
       // System Logs
       tableTextUp: "text-gray-700",
@@ -218,7 +220,7 @@ export function useTheme() {
       formIcon: "text-zinc-500",
 
       // Dashboard
-      iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
+      iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
       appHolder: "border-zinc-800 hover:bg-zinc-800",
       appName: "text-white",
       appRepo: "text-zinc-500",
@@ -292,7 +294,8 @@ export function useTheme() {
       storeSearchAppName: "text-zinc-300",
       storeSearchCategory: "text-zinc-600",
       storeEmptyText: "text-zinc-500",
-      storeModalImageBack: "bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900",
+      storeCardImageBack: "bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 ring-zinc-600/25",
+      storeModalImageBack: "bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 ring-zinc-600/25",
       storeModalAppName: "text-zinc-300",
       storeModalAppType: "text-zinc-500",
       storeModalAppCategory: "text-zinc-600",
@@ -311,6 +314,7 @@ export function useTheme() {
       hubCardTextRepo: "text-zinc-500",
       hubSeparator: "bg-zinc-700",
       hubTextArea: "text-green-500 bg-zinc-900 text-[11px] leading-none p-2",
+      hubIconHolder: "bg-gradient-to-tr from-zinc-900 via-zinc-800 to-zinc-900 ring-zinc-600/25",
 
       // System Logs
       tableTextUp: "text-zinc-400",
@@ -458,7 +462,8 @@ export function useTheme() {
       storeSearchAppName: "text-zinc-300",
       storeSearchCategory: "text-zinc-600",
       storeEmptyText: "text-zinc-500",
-      storeModalImageBack: "bg-gradient-to-tr from-zinc-900/50 via-zinc-800/50 to-zinc-900/50",
+      storeCardImageBack: "bg-gradient-to-tr from-zinc-900/50 via-zinc-800/50 to-zinc-900/50 ring-zinc-600/50",
+      storeModalImageBack: "bg-gradient-to-tr from-zinc-900/50 via-zinc-800/50 to-zinc-900/50 ring-zinc-600/50",
       storeModalAppName: "text-zinc-300",
       storeModalAppType: "text-zinc-500",
       storeModalAppCategory: "text-zinc-600",
@@ -477,6 +482,7 @@ export function useTheme() {
       hubCardTextRepo: "text-zinc-500",
       hubSeparator: "bg-zinc-700/50",
       hubTextArea: "text-green-500 bg-zinc-900/50 text-[11px] leading-none p-2",
+      hubIconHolder: "bg-gradient-to-tr from-zinc-900/50 via-zinc-800/50 to-zinc-900/50 ring-zinc-600/50",
 
       // System Logs
       tableTextUp: "text-white/50",

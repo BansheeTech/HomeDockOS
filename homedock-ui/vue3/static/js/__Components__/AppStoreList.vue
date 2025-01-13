@@ -21,7 +21,7 @@
     <Modal :class="[themeClasses.scopeSelector]" v-model:open="modalStore.isModalVisible" :key="modalStore.selectedApp?.name" wrap-class-name="full-modal" class="rounded-3xl overflow-hidden" :destroyOnClose="true" :footer="null" :centered="true">
       <div class="py-3 lg:px-3 rounded-3xl mx-auto grid grid-cols-1 lg:grid-cols-4 items-start">
         <div class="col-span-1 flex flex-col items-center lg:items-start text-center lg:text-left">
-          <BaseImage draggable="false" :src="modalStore.selectedApp?.picture_path || 'docker-icons/notfound.jpg'" alt="App Icon" :class="[themeClasses.storeModalImageBack]" class="w-32 h-32 rounded-2xl shadow-lg transition duration-300 hover:-translate-y-1 md:w-44 md:h-44" />
+          <BaseImage draggable="false" :src="modalStore.selectedApp?.picture_path || 'docker-icons/notfound.jpg'" :alt="modalStore.selectedApp?.name" :class="[themeClasses.storeModalImageBack]" class="w-32 h-32 min-w-32 min-h-32 rounded-2xl shadow-lg transition ring-[1px] duration-300 hover:-translate-y-1 md:w-44 md:h-44 md:min-w-44 md:min-h-44" />
           <h1 :class="[themeClasses.storeModalAppName]" class="text-2xl font-bold mt-4">{{ modalStore.selectedApp?.name }}</h1>
           <p :class="[themeClasses.storeModalAppType]" class="text-sm">{{ modalStore.selectedApp?.type }}</p>
           <p :class="[themeClasses.storeModalAppCategory]" class="text-sm">{{ modalStore.selectedApp?.category }}</p>

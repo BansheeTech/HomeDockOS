@@ -28,7 +28,7 @@
             <TransitionGroup name="fade">
               <tr v-for="record in selectedAppsStore.applications.filter((app) => app.HDRole !== 'dependency')" :key="record.name" :class="[themeClasses.appHolder]" class="w-full transition duration-300 border-b will-change-transform">
                 <!-- Checkbox -->
-                <td class="w-2 py-4 px-4 rounded-l-xl">
+                <td class="w-2 py-4 px-4">
                   <Checkbox :class="[themeClasses.scopeSelector]" class="transition duration-300 hover:scale-125" :checked="record.checked" @change="(e) => handleRowCheck(record.name)" />
                 </td>
 
@@ -46,12 +46,12 @@
 
                       <Transition name="slide-fade" mode="out-in">
                         <a v-if="record.service_url && record.status !== 'exited' && record.status !== 'paused' && record.status !== 'created'" draggable="false" :href="record.service_url" target="_blank" rel="noreferrer" class="group">
-                          <div :class="[getContainerClasses(record), record.isProcessing ? 'animate-bounce' : '']">
-                            <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 aspect-square" />
+                          <div :class="[themeClasses.iconHolder, getContainerClasses(record), record.isProcessing ? 'animate-bounce' : '']">
+                            <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 min-w-12 min-h-12 aspect-square" />
                           </div>
                         </a>
                         <div v-else :class="[getContainerClasses(record), record.isProcessing ? 'animate-bounce' : '']">
-                          <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 aspect-square" />
+                          <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 min-w-12 min-h-12 aspect-square" />
                         </div>
                       </Transition>
                     </div>
@@ -172,7 +172,7 @@ const ORDER_KEY = "dashboardLocalOrder";
 const selectedAppsStore = useSelectedAppsStore(); // Instancia del store
 
 function getContainerClasses(record: Application): string {
-  const baseClasses = "aspect-square ring-[1px] ring-gray-500/10 flex-shrink-0 relative w-12 h-12 overflow-hidden rounded-xl drop-shadow-md transition-all duration-300 ease-[cubic-bezier(0,1.7,1,1.7)]";
+  const baseClasses = "aspect-square ring-[1px] flex-shrink-0 relative w-12 h-12 min-w-12 min-h-12 overflow-hidden rounded-xl drop-shadow-md transition-all duration-300 ease-[cubic-bezier(0,1.7,1,1.7)]";
 
   const statusClasses: Record<string, string> = {
     running: "hover:scale-110 cursor-pointer",

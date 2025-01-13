@@ -5,7 +5,7 @@
 <template>
   <div :class="[themeClasses.hubContMainer]" class="relative flex-1 border rounded-2xl p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
     <div class="app-header flex items-center space-x-4">
-      <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
+      <BaseImage draggable="false" :src="appIcon" :alt="app.name" :class="[themeClasses.hubIconHolder]" class="app-icon w-12 h-12 rounded-xl drop-shadow-md ring-[1px]" />
 
       <div class="flex flex-col justify-center overflow-hidden">
         <h3 :class="[themeClasses.hubCardTextAppName]" class="font-semibold text-xs truncate">
@@ -48,7 +48,7 @@
     </div>
     <Modal :class="[themeClasses.scopeSelector]" :maskClosable="!isRecreating" :keyboard="!isRecreating" :closable="!isRecreating" v-model:open="editModalOpen" class="rounded-3xl overflow-hidden" :destroyOnClose="true" :footer="null" :centered="true" wrap-class-name="full-modal">
       <div class="app-details flex items-center space-x-4">
-        <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
+        <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
         <div class="flex flex-col justify-center">
           <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-xs">{{ app.name }} config</p>
           <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">{{ app.image }}</p>
@@ -67,7 +67,7 @@
 
     <Modal :class="[themeClasses.scopeSelector]" v-model:open="logsModalOpen" class="rounded-3xl overflow-hidden" :destroyOnClose="true" :footer="null" :centered="true" wrap-class-name="full-modal">
       <div class="app-details flex items-center space-x-4">
-        <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
+        <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
         <div class="flex flex-col justify-center">
           <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-xs">{{ app.name }} logs</p>
           <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">{{ app.image }}</p>

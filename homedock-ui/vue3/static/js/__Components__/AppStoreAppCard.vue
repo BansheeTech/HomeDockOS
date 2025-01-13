@@ -5,7 +5,7 @@
 <template>
   <div :class="[themeClasses.storeContMainer]" class="app-grid-item relative flex-1 border rounded-2xl p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg group">
     <div class="app-header flex items-center gap-3 relative">
-      <BaseImage @click="onInstall(app)" draggable="false" :src="app.picture_path || 'default-image-path.png'" alt="App Icon" class="app-icon w-12 h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
+      <BaseImage @click="onInstall(app)" draggable="false" :src="app.picture_path || 'docker-icons/notfound.jpg'" :alt="app.name" :class="[themeClasses.storeCardImageBack]" class="app-icon w-12 h-12 min-h-12 min-w-12 rounded-xl drop-shadow-md ring-[1px]" />
       <Icon v-if="installationStore.currentlyInstalling === app.name" :icon="loadingIcon" :class="[themeClasses.storeIconLoadingInstalling]" class="absolute rounded-full top-1 left-1 w-10 h-10 text-current animate-spin" />
 
       <div class="flex flex-col overflow-hidden w-full">
