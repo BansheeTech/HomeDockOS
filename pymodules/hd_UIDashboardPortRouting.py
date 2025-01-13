@@ -25,10 +25,13 @@ def port_route_function():
     if ports_list in ["hostmode", "disabled"]:
         valid = True
     else:
-        match = re.fullmatch(r"(\d{1,5})(:\d{1,5}){0,2}", ports_list)
+        match = re.fullmatch(r"(\d{1,5})(:(\d{1,5}))?(/[\w\-_]+)?", ports_list)
         if match:
+            parts = ports_list.split("/")
+            port_section = parts[0]
+            path_section = "/" + "/".join(parts[1:]) if len(parts) > 1 else ""
 
-            ports = ports_list.split(":")
+            ports = port_section.split(":")
             unique_ports = []
             for port in ports:
                 if port not in unique_ports:
@@ -36,12 +39,13 @@ def port_route_function():
 
             valid = all(0 <= int(port) <= 65535 for port in unique_ports)
 
-            ports_list = ":".join(unique_ports)
+            if valid:
+                ports_list = ":".join(unique_ports) + path_section
         else:
             valid = False
 
     if not valid:
-        return jsonify({"status": "error", "message": "Invalid ports_list format or range"})
+        raise ValueError("Invalid ports list format or range.")
 
     config_path = os.path.join(current_directory, "homedock_ports.conf")
 

@@ -78,6 +78,11 @@ def setup_error_handlers(app, read_config, version_hash):
                 "message": "Access to static Vue3 components is forbidden in production, if you want to check the source go to GitHub.",
                 "documentation_url": "https://docs.homedock.cloud/troubleshooting/error-codes/#hdos-605",
             },
+            "Invalid ports list": {
+                "code": 606,
+                "message": "Invalid ports list for the selected application.",
+                "documentation_url": "https://docs.homedock.cloud/troubleshooting/error-codes/#hdos-606",
+            },
         }
 
         for key, value in custom_errors.items():

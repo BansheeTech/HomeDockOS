@@ -46,7 +46,6 @@ function generateErrorDescription(errorMessage: string, documentationLink: strin
 export function notifyError(error: AxiosError, themeClass?: string) {
   const responseData = error.response?.data || {};
 
-  // Definir tipos explícitos para las propiedades esperadas
   interface ErrorResponseData {
     error_code?: string;
     error_message?: string;

@@ -46,11 +46,11 @@
 
                       <Transition name="slide-fade" mode="out-in">
                         <a v-if="record.service_url && record.status !== 'exited' && record.status !== 'paused' && record.status !== 'created'" draggable="false" :href="record.service_url" target="_blank" rel="noreferrer" class="group">
-                          <div :class="[themeClasses.iconHolder, getContainerClasses(record), record.isProcessing ? 'animate-bounce' : '']">
+                          <div :class="[getContainerClasses(record), themeClasses.iconHolder, record.isProcessing ? 'animate-bounce' : '']">
                             <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 min-w-12 min-h-12 aspect-square" />
                           </div>
                         </a>
-                        <div v-else :class="[getContainerClasses(record), record.isProcessing ? 'animate-bounce' : '']">
+                        <div v-else :class="[getContainerClasses(record), themeClasses.iconHolder, record.isProcessing ? 'animate-bounce' : '']">
                           <BaseImage draggable="false" :src="record.image_path" loading="lazy" class="dock-cont-image h-12 w-12 min-w-12 min-h-12 aspect-square" />
                         </div>
                       </Transition>

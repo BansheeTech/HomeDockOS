@@ -31,6 +31,8 @@ import singlePortIcon from "@iconify-icons/mdi/check-bold";
 import hostmodeIcon from "@iconify-icons/mdi/network-strength-4-cog";
 import disabledIcon from "@iconify-icons/mdi/cloud-question";
 
+import { notifyError, notifySuccess } from "../__Components__/Notifications.vue";
+
 const props = defineProps({
   containerId: String,
   initialPorts: String,
@@ -105,12 +107,12 @@ function saveData() {
       if (data.status === "success") {
         originalPorts.value = portsValue.value;
         emit("update", portsValue.value);
-      } else {
-        console.error("Error saving data:", data);
+        notifySuccess("Success", "Ports updated successfully!", themeClasses.value.scopeSelector);
       }
     })
     .catch((error) => {
       console.error("Error:", error);
+      notifyError(error, themeClasses.value.scopeSelector);
     })
     .finally(() => {
       isLoading.value = false;
@@ -120,7 +122,7 @@ function saveData() {
 
 function handleValidatedInput(event) {
   let value = event.target.value;
-  portsValue.value = value.replace(/[^0-9a-zA-Z:]/g, "");
+  portsValue.value = value.replace(/[^0-9a-zA-Z:/]/g, "");
   event.target.value = portsValue.value;
 }
 
