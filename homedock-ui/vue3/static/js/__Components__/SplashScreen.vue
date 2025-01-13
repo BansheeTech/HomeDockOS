@@ -6,7 +6,7 @@
   <div>
     <div id="cloudScreen" class="cloud-screen">
       <div id="cloudImage" class="flex flex-col items-center justify-center" @click="handleCloudImageClick">
-        <Icon :class="[themeClasses.splashColor]" :icon="cloudIcon" width="60" height="60" />
+        <AnimatedIcon :class="[themeClasses.splashColor]" :icons="[cloudIcon, cloudUploadIcon]" :interval="1000" :iconSize="96" />
         <div :class="[themeClasses.splashColor]" class="cloudtext text-center">Click to Start</div>
       </div>
       <span class="banshee-cloud">
@@ -29,10 +29,11 @@
 import { ref, onMounted } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
-import { Icon } from "@iconify/vue";
-import cloudIcon from "@iconify-icons/mdi/cloud-upload";
+import cloudIcon from "@iconify-icons/mdi/cloud";
+import cloudUploadIcon from "@iconify-icons/mdi/cloud-upload";
 
 import BaseImage from "../__Components__/BaseImage.vue";
+import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 
 const splashElement = ref<HTMLElement | null>(null);
 const cloudScreen = ref<HTMLElement | null>(null);
@@ -143,8 +144,8 @@ onMounted(() => {
 }
 
 .cloudtext {
-  font-size: 12px;
-  line-height: 12px;
+  font-size: 14px;
+  line-height: 0px;
 }
 
 #cloudImage.shootUp {

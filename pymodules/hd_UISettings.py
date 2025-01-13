@@ -156,7 +156,7 @@ def api_save_settings():
             if custom_file and custom_file.filename.endswith(".jpg"):
                 header = custom_file.read(3)
                 custom_file.seek(0)
-                if header == b"\xff\xd8\xff":  # Validar que es un JPG
+                if header == b"\xff\xd8\xff":  # JPG Validation
                     filename = secure_filename("back_custom.jpg")
                     custom_file.save(os.path.join(current_directory, "homedock-ui/static/images/wallpapers", filename))
                 else:
