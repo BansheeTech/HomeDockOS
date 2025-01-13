@@ -400,7 +400,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__login__.ts": {
-    "file": "hdos_CJYrPqxzfurQSBI7RxJoD.js",
+    "file": "hdos_BOWIruukwz0jTb7dlycnE.js",
     "name": "__login__",
     "src": "homedock-ui/vue3/static/js/MountPoints/__login__.ts",
     "isEntry": true,
@@ -410,6 +410,7 @@
       "_hdos_a2q7Rm7CT21k0XOXIxdI_.js",
       "_hdos_DPhlMBAcwmj4N6C-RIU0v.js",
       "_hdos_CJ16jrjil3BZuV9HrqQnt.js",
+      "_hdos_w-GtdxZU7MbLcuSw4aRFl.js",
       "_hdos_BIBtAW1ZVROvaAJ7WBa1i.js",
       "_hdos_BMB2AnYFtxfnfGUOoP5l2.js",
       "_hdos_e2xmaqYNK2jSTcicJN_7E.js",
@@ -422,7 +423,7 @@
       "_hdos_Dcdi4eXd4uLPhnXndZIef.js"
     ],
     "css": [
-      "hdos_DrfI0RICNjjbZ083R5B3u.css"
+      "hdos_B7ILCzb5jJHEvseOzYmnn.css"
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__settings__.ts": {
