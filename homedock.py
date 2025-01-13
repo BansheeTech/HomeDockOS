@@ -137,8 +137,19 @@ if __name__ == "__main__":
     print(f"           └─ \x1B[4m{format_url(protocol, dynamic_dns, run_port)}\x1B[0m")
 
     if local_dns:
-        threading.Thread(target=announce_homedock_service, daemon=True).start()
-        print(f"            > \x1B[4m{format_url(protocol, 'homedock.local', run_port)}\x1B[0m")
+        thread_result = {"success": False}
+
+        def run_service():
+            thread_result["success"] = announce_homedock_service()
+
+        thread = threading.Thread(target=run_service, daemon=True)
+        thread.start()
+        thread.join()
+
+        if thread_result["success"]:
+            print(f"            > \x1B[4m{format_url(protocol, 'homedock.local', run_port)}\x1B[0m")
+        else:
+            print(f"            ! homedock.local unavailable")
 
     print()
 

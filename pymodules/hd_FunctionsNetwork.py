@@ -33,10 +33,10 @@ def get_local_ip():
         if is_valid_ipv4(local_ip):
             return local_ip
         else:
-            print(" * Local IP is not a valid IPv4 address.")
-            return None
+            print(" * Local IP is not a valid IPv4 address")
+            return "127.0.0.1"
     except socket.error:
-        return None
+        return "127.0.0.1"
 
 
 def get_internet_ip():
@@ -75,11 +75,10 @@ def get_internet_ip():
             else:
                 failure_flag = True
         except requests.RequestException as e:
-            print(f" * Error fetching IP from {service}: {e}")
             failure_flag = True
 
     if failure_flag and not ip_error_message_shown:
-        print(" * Unable to determine the public IP address.")
+        print(" * Unable to determine the public IP address")
         ip_error_message_shown = True
 
     return "127.0.0.1"

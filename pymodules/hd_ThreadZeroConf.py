@@ -13,10 +13,6 @@ from pymodules.hd_FunctionsNetwork import local_ip
 from pymodules.hd_FunctionsConfig import read_config
 
 
-def ip_to_binary(ip_address):
-    return socket.inet_aton(ip_address)
-
-
 def format_url(protocol, host, port):
     if (protocol == "http" and port == 80) or (protocol == "https" and port == 443):
         return f"{protocol}://{host}"
@@ -25,9 +21,14 @@ def format_url(protocol, host, port):
 
 def announce_homedock_service():
     config = read_config()
-    binary_ip = ip_to_binary(local_ip)
+    local_ip_address = local_ip
+
+    if not local_ip_address or local_ip_address == "127.0.0.1":
+        return False
 
     try:
+        binary_ip = socket.inet_aton(local_ip_address)
+
         zeroconf = Zeroconf()
 
         info = ServiceInfo(
@@ -40,6 +41,7 @@ def announce_homedock_service():
         )
 
         zeroconf.register_service(info)
+        return True
 
     except OSError as e:
         if "No buffer space available" in str(e):
