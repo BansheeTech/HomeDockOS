@@ -41,8 +41,8 @@
         </a>
       </li>
       <li>
-        <a href="/control-hub" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/control-hub' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
-          <Icon :icon="folderSettingsIcon" class="h-5 w-5 min-w-5 min-h-5" />
+        <a href="/dropzone" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/dropzone' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+          <Icon :icon="folderKeyIcon" class="h-5 w-5 min-w-5 min-h-5" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">DropZone</span>
         </a>
       </li>
@@ -101,7 +101,7 @@ import tuneIcon from "@iconify-icons/mdi/tune";
 import connectionIcon from "@iconify-icons/mdi/connection";
 import accountOffIcon from "@iconify-icons/mdi/account-off";
 import loadingIcon from "@iconify-icons/mdi/loading";
-import folderSettingsIcon from "@iconify-icons/mdi/folder-settings"
+import folderKeyIcon from "@iconify-icons/mdi/folder-key"
 
 const isSigningOut = ref(false);
 

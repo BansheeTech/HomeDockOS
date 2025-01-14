@@ -159,7 +159,7 @@ if __name__ == "__main__":
     print()
 
     homedock_www.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
-    homedock_www.config["MAX_CONTENT_LENGTH"] = 4194304
+    homedock_www.config["MAX_CONTENT_LENGTH"] = 1073741824  # 1GB
     homedock_www.config["SECRET_KEY"] = os.urandom(32)
     homedock_www.config["SESSION_REFRESH_EACH_REQUEST"] = False
     homedock_www.config["SESSION_COOKIE_HTTPONLY"] = True

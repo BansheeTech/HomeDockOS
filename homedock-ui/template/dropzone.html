@@ -1,4 +1,4 @@
-{# homedock-ui/template/control-hub.html #}
+{# homedock-ui/template/dropzone.html #}
 {# Copyright © 2023-2025 Banshee, All Rights Reserved #}
 {# https://www.banshee.pro #}
 
@@ -10,13 +10,13 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="homedock_csrf_token" content="{{ session['homedock_csrf_token'] }}" />
     {{ vitecss("global") | safe }}
-    {{ vitecss("__controlhub__") | safe }}
+    {{ vitecss("__dropzone__") | safe }}
 
-    <title>Control Hub • HomeDock OS {{ version }}</title>
+    <title>DropZone • HomeDock OS {{ version }}</title>
   </head>
 
   <body class="theme-{{ selected_theme }}">
-    <div id="app-controlhub-root"></div>
+    <div id="app-dropzone-root"></div>
 
     <script id="data-theme" type="application/json">
       {{ { "selected_theme": selected_theme, "selected_back": selected_back } | b64encode }}
@@ -30,8 +30,8 @@
       {{ { "user_name": user_name } | b64encode }}
     </script>
 
-    {{ vitejs("__controlhub__") | safe }}
-    
+    {{ vitejs("__dropzone__") | safe }}
+
     {% include 'partials/hd_UIPartialNoJavascript.html' %}
   </body>
 </html>

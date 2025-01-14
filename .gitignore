@@ -3,6 +3,7 @@ __pycache__/
 HomeDockVenvDEV/
 pymodules/__pycache__/
 compose-link/
+dropzone/
 logs/
 otherfiles/
 homedock_ports.conf

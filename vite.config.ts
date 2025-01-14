@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => ({
         __dashboard__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__dashboard__.ts"),
         __appstore__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__appstore__.ts"),
         __controlhub__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__controlhub__.ts"),
+        __dropzone__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__dropzone__.ts"),
         __systemlogs__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__systemlogs__.ts"),
         __settings__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__settings__.ts"),
       },
