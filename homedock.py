@@ -37,7 +37,7 @@ from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
-from pymodules.hd_DropZoneEncryption import generate_master_key
+from pymodules.hd_DropZoneEncryption import dropzone_start_check
 
 check_and_generate_config()
 globalConfig = read_config()
@@ -72,7 +72,8 @@ if __name__ == "__main__":
     start_cpu_usage_thread()
 
     #DropZone Master Key
-    generate_master_key()
+    dropzone_start_check()
+    # test_user_isolation()
 
     user_name = globalConfig["user_name"]
     run_port = globalConfig["run_port"]

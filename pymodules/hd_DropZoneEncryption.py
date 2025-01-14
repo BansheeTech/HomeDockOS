@@ -7,14 +7,16 @@ https://www.banshee.pro
 import os
 import base64
 
+from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import current_directory
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding as sym_padding
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-
-MASTER_KEY_FILE = os.path.join(current_directory, "homedock_dropzone_key.conf")
+MASTER_KEY_FILE = os.path.join(current_directory, "homedock_dropzone.conf")
 
 
 def generate_master_key():
@@ -25,24 +27,37 @@ def generate_master_key():
         os.makedirs(os.path.dirname(MASTER_KEY_FILE), exist_ok=True)
         with open(MASTER_KEY_FILE, "w", encoding="utf-8") as key_file:
             key_file.write("!!!!! Do not delete or modify this file to prevent data corruption !!!!!\n")
-            key_file.write(f"DropZone_Master_Key: {key_base64}\n")
+            key_file.write(f"dz_key: {key_base64}\n")
 
 
-def load_master_key() -> bytes:
+def derive_user_key(raw_key: bytes, username: str) -> bytes:
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=username.encode("utf-8"),
+        iterations=100000,
+        backend=default_backend(),
+    )
+    return kdf.derive(raw_key)
+
+
+def load_master_key(username: str) -> bytes:
     if not os.path.exists(MASTER_KEY_FILE):
-        raise FileNotFoundError("DropZone Key not found.")
+        raise FileNotFoundError("DropZone Keys file not found.")
 
-    with open(MASTER_KEY_FILE, "r") as key_file:
+    with open(MASTER_KEY_FILE, "r", encoding="utf-8") as key_file:
         for line in key_file:
-            if line.startswith("DropZone_Master_Key:"):
-                key_base64 = line.split(":")[1].strip()
-                return base64.b64decode(key_base64)
+            if line.startswith(f"dz_key:{username}:"):
 
-    raise ValueError("DropZone Key not found in file.")
+                key_base64 = line.split(":")[2].strip()
+                key_base = base64.b64decode(key_base64)
+                return derive_user_key(key_base, username)
+
+    raise ValueError(f"Key for user {username} not found.")
 
 
-def encrypt_with_master_key(data: bytes) -> tuple:
-    key = load_master_key()
+def encrypt_user_file(username: str, data: bytes) -> tuple:
+    key = load_master_key(username)
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
@@ -54,8 +69,8 @@ def encrypt_with_master_key(data: bytes) -> tuple:
     return encrypted_data, iv
 
 
-def decrypt_with_master_key(encrypted_data: bytes, iv: bytes) -> bytes:
-    key = load_master_key()
+def decrypt_user_file(username: str, encrypted_data: bytes, iv: bytes) -> bytes:
+    key = load_master_key(username)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     decryptor = cipher.decryptor()
 
@@ -66,19 +81,42 @@ def decrypt_with_master_key(encrypted_data: bytes, iv: bytes) -> bytes:
     return data
 
 
-def save_encrypted_file(filename: str, data: bytes):
-    encrypted_data, iv = encrypt_with_master_key(data)
-    encrypted_file_path = os.path.join(current_directory(), "dropzone", filename)
+def save_user_file(username: str, filename: str, data: bytes):
+    encrypted_data, iv = encrypt_user_file(username, data)
+    encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
 
     os.makedirs(os.path.dirname(encrypted_file_path), exist_ok=True)
     with open(encrypted_file_path, "wb") as f:
         f.write(iv + encrypted_data)
 
 
-def load_and_decrypt_file(filename: str) -> bytes:
-    encrypted_file_path = os.path.join(current_directory(), "dropzone", filename)
+def load_user_file(username: str, filename: str) -> bytes:
+    encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
+
+    if not os.path.exists(encrypted_file_path):
+        raise FileNotFoundError(f"File not found: {encrypted_file_path}")
+
     with open(encrypted_file_path, "rb") as f:
         iv = f.read(16)
         encrypted_data = f.read()
 
-    return decrypt_with_master_key(encrypted_data, iv)
+    return decrypt_user_file(username, encrypted_data, iv)
+
+
+def add_user_key(username: str):
+    user_key_base = os.urandom(32)
+    user_key_base64 = base64.b64encode(user_key_base).decode("utf-8")
+
+    with open(MASTER_KEY_FILE, "a", encoding="utf-8") as key_file:
+        key_file.write(f"dz_key:{username}: {user_key_base64}\n")
+
+
+def dropzone_start_check():
+    config = read_config()
+    username = config["user_name"]
+    generate_master_key()
+
+    try:
+        load_master_key(username)
+    except ValueError:
+        add_user_key(username)

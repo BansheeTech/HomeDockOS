@@ -7,7 +7,7 @@ logs/
 otherfiles/
 homedock_ports.conf
 homedock_server.conf
-homedock_dropzone_key.conf
+homedock_dropzone.conf
 homedock-ui/static/images/wallpapers/back_custom.jpg
 node_modules/
 .deprecated/
