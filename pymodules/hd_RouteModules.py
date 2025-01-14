@@ -32,7 +32,7 @@ def RouteAllModules(homedock_www, send_public_key):
 
     from pymodules.hd_UIDropzone import dropzone, list_files, upload_file, download_file, delete_file
 
-    homedock_www.add_url_rule("/dropzone", "dropzone", dropzone)
+    homedock_www.add_url_rule("/drop-zone", "dropzone", dropzone)
     homedock_www.add_url_rule("/api/get_files", "list_files", CSRF_Protect(list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/upload_file", "upload_file", CSRF_Protect(upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])

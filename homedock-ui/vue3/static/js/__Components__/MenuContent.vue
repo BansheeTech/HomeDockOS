@@ -41,15 +41,15 @@
         </a>
       </li>
       <li>
-        <a href="/dropzone" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/dropzone' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
-          <Icon :icon="folderKeyIcon" class="h-5 w-5 min-w-5 min-h-5" />
-          <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">DropZone</span>
-        </a>
-      </li>
-      <li>
         <a href="/system-logs" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/system-logs' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="chartTimelineVariantIcon" class="h-5 w-5 min-w-5 min-h-5" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">System Logs</span>
+        </a>
+      </li>
+      <li>
+        <a href="/drop-zone" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/dropzone' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+          <Icon :icon="cubeIcon" class="h-5 w-5 min-w-5 min-h-5" />
+          <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">Drop Zone</span>
         </a>
       </li>
     </div>
@@ -101,7 +101,7 @@ import tuneIcon from "@iconify-icons/mdi/tune";
 import connectionIcon from "@iconify-icons/mdi/connection";
 import accountOffIcon from "@iconify-icons/mdi/account-off";
 import loadingIcon from "@iconify-icons/mdi/loading";
-import folderKeyIcon from "@iconify-icons/mdi/folder-key"
+import cubeIcon from "@iconify-icons/mdi/cube";
 
 const isSigningOut = ref(false);
 

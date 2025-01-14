@@ -32,7 +32,14 @@ def list_files():
     files = []
     for root, dirs, filenames in os.walk(user_dir):
         for filename in filenames:
-            files.append(os.path.relpath(os.path.join(root, filename), user_dir))
+            file_path = os.path.join(root, filename)
+            file_stats = os.stat(file_path)
+            files.append(
+                {
+                    "name": os.path.relpath(file_path, user_dir),
+                    "size": file_stats.st_size,
+                }
+            )
 
     return jsonify({"files": files})
 
@@ -49,12 +56,24 @@ def upload_file():
         return jsonify({"error": "No file uploaded"}), 400
 
     safe_filename = secure_filename(uploaded_file.filename)
-    file_content = uploaded_file.read()
+    temp_file_path = os.path.join(user_dir, f"{safe_filename}.tmp")
 
     try:
+        with open(temp_file_path, "wb") as temp_file:
+            for chunk in uploaded_file.stream:
+                temp_file.write(chunk)
+
+        with open(temp_file_path, "rb") as temp_file:
+            file_content = temp_file.read()
+
         save_user_file(user_name, safe_filename, file_content)
+
+        os.remove(temp_file_path)
+
         return jsonify({"success": True, "filename": safe_filename})
     except Exception as e:
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
         return jsonify({"error": "Error saving file", "details": str(e)}), 500
 
 
@@ -71,7 +90,6 @@ def download_file():
         return jsonify({"error": "File not found"}), 404
 
     try:
-        # Desencripta el archivo
         file_content = load_user_file(user_name, file_name)
         return send_file(
             io.BytesIO(file_content),

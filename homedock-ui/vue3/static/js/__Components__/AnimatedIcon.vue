@@ -42,7 +42,7 @@ export default {
   },
   setup(props) {
     const currentIndex = ref(0);
-    const currentIcon = ref(props.icons[0]); // Usa el primer icono como inicial
+    const currentIcon = ref(props.icons[0]);
     const iconKey = computed(() => `icon-${currentIndex.value}`);
     let intervalId: number | NodeJS.Timeout;
 
