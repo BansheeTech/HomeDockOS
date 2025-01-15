@@ -5,6 +5,7 @@ https://www.homedock.cloud
 """
 
 from flask import request, jsonify
+from hypercorn.config import Config
 
 DEFAULT_MAX_SIZE = 1 * 1024 * 1024  # 1MB
 
@@ -21,3 +22,8 @@ def apply_upload_limit(app):
         content_length = request.content_length
         if content_length is not None and content_length > max_size:
             return jsonify({"error": "Request Entity Too Large", "details": f"File size exceeds the limit of {max_size // (1024 * 1024)} MB."}), 413
+
+
+def configure_hypercorn_limits(config: Config):
+    max_limit = max(endpoint_limits.values(), default=DEFAULT_MAX_SIZE)
+    config.wsgi_max_body_size = max_limit

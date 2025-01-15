@@ -37,7 +37,7 @@ from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
-from pymodules.hd_ApplyUploadLimits import apply_upload_limit
+from pymodules.hd_ApplyUploadLimits import apply_upload_limit, configure_hypercorn_limits
 
 check_and_generate_config()
 globalConfig = read_config()
@@ -176,6 +176,8 @@ if __name__ == "__main__":
             hypercorn_config = Config()
             hypercorn_config.include_server_header = False
             hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
+
+            configure_hypercorn_limits(hypercorn_config)
 
             if ssl_enabled_var:
                 hypercorn_config.certfile = "/DATA/SSLCerts/fullchain.pem"

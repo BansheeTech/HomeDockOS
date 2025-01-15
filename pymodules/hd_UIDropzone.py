@@ -55,24 +55,16 @@ def upload_file():
         return jsonify({"error": "No file uploaded"}), 400
 
     safe_filename = secure_filename(uploaded_file.filename)
-    temp_file_path = os.path.join(user_dir, f"{safe_filename}.tmp")
+    encrypted_file_path = os.path.join(user_dir, safe_filename)
 
     try:
-        with open(temp_file_path, "wb") as temp_file:
-            for chunk in uploaded_file.stream:
-                temp_file.write(chunk)
-
-        with open(temp_file_path, "rb") as temp_file:
-            file_content = temp_file.read()
-
+        file_content = uploaded_file.read()
         save_user_file(user_name, safe_filename, file_content)
-
-        os.remove(temp_file_path)
 
         return jsonify({"success": True, "filename": safe_filename})
     except Exception as e:
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        if os.path.exists(encrypted_file_path):
+            os.remove(encrypted_file_path)
         return jsonify({"error": "Error saving file", "details": str(e)}), 500
 
 
