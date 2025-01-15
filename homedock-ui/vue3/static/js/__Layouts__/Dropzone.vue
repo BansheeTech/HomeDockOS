@@ -20,36 +20,37 @@
       <div :class="[themeClasses.back]" class="flex flex-col flex-1 pl-4 pt-3 pr-4 max-w-full overflow-x-hidden">
         <main class="flex-1 overflow-auto max-w-full holder">
           <Card title="Drop Zone" body="Locally encrypted file vault" :mdi_icon="cubeIcon" id="dropZoneUp" :collapsible="false">
-            <UploadDragger v-model:fileList="fileList" name="file" :multiple="true" :customRequest="customUpload" @change="handleChange" @success="handleSuccess" :showUploadList="true">
+            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:fileList="fileList" name="file" :multiple="true" :customRequest="customUpload" @change="handleChange" @success="handleSuccess" :showUploadList="true">
               <div class="flex items-center align-center justify-center flex-col">
                 <p class="ant-upload-drag-icon">
-                  <AnimatedIcon :icons="[cubeIcon, shieldLockIcon]" :iconSize="64" :interval="2000" class="text-4xl text-gray-600" />
+                  <AnimatedIcon :icons="[cubeIcon, shieldLockIcon]" :iconSize="64" :interval="2000" :class="[themeClasses.dropZoneDragIcon]" class="text-4xl" />
                 </p>
-                <p class="ant-upload-text px-4">Click or drag files to this area to upload and encrypt its content</p>
-                <p class="ant-upload-hint px-4">Maximum file size allowed per file is 1GB</p>
+                <p :class="[themeClasses.dropZoneDragUpText]" class="ant-upload-text px-4">Click or drag files to this area to upload and encrypt its content</p>
+                <p :class="[themeClasses.dropZoneDragDownText]" class="ant-upload-hint px-4">Maximum file size allowed per file is 1GB</p>
               </div>
             </UploadDragger>
 
             <div class="mt-4">
-              <AutoComplete v-model:value="searchQuery" :options="filteredFiles" :class="[themeClasses.scopeSelector]" class="w-full mb-4" @select="handleSelect">
-                <InputSearch v-model:value="searchQuery" placeholder="Search files..." class="w-full text-sm" enter-button="Search">
+              <AutoComplete v-model:value="searchQuery" :options="filteredFiles" :popup-class-name="`${themeClasses.scopeSelector} z-0`" class="w-full mb-4" @select="handleSelect">
+                <InputSearch v-model:value="searchQuery" placeholder="Search files..." :class="[themeClasses.scopeSelector]" class="w-full text-sm" enter-button="Search">
                   <template #prefix>
-                    <Icon :icon="cubeIcon" class="mx-1 text-stone-400" />
+                    <Icon :icon="cubeIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
                   </template>
                 </InputSearch>
               </AutoComplete>
               <div>
                 <div v-if="displayedFiles.length === 0" class="flex justify-center items-center">
-                  <Empty description="No encrypted files found" />
+                  <Empty :class="[themeClasses.dropZoneEmptyText]" description="No encrypted files found" />
                 </div>
                 <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-                  <div v-for="file in displayedFiles" :key="file.name" class="relative flex flex-col items-center justify-center text-center bg-white border !border-[#d9d9d9] rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                    <Icon :icon="fileIcon(file.name)" class="h-12 w-12 min-h-12 min-w-12 text-gray-600" />
-                    <span class="mt-2 text-xs text-gray-800 break-words w-full overflow-hidden text-ellipsis">{{ file.name }}</span>
-                    <span class="bg-gray-200 px-2 rounded-full text-[10px] text-gray-500 mt-1">{{ formatSize(file.size) }}</span>
+                  <div v-for="file in displayedFiles" :key="file.name" :class="[themeClasses.dropZoneFileDisplayer]" class="relative flex flex-col items-center justify-center text-center border border-dashed rounded-lg p-4 shadow-sm hover:shadow-md group transition duration-300">
+                    <Icon :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="absolute right-2 top-2 transition duration-300 h-4 w-4 min-h-4 min-w-4" />
+                    <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-12 w-12 min-h-12 min-w-12 transition duration-300 group-hover:scale-110" />
+                    <span :class="[themeClasses.dropZoneFileText]" class="mt-2 text-xs break-words w-full overflow-hidden text-ellipsis">{{ file.name }}</span>
+                    <span :class="[themeClasses.dropZoneFileSize]" class="px-2 rounded-full text-[10px] mt-1">{{ formatSize(file.size) }}</span>
                     <div class="mt-2 flex space-x-2">
                       <Button type="primary" @click="downloadFile(file.name)" size="small"><Icon :icon="arrowDownThickIcon" /></Button>
-                      <Button type="dashed" @click="deleteFile(file.name)" size="small" class="hover:!text-red-500 hover:!border-red-500"><Icon :icon="closeIcon" /></Button>
+                      <Button type="dashed" @click="deleteFile(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]"><Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" /></Button>
                     </div>
                   </div>
                 </div>
@@ -72,7 +73,7 @@ import axios from "axios";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
-import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button } from "ant-design-vue";
+import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, theme } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import cubeIcon from "@iconify-icons/mdi/cube";
@@ -86,6 +87,8 @@ import unknownFileIcon from "@iconify-icons/mdi/file";
 import arrowDownThickIcon from "@iconify-icons/mdi/arrow-down-thick";
 import closeIcon from "@iconify-icons/mdi/close";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
+import lockIcon from "@iconify-icons/mdi/lock";
+import lockOpenIcon from "@iconify-icons/mdi/lock-open";
 
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import Favicon from "../__Components__/Favicon.vue";
@@ -100,7 +103,7 @@ import Card from "../__Components__/Card.vue";
 
 const fileIcon = (fileName: string) => {
   if (fileName.endsWith("/")) {
-    return folderIcon; // Carpeta
+    return folderIcon;
   }
   const extension = fileName.split(".").pop()?.toLowerCase();
   return fileIconsMap[extension || "unknown"] || unknownFileIcon;
@@ -134,6 +137,7 @@ const activePath = ref("/dropzone");
 const files = ref<FileEntry[]>([]);
 const searchQuery = ref<string>("");
 const fileList = ref([]);
+const fileStates = ref<Record<string, boolean>>({});
 
 const customUpload = async (options: any) => {
   const { file, onSuccess, onError } = options;
@@ -141,11 +145,8 @@ const customUpload = async (options: any) => {
     await uploadFile(file);
     fileList.value = fileList.value.filter((f: any) => f.uid !== file.uid);
     onSuccess(null, file);
-    console.log("Custom upload successful:", file);
-    fetchFiles();
   } catch (error) {
     onError(error);
-    console.error("Custom upload error:", error);
   }
 };
 
@@ -158,19 +159,28 @@ const uploadFile = async (file: File) => {
         "X-HomeDock-CSRF-Token": csrfToken.value,
       },
     });
-    if (response.data.success) {
-      console.log("File uploaded successfully:", response.data);
-      fetchFiles();
-    } else {
+    if (!response.data.success) {
+      message.error(response.data.error.value || "Upload failed");
       console.error("Error during file upload:", response.data.error);
     }
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 413) {
+        message.error("The selected file is larger than 1GB.");
+      } else {
+        message.error(error.response?.data?.error_message || `Unexpected error occurred: ${error.message}`);
+      }
+    } else {
+      message.error("An unknown error occurred. Please try again.");
+    }
     console.error("Upload error:", error);
   }
 };
 
 const downloadFile = async (fileName: string) => {
   try {
+    fileStates.value[fileName] = true;
+
     const response = await axios.get(`/api/download_file?file=${encodeURIComponent(fileName)}`, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       responseType: "blob",
@@ -183,6 +193,10 @@ const downloadFile = async (fileName: string) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    setTimeout(() => {
+      fileStates.value[fileName] = false;
+    }, 2000);
   } catch (error) {
     console.error("Error downloading file:", error);
     message.error("Failed to download file. Please try again.");
@@ -195,7 +209,7 @@ const deleteFile = async (fileName: string) => {
 
     if (response.data.success) {
       message.success(response.data.message);
-      fetchFiles(); // Actualizar la lista de archivos
+      fetchFiles();
     } else {
       message.error(response.data.error || "Failed to delete file");
     }
@@ -237,7 +251,6 @@ const handleSelect = (value: string | number | { value: string | number }) => {
 };
 
 const handleChange = (info: any) => {
-  console.log("Upload Change:", info);
   if (info.file.status === "done") {
     message.success(`${info.file.name} uploaded successfully`);
   } else if (info.file.status === "error") {
@@ -261,4 +274,118 @@ onMounted(() => {
   fetchFiles();
 });
 </script>
-<style scoped></style>
+
+<style scoped>
+/* AntD Vue Overrides */
+:global(.dark-mode-theme.ant-select-dropdown) {
+  background-color: rgb(39, 39, 42) !important;
+}
+
+:global(.aero-mode-theme.ant-select-dropdown) {
+  background-color: rgba(0, 0, 0, 0) !important;
+  backdrop-filter: blur(100px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(100px) saturate(100%) !important;
+}
+
+:global(.dark-mode-theme .ant-select-item) {
+  color: rgb(128, 128, 128) !important;
+}
+
+:global(.aero-mode-theme .ant-select-item) {
+  color: rgba(255, 255, 255, 0.501) !important;
+}
+
+:global(.dark-mode-theme .ant-select-item-group) {
+  color: rgb(255, 255, 255) !important;
+}
+
+:global(.aero-mode-theme .ant-select-item-group) {
+  color: rgb(255, 255, 255) !important;
+}
+
+::v-deep(.dark-mode-theme input) {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+::v-deep(.aero-mode-theme input) {
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+::v-deep(.white-mode-theme input::placeholder) {
+  color: rgb(210, 210, 210) !important;
+}
+
+::v-deep(.dark-mode-theme input::placeholder) {
+  color: rgb(100, 100, 100) !important;
+}
+
+::v-deep(.aero-mode-theme input::placeholder) {
+  color: rgb(177, 177, 177) !important;
+}
+
+::v-deep(.white-mode-theme input:autofill) {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+::v-deep(.dark-mode-theme input:autofill) {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+::v-deep(.aero-mode-theme input:autofill) {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+::v-deep(.white-mode-theme input:autofill:hover) {
+  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
+}
+
+::v-deep(.dark-mode-theme input:autofill:hover) {
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+}
+
+::v-deep(.aero-mode-theme input:autofill:hover) {
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+}
+
+::v-deep(.dark-mode-theme .ant-input-affix-wrapper) {
+  background-color: rgb(39, 39, 42) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-input-affix-wrapper) {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(62, 62, 62, 0.489) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-input-affix-wrapper:hover) {
+  border: 1px solid rgb(24, 119, 255) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-input-affix-wrapper:hover) {
+  border: 1px solid rgb(24, 119, 255) !important;
+}
+
+:global(.dark-mode-theme .ant-upload-list-item.ant-upload-list-item-uploading) {
+  color: white !important;
+}
+
+:global(.aero-mode-theme .ant-upload-list-item.ant-upload-list-item-uploading) {
+  color: white !important;
+}
+
+:global(.dark-mode-theme .anticon.anticon-delete) {
+  color: rgb(184, 20, 20) !important;
+}
+
+:global(.aero-mode-theme .anticon.anticon-delete) {
+  color: rgb(184, 20, 20) !important;
+}
+</style>

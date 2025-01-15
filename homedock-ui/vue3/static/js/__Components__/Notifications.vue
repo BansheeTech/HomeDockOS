@@ -61,7 +61,7 @@ export function notifyError(error: AxiosError, themeClass?: string) {
       description: generateErrorDescription(error_message, documentation_url || "https://docs.homedock.cloud"),
       placement: "bottomRight",
       class: themeClass || "",
-      duration: 500,
+      duration: 5,
     });
     return;
   }
@@ -97,9 +97,9 @@ export function notifySuccess(message: string, description?: string, themeClass?
   });
 }
 
-export function notifyWarning(message: string, description?: string, themeClass?: string, duration = 5) {
+export function notifyWarning(description?: string, themeClass?: string, duration = 5) {
   notification.warning({
-    message,
+    message: "Uh-oh...",
     description,
     placement: "bottomRight",
     class: themeClass || "",

@@ -26,6 +26,7 @@ from pymodules.hd_FunctionsMain import sanitize_input
 from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
 from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
+from pymodules.hd_DropZoneEncryption import dropzone_init
 
 login_manager = LoginManager()
 login_manager.init_app(homedock_www)
@@ -242,6 +243,8 @@ def api_login():
         regenerate_csrf_token()
         session.permanent = True
 
+        dropzone_init()
+
         return jsonify({"status": "success", "message": "Login successful, welcome to HomeDock OS.", "redirect_url": "/dashboard"}), 200
 
     else:
@@ -280,8 +283,4 @@ def api_login():
 
             return jsonify({"status": "limited", "message": "You've been limited, please try again later.", "redirect_url": "/limited"}), 429
 
-        return jsonify({
-            "status": "failed",
-            "message": f"Incorrect credentials, remaining attempts: {remaining_attempts}.",
-            "remaining_attempts": remaining_attempts
-        }), 401
+        return jsonify({"status": "failed", "message": f"Incorrect credentials, remaining attempts: {remaining_attempts}.", "remaining_attempts": remaining_attempts}), 401

@@ -7,6 +7,8 @@ https://www.banshee.pro
 import os
 import base64
 
+from flask_login import current_user
+
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import current_directory
 
@@ -31,6 +33,7 @@ def generate_master_key():
 
 
 def derive_user_key(raw_key: bytes, username: str) -> bytes:
+    username = username.lower()
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -42,6 +45,7 @@ def derive_user_key(raw_key: bytes, username: str) -> bytes:
 
 
 def load_master_key(username: str) -> bytes:
+    username = username.lower()
     if not os.path.exists(MASTER_KEY_FILE):
         raise FileNotFoundError("DropZone Keys file not found.")
 
@@ -57,6 +61,7 @@ def load_master_key(username: str) -> bytes:
 
 
 def encrypt_user_file(username: str, data: bytes) -> tuple:
+    username = username.lower()
     key = load_master_key(username)
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
@@ -70,6 +75,7 @@ def encrypt_user_file(username: str, data: bytes) -> tuple:
 
 
 def decrypt_user_file(username: str, encrypted_data: bytes, iv: bytes) -> bytes:
+    username = username.lower()
     key = load_master_key(username)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     decryptor = cipher.decryptor()
@@ -82,6 +88,7 @@ def decrypt_user_file(username: str, encrypted_data: bytes, iv: bytes) -> bytes:
 
 
 def save_user_file(username: str, filename: str, data: bytes):
+    username = username.lower()
     encrypted_data, iv = encrypt_user_file(username, data)
     encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
 
@@ -91,6 +98,7 @@ def save_user_file(username: str, filename: str, data: bytes):
 
 
 def load_user_file(username: str, filename: str) -> bytes:
+    username = username.lower()
     encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
 
     if not os.path.exists(encrypted_file_path):
@@ -104,6 +112,7 @@ def load_user_file(username: str, filename: str) -> bytes:
 
 
 def add_user_key(username: str):
+    username = username.lower()
     user_key_base = os.urandom(32)
     user_key_base64 = base64.b64encode(user_key_base).decode("utf-8")
 
@@ -111,9 +120,8 @@ def add_user_key(username: str):
         key_file.write(f"dz_key:{username}: {user_key_base64}\n")
 
 
-def dropzone_start_check():
-    config = read_config()
-    username = config["user_name"]
+def dropzone_init():
+    username = current_user.id.lower()
     generate_master_key()
 
     try:

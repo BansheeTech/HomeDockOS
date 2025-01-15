@@ -37,7 +37,7 @@ from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
-from pymodules.hd_DropZoneEncryption import dropzone_start_check
+from pymodules.hd_ApplyUploadLimits import apply_upload_limit
 
 check_and_generate_config()
 globalConfig = read_config()
@@ -56,6 +56,7 @@ validate_docker_compose_installation()
 setup_nonce(homedock_www)
 setup_security_headers(homedock_www, globalConfig)
 setup_error_handlers(homedock_www, read_config, version_hash)
+apply_upload_limit(homedock_www)
 
 register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], dev_server_url="http://localhost:5173", dist_path="/homedock-ui/vue3/dist", manifest_path="homedock-ui/vue3/dist/.vite/manifest.json", nonce_provider=lambda: g.get("nonce"), logger=None)
 
@@ -70,10 +71,6 @@ if __name__ == "__main__":
     # Threads
     start_auto_port_routing_thread()
     start_cpu_usage_thread()
-
-    #DropZone Master Key
-    dropzone_start_check()
-    # test_user_isolation()
 
     user_name = globalConfig["user_name"]
     run_port = globalConfig["run_port"]
@@ -159,7 +156,6 @@ if __name__ == "__main__":
     print()
 
     homedock_www.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
-    homedock_www.config["MAX_CONTENT_LENGTH"] = 1073741824  # 1GB
     homedock_www.config["SECRET_KEY"] = os.urandom(32)
     homedock_www.config["SESSION_REFRESH_EACH_REQUEST"] = False
     homedock_www.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -169,7 +165,7 @@ if __name__ == "__main__":
     homedock_www.config["SESSION_TYPE"] = "filesystem"
 
     if ssl_enabled():
-        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure flag sólo para HTTPS
+        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure Flag only for HTTPS
 
     try:
 

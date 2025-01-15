@@ -158,6 +158,20 @@ export function useTheme() {
       discoverNotifyIconBack: "text-gray-300",
       discoverNotifyIconPulse: "text-red-600",
 
+      // Drop Zone
+      dropZoneDragIcon: "text-gray-600",
+      dropZoneDragUpText: "!text-gray-600",
+      dropZoneDragDownText: "!text-gray-400",
+      dropZoneDragHolder: "!border-gray-300 hover:!border-blue-600",
+      dropZoneInputIcon: "text-gray-400",
+      dropZoneFileIcon: "text-gray-600",
+      dropZoneFileText: "text-gray-800",
+      dropZoneFileSize: "bg-gray-200 text-gray-500",
+      dropZoneDeleteIcon: "hover:!text-red-500 hover:!border-red-500",
+      dropZoneFileDisplayer: "!border-gray-300 hover:!border-blue-600",
+      dropZoneLockIcon: "text-gray-300 group-hover:text-blue-600",
+      dropZoneEmptyText: "text-gray-400",
+
       // Settings
       boxFoldScope: "bg-gradient-to-b from-gray-100 to-transparent border-gray-200/50",
       boxFoldSepper: "bg-gradient-to-r from-gray-200 via-transparent to-transparent",
@@ -326,6 +340,20 @@ export function useTheme() {
       discoverNotifyIconBack: "text-zinc-600",
       discoverNotifyIconPulse: "text-red-400",
 
+      // Drop Zone
+      dropZoneDragIcon: "text-zinc-300",
+      dropZoneDragUpText: "!text-zinc-400",
+      dropZoneDragDownText: "!text-zinc-500",
+      dropZoneDragHolder: "!border-zinc-600 hover:!border-blue-600",
+      dropZoneInputIcon: "text-zinc-400",
+      dropZoneFileIcon: "text-zinc-300",
+      dropZoneFileText: "text-zinc-400",
+      dropZoneFileSize: "bg-zinc-700 text-zinc-300",
+      dropZoneDeleteIcon: "bg-transparent border-white/25 text-white hover:!text-red-500 hover:!border-red-500",
+      dropZoneFileDisplayer: "!border-[#4e4e4e] hover:!border-blue-600",
+      dropZoneLockIcon: "text-zinc-600 group-hover:text-blue-600",
+      dropZoneEmptyText: "text-zinc-600",
+
       // Settings
       boxFoldScope: "bg-gradient-to-b from-zinc-800 to-transparent border-zinc-700/50",
       boxFoldSepper: "bg-gradient-to-r from-zinc-700 via-transparent to-transparent",
@@ -493,6 +521,20 @@ export function useTheme() {
       tooltipViewMore: "text-blue-300",
       discoverNotifyIconBack: "text-zinc-400/50",
       discoverNotifyIconPulse: "text-red-500",
+
+      // Drop Zone
+      dropZoneDragIcon: "text-zinc-100/50",
+      dropZoneDragUpText: "!text-zinc-100/50",
+      dropZoneDragDownText: "!text-zinc-200/50",
+      dropZoneDragHolder: "!border-zinc-300/25 hover:!border-blue-600",
+      dropZoneInputIcon: "text-zinc-400",
+      dropZoneFileIcon: "text-zinc-100/50",
+      dropZoneFileText: "text-zinc-100/50",
+      dropZoneFileSize: "bg-zinc-600/50 text-zinc-100/50",
+      dropZoneDeleteIcon: "bg-transparent border-white/25 text-white hover:!text-red-500 hover:!border-red-500",
+      dropZoneFileDisplayer: "!border-zinc-300/25 hover:!border-blue-600",
+      dropZoneLockIcon: "text-zinc-300/25 group-hover:text-blue-600",
+      dropZoneEmptyText: "text-zinc-300/25",
 
       // Settings
       boxFoldScope: "bg-gradient-to-b from-black/10 to-transparent border-zinc-800/50",

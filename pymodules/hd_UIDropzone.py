@@ -8,7 +8,7 @@ import io
 import os
 
 from flask import render_template, send_file, session, g, jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import dropzone_folder
@@ -17,12 +17,10 @@ from pymodules.hd_DropZoneEncryption import save_user_file, load_user_file
 
 from werkzeug.utils import secure_filename
 
-config = read_config()
-user_name = config["user_name"]
-
 
 @login_required
 def list_files():
+    user_name = current_user.id.lower()
     user_dir = os.path.join(dropzone_folder, user_name)
 
     if not os.path.exists(user_dir):
@@ -46,6 +44,7 @@ def list_files():
 
 @login_required
 def upload_file():
+    user_name = current_user.id.lower()
     user_dir = os.path.join(dropzone_folder, user_name)
 
     if not os.path.exists(user_dir):
@@ -79,6 +78,8 @@ def upload_file():
 
 @login_required
 def download_file():
+    user_name = current_user.id.lower()
+
     file_name = request.args.get("file")
     if not file_name:
         return jsonify({"error": "No file specified"}), 400
@@ -103,6 +104,8 @@ def download_file():
 
 @login_required
 def delete_file():
+    user_name = current_user.id.lower()
+
     file_name = request.json.get("file")
     if not file_name:
         return jsonify({"error": "No file specified"}), 400
@@ -123,7 +126,7 @@ def delete_file():
 @login_required
 def dropzone():
     config = read_config()
-    user_name = config["user_name"]
+    user_name = current_user.id.lower()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
 

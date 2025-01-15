@@ -183,7 +183,6 @@ interface IPData {
   };
 }
 
-// Datos reactivos
 const searchQuery = ref("");
 const dataCache = ref<Log[]>([]);
 const displayedLogs = ref<Log[]>([]);
@@ -395,7 +394,6 @@ const updateAutocompleteOptions = () => {
   autocompleteOptions.value = generateAutocompleteOptions(filteredData);
 };
 
-// Observadores
 watch(searchQuery, () => {
   if (searchQuery.value === "") {
     allLoaded.value = false;
@@ -407,7 +405,6 @@ watch(searchQuery, () => {
   updateAutocompleteOptions();
 });
 
-// Ciclo de vida
 onMounted(() => {
   fetchData();
 });
@@ -421,7 +418,7 @@ onMounted(() => {
 
 .fade-enter-from,
 .fade-leave-to {
-  transform: scaleY(0); /* Comienza colapsada */
+  transform: scaleY(0);
 }
 
 .fade-enter-to,

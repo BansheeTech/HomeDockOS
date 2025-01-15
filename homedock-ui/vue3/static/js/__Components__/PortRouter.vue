@@ -31,7 +31,7 @@ import singlePortIcon from "@iconify-icons/mdi/check-bold";
 import hostmodeIcon from "@iconify-icons/mdi/network-strength-4-cog";
 import disabledIcon from "@iconify-icons/mdi/cloud-question";
 
-import { notifyError, notifySuccess } from "../__Components__/Notifications.vue";
+import { notifyWarning, notifySuccess } from "../__Components__/Notifications.vue";
 
 const props = defineProps({
   containerId: String,
@@ -111,8 +111,9 @@ function saveData() {
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      notifyError(error, themeClasses.value.scopeSelector);
+      const responseData = error.response?.data || {};
+      const errorMessage = responseData.error_message || "An unknown error occurred.";
+      notifyWarning(errorMessage, themeClasses.value.scopeSelector);
     })
     .finally(() => {
       isLoading.value = false;
