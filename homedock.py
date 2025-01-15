@@ -14,6 +14,7 @@ from flask import Flask, g
 from flask_compress import Compress
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
+from hypercorn.middleware import AsyncioWSGIMiddleware
 
 from vite_fusion import register_vite_assets
 
@@ -37,7 +38,7 @@ from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
-from pymodules.hd_ApplyUploadLimits import apply_upload_limit, configure_hypercorn_limits
+from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
 
 check_and_generate_config()
 globalConfig = read_config()
@@ -56,7 +57,6 @@ validate_docker_compose_installation()
 setup_nonce(homedock_www)
 setup_security_headers(homedock_www, globalConfig)
 setup_error_handlers(homedock_www, read_config, version_hash)
-apply_upload_limit(homedock_www)
 
 register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], dev_server_url="http://localhost:5173", dist_path="/homedock-ui/vue3/dist", manifest_path="homedock-ui/vue3/dist/.vite/manifest.json", nonce_provider=lambda: g.get("nonce"), logger=None)
 
@@ -170,21 +170,28 @@ if __name__ == "__main__":
     try:
 
         if run_on_development:
+
+            FlaskDevUploadLimitMiddleware(homedock_www)
             homedock_www.run(host="0.0.0.0", port=run_port, debug=True, use_reloader=False)
+
         else:
 
             hypercorn_config = Config()
+            hypercorn_config.loglevel = "DEBUG"
             hypercorn_config.include_server_header = False
             hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
-
-            configure_hypercorn_limits(hypercorn_config)
 
             if ssl_enabled_var:
                 hypercorn_config.certfile = "/DATA/SSLCerts/fullchain.pem"
                 hypercorn_config.keyfile = "/DATA/SSLCerts/privkey.pem"
                 hypercorn_config.ca_certs = "/DATA/SSLCerts/chain.pem"
 
-            asyncio.run(serve(homedock_www, hypercorn_config))
+            async def homedock_www_asgi(scope, receive, send):
+                hdos_wsgi2asgi = AsyncioWSGIMiddleware(homedock_www, max_body_size=1 * 1024 * 1024 * 1024)
+                homedock_middleware_limited = ContentSizeLimitMiddleware(hdos_wsgi2asgi)
+                await homedock_middleware_limited(scope, receive, send)
+
+            asyncio.run(serve(homedock_www_asgi, hypercorn_config))
 
     except OSError as e:
         if e.errno == 98:
