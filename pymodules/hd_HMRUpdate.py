@@ -60,14 +60,15 @@ def download_and_extract_github_repo():
 
     os.remove(download_path)
     print(" * Downloaded and extracted successfully!")
-    time.sleep(2)
+    time.sleep(1)
     replace_dir("app-store")
-    time.sleep(2)
+    time.sleep(1)
     replace_dir("homedock-ui")
-    time.sleep(2)
+    time.sleep(21)
     replace_dir("pymodules")
-    time.sleep(2)
-
+    time.sleep(1)
+    replace_files(["homedock.py", "requirements.txt", "package.json", "package-lock.json"])
+    time.sleep(1)
     restart_homedock()
 
 
@@ -85,6 +86,18 @@ def replace_dir(dir_name):
     shutil.copytree(source_path, target_path)
 
     print(f" * {dir_name} updated successfully!")
+
+
+def replace_files(files):
+    for file in files:
+        source_file = os.path.join(current_directory, "_update", "HomeDockOS-main", file)
+        target_file = os.path.join(current_directory, file)
+
+        if os.path.exists(source_file):
+            shutil.copy2(source_file, target_file)
+            print(f" * Updated {file}")
+        else:
+            print(f" ! Skipping {file}, not found in update.")
 
 
 def restart_homedock():
