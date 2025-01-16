@@ -66,11 +66,6 @@ setup_error_handlers(homedock_www, read_config, version_hash)
 
 register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], dev_server_url="http://localhost:5173", dist_path="/homedock-ui/vue3/dist", manifest_path="homedock-ui/vue3/dist/.vite/manifest.json", nonce_provider=lambda: g.get("nonce"), logger=None)
 
-print(f"Execution directory: {os.getcwd()}")
-print(f"Binary homedock.py location: {current_directory}")
-print(f"Dist Path: {current_directory}/homedock-ui/vue3/dist")
-print(f"Manifest Path: {current_directory}/homedock-ui/vue3/dist/.vite/manifest.json")
-
 if __name__ == "__main__":
 
     # Pip Autoupdate
