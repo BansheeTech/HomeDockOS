@@ -25,6 +25,11 @@ def check_for_homedock_version():
                     remote_version = line.split("=")[1].strip().strip('"')
                     if remote_version != local_version:
                         print(f" * New version available: {remote_version}")
+
+                        if wait_for_keypress(timeout=10):
+                            print(" * Skipping update...")
+                            return None
+
                         print(" * Updating...")
                         download_and_extract_github_repo()
                         restart_homedock()
@@ -64,7 +69,7 @@ def download_and_extract_github_repo():
     replace_dir("app-store")
     time.sleep(1)
     replace_dir("homedock-ui")
-    time.sleep(21)
+    time.sleep(1)
     replace_dir("pymodules")
     time.sleep(1)
     replace_files(["homedock.py", "requirements.txt", "package.json", "package-lock.json"])
@@ -101,9 +106,20 @@ def replace_files(files):
 
 
 def restart_homedock():
-    print(" * Restarting HomeDock OS, please wait...")
+    print(" * Restarting HomeDock OS after the update, please wait...")
 
     python_executable = sys.executable
     script_path = os.path.join(current_directory, "homedock.py")
 
     os.execv(python_executable, [python_executable, script_path])
+
+
+def wait_for_keypress(timeout=5):
+    print(f" * Press Enter within {timeout} seconds to cancel the update...")
+
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        user_input = input().strip()
+        return True
+
+    return False
