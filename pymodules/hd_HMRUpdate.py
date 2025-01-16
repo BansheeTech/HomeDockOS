@@ -7,9 +7,17 @@ https://www.banshee.pro
 import os
 import sys
 import time
+import select
 import shutil
 import zipfile
 import requests
+
+try:
+    import msvcrt
+
+    WINDOWS = True
+except ImportError:
+    WINDOWS = False
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
 
@@ -31,7 +39,7 @@ def check_for_homedock_version():
                             return None
 
                         print(" * Updating...")
-                        download_and_extract_github_repo()
+                        download_and_extract_github_repo(remote_version=remote_version)
                         restart_homedock()
                         return remote_version
             print(" * HomeDock OS is up to date")
@@ -42,9 +50,9 @@ def check_for_homedock_version():
     return None
 
 
-def download_and_extract_github_repo():
+def download_and_extract_github_repo(remote_version):
     repo_zip_url = "https://github.com/BansheeTech/HomeDockOS/archive/refs/heads/main.zip"
-    download_path = os.path.join(current_directory, "repo.zip")
+    download_path = os.path.join(current_directory, f"HomeDockOS_Update.{remote_version}.zip")
     extract_path = os.path.join(current_directory, "_update")
 
     if os.path.exists(extract_path):
@@ -115,13 +123,21 @@ def restart_homedock():
 
 
 def wait_for_keypress(timeout=5):
-    print(f" * Press Enter within {timeout} seconds to cancel the update...")
+    print(f" * Press any key within {timeout} seconds to cancel the update...")
 
     start_time = time.time()
+
     while time.time() - start_time < timeout:
-        user_input = input()
-        if user_input == "":
-            return True
-        return False
+        if WINDOWS:
+            if msvcrt.kbhit():
+                msvcrt.getch()
+                return True
+        else:
+            ready, _, _ = select.select([sys.stdin], [], [], timeout)
+            if ready:
+                sys.stdin.read(1)
+                return True
+
+        time.sleep(0.1)
 
     return False
