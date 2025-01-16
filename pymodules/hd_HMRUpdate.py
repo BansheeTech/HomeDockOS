@@ -10,7 +10,6 @@ import time
 import shutil
 import zipfile
 import requests
-import importlib
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
 
@@ -28,12 +27,13 @@ def check_for_homedock_version():
                         print(f" * New version available: {remote_version}")
                         print(" * Updating...")
                         download_and_extract_github_repo()
+                        restart_homedock()
                         return remote_version
             print(" * HomeDock OS is up to date")
         else:
             print(f" * Error while checking for updates: {response.status_code}")
-    except requests.RequestException as e:
-        print(f" ! Unable to verify updates")
+    except requests.RequestException:
+        print(" ! Unable to verify updates")
     return None
 
 
@@ -67,7 +67,8 @@ def download_and_extract_github_repo():
     time.sleep(2)
     replace_dir("pymodules")
     time.sleep(2)
-    reload_pymodules()
+
+    restart_homedock()
 
 
 def replace_dir(dir_name):
@@ -86,12 +87,10 @@ def replace_dir(dir_name):
     print(f" * {dir_name} updated successfully!")
 
 
-def reload_pymodules():
-    print(" * Reloading all modules...")
+def restart_homedock():
+    print(" * Restarting HomeDock OS, please wait...")
 
-    for module_name in list(sys.modules.keys()):
-        if module_name.startswith("pymodules."):
-            importlib.reload(sys.modules[module_name])
-            print(f"   - Reloaded {module_name}")
+    python_executable = sys.executable
+    script_path = os.path.join(current_directory, "homedock.py")
 
-    print(" * Python modules successfully reloaded!")
+    os.execv(python_executable, [python_executable, script_path])
