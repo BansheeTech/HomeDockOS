@@ -80,7 +80,7 @@ def download_and_extract_github_repo(remote_version):
     time.sleep(1)
     replace_dir("pymodules")
     time.sleep(1)
-    replace_files(["homedock.py", "requirements.txt", "package.json", "package-lock.json"])
+    replace_files(["homedock.py", "requirements.txt", "version.txt," "package.json", "package-lock.json"])
     time.sleep(1)
 
     print(" * Cleaning up temporary update files...")
