@@ -8,7 +8,6 @@ import os
 import bcrypt
 import base64
 
-from homedock import homedock_www
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -21,6 +20,7 @@ from flask_login import UserMixin, login_user, current_user, LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+from pymodules.hd_HDOSWebServerInit import homedock_www
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsMain import sanitize_input
 from pymodules.hd_FunctionsGlobals import version_hash, current_directory

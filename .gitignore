@@ -6,6 +6,7 @@ compose-link/
 dropzone/
 logs/
 otherfiles/
+_update/
 homedock_ports.conf
 homedock_server.conf
 homedock_dropzone.conf

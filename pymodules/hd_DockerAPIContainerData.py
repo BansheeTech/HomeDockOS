@@ -7,7 +7,6 @@ https://www.banshee.pro
 import os
 import re
 
-from homedock import homedock_www
 
 from flask import jsonify, request
 from flask_login import login_required
@@ -49,7 +48,7 @@ def get_docker_containers():
         statusColor = status_color_map.get(container.status, "default_color")
 
         image_path = f"docker-icons/{sanitize_container_name(container.name)}.jpg"
-        os_image_path = os.path.join(homedock_www.root_path, "homedock-ui", "static", "images", f"docker-icons/{sanitize_container_name(container.name)}.jpg")
+        os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{sanitize_container_name(container.name)}.jpg")
 
         if not os.path.exists(os_image_path):
             image_path = "docker-icons/notfound.jpg"

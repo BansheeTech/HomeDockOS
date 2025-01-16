@@ -18,6 +18,8 @@ from hypercorn.middleware import AsyncioWSGIMiddleware
 
 from vite_fusion import register_vite_assets
 
+from pymodules.hd_HDOSWebServerInit import homedock_www
+from pymodules.hd_HMRUpdate import check_for_homedock_version
 from pymodules.hd_AppFilters import b64encode_filter
 from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, running_OS, running_ARCH
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
@@ -40,13 +42,15 @@ from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
 from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
 
+check_for_homedock_version()
+
 check_and_generate_config()
 globalConfig = read_config()
 
 ensure_logs_directory()
 logging.basicConfig(filename=os.path.join(current_directory, "logs", "error.log"), level=logging.ERROR)
 
-homedock_www = Flask(__name__, static_folder=None, template_folder="homedock-ui/template")
+homedock_www = homedock_www
 homedock_www.add_template_filter(b64encode_filter, name="b64encode")
 
 Compress(homedock_www)
