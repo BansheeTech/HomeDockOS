@@ -78,7 +78,7 @@ def get_internet_ip():
             failure_flag = True
 
     if failure_flag and not ip_error_message_shown:
-        print(" * Unable to determine the public IP address")
+        print(" ! Unable to determine the public IP address")
         ip_error_message_shown = True
 
     return "127.0.0.1"

@@ -14,7 +14,7 @@ from pymodules.hd_FunctionsGlobals import current_directory
 
 def check_for_homedock_version():
     repo_url = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/pymodules/hd_FunctionsGlobals.py"
-    local_version = "1.0.14.116"
+    local_version = "1.0.14.117"
     try:
         response = requests.get(repo_url, timeout=5)
         if response.status_code == 200:
@@ -30,7 +30,7 @@ def check_for_homedock_version():
         else:
             print(f" * Error while checking for updates: {response.status_code}")
     except requests.RequestException as e:
-        print(f"Unable to verify updates: {e}")
+        print(f" ! Unable to verify updates")
     return None
 
 
@@ -48,14 +48,30 @@ def download_and_extract_github_repo():
             for chunk in response.iter_content(chunk_size=1024):
                 f.write(chunk)
     else:
-        print(f" * Error downloading the HomeDock OS update: {response.status_code}")
+        print(f" ! Error downloading the new HomeDock OS update: {response.status_code}")
         return
 
-    # Extraer el archivo .zip
     print(" * Extracting...")
     with zipfile.ZipFile(download_path, "r") as zip_ref:
         zip_ref.extractall(extract_path)
 
-    # Eliminar el archivo .zip después de la extracción
     os.remove(download_path)
-    print("__COMPLETED__")
+    print(" * Downloaded and extracted successfully!")
+    replace_dir("app-store")
+    replace_dir("homedock-ui")
+
+
+def replace_dir(dir_name):
+    source_path = os.path.join(current_directory, "_update", "HomeDockOS-main", dir_name)
+    target_path = os.path.join(current_directory, dir_name)
+
+    if not os.path.exists(source_path):
+        print(f" ! Error: Source directory {source_path} does not exist. Update process failed.")
+        return
+
+    if os.path.exists(target_path):
+        shutil.rmtree(target_path)
+
+    shutil.copytree(source_path, target_path)
+
+    print(f" * {dir_name} updated successfully!")

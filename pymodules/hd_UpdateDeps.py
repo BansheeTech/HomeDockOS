@@ -64,7 +64,6 @@ def install_requirements():
         print(f" * Error installing dependencies: {result.stderr}")
         return False
     else:
-        print(" * Dependencies successfully updated.")
         return True
 
 

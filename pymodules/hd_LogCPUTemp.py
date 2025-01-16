@@ -47,7 +47,7 @@ def get_cpu_temp():
 
     except Exception as e:
         if not cpu_error_message_shown:
-            print(" * Error obtaining CPU temp:", e)
+            print(" * Error obtaining CPU temp, not compatible with psutil")
             cpu_error_message_shown = True
         temperatures.append(0)
         return 0
