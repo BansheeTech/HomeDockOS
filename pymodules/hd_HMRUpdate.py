@@ -119,7 +119,9 @@ def wait_for_keypress(timeout=5):
 
     start_time = time.time()
     while time.time() - start_time < timeout:
-        user_input = input().strip()
-        return True
+        user_input = input()
+        if user_input == "":
+            return True
+        return False
 
     return False
