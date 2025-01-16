@@ -23,25 +23,25 @@ from pymodules.hd_FunctionsGlobals import current_directory, version
 
 
 def check_for_homedock_version():
-    repo_url = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/pymodules/hd_FunctionsGlobals.py"
+    repo_url = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/version.txt"
     local_version = version
     try:
         response = requests.get(repo_url, timeout=5)
         if response.status_code == 200:
-            for line in response.text.splitlines():
-                if line.startswith("version ="):
-                    remote_version = line.split("=")[1].strip().strip('"')
-                    if remote_version != local_version:
-                        print(f" * New version available: {remote_version}")
+            remote_version = response.text.strip()
+            if remote_version != local_version:
+                print(f" * New version available: {remote_version}")
 
-                        if wait_for_keypress(timeout=10):
-                            print(" * Skipping update...")
-                            return None
+                if wait_for_keypress(timeout=10):
+                    print(" * Skipping update...")
+                    return None
 
-                        print(" * Updating...")
-                        download_and_extract_github_repo(remote_version=remote_version)
-                        restart_homedock()
-                        return remote_version
+                print(" * Updating...")
+
+                download_and_extract_github_repo(remote_version=remote_version)
+                
+                return remote_version
+
             print(" * HomeDock OS is up to date")
         else:
             print(f" * Error while checking for updates: {response.status_code}")
@@ -82,6 +82,12 @@ def download_and_extract_github_repo(remote_version):
     time.sleep(1)
     replace_files(["homedock.py", "requirements.txt", "package.json", "package-lock.json"])
     time.sleep(1)
+
+    print(" * Cleaning up temporary update files...")
+    if os.path.exists(extract_path):
+        shutil.rmtree(extract_path)
+        print(" * _update/ folder removed successfully.")
+
     restart_homedock()
 
 
