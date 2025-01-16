@@ -5,16 +5,19 @@ https://www.banshee.pro
 """
 
 import os
+import sys
+import time
 import shutil
 import zipfile
 import requests
+import importlib
 
-from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsGlobals import current_directory, version
 
 
 def check_for_homedock_version():
     repo_url = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/pymodules/hd_FunctionsGlobals.py"
-    local_version = "1.0.14.117"
+    local_version = version
     try:
         response = requests.get(repo_url, timeout=5)
         if response.status_code == 200:
@@ -57,8 +60,14 @@ def download_and_extract_github_repo():
 
     os.remove(download_path)
     print(" * Downloaded and extracted successfully!")
+    time.sleep(2)
     replace_dir("app-store")
+    time.sleep(2)
     replace_dir("homedock-ui")
+    time.sleep(2)
+    replace_dir("pymodules")
+    time.sleep(2)
+    reload_pymodules()
 
 
 def replace_dir(dir_name):
@@ -75,3 +84,14 @@ def replace_dir(dir_name):
     shutil.copytree(source_path, target_path)
 
     print(f" * {dir_name} updated successfully!")
+
+
+def reload_pymodules():
+    print(" * Reloading all modules...")
+
+    for module_name in list(sys.modules.keys()):
+        if module_name.startswith("pymodules."):
+            importlib.reload(sys.modules[module_name])
+            print(f"   - Reloaded {module_name}")
+
+    print(" * Python modules successfully reloaded!")
