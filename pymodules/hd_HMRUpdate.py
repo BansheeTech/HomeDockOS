@@ -13,7 +13,7 @@ import asyncio
 import zipfile
 import requests
 
-from flask import jsonify, g
+from flask import jsonify, g, session
 from flask_login import current_user, login_required, logout_user
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
@@ -40,12 +40,8 @@ def check_update():
 
 @login_required
 def update_now():
-
     set_updating(True)
-
-    if current_user.is_authenticated:
-        logout_user()
-
+        
     try:
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
