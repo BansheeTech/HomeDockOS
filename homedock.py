@@ -194,9 +194,7 @@ if __name__ == "__main__":
                 homedock_middleware_limited = ContentSizeLimitMiddleware(hdos_wsgi2asgi)
                 await homedock_middleware_limited(scope, receive, send)
 
-            shutdown_event = asyncio.Event()
-
-            asyncio.run(serve(homedock_www_asgi, hypercorn_config, shutdown_trigger=shutdown_event.wait))
+            asyncio.run(serve(homedock_www_asgi, hypercorn_config))
 
     except OSError as e:
         if e.errno == 98:

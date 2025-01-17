@@ -123,25 +123,17 @@ def replace_files(files):
             print(f" ! Skipping {file}, not found in update.")
 
 
-def stop_flask_server():
+def stop_server():
     func = request.environ.get("werkzeug.server.shutdown")
     if func:
         func()
     print(" * Flask server stopped.")
 
 
-def stop_hypercorn():
-    print(" * Stopping Hypercorn...")
-    shutdown_event.set()
-
-
 def restart_homedock():
     print(" * Stopping HomeDock OS services before restart...")
 
-    if updateConfig.get("run_on_development", False):
-        stop_flask_server()
-    else:
-        stop_hypercorn()
+    stop_server()
 
     time.sleep(10)
 
