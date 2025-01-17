@@ -65,11 +65,12 @@ export const useUpdateStore = defineStore("updateStore", {
       try {
         axios.post("/api/update_now", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
         localStorage.removeItem("updateCheckData");
+        axios.post("/logout", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
 
         setTimeout(() => {
-          axios.post("/logout", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
+          window.location.href = "/";
         }, 1000);
-    
+        
       } catch (error) {
         console.error("Error updating HomeDock OS:", error);
       }
