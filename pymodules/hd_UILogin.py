@@ -23,7 +23,7 @@ from flask_limiter.util import get_remote_address
 from pymodules.hd_HDOSWebServerInit import homedock_www
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsMain import sanitize_input
-from pymodules.hd_FunctionsGlobals import version_hash, current_directory
+from pymodules.hd_FunctionsGlobals import version_hash, current_directory, is_updating
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
 from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
 from pymodules.hd_DropZoneEncryption import dropzone_init
@@ -224,6 +224,9 @@ def api_login():
 
     if len(given_password) > 30 or len(given_username) > 30:
         return jsonify({"status": "bad_request", "message": "Username or password exceeds lenght limit."}), 400
+
+    if is_updating:
+        return jsonify({"error": "Update in progress, please wait..."}), 503
 
     sanitized_username = sanitize_input(given_username)
     sanitized_username = sanitized_username if sanitized_username != "" else "-empty-"

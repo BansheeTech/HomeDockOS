@@ -19,3 +19,4 @@ current_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 compose_upload_folder = os.path.join(current_directory, "compose-link")
 appstore_folder = os.path.join(current_directory, "app-store")
 dropzone_folder = os.path.join(current_directory, "dropzone")
+is_updating = False

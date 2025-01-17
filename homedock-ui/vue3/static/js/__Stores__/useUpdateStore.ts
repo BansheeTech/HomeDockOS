@@ -63,10 +63,8 @@ export const useUpdateStore = defineStore("updateStore", {
 
     async triggerUpdate(csrfToken: string) {
       try {
-        await axios.post("/api/update_now", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
+        axios.post("/api/update_now", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
         localStorage.removeItem("updateCheckData");
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        await axios.post("/logout", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
       } catch (error) {
         console.error("Error updating HomeDock OS:", error);
       }

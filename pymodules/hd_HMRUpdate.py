@@ -14,9 +14,9 @@ import zipfile
 import requests
 
 from flask import jsonify
-from flask_login import login_required
+from flask_login import current_user, login_required, logout_user
 
-from pymodules.hd_FunctionsGlobals import current_directory, version
+from pymodules.hd_FunctionsGlobals import current_directory, version, is_updating
 from pymodules.hd_FunctionsConfig import read_config
 
 updateConfig = read_config()
@@ -40,6 +40,11 @@ def check_update():
 
 @login_required
 def update_now():
+    global is_updating
+    is_updating = True
+    if current_user.is_authenticated:
+        logout_user()
+
     try:
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
