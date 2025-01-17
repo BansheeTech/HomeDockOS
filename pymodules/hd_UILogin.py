@@ -62,10 +62,6 @@ def load_user(user_id):
     return None
 
 
-def is_updating():
-    return getattr(g, "_is_updating", False)
-
-
 def is_local_subnetwork_ip(ip, successful_ips):
     if ip.startswith("192.168."):
         return True
@@ -229,8 +225,8 @@ def api_login():
     if len(given_password) > 30 or len(given_username) > 30:
         return jsonify({"status": "bad_request", "message": "Username or password exceeds lenght limit."}), 400
 
-    if is_updating():
-        return jsonify({"error": "Update in progress, please wait..."}), 503
+    if os.path.exists(os.path.join(current_directory, ".is_updating")):
+        return jsonify({"status": "service_unavailable", "message": "Update in progress, please wait..."}), 503
 
     sanitized_username = sanitize_input(given_username)
     sanitized_username = sanitized_username if sanitized_username != "" else "-empty-"

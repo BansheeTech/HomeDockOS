@@ -13,8 +13,8 @@ import asyncio
 import zipfile
 import requests
 
-from flask import jsonify, g, session
-from flask_login import current_user, login_required, logout_user
+from flask import jsonify
+from flask_login import login_required
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
 from pymodules.hd_FunctionsConfig import read_config
@@ -40,8 +40,9 @@ def check_update():
 
 @login_required
 def update_now():
-    set_updating(True)
-        
+
+    set_updating_state(True)
+
     try:
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
@@ -54,8 +55,14 @@ def update_now():
         return jsonify({"error": "Unable to update"}), 500
 
 
-def set_updating(value: bool):
-    g._is_updating = value
+def set_updating_state(value: bool):
+    update_flag = os.path.join(current_directory, ".is_updating")
+
+    if value:
+        open(update_flag, "w").close()
+    else:
+        if os.path.exists(update_flag):
+            os.remove(update_flag)
 
 
 def download_and_extract_github_repo(remote_version):
@@ -124,6 +131,8 @@ def replace_files(files):
 
 def restart_homedock():
     print(" * Restarting HomeDock OS...")
+
+    set_updating_state(False)
 
     python_executable = sys.executable
     script_path = os.path.join(current_directory, "homedock.py")

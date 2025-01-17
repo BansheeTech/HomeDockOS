@@ -69,7 +69,7 @@ export const useUpdateStore = defineStore("updateStore", {
 
         setTimeout(() => {
           window.location.href = "/";
-        }, 1000);
+        }, 5000);
         
       } catch (error) {
         console.error("Error updating HomeDock OS:", error);

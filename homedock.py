@@ -36,12 +36,15 @@ from pymodules.hd_UpdateDeps import check_and_update_dependencies
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info
 from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 
+from pymodules.hd_HMRUpdate import set_updating_state
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
 from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
 
 os.chdir(current_directory)
+
+set_updating_state(False)
 
 check_and_generate_config()
 globalConfig = read_config()
