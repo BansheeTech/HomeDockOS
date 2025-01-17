@@ -8,12 +8,10 @@ import os
 import sys
 import time
 import shutil
+import signal
 import asyncio
 import zipfile
 import requests
-
-from flask import request
-
 
 from flask import jsonify
 from flask_login import login_required
@@ -77,15 +75,10 @@ def download_and_extract_github_repo(remote_version):
 
     os.remove(download_path)
     print(" * Downloaded and extracted successfully!")
-    time.sleep(1)
     replace_dir("app-store")
-    time.sleep(1)
     replace_dir("homedock-ui")
-    time.sleep(1)
     replace_dir("pymodules")
-    time.sleep(1)
     replace_files(["homedock.py", "requirements.txt", "version.txt," "package.json", "package-lock.json"])
-    time.sleep(1)
 
     print(" * Cleaning up temporary update files...")
     if os.path.exists(extract_path):
@@ -123,23 +116,12 @@ def replace_files(files):
             print(f" ! Skipping {file}, not found in update.")
 
 
-def stop_server():
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func:
-        func()
-    print(" * Flask server stopped.")
-
-
 def restart_homedock():
-    print(" * Stopping HomeDock OS services before restart...")
-
-    stop_server()
-
-    time.sleep(10)
-
-    print(" * Restarting HomeDock OS after the update, please wait...")
+    print(" * Restarting HomeDock OS...")
 
     python_executable = sys.executable
     script_path = os.path.join(current_directory, "homedock.py")
 
+    os.kill(os.getpid(), signal.SIGTERM)
+    time.sleep(1)
     os.execv(python_executable, [python_executable, script_path])
