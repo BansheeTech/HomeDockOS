@@ -19,7 +19,6 @@ from hypercorn.middleware import AsyncioWSGIMiddleware
 from vite_fusion import register_vite_assets
 
 from pymodules.hd_HDOSWebServerInit import homedock_www
-from pymodules.hd_HMRUpdate import check_for_homedock_version
 from pymodules.hd_AppFilters import b64encode_filter
 from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, running_OS, running_ARCH
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
