@@ -13,10 +13,10 @@ import asyncio
 import zipfile
 import requests
 
-from flask import jsonify
+from flask import jsonify, g
 from flask_login import current_user, login_required, logout_user
 
-from pymodules.hd_FunctionsGlobals import current_directory, version, is_updating
+from pymodules.hd_FunctionsGlobals import current_directory, version
 from pymodules.hd_FunctionsConfig import read_config
 
 updateConfig = read_config()
@@ -40,8 +40,8 @@ def check_update():
 
 @login_required
 def update_now():
-    global is_updating
-    is_updating = True
+
+    set_updating(True)
     if current_user.is_authenticated:
         logout_user()
 
@@ -55,6 +55,10 @@ def update_now():
         return jsonify({"error": "Failed to fetch update"}), 500
     except requests.RequestException:
         return jsonify({"error": "Unable to update"}), 500
+
+
+def set_updating(value: bool):
+    g._is_updating = value
 
 
 def download_and_extract_github_repo(remote_version):
