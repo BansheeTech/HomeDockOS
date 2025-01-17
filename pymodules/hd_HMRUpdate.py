@@ -7,47 +7,44 @@ https://www.banshee.pro
 import os
 import sys
 import time
-import select
 import shutil
 import zipfile
 import requests
 
-try:
-    import msvcrt
-
-    WINDOWS = True
-except ImportError:
-    WINDOWS = False
+from flask import jsonify
+from flask_login import login_required
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
 
 
-def check_for_homedock_version():
-    repo_url = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/version.txt"
-    local_version = version
+UPDATE_URL = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/version.txt"
+
+
+@login_required
+def check_update():
     try:
-        response = requests.get(repo_url, timeout=5)
+        response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
             remote_version = response.text.strip()
-            if remote_version != local_version:
-                print(f" * New version available: {remote_version}")
-
-                if wait_for_keypress(timeout=10):
-                    print(" * Skipping update...")
-                    return None
-
-                print(" * Updating...")
-
-                download_and_extract_github_repo(remote_version=remote_version)
-                
-                return remote_version
-
-            print(" * HomeDock OS is up to date")
-        else:
-            print(f" * Error while checking for updates: {response.status_code}")
+            update_available = remote_version != version
+            return jsonify({"current_version": version, "latest_version": remote_version, "update_available": update_available})
+        return jsonify({"error": "Failed to check for updates"}), 500
     except requests.RequestException:
-        print(" ! Unable to verify updates")
-    return None
+        return jsonify({"error": "Unable to verify updates"}), 500
+
+
+@login_required
+def update_now():
+    try:
+        response = requests.get(UPDATE_URL, timeout=5)
+        if response.status_code == 200:
+            remote_version = response.text.strip()
+            if remote_version != version:
+                download_and_extract_github_repo(remote_version=remote_version)
+            return jsonify({"message": "Already up-to-date"})
+        return jsonify({"error": "Failed to fetch update"}), 500
+    except requests.RequestException:
+        return jsonify({"error": "Unable to update"}), 500
 
 
 def download_and_extract_github_repo(remote_version):
@@ -126,24 +123,3 @@ def restart_homedock():
     script_path = os.path.join(current_directory, "homedock.py")
 
     os.execv(python_executable, [python_executable, script_path])
-
-
-def wait_for_keypress(timeout=5):
-    print(f" * Press any key within {timeout} seconds to cancel the update...")
-
-    start_time = time.time()
-
-    while time.time() - start_time < timeout:
-        if WINDOWS:
-            if msvcrt.kbhit():
-                msvcrt.getch()
-                return True
-        else:
-            ready, _, _ = select.select([sys.stdin], [], [], timeout)
-            if ready:
-                sys.stdin.read(1)
-                return True
-
-        time.sleep(0.1)
-
-    return False

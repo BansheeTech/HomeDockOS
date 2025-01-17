@@ -44,8 +44,6 @@ from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevU
 
 os.chdir(current_directory)
 
-check_for_homedock_version()
-
 check_and_generate_config()
 globalConfig = read_config()
 

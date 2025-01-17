@@ -16,14 +16,22 @@
             {{ notifications.length > 0 ? "You have new notifications" : "No new notifications available" }}
           </div>
           <TransitionGroup name="list" tag="div" :class="[themeClasses.notMainContainer]" class="notifications-container">
-            <div :class="['notification-item flex items-center px-1 py-2 cursor-pointer last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="(notification, index) in notifications" :key="notification.title + notification.message">
+            <div :class="['notification-item flex items-center px-1 py-2 cursor-pointer last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="(notification, index) in notifications" :key="notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
               <div :class="[themeClasses.notInnerIcon]" class="w-6 h-6 rounded-full flex items-center justify-center mx-1.5">
                 <span class="icon mb-1">
-                  <Icon :icon="messageBadgeIcon" class="w-4 h-4 mt-1 text-current" size="16px" />
+                  <Icon
+                    :icon="notification.isUpdating ? loadingIcon : notification.isUpdate ? updateIcon : messageBadgeIcon"
+                    :class="{
+                      'w-4 h-4 mt-1 text-current': true,
+                      'animate-pulse': notification.isUpdate && !notification.isUpdating,
+                      'animate-spin': notification.isUpdating,
+                    }"
+                    size="16px"
+                  />
                 </span>
               </div>
               <div class="flex-1 p-1">
-                <h3 :class="[themeClasses.notTextUp]" class="m-0 mb-1 text-xs font-semibold">{{ notification.title }}</h3>
+                <h3 :class="[themeClasses.notTextUp, { 'm-0 mb-1 text-xs font-semibold': true, underline: notification.isUpdate }]">{{ notification.title }}</h3>
                 <p :class="[themeClasses.notTextDown]" class="text-xs">{{ notification.message }}</p>
                 <div v-if="notification.startDate || notification.endDate" :class="[themeClasses.notTextDown]" class="flex items-center underline text-[10px] mt-1">
                   <Icon :icon="calendarIcon" class="mr-1" size="12px" />
@@ -65,8 +73,10 @@ import messageBadgeIcon from "@iconify-icons/mdi/message-badge";
 import calendarIcon from "@iconify-icons/mdi/calendar";
 import closeIcon from "@iconify-icons/mdi/close-thick";
 import checkIcon from "@iconify-icons/mdi/check-all";
-import { userInfo } from "os";
-import { useInternalMessage } from "ant-design-vue/es/message/useMessage";
+import updateIcon from "@iconify-icons/mdi/check-decagram";
+import loadingIcon from "@iconify-icons/mdi/loading";
+
+import { useUpdateStore } from "../__Stores__/useUpdateStore";
 
 interface Notification {
   title: string;
@@ -77,6 +87,9 @@ interface Notification {
   allowRemove: boolean;
   icon?: string;
   removing?: boolean;
+  isUpdate?: boolean;
+  isUpdating?: boolean;
+  onClick?: () => void;
 }
 
 interface DismissedNotification {
@@ -99,6 +112,9 @@ const dropdown = ref<HTMLElement | null>(null);
 
 const notifications = ref<Notification[]>([]);
 const dismissedNotifications = ref<DismissedNotification[]>([]);
+const updateStore = useUpdateStore();
+
+const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
 
 if (settingsData.userName === "user") {
   notifications.value.push({
@@ -187,6 +203,35 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
+});
+
+onMounted(async () => {
+  await updateStore.checkForUpdate(csrfToken);
+
+  if (updateStore.updateAvailable) {
+    notifications.value.push({
+      title: "Update Available",
+      message: `New version ${updateStore.latestVersion} available! Click to update.`,
+      permanent: true,
+      allowRemove: false,
+      startDate: null,
+      endDate: null,
+      isUpdate: true,
+      onClick: async function () {
+        this.isUpdating = true;
+        this.title = "Updating HomeDock OS...";
+        this.message = "The system may become unresponsive for a few minutes. Please wait...";
+
+        try {
+          await updateStore.triggerUpdate(csrfToken);
+        } catch (error) {
+          console.error("❌ Update failed:", error);
+          this.title = "Update Failed";
+          this.message = "Something went wrong while updating HomeDock OS. Please contact our support team.";
+        }
+      },
+    });
+  }
 });
 </script>
 

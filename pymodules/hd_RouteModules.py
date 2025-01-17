@@ -38,6 +38,11 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/delete_file", "delete_file", CSRF_Protect(delete_file), methods=["POST"])
 
+    from pymodules.hd_HMRUpdate import check_update, update_now
+
+    homedock_www.add_url_rule("/api/check_update", "check_update", CSRF_Protect(check_update), methods=["GET"])
+    homedock_www.add_url_rule("/api/update_now", "update_now", CSRF_Protect(update_now), methods=["POST"])
+
     from pymodules.hd_UIAppStore import appstore
 
     homedock_www.add_url_rule("/app-store", "app-store", appstore)
