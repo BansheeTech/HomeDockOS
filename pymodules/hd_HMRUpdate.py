@@ -42,6 +42,7 @@ def check_update():
 def update_now():
 
     set_updating(True)
+
     if current_user.is_authenticated:
         logout_user()
 
