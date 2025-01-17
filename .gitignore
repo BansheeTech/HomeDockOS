@@ -16,3 +16,4 @@ node_modules/
 .deprecated/
 .vite/
 .DS_Store
+.is_updating
