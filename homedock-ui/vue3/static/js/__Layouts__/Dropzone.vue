@@ -132,7 +132,7 @@ const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_t
 
 const { themeClasses } = useTheme();
 
-const activePath = ref("/dropzone");
+const activePath = ref("/drop-zone");
 
 const files = ref<FileEntry[]>([]);
 const searchQuery = ref<string>("");
