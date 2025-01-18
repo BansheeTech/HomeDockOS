@@ -28,8 +28,14 @@ def check_port():
         try:
             response = requests.head(url, timeout=2, allow_redirects=True)
 
-            if response.status_code < 400 or response.status_code == 401:
+            if response.status_code < 400 or response.status_code in [401, 301, 302]:
                 return jsonify({"available": True, "url": url})
+
+            if response.status_code in [404, 405]:
+                response = requests.get(url, timeout=2, allow_redirects=True, stream=True)
+
+                if response.status_code < 400 or response.status_code in [401, 301, 302]:
+                    return jsonify({"available": True, "url": url})
 
         except requests.RequestException:
             continue
