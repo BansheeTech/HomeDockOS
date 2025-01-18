@@ -60,6 +60,12 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/limited", "limited", limited)
 
+    from pymodules.hd_UIAppLoader import app_loader, check_port
+
+    homedock_www.add_url_rule("/app/<int:port>", "app_loader_port", app_loader)
+    homedock_www.add_url_rule("/app/<int:port>/<path:subpath>", "app_loader_subpath", app_loader)
+    homedock_www.add_url_rule("/api/check-port", "check_port", CSRF_Protect(check_port), methods=["POST"])
+
     from pymodules.hd_UIShieldMode import shieldmode
 
     homedock_www.add_url_rule("/shieldmode", "shieldmode", shieldmode)

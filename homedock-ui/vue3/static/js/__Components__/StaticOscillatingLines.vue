@@ -17,13 +17,19 @@ interface Point {
 
 export default defineComponent({
   name: "StaticOscillatingLines",
-  setup() {
+  props: {
+    numLines: { type: Number, default: 3 },
+    amplitude: { type: Number, default: 500 },
+    pointsPerLine: { type: Number, default: 3 },
+    lineWidth: { type: Number, default: 75 },
+  },
+  setup(props) {
     const canvas = ref<HTMLCanvasElement | null>(null);
     const ctx = ref<CanvasRenderingContext2D | null>(null);
     const lines = ref<Point[][]>([]);
-    const numLines = 3;
-    const pointsPerLine = 3;
-    const amplitude = 500;
+    const numLines = props.numLines;
+    const pointsPerLine = props.pointsPerLine;
+    const amplitude = props.amplitude;
     const speed = 0.001;
     const opacity = ref(0);
     const opacityIncrement = 0.05;
@@ -50,7 +56,7 @@ export default defineComponent({
         ctx.value.bezierCurveTo(cp_x1, points[i].yBase + amplitude * Math.sin(points[i].phase), cp_x2, y_mid + amplitude * Math.sin((points[i].phase + points[i + 1].phase) / 2), points[i + 1].x, points[i + 1].yBase + amplitude * Math.sin(points[i + 1].phase));
       }
 
-      ctx.value.lineWidth = 75;
+      ctx.value.lineWidth = props.lineWidth;
       ctx.value.lineCap = "round";
       ctx.value.lineJoin = "round";
       ctx.value.strokeStyle = `rgba(11, 11, 11, ${opacity.value})`;
@@ -81,7 +87,6 @@ export default defineComponent({
         ctx.value = canvas.value.getContext("2d");
         updateCanvasSize();
 
-        // Initialize lines and points
         for (let i = 0; i < numLines; i++) {
           const yBase = (canvas.value.height / (numLines + 1)) * (i + 1);
           const line: Point[] = [];

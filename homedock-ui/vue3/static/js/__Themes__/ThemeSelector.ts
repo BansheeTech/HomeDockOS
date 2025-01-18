@@ -81,6 +81,11 @@ export function useTheme() {
       noAppsTextMain: "text-gray-400",
       noAppsIcon: "text-gray-300",
 
+      // App
+      appLoadingIcon: "text-gray-500",
+      sslAdvisorBack: "bg-green-200",
+      sslAdvsisorIcon: "text-green-600",
+
       // NavBar
       greetingMain: "text-gray-400",
       greetingNext: "text-black",
@@ -263,6 +268,11 @@ export function useTheme() {
       noAppsTextMain: "text-zinc-500",
       noAppsIcon: "text-gray-700",
 
+      // App
+      appLoadingIcon: "text-zinc-400",
+      sslAdvisorBack: "bg-green-800",
+      sslAdvsisorIcon: "text-green-400",
+
       // NavBar
       greetingMain: "text-gray-500",
       greetingNext: "text-white",
@@ -444,6 +454,11 @@ export function useTheme() {
       processingBarScope: "bg-zinc-700",
       noAppsTextMain: "text-zinc-400",
       noAppsIcon: "text-gray-400",
+
+      // App
+      appLoadingIcon: "text-zinc-200",
+      sslAdvisorBack: "bg-green-600/50",
+      sslAdvsisorIcon: "text-green-400",
 
       // NavBar
       greetingMain: "text-gray-400",
