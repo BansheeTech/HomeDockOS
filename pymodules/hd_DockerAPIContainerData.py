@@ -70,7 +70,11 @@ def get_docker_containers():
                 else:
                     sanitized_port = sanitize_port(ports_list[0])
                     if sanitized_port:
-                        service_url = f"//{base_url_without_scheme_or_www}/app/{sanitized_port}"
+                        host_header = request.headers.get("Host", base_url_without_scheme_or_www)
+                        parsed_host = urlparse(f"//{host_header}")
+                        final_host = parsed_host.netloc
+
+                        service_url = f"//{final_host}/app/{sanitized_port}"
                     else:
                         service_url = None
             else:

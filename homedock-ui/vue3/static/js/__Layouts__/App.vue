@@ -68,7 +68,7 @@ const checkAppAvailability = async () => {
 
     if (response.data.available) {
       const appUrl = response.data.url.toLowerCase();
-      isHttps.value = appUrl.startsWith("http://");
+      isHttps.value = appUrl.startsWith("https://");
 
       isChecking.value = false;
       isSuccess.value = true;
