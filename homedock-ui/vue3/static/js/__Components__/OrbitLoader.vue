@@ -11,12 +11,14 @@
         <Transition name="fade-scale" mode="out-in">
           <Icon v-if="isChecking" :icon="searchIcon" :class="[themeClasses.appLoadingIcon]" class="text-6xl" :style="{ transform: `translate(${posX}px, ${posY}px)` }" key="loading" />
           <Icon v-else-if="isSuccess" :icon="checkBoldIcon" :class="[themeClasses.appLoadingIcon]" class="text-6xl" key="success" />
-          <Icon v-else-if="isError" :icon="robotConfusedIcon" :class="[themeClasses.appLoadingIcon]" class="text-6xl" key="error" />
+          <AnimatedIcon v-else-if="isError" :icons="[robotConfusedIcon, linkVariantOff]" :interval="1500" :class="[themeClasses.appLoadingIcon]" :icon-size="60" key="error" />
         </Transition>
 
         <Transition name="https" mode="out-in">
-          <div v-if="isHttps" :class="[themeClasses.sslAdvisorBack]" class="p-2 absolute mt-40 rounded-full" key="https">
-            <Icon :icon="lockIcon" :class="[themeClasses.sslAdvsisorIcon]" class="text-xl" />
+          <div v-if="isHttps" :class="[themeClasses.sslAdvisorBack]" class="px-4 py-1 absolute mt-52 rounded-full flex items-center" key="https">
+            <Icon :icon="lockIcon" :class="[themeClasses.sslAdvsisorIcon]" class="text-sm mr-1" />
+            <span :class="[themeClasses.sslAdvsisorIcon]" class="text-sm ml>1">HTTPS</span>
+            <Icon :icon="loadingIcon" :class="[themeClasses.sslAdvsisorIcon]" class="text-sm animate-spin ml-1" />
           </div>
         </Transition>
       </div>
@@ -34,7 +36,10 @@ import searchIcon from "@iconify-icons/mdi/magnify";
 import checkBoldIcon from "@iconify-icons/mdi/check-bold";
 import robotConfusedIcon from "@iconify-icons/mdi/robot-confused";
 import lockIcon from "@iconify-icons/mdi/lock";
-import { theme } from "ant-design-vue";
+import loadingIcon from "@iconify-icons/mdi/loading";
+import linkVariantOff from "@iconify-icons/mdi/link-variant-off";
+
+import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 
 const { themeClasses } = useTheme();
 

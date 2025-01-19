@@ -85,6 +85,7 @@ export function useTheme() {
       appLoadingIcon: "text-gray-500",
       sslAdvisorBack: "bg-green-200",
       sslAdvsisorIcon: "text-green-600",
+      appErrorMessage: "text-red-500 bg-red-200",
 
       // NavBar
       greetingMain: "text-gray-400",
@@ -272,6 +273,7 @@ export function useTheme() {
       appLoadingIcon: "text-zinc-400",
       sslAdvisorBack: "bg-green-800",
       sslAdvsisorIcon: "text-green-400",
+      appErrorMessage: "text-red-200 bg-red-500",
 
       // NavBar
       greetingMain: "text-gray-500",
@@ -459,6 +461,7 @@ export function useTheme() {
       appLoadingIcon: "text-zinc-200",
       sslAdvisorBack: "bg-green-600/50",
       sslAdvsisorIcon: "text-green-400",
+      appErrorMessage: "text-red-600 bg-red-900/50",
 
       // NavBar
       greetingMain: "text-gray-400",
