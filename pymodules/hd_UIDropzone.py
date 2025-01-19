@@ -118,7 +118,7 @@ def delete_file():
 @login_required
 def dropzone():
     config = read_config()
-    user_name = current_user.id.lower()
+    user_name = config["user_name"]
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
 
