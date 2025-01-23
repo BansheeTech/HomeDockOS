@@ -15,5 +15,5 @@ configparser==7.1.0
 psutil==6.1.0
 zeroconf==0.136.2
 Hypercorn==0.17.3
-vite-fusion==0.0.8
+vite-fusion==0.0.9
 urllib3==1.26.19
