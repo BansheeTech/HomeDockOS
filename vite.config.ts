@@ -13,6 +13,16 @@ export default defineConfig(({ mode }) => ({
       plugins: [tailwindcss()],
     },
   },
+  server: {
+    cors: {
+      origin: "http://localhost",
+      credentials: true,
+    },
+    allowedHosts: ["localhost"],
+    hmr: {
+      clientPort: 5173,
+    },
+  },
   build: {
     outDir: "homedock-ui/vue3/dist",
     manifest: true,
