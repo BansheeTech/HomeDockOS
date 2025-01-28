@@ -10,7 +10,7 @@ import asyncio
 import threading
 
 from datetime import timedelta
-from flask import Flask, g
+from flask import g
 from flask_compress import Compress
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         if thread_result["success"]:
             print(f"            > \x1B[4m{format_url(protocol, 'homedock.local', run_port)}\x1B[0m")
         else:
-            print(f"            ! homedock.local unavailable")
+            print("            ! homedock.local unavailable")
 
     print()
 

@@ -17,9 +17,7 @@ from flask import jsonify
 from flask_login import login_required
 
 from pymodules.hd_FunctionsGlobals import current_directory, version
-from pymodules.hd_FunctionsConfig import read_config
 
-updateConfig = read_config()
 shutdown_event = asyncio.Event()
 
 UPDATE_URL = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/version.txt"
