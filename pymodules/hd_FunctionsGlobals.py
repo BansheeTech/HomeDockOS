@@ -10,7 +10,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "1.0.15.047g"
+version = "1.0.15.047h"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()

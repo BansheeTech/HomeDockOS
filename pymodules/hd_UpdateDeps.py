@@ -10,7 +10,7 @@ import subprocess
 
 from pymodules.hd_FunctionsGlobals import running_OS, current_directory
 
-VENV_PATH = os.path.abspath(os.path.join(current_directory, "../HomeDock_VirtualEnvironment"))
+VENV_PATH = os.path.abspath(os.path.join(current_directory, "venv"))
 REQUIREMENTS_FILE = os.path.join(current_directory, "requirements.txt")
 
 if running_OS == "Windows":

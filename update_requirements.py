@@ -11,7 +11,7 @@ import subprocess
 import argparse
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-VENV_PATH = os.path.abspath(os.path.join(BASE_DIR, "../HomeDock_VirtualEnvironment"))
+VENV_PATH = os.path.abspath(os.path.join(BASE_DIR, "venv"))
 
 if platform.system() == "Windows":
     VENV_PYTHON = os.path.join(VENV_PATH, "Scripts", "python.exe")

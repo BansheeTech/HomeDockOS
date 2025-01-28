@@ -7,6 +7,7 @@ dropzone/
 logs/
 otherfiles/
 _update/
+venv/
 HomeDockOS_Update.*.zip
 homedock_ports.conf
 homedock_server.conf
