@@ -87,8 +87,12 @@ def get_docker_containers():
                             if host_port:
                                 ports_list.append(host_port)
 
-                if ports_list != ["hostmode"] and ports_list:
-                    service_url = f"//{base_url_without_scheme_or_www}:{ports_list[0]}"
+                if ports_list and ports_list[0] not in ["hostmode", ""]:
+                    sanitized_port = sanitize_port(ports_list[0])
+                    if sanitized_port:
+                        service_url = f"//{base_url_without_scheme_or_www}/app/{sanitized_port}"
+                    else:
+                        service_url = None
                 else:
                     service_url = None
 

@@ -49,7 +49,7 @@
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
     "is_new": true,
-    "new_until": "02/17/2025"
+    "new_until": "02/28/2025"
   },
   {
     "dependencies": [],

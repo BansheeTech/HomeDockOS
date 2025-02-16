@@ -23,12 +23,12 @@
           <span class="flex items-center"> <Icon :icon="unpauseIcon" class="mr-2" /> Unpause </span>
         </div>
         <div :class="[themeClasses.hrSelector]"></div>
-        <Popconfirm v-model:open="popconfirmVisible" overlayClassName="w-56 select-none" :color="themeClasses.uninstallPopconfirm" placement="bottom" ok-text="Yes" cancel-text="Cancel" @confirm="handleConfirm" :getPopupContainer="getPopconfirmContainer">
+        <Popconfirm v-model:open="popconfirmVisible" overlayClassName="w-52 select-none" :color="themeClasses.uninstallPopconfirm" placement="bottom" ok-text="Yes" cancel-text="Cancel" @confirm="handleConfirm" :getPopupContainer="getPopconfirmContainer">
           <template #title>
-            <p :class="[themeClasses.uninstallPopconfirmTextUp]">Uninstall applications?</p>
+            <p :class="[themeClasses.uninstallPopconfirmTextUp]">Uninstall apps?</p>
           </template>
           <template #description>
-            <p :class="[themeClasses.uninstallPopconfirmTextDown]">The selected apps will be permanently deleted. Do you want to proceed?</p>
+            <p :class="[themeClasses.uninstallPopconfirmTextDown]">The selected apps will be uninstalled. Do you want to proceed?</p>
           </template>
           <template #icon>
             <Icon :icon="uninstallIcon" class="text-red-600 animate-pulse" width="20" height="20" />

@@ -3,7 +3,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="[themeClasses.back]" class="mt-auto z-10">
+  <div :class="[themeClasses.back]" class="mt-auto z-0">
     <div :class="[themeClasses.hrSelector]" class="mt-4"></div>
 
     <div class="text-[12px] font-[400] pb-8 pl-6 pr-6 pt-8 text-center sm:text-left">
