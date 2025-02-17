@@ -177,6 +177,7 @@ export function useTheme() {
       dropZoneFileDisplayer: "!border-gray-300 hover:!border-blue-600",
       dropZoneLockIcon: "text-gray-300 group-hover:text-blue-600",
       dropZoneEmptyText: "text-gray-400",
+      dropZoneTotalSizeScope: "bg-gray-200 text-gray-500",
 
       // Settings
       boxFoldScope: "bg-gradient-to-b from-gray-100 to-transparent border-gray-200/50",
@@ -365,6 +366,7 @@ export function useTheme() {
       dropZoneFileDisplayer: "!border-[#4e4e4e] hover:!border-blue-600",
       dropZoneLockIcon: "text-zinc-600 group-hover:text-blue-600",
       dropZoneEmptyText: "text-zinc-600",
+      dropZoneTotalSizeScope: "bg-zinc-700 text-zinc-300",
 
       // Settings
       boxFoldScope: "bg-gradient-to-b from-zinc-800 to-transparent border-zinc-700/50",
@@ -553,6 +555,7 @@ export function useTheme() {
       dropZoneFileDisplayer: "!border-zinc-300/25 hover:!border-blue-600",
       dropZoneLockIcon: "text-zinc-300/25 group-hover:text-blue-600",
       dropZoneEmptyText: "text-zinc-300/25",
+      dropZoneTotalSizeScope: "bg-zinc-600/50 text-zinc-100/50",
 
       // Settings
       boxFoldScope: "bg-gradient-to-b from-black/10 to-transparent border-zinc-800/50",

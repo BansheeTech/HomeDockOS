@@ -25,11 +25,13 @@
                 <p class="ant-upload-drag-icon">
                   <AnimatedIcon :icons="[cubeIcon, shieldLockIcon]" :iconSize="64" :interval="2000" :class="[themeClasses.dropZoneDragIcon]" class="text-4xl" />
                 </p>
-                <p :class="[themeClasses.dropZoneDragUpText]" class="ant-upload-text px-4">Click or drag files to this area to upload and encrypt its content</p>
-                <p :class="[themeClasses.dropZoneDragDownText]" class="ant-upload-hint px-4">Maximum file size allowed per file is 1GB</p>
+                <p :class="[themeClasses.dropZoneDragUpText]" class="ant-upload-text px-4 text-balance">Click or drag files to this area to upload and encrypt its content</p>
+                <p :class="[themeClasses.dropZoneDragDownText]" class="ant-upload-hint px-4 text-balance">Maximum file size allowed per file is 1GB</p>
+                <p v-if="totalSize != '0 B'" class="text-xs mt-2">
+                  <strong :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-4 py-0.5 ml-2">{{ totalSize }} total</strong>
+                </p>
               </div>
             </UploadDragger>
-
             <div class="mt-4">
               <AutoComplete v-model:value="searchQuery" :options="filteredFiles" :popup-class-name="`${themeClasses.scopeSelector} z-0`" class="w-full mb-4" @select="handleSelect">
                 <InputSearch v-model:value="searchQuery" placeholder="Search files..." :class="[themeClasses.scopeSelector]" class="w-full text-sm" enter-button="Search">
@@ -45,6 +47,7 @@
                 <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
                   <div v-for="file in displayedFiles" :key="file.name" :class="[themeClasses.dropZoneFileDisplayer]" class="relative flex flex-col items-center justify-center text-center border border-dashed rounded-lg p-4 shadow-sm hover:shadow-md group transition duration-300">
                     <Icon :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="absolute right-2 top-2 transition duration-300 h-4 w-4 min-h-4 min-w-4" />
+                    <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="absolute right-7 top-2 transition duration-300 animate-spin h-4 w-4 min-h-4 min-w-4" />
                     <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-12 w-12 min-h-12 min-w-12 transition duration-300 group-hover:scale-110" />
                     <span :class="[themeClasses.dropZoneFileText]" class="mt-2 text-xs break-words w-full overflow-hidden text-ellipsis">{{ file.name }}</span>
                     <span :class="[themeClasses.dropZoneFileSize]" class="px-2 rounded-full text-[10px] mt-1">{{ formatSize(file.size) }}</span>
@@ -78,17 +81,24 @@ import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, theme
 import { Icon } from "@iconify/vue";
 import cubeIcon from "@iconify-icons/mdi/cube";
 import folderIcon from "@iconify-icons/mdi/folder";
+// Begin file icons
 import textFileIcon from "@iconify-icons/mdi/file-document";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
 import videoFileIcon from "@iconify-icons/mdi/file-video";
 import audioFileIcon from "@iconify-icons/mdi/file-music";
 import zipFileIcon from "@iconify-icons/mdi/folder-zip";
+import excelFileIcon from "@iconify-icons/mdi/file-excel";
+import powerpointFileIcon from "@iconify-icons/mdi/file-powerpoint";
+import wordFileIcon from "@iconify-icons/mdi/file-word";
+import codeFileIcon from "@iconify-icons/mdi/file-code";
 import unknownFileIcon from "@iconify-icons/mdi/file";
+// End file icons
 import arrowDownThickIcon from "@iconify-icons/mdi/arrow-down-thick";
 import closeIcon from "@iconify-icons/mdi/close";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
 import lockIcon from "@iconify-icons/mdi/lock";
-import lockOpenIcon from "@iconify-icons/mdi/lock-open";
+import lockOpenIcon from "@iconify-icons/mdi/lock-open-alert";
+import loadingIcon from "@iconify-icons/mdi/loading";
 
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import Favicon from "../__Components__/Favicon.vue";
@@ -113,19 +123,48 @@ const fileIconsMap: Record<string, any> = {
   folder: folderIcon,
   txt: textFileIcon,
   md: textFileIcon,
-  doc: textFileIcon,
-  docx: textFileIcon,
   pdf: textFileIcon,
   png: imageFileIcon,
   jpg: imageFileIcon,
   jpeg: imageFileIcon,
   gif: imageFileIcon,
+  psd: imageFileIcon,
+  webp: imageFileIcon,
   mp4: videoFileIcon,
   mkv: videoFileIcon,
   mp3: audioFileIcon,
   wav: audioFileIcon,
+  flac: audioFileIcon,
   zip: zipFileIcon,
   rar: zipFileIcon,
+  doc: wordFileIcon,
+  docx: wordFileIcon,
+  pptx: powerpointFileIcon,
+  ppt: powerpointFileIcon,
+  ppsx: powerpointFileIcon,
+  pps: powerpointFileIcon,
+  xlsx: excelFileIcon,
+  xls: excelFileIcon,
+  csv: excelFileIcon,
+  exe: codeFileIcon,
+  app: codeFileIcon,
+  sh: codeFileIcon,
+  js: codeFileIcon,
+  ts: codeFileIcon,
+  py: codeFileIcon,
+  c: codeFileIcon,
+  cpp: codeFileIcon,
+  h: codeFileIcon,
+  hpp: codeFileIcon,
+  cs: codeFileIcon,
+  java: codeFileIcon,
+  php: codeFileIcon,
+  html: codeFileIcon,
+  css: codeFileIcon,
+  json: codeFileIcon,
+  xml: codeFileIcon,
+  sql: codeFileIcon,
+  rs: codeFileIcon,
 };
 
 const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
@@ -138,6 +177,7 @@ const files = ref<FileEntry[]>([]);
 const searchQuery = ref<string>("");
 const fileList = ref([]);
 const fileStates = ref<Record<string, boolean>>({});
+const loadingStates = ref<Record<string, boolean>>({});
 
 const customUpload = async (options: any) => {
   const { file, onSuccess, onError } = options;
@@ -180,11 +220,13 @@ const uploadFile = async (file: File) => {
 const downloadFile = async (fileName: string) => {
   try {
     fileStates.value[fileName] = true;
+    loadingStates.value[fileName] = true;
 
     const response = await axios.get(`/api/download_file?file=${encodeURIComponent(fileName)}`, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       responseType: "blob",
     });
+    loadingStates.value[fileName] = false;
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
@@ -257,6 +299,10 @@ const handleChange = (info: any) => {
     message.error(`${info.file.name} upload failed.`);
   }
 };
+
+const totalSize = computed(() => {
+  return formatSize(files.value.reduce((acc, file) => acc + file.size, 0));
+});
 
 function formatSize(size: string | number) {
   const numSize = typeof size === "number" ? size : parseFloat(size);
