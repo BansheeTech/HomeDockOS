@@ -48,7 +48,7 @@
     "type": "Universe Simulation",
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
-    "is_new": true,
+    "is_new": false,
     "new_until": "02/28/2025"
   },
   {
@@ -1079,6 +1079,19 @@
     "new_until": false
   },
   {
+    "dependencies": ["jellystat_postgres"],
+    "docker_image": "cyfershepard/jellystat:latest",
+    "picture_path": "docker-icons/jellystat.jpg",
+    "is_group": true,
+    "name": "jellystat",
+    "category": "Media",
+    "type": "Jellyfin Monitoring",
+    "icon": "mdi:arrow-decision",
+    "description": "Monitoring tool for Jellyfin Server, providing user insights, analytics, play counts and server activity insights",
+    "is_new": true,
+    "new_until": "04/08/2025"
+  },
+  {
     "dependencies": [],
     "docker_image": "lscr.io/linuxserver/jellyfin:latest",
     "picture_path": "docker-icons/jellyfin.jpg",
@@ -1441,6 +1454,19 @@
     "description": "Unified visual tool for database architects, developers, and DBAs to manage MySQL databases",
     "is_new": false,
     "new_until": false
+  },
+  {
+    "dependencies": [],
+    "docker_image": "docker.n8n.io/n8nio/n8n:latest",
+    "picture_path": "docker-icons/n8n.jpg",
+    "is_group": false,
+    "name": "n8n",
+    "category": "Home & Automation",
+    "type": "Workflow Automation",
+    "icon": "mdi:robot",
+    "description": "Workflow automation tool that enables you to connect your favorite apps, services, and devices",
+    "is_new": true,
+    "new_until": "04/08/2025"
   },
   {
     "dependencies": [],

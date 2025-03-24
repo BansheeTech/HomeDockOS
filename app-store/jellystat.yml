@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
+    container_name: jellystat
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jellystat_user
+      POSTGRES_PASSWORD: [[HD_SYSTEM_PASSWORD]]
+      POSTGRES_IP: jellystat_postgres
+      POSTGRES_PORT: 5432
+      JWT_SECRET: [[HD_SYSTEM_PASSWORD]]
+      TZ: Europe/Madrid
+    volumes:
+      - [[INSTALL_PATH]]/jellystat/jellystat:/app/backend/backup-data
+    ports:
+      - "8099:3000"
+    depends_on:
+      - jellystat_postgres
+    labels:
+      HDGroup: "jellystat"
+      HDRole: "main"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  jellystat_postgres:
+    image: postgres:15.2
+    shm_size: '1gb'
+    container_name: jellystat_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jellystat_user
+      POSTGRES_PASSWORD: [[HD_SYSTEM_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/jellystat/jellystat_postgres:/var/lib/postgresql/data
+    labels:
+      HDGroup: "jellystat"
+      HDRole: "dependency"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
