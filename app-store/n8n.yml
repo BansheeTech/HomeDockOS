@@ -1,7 +1,6 @@
 version: "3"
 
 services:
-
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
@@ -12,6 +11,11 @@ services:
       - N8N_PORT=5678
       - N8N_HOST=localhost
       - N8N_PROTOCOL=http
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_SECURE_COOKIE=false
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     volumes:
-      - [[INSTALL_PATH]]/n8n:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
 
+volumes:
+  n8n_data:
