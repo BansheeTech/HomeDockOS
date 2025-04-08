@@ -12,7 +12,7 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 
 
 <kbd>
-  <img alt="CasaOS Snapshot" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-screen-2.webp" style="max-width:100%;">
+  <img alt="HomeDock OS Snapshot" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-screen-2.webp" style="max-width:100%;">
 </kbd>
 
 ---

@@ -13,7 +13,7 @@
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
       <div :class="[themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 container-scroller mb-2">
-        <div class="flex mb-2">
+        <div class="flex justify-between items-start mb-6">
           <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
         </div>
         <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
@@ -55,6 +55,17 @@
             <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">Remaining attempts: {{ remainingAttempts }}</p>
           </Transition>
         </Form>
+        <div :class="[themeClasses.loginSocialsCont]" class="flex items-center space-x-2 transition-all duration-300 ease-in-out transform translate-y-5 w-fit px-2 hover:px-6 py-1 rounded-full mx-auto">
+          <a href="https://github.com/BansheeTech/HomeDockOS" target="_blank" class="flex items-center">
+            <Icon :class="[themeClasses.loginSocials]" class="w-5 h-5 transition duration-300 hover:scale-125 hover:-translate-y-1" :icon="githubIcon" />
+          </a>
+          <a href="https://www.homedock.cloud" target="_blank" class="flex items-center">
+            <Icon :class="[themeClasses.loginSocials]" class="w-5 h-5 transition duration-300 hover:scale-125 hover:-translate-y-1" :icon="websiteIcon" />
+          </a>
+          <a href="https://docs.homedock.cloud" target="_blank" class="flex items-center">
+            <Icon :class="[themeClasses.loginSocials]" class="w-5 h-5 transition duration-300 hover:scale-125 hover:-translate-y-1" :icon="supportIcon" />
+          </a>
+        </div>
       </div>
       <CloudInstances :isVisible="cloudInstancesVisible" @update:isVisible="cloudInstancesVisible = $event" />
     </div>
@@ -73,6 +84,9 @@ import passIcon from "@iconify-icons/mdi/lock";
 import openEye from "@iconify-icons/mdi/eye-outline";
 import closedEye from "@iconify-icons/mdi/eye-closed";
 import loadingIcon from "@iconify-icons/mdi/loading";
+import websiteIcon from "@iconify-icons/mdi/earth";
+import supportIcon from "@iconify-icons/mdi/lifebuoy";
+import githubIcon from "@iconify-icons/mdi/github";
 
 import { Form, Input, Button } from "ant-design-vue";
 import { message } from "ant-design-vue";

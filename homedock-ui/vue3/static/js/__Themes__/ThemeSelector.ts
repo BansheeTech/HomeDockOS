@@ -50,6 +50,8 @@ export function useTheme() {
       footerTextLeft: "text-gray-400",
       footerTextRight: "text-gray-400",
       formIcon: "text-gray-300",
+      loginSocialsCont: "bg-gray-100 border border-gray-200/50",
+      loginSocials: "text-gray-300 hover:text-blue-600",
 
       // Dashboard
       iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-200 via-white to-gray-1000",
@@ -239,6 +241,8 @@ export function useTheme() {
       footerTextLeft: "text-zinc-600",
       footerTextRight: "text-zinc-600",
       formIcon: "text-zinc-500",
+      loginSocialsCont: "bg-zinc-800 border border-zinc-700/50",
+      loginSocials: "text-zinc-600 hover:text-blue-600",
 
       // Dashboard
       iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
@@ -428,6 +432,8 @@ export function useTheme() {
       footerTextLeft: "text-zinc-500",
       footerTextRight: "text-zinc-500",
       formIcon: "text-zinc-500",
+      loginSocialsCont: "bg-zinc-800/25 border border-zinc-800/25",
+      loginSocials: "text-zinc-500 hover:text-blue-500",
 
       // Dashboard
       iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
