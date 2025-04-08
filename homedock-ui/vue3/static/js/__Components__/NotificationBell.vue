@@ -23,7 +23,7 @@
                     :icon="notification.isUpdating ? loadingIcon : notification.isUpdate ? updateIcon : messageBadgeIcon"
                     :class="{
                       'w-4 h-4 mt-1 text-current': true,
-                      'animate-pulse': notification.isUpdate && !notification.isUpdating,
+                      'animate-pulse h-5 w-5': notification.isUpdate && !notification.isUpdating,
                       'animate-spin': notification.isUpdating,
                     }"
                     size="16px"
@@ -210,8 +210,8 @@ onMounted(async () => {
 
   if (updateStore.updateAvailable) {
     notifications.value.push({
-      title: "Update Available",
-      message: `New version ${updateStore.latestVersion} available! Click to update.`,
+      title: `New version available!`,
+      message: `New HomeDock OS ${updateStore.latestVersion} just dropped! Click here to update now.`,
       permanent: true,
       allowRemove: false,
       startDate: null,

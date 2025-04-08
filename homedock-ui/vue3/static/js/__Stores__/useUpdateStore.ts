@@ -57,6 +57,7 @@ export const useUpdateStore = defineStore("updateStore", {
         };
         localStorage.setItem("updateCheckData", JSON.stringify(updateData));
       } catch (error) {
+        this.updateAvailable = false;
         console.error("Error checking for updates:", error);
       }
     },
@@ -69,8 +70,7 @@ export const useUpdateStore = defineStore("updateStore", {
 
         setTimeout(() => {
           window.location.href = "/";
-        }, 2000);
-        
+        }, 2500);
       } catch (error) {
         console.error("Error updating HomeDock OS:", error);
       }
