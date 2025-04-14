@@ -7,5 +7,8 @@ services:
     restart: unless-stopped
     volumes:
       - [[INSTALL_PATH]]/vaultwarden:/data/
+      - /DATA/SSLCerts:/ssl
     ports:
-      - 4444:80
+      - "4443:80"
+    environment:
+      - ROCKET_TLS={certs="/ssl/fullchain.pem",key="/ssl/privkey.pem"}

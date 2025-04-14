@@ -89,6 +89,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-200",
       sslAdvsisorIcon: "text-green-600",
       appErrorMessage: "text-red-500 bg-red-200",
+      statusBarAppScope: "bg-gray-800/10 text-black/50 border-black/5",
 
       // NavBar
       greetingMain: "text-gray-400",
@@ -146,8 +147,11 @@ export function useTheme() {
       storeLinkHDOSButton: "bg-white text-black",
       storeAboutTextScope: "text-gray-900",
       storeAboutTextDescScope: "text-gray-700",
-      storeAboutTextDepsScope: "text-gray-600",
+      storeAboutTextDepsScope: "text-gray-600 bg-green-200",
       storeRuntimeRenderTextScope: "text-gray-900",
+      storeTextSSLFlag: "text-green-500",
+      storePopupSSLFlag: "text-green-500 bg-green-200 border-green-500",
+      storeInputSSLFlag: "text-green-500",
 
       // Control-Hub
       hubContMainer: "border-gray-200 bg-gradient-to-b from-gray-100 to-transparent",
@@ -281,6 +285,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-800",
       sslAdvsisorIcon: "text-green-400",
       appErrorMessage: "text-red-200 bg-red-500",
+      statusBarAppScope: "bg-zinc-100/10 text-white/50 border-white/5",
 
       // NavBar
       greetingMain: "text-gray-500",
@@ -338,8 +343,11 @@ export function useTheme() {
       storeLinkHDOSButton: "bg-zinc-800 text-white border-zinc-600",
       storeAboutTextScope: "text-zinc-200",
       storeAboutTextDescScope: "text-zinc-400",
-      storeAboutTextDepsScope: "text-gray-500",
+      storeAboutTextDepsScope: "text-gray-600 bg-green-400",
       storeRuntimeRenderTextScope: "text-zinc-200",
+      storeTextSSLFlag: "text-green-500",
+      storePopupSSLFlag: "text-green-200 bg-green-600 border-green-200",
+      storeInputSSLFlag: "text-green-200",
 
       // Control-Hub
       hubContMainer: "border-zinc-800 bg-gradient-to-b from-zinc-800 to-transparent",
@@ -473,6 +481,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-600/50",
       sslAdvsisorIcon: "text-green-400",
       appErrorMessage: "text-red-600 bg-red-900/50",
+      statusBarAppScope: "bg-zinc-800/5 text-white/50 border-zinc-200/5",
 
       // NavBar
       greetingMain: "text-gray-400",
@@ -530,8 +539,11 @@ export function useTheme() {
       storeLinkHDOSButton: "bg-transparent text-white border-zinc-600/50",
       storeAboutTextScope: "text-zinc-200",
       storeAboutTextDescScope: "text-zinc-400",
-      storeAboutTextDepsScope: "text-zinc-400",
+      storeAboutTextDepsScope: "text-zinc-100 bg-green-400/50",
       storeRuntimeRenderTextScope: "text-zinc-200",
+      storeTextSSLFlag: "text-green-500",
+      storePopupSSLFlag: "text-green-300 bg-green-600/80 border-green-300",
+      storeInputSSLFlag: "text-green-300",
 
       // Control-Hub
       hubContMainer: "border-zinc-700/50 bg-gradient-to-b from-zinc-800/50 to-transparent",

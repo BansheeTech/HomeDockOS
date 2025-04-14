@@ -7,7 +7,7 @@
     <div class="relative flex items-center justify-center w-56 h-56">
       <canvas ref="canvas" class="absolute inset-0 w-full h-full pointer-events-none z-50"></canvas>
 
-      <div class="flex items-center justify-center backdrop-blur-xl rounded-full w-40 h-40 p-10 relative z-[40]">
+      <div class="flex items-center justify-center backdrop-blur-xl rounded-full w-40 h-40 p-10 relative z-[40] bg-slate-500/5">
         <Transition name="fade-scale" mode="out-in">
           <Icon v-if="isChecking" :icon="searchIcon" :class="[themeClasses.appLoadingIcon]" class="text-6xl" :style="{ transform: `translate(${posX}px, ${posY}px)` }" key="loading" />
           <Icon v-else-if="isSuccess" :icon="checkBoldIcon" :class="[themeClasses.appLoadingIcon]" class="text-6xl" key="success" />

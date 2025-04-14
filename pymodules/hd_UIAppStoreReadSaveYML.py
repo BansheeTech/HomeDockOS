@@ -19,6 +19,7 @@ from flask import jsonify, request
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
+from pymodules.hd_FunctionsNativeSSL import ssl_enabled
 
 
 @login_required
@@ -31,7 +32,14 @@ def get_appstore_info():
 
     path_to_yml_files = os.path.join(current_directory, "app-store")
 
-    yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
+    use_ssl = ssl_enabled()
+
+    if use_ssl and os.path.exists(os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")):
+        yml_file_path = os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")
+        use_ssl = True
+    else:
+        yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
+        use_ssl = False
 
     if not os.path.exists(yml_file_path):
         return jsonify({"success": False, "message": "Container not found"}), 404
@@ -90,7 +98,7 @@ def get_appstore_info():
 
         yml_str, _ = process_devhooks(yml_str)
 
-        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None}})
+        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None, "ssl_enabled": use_ssl}})
 
 
 @login_required
@@ -108,7 +116,14 @@ def process_config():
 
     configType = request_data.get("configType")
     path_to_yml_files = os.path.join(current_directory, "app-store")
-    original_yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
+
+    use_ssl = ssl_enabled()
+
+    if use_ssl and os.path.exists(os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")):
+        original_yml_file_path = os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")
+    else:
+        original_yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
+
     new_yml_file_path = os.path.join(path_to_yml_files, containerName, "docker-compose.yml")
 
     if not os.path.exists(original_yml_file_path):
@@ -183,7 +198,7 @@ def process_config():
 def generate_simple_password():
     words = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "iceberg", "jujube", "kiwi", "lemon", "mango", "nectarine", "orange", "papaya", "quince", "raspberry", "strawberry", "tangerine", "ugli", "vanilla", "watermelon", "xigua", "yam", "zucchini"]
     numbers = random.sample(range(10, 99), 2)
-    password = random.choice(words) + random.choice(words) + str(numbers[0]) + str(numbers[1])
+    password = random.choice(words) + "_" + random.choice(words) + "_" + str(numbers[0]) + str(numbers[1])
     return password
 
 

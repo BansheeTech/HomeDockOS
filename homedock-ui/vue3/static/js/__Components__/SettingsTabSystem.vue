@@ -42,41 +42,41 @@
     </label>
 
     <div class="form-switch mb-2">
-      <label class="inline-flex items-center">
-        <Switch v-model:checked="homedockLocalValue" size="small" name="FormInputHomeDockLOcal" id="FormInputHomeDockLOcal" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-center">
-          <Icon :icon="lanIcon" :class="[themeClasses.optionSelector]" />
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="homedockLocalValue" size="small" name="FormInputHomeDockLOcal" id="FormInputHomeDockLOcal" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="lanIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
           <span class="ml-1">Enable access on homedock.local (Requires restart)</span>
         </span>
       </label>
     </div>
 
-    <div class="form-switch mb-2">
-      <label class="inline-flex items-center">
-        <Switch v-model:checked="developmentValue" size="small" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-center">
-          <Icon :icon="hazardLightsIcon" :class="[themeClasses.optionSelector]" />
+    <div class="form-switch mb-2 hidden">
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="developmentValue" size="small" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="hazardLightsIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
           <span class="ml-1">Run on development mode (Requires restart)</span>
         </span>
       </label>
     </div>
 
     <div class="form-switch mb-2">
-      <label class="inline-flex items-center">
-        <Switch v-model:checked="delOldDataUpdateValue" size="small" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-center">
-          <Icon :icon="deleteClockIcon" :class="[themeClasses.optionSelector]" />
-          <span class="ml-1">Delete old data on app update</span>
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="delOldDataUpdateValue" size="small" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="deleteClockIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
+          <span class="ml-1">Delete old installed image on app update</span>
         </span>
       </label>
     </div>
 
     <div class="form-switch">
-      <label class="inline-flex items-center">
-        <Switch v-model:checked="delOldDataUninstallValue" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-center">
-          <Icon :icon="deleteIcon" :class="[themeClasses.optionSelector]" />
-          <span class="ml-1">Delete old data on app uninstall</span>
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="delOldDataUninstallValue" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="deleteIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
+          <span class="ml-1">Delete old installed image on app uninstall</span>
         </span>
       </label>
     </div>

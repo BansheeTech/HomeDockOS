@@ -55,7 +55,7 @@
             <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">Remaining attempts: {{ remainingAttempts }}</p>
           </Transition>
         </Form>
-        <div :class="[themeClasses.loginSocialsCont]" class="flex items-center space-x-2 transition-all duration-300 ease-in-out transform translate-y-5 w-fit px-2 hover:px-6 py-1 rounded-full mx-auto">
+        <div :class="[themeClasses.loginSocialsCont]" class="flex items-center space-x-2 transition-all duration-300 ease-in-out transform translate-y-5 w-fit px-1.5 group-hover:px-10 py-1 rounded-full mx-auto">
           <a href="https://github.com/BansheeTech/HomeDockOS" target="_blank" class="flex items-center">
             <Icon :class="[themeClasses.loginSocials]" class="w-5 h-5 transition duration-300 hover:scale-125 hover:-translate-y-1" :icon="githubIcon" />
           </a>

@@ -21,7 +21,14 @@
     <Modal :class="[themeClasses.scopeSelector]" v-model:open="modalStore.isModalVisible" :key="modalStore.selectedApp?.name" wrap-class-name="full-modal" class="rounded-3xl overflow-hidden" :destroyOnClose="true" :footer="null" :centered="true">
       <div class="py-3 lg:px-3 rounded-3xl mx-auto grid grid-cols-1 lg:grid-cols-4 items-start">
         <div class="col-span-1 flex flex-col items-center lg:items-start text-center lg:text-left">
-          <BaseImage draggable="false" :src="modalStore.selectedApp?.picture_path || 'docker-icons/notfound.jpg'" :alt="modalStore.selectedApp?.name" :class="[themeClasses.storeModalImageBack]" class="w-32 h-32 min-w-32 min-h-32 rounded-2xl shadow-lg transition ring-[1px] duration-300 hover:-translate-y-1 md:w-44 md:h-44 md:min-w-44 md:min-h-44" />
+          <div class="relative group">
+            <BaseImage draggable="false" :src="modalStore.selectedApp?.picture_path || 'docker-icons/notfound.jpg'" :alt="modalStore.selectedApp?.name" :class="[themeClasses.storeModalImageBack]" class="w-32 h-32 min-w-32 min-h-32 rounded-2xl shadow-lg transition ring-[1px] duration-300 group-hover:-translate-y-1 md:w-44 md:h-44 md:min-w-44 md:min-h-44" />
+
+            <div v-if="modalStore.sslEnabled" key="ssl-badge" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1.5 rounded-full -top-2 -left-2 shadow-sm transition duration-300 group-hover:-translate-y-1 border">
+              <Icon :icon="lockIcon" class="h-3.5 w-3.5" />
+            </div>
+          </div>
+
           <h1 :class="[themeClasses.storeModalAppName]" class="text-2xl font-bold mt-4">{{ modalStore.selectedApp?.name }}</h1>
           <p :class="[themeClasses.storeModalAppType]" class="text-sm">{{ modalStore.selectedApp?.type }}</p>
           <p :class="[themeClasses.storeModalAppCategory]" class="text-sm">{{ modalStore.selectedApp?.category }}</p>
@@ -34,11 +41,21 @@
               <span>License</span>
             </p>
           </a>
+          <div v-if="modalStore.sslEnabled" key="ssl-badge" :class="[themeClasses.storeTextSSLFlag]" class="flex items-center">
+            <Icon :icon="lockIcon" class="mr-1 mb-0.5 h-3 w-3" />
+            <span class="text-xs font-medium">HTTPS Enabled</span>
+          </div>
 
-          <p v-if="modalStore.selectedApp?.dependencies && modalStore.selectedApp.dependencies.length >= 1" :class="[themeClasses.storeDependenciesScope]" class="text-sm text-xs inline-flex items-start">
-            <Icon :icon="cubeIcon" class="h-3 min-h-3 w-3 min-w-3 mt-0.5 mr-1" />
-            {{ modalStore.selectedApp?.dependencies.concat().join(", ") }}
-          </p>
+          <div v-if="modalStore.selectedApp?.dependencies && modalStore.selectedApp.dependencies.length >= 1" :class="[themeClasses.storeDependenciesScope]" class="text-sm text-xs">
+            <div class="flex items-start">
+              <div class="flex flex-col">
+                <span class="flex items-center justify-center lg:justify-start" v-for="dependency in modalStore.selectedApp?.dependencies" :key="dependency">
+                  <Icon :icon="cubeIcon" class="h-3 min-h-3 w-3 min-w-3 mt-0.5 mr-1" />
+                  {{ dependency }}
+                </span>
+              </div>
+            </div>
+          </div>
 
           <div class="mt-4 flex gap-2">
             <Transition name="button-fade" mode="out-in">
@@ -90,7 +107,7 @@
             {{ modalStore.selectedApp?.description + "." || "No description available" }}
           </p>
 
-          <p v-if="modalStore.selectedApp?.dependencies && modalStore.selectedApp.dependencies.length >= 1" :class="[themeClasses.storeAboutTextDepsScope]" class="text-sm text-xs inline-flex items-start">
+          <p v-if="modalStore.selectedApp?.dependencies && modalStore.selectedApp.dependencies.length >= 1" :class="[themeClasses.storeAboutTextDepsScope]" class="text-sm text-xs inline-flex items-start px-2 py-1 rounded-lg">
             <Icon :icon="cubeIcon" class="h-3 min-h-3 w-3 min-w-3 mt-0.5 mr-1" />
             <span>
               Installing this application will also install the following dependencies: <span class="underline">{{ modalStore.selectedApp?.dependencies.concat().join(", ") }}</span>
@@ -125,7 +142,11 @@
               <div class="mb-4">
                 <h3 :class="[themeClasses.storeRuntimeRenderTextScope]" class="font-semibold text-lg">Volumes</h3>
                 <div v-for="(volume, index) in modalStore.volumes" :key="'volume-' + index" class="mb-2 flex items-center gap-2">
-                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="modalStore.selectedApp?.is_installed" v-model:value="modalStore.volumes[index]" placeholder="Format: /path:/path" class="w-full" />
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="modalStore.selectedApp?.is_installed" v-model:value="modalStore.volumes[index]" placeholder="Format: /path:/path" class="w-full">
+                    <template #prefix v-if="volume.includes('/DATA/SSLCerts')">
+                      <Icon :icon="lockIcon" class="h-3.5 w-3.5 -translate-x-0.5 text-green-500" />
+                    </template>
+                  </Input>
                   <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="modalStore.selectedApp?.is_installed" type="dashed" @click="modalStore.removeVolume(index)">
                     <Icon :icon="deleteIcon" />
                   </Button>
@@ -174,6 +195,7 @@ import codeBracesBoxIcon from "@iconify-icons/mdi/code-braces-box";
 import earthIcon from "@iconify-icons/mdi/earth";
 import queueIcon from "@iconify-icons/mdi/queue";
 import loadingIcon from "@iconify-icons/mdi/loading";
+import lockIcon from "@iconify-icons/mdi/lock";
 
 import AppStoreAppCard from "../__Components__/AppStoreAppCard.vue";
 import BaseImage from "../__Components__/BaseImage.vue";

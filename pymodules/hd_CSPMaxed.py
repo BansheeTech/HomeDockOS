@@ -54,7 +54,8 @@ def set_common_headers(response, selected_server, is_development):
     response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-
+    response.headers["Strict-Transport-Security"] = "max-age=0"
+    
     response.headers["Server"] = header_manager.server
     response.headers["Via"] = header_manager.via
     response.headers["X-Powered-By"] = header_manager.powered_by

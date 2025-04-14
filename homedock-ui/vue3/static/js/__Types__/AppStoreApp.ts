@@ -15,4 +15,5 @@ export interface App {
   is_new: boolean;
   new_until: string | boolean;
   is_installed?: boolean;
+  sslEnabled?: boolean;
 }

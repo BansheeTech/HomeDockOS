@@ -23,6 +23,7 @@ export const useModalStore = defineStore("ModalStore", {
     advancedCompose: "",
     userName: "",
     userPassword: "",
+    sslEnabled: "",
     isProcessing: {} as Record<string, boolean>,
   }),
   actions: {
@@ -39,6 +40,7 @@ export const useModalStore = defineStore("ModalStore", {
           this.restartPolicy = "unless-stopped";
           this.userName = response.data.data.user_name || undefined;
           this.userPassword = response.data.data.password || undefined;
+          this.sslEnabled = response.data.data.ssl_enabled || false;
         } else {
           console.error("Failed to fetch app info:", response.data.message);
         }
@@ -123,6 +125,7 @@ export const useModalStore = defineStore("ModalStore", {
       const appStore = useAppStore();
       if (this.selectedApp) {
         const updatedApp = appStore.apps.find((app) => app.name === this.selectedApp?.name);
+
         if (updatedApp) {
           this.selectedApp = { ...this.selectedApp, ...updatedApp };
         }

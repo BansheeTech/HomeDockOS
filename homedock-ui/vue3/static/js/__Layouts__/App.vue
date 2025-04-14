@@ -8,9 +8,10 @@
   <ScrollBarThemeLoader />
   <TopComment />
   <NetworkOffline />
-  <StaticOscillatingLines :numLines="9" :line-width="2" :amplitude="500" :points-per-line="3" />
+  <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
+
   <div :class="[themeClasses.back]" class="flex items-center justify-center relative p-3 overflow-hidden">
-    <div class="flex items-center justify-cente text-white">
+    <div class="flex items-center justify-center text-white">
       <OrbitLoader :isChecking="isChecking" :isSuccess="isSuccess" :isError="isError" :isHttps="isHttps" />
 
       <Transition name="fade-slide" mode="out-in">
@@ -22,12 +23,13 @@
       </Transition>
     </div>
   </div>
+
+  <StatusFooter :isSuccess="isSuccess" :isError="isError" :statusMessage="statusMessage" :port="String(port)" />
 </template>
+
 <script setup lang="ts">
-import { inject, onMounted, ref } from "vue";
-
+import { inject, onMounted, ref, computed } from "vue";
 import axios from "axios";
-
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { Icon } from "@iconify/vue";
@@ -41,6 +43,7 @@ import TopComment from "../__Components__/TopComment.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
 import NetworkOffline from "../__Components__/NetworkOffline.vue";
 import OrbitLoader from "../__Components__/OrbitLoader.vue";
+import StatusFooter from "../__Components__/StatusFooter.vue";
 
 const { themeClasses } = useTheme();
 
@@ -60,8 +63,10 @@ const { selectedPort: port, selectedPath: path } = portData;
 const isChecking = ref(true);
 const isSuccess = ref(false);
 const isError = ref(false);
+
 const isHttps = ref(false);
 const errorMessage = ref<string | null>(null);
+const statusMessage = ref<string>("Initializing...");
 
 const maxRetries = 5;
 let retryCount = 0;
@@ -71,8 +76,11 @@ const checkAppAvailability = async () => {
     isChecking.value = false;
     isError.value = true;
     errorMessage.value = "Not valid port specified";
+    statusMessage.value = "Invalid app port";
     return;
   }
+
+  statusMessage.value = "Checking app availability...";
 
   try {
     const response = await axios.post(
@@ -90,6 +98,7 @@ const checkAppAvailability = async () => {
       isChecking.value = false;
       isSuccess.value = true;
       errorMessage.value = null;
+      statusMessage.value = "Connection established";
       setTimeout(() => {
         const finalUrl = response.data.url + (path ? `/${path}` : "");
         const newWindow = window.open(finalUrl, "_self");
@@ -104,12 +113,15 @@ const checkAppAvailability = async () => {
   } catch (error) {
     retryCount++;
     errorMessage.value = `Retrying ${retryCount}/${maxRetries}`;
+    statusMessage.value = `Retying ${retryCount}/${maxRetries}`;
+
     if (retryCount < maxRetries) {
       setTimeout(checkAppAvailability, 3000);
     } else {
       isChecking.value = false;
       isError.value = true;
       errorMessage.value = `App not available on ${port}`;
+      statusMessage.value = "Application unavailable";
     }
   }
 };

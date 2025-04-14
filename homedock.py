@@ -87,6 +87,7 @@ if __name__ == "__main__":
     run_on_development = globalConfig["run_on_development"]
 
     ssl_enabled_var = ssl_enabled()  # SSL Check Variable
+
     protocol = "https" if ssl_enabled_var else "http"
 
     print()
@@ -136,15 +137,15 @@ if __name__ == "__main__":
         cert_info = get_ssl_cert_info(cert_path)
         print(" » SSL Certificate Information:")
         if "error" in cert_info:
-            print(f'           └─ \x1B[4mError: {cert_info["error"]}\x1B[0m')
+            print(f'           └─ \x1b[4mError: {cert_info["error"]}\x1b[0m')
         else:
-            print(f'           ├─ \x1B[4mValid Until: {cert_info["notAfter"]}\x1B[0m')
-            print(f'           └─ \x1B[4mIssuer: {cert_info["issuerO"]} V{cert_info["version"]} ({cert_info["issuerCN"]})\x1B[0m')
+            print(f'           ├─ \x1b[4mValid Until: {cert_info["notAfter"]}\x1b[0m')
+            print(f'           └─ \x1b[4mIssuer: {cert_info["issuerO"]} V{cert_info["version"]} ({cert_info["issuerCN"]})\x1b[0m')
             print()
 
-    print(f" + Log in at: \x1B[4m{format_url(protocol, local_ip, run_port)}\x1B[0m")
-    print(f"           ├─ \x1B[4m{format_url(protocol, internet_ip, run_port)}\x1B[0m")
-    print(f"           └─ \x1B[4m{format_url(protocol, dynamic_dns, run_port)}\x1B[0m")
+    print(f" + Log in at: \x1b[4m{format_url(protocol, local_ip, run_port)}\x1b[0m")
+    print(f"           ├─ \x1b[4m{format_url(protocol, internet_ip, run_port)}\x1b[0m")
+    print(f"           └─ \x1b[4m{format_url(protocol, dynamic_dns, run_port)}\x1b[0m")
 
     if local_dns:
         thread_result = {"success": False}
@@ -157,7 +158,7 @@ if __name__ == "__main__":
         thread.join()
 
         if thread_result["success"]:
-            print(f"            > \x1B[4m{format_url(protocol, 'homedock.local', run_port)}\x1B[0m")
+            print(f"            > \x1b[4m{format_url(protocol, 'homedock.local', run_port)}\x1b[0m")
         else:
             print("            ! homedock.local unavailable")
 
@@ -190,6 +191,9 @@ if __name__ == "__main__":
             hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
 
             if ssl_enabled_var:
+                from pymodules.hd_HTTPRedirector import start_http_redirect_server
+
+                start_http_redirect_server()
                 hypercorn_config.certfile = "/DATA/SSLCerts/fullchain.pem"
                 hypercorn_config.keyfile = "/DATA/SSLCerts/privkey.pem"
                 hypercorn_config.ca_certs = "/DATA/SSLCerts/chain.pem"
