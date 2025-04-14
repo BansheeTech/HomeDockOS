@@ -12,10 +12,14 @@ services:
       - TZ=Etc/UTC
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
+      - KASM_SSL_CERT=/config/ssl/cert.crt
+      - KASM_SSL_KEY=/config/ssl/cert.key
       - FIREFOX_CLI=https://www.homedock.cloud/
     volumes:
       - [[INSTALL_PATH]]/firefox:/config
+      - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
     ports:
-      - 3000:3000
+      - 3000:3001
     shm_size: "1gb"
     restart: unless-stopped

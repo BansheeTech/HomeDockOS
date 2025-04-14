@@ -1,0 +1,19 @@
+---
+version: '3.3'
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - 8765:80
+    volumes:
+      - [[INSTALL_PATH]]/filebrowser:/config
+      - [[APP_MOUNT_POINT]]/filebrowser:/srv
+      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+    environment:
+      - FB_CERT=/etc/ssl/certs/fullchain.pem
+      - FB_KEY=/etc/ssl/private/privkey.pem
+      - FB_PORT=80
+      - TZ=UTC

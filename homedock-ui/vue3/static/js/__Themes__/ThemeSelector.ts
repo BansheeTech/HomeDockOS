@@ -481,7 +481,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-600/50",
       sslAdvsisorIcon: "text-green-400",
       appErrorMessage: "text-red-600 bg-red-900/50",
-      statusBarAppScope: "bg-zinc-800/5 text-white/50 border-zinc-200/5",
+      statusBarAppScope: "bg-zinc-800/20 text-white/50 border-zinc-200/5",
 
       // NavBar
       greetingMain: "text-gray-400",

@@ -427,6 +427,16 @@ textarea:disabled {
   color: rgb(255, 255, 255) !important;
 }
 
+:global(.aero-mode-theme .ant-input-affix-wrapper) {
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+:global(.aero-mode-theme .ant-input-affix-wrapper-disabled) {
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
 :global(.white-mode-theme input::placeholder) {
   color: rgb(210, 210, 210) !important;
 }
@@ -439,12 +449,19 @@ textarea:disabled {
   color: rgb(177, 177, 177) !important;
 }
 
-:global(.dark-mode-theme input:disabled) {
+:global(.white-mode-theme .ant-input-affix-wrapper-disabled) {
+  border: 1px solid rgb(217, 217, 217) !important;
+  background-color: rgb(246, 246, 246) !important;
+}
+
+:global(.dark-mode-theme input:disabled),
+:global(.dark-mode-theme .ant-input-affix-wrapper-disabled) {
   color: rgb(66, 66, 66) !important;
   border: 1px solid rgb(53, 53, 53) !important;
 }
 
-:global(.aero-mode-theme input:disabled) {
+:global(.aero-mode-theme input:disabled),
+:global(.aero-mode-theme .ant-input-affix-wrapper-disabled) {
   color: rgb(66, 66, 66) !important;
   border: 1px solid rgb(53, 53, 53, 0.5) !important;
 }
@@ -456,7 +473,7 @@ textarea:disabled {
 
 ::v-deep(.aero-mode-theme .ant-input-disabled) {
   color: rgb(66, 66, 66) !important;
-  border: 1px solid rgb(53, 53, 53, 0.5) !important;
+  border: 0px solid rgb(53, 53, 53, 0.5) !important;
 }
 
 ::v-deep(.dark-mode-theme .ant-pagination-item) {
@@ -492,11 +509,19 @@ textarea:disabled {
   color: rgb(119, 119, 119, 0.75) !important;
 }
 
-:global(.dark-mode-theme .ant-input-password) {
-  border: 1px solid rgb(53, 53, 53) !important;
+:global(.white-mode-theme .ant-input-password-icon) {
+  color: rgb(124, 161, 255) !important;
 }
 
-:global(.dark-mode-theme .ant-input-password:hover) {
+:global(.dark-mode-theme .ant-input-password-icon) {
+  color: rgb(66, 119, 255) !important;
+}
+
+:global(.aero-mode-theme .ant-input-password-icon) {
+  color: rgba(122, 160, 255, 0.795) !important;
+}
+
+:global(.dark-mode-theme .ant-input-password) {
   border: 1px solid rgb(53, 53, 53) !important;
 }
 
