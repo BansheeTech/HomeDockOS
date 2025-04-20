@@ -12,5 +12,5 @@ services:
       - [[INSTALL_PATH]]/davos:/config
       - [[APP_MOUNT_POINT]]/davos/downloads:/download
     ports:
-      - 8080:8080
+      - 9090:8080
     restart: unless-stopped

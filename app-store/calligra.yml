@@ -12,10 +12,9 @@ services:
       - TZ=Etc/UTC
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
-      - TITLE="Calligra - HomeDock"
+      - TITLE="Calligra"
     volumes:
       - [[INSTALL_PATH]]/calligra:/config
     ports:
       - 4414:3000
-      - 4415:3001
     restart: unless-stopped

@@ -16,5 +16,4 @@ services:
       - [[INSTALL_PATH]]/bambustudio:/config
     ports:
       - 9975:3000
-      - 9976:3001
     restart: unless-stopped

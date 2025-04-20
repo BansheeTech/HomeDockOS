@@ -5,17 +5,16 @@ services:
     image: lscr.io/linuxserver/boinc:latest
     container_name: boinc
     security_opt:
-      - seccomp:unconfined #optional
+      - seccomp:unconfined
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
+      - TITLE=Boinc
     volumes:
       - [[INSTALL_PATH]]/boinc:/config
     ports:
       - 8080:8080
-      - 8181:8181
-    devices:
-      - /dev/dri:/dev/dri #optional
     restart: unless-stopped

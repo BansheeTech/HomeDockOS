@@ -17,6 +17,4 @@ services:
       - [[INSTALL_PATH]]/calibre:/config
     ports:
       - 8080:8080
-      - 8181:8181
-      - 8081:8081
     restart: unless-stopped

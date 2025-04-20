@@ -11,9 +11,11 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
       - SUBFOLDER=/ #optional
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - TITLE=Blender
     volumes:
       - [[INSTALL_PATH]]/blender:/config
     ports:
       - 3000:3000
-      - 3001:3001
     restart: unless-stopped

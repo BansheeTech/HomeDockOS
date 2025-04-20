@@ -1,0 +1,43 @@
+---
+version: "2.1"
+services:
+  changedetection:
+    image: lscr.io/linuxserver/changedetection.io:latest
+    container_name: changedetection
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - [[INSTALL_PATH]]/changedetection:/config
+      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+    entrypoint: ""
+    command: >
+      sh -c "
+      echo '─────────────────────────────────────────────────────────────';
+      echo '';
+      echo '   Running official image from LinuxServer.io';
+      echo '   Visit: https://www.linuxserver.io/';
+      echo '';
+      echo '   Modified at runtime for SSL support by HomeDock OS team';
+      echo '   Visit too: https://www.homedock.cloud/';
+      echo '';
+      echo '─────────────────────────────────────────────────────────────';
+      echo '';
+      if [ -f /cert.pem ] && [ -f /privkey.pem ]; then
+          echo '[HomeDock] SSL certificates detected, launching in HTTPS mode on port 5000';
+          exec python3 /app/changedetection/changedetection.py -s -d /config -p 5000;
+      else
+          echo '[HomeDock] No SSL certificates found, launching in HTTP mode on port 5000';
+          exec python3 /app/changedetection/changedetection.py -d /config -p 5000;
+      fi
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-k", "https://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

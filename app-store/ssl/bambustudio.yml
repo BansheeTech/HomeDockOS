@@ -1,9 +1,11 @@
 ---
 version: "2.1"
 services:
-  audacity:
-    image: lscr.io/linuxserver/audacity:latest
-    container_name: audacity
+  bambustudio:
+    image: lscr.io/linuxserver/bambustudio:latest
+    container_name: bambustudio
+    security_opt:
+      - seccomp:unconfined
     environment:
       - PUID=1000
       - PGID=1000
@@ -12,11 +14,10 @@ services:
       - PASSWORD=[[HD_PASSWORD]]
       - KASM_SSL_CERT=/config/ssl/cert.pem
       - KASM_SSL_KEY=/config/ssl/cert.key
-      - TITLE=Audacity
     volumes:
-      - [[INSTALL_PATH]]/audacity:/config
+      - [[INSTALL_PATH]]/bambustudio:/config
       - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
       - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
     ports:
-      - 3000:3001
+      - 9975:3001
     restart: unless-stopped

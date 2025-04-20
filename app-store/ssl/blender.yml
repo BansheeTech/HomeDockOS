@@ -1,20 +1,23 @@
 ---
 version: "2.1"
 services:
-  audacity:
-    image: lscr.io/linuxserver/audacity:latest
-    container_name: audacity
+  blender:
+    image: lscr.io/linuxserver/blender:latest
+    container_name: blender
+    security_opt:
+      - seccomp:unconfined #optional
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - CUSTOM_USER=[[HD_USER_NAME]]
-      - PASSWORD=[[HD_PASSWORD]]
+      - SUBFOLDER=/ #optional
       - KASM_SSL_CERT=/config/ssl/cert.pem
       - KASM_SSL_KEY=/config/ssl/cert.key
-      - TITLE=Audacity
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - TITLE=Blender
     volumes:
-      - [[INSTALL_PATH]]/audacity:/config
+      - [[INSTALL_PATH]]/blender:/config
       - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
       - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
     ports:

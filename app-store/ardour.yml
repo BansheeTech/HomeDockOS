@@ -10,9 +10,9 @@ services:
       - SUBFOLDER=/ #optional
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
+      - TITLE=Ardour
     volumes:
       - [[INSTALL_PATH]]/ardour:/config
     ports:
-      - 3976:3000 #optional
-      - 3977:3001 #optional
+      - 3976:3000
     restart: unless-stopped

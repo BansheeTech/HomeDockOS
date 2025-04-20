@@ -49,19 +49,6 @@
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
     "is_new": false,
-    "new_until": "02/28/2025"
-  },
-  {
-    "dependencies": [],
-    "docker_image": "binhex/arch-crafty:latest",
-    "picture_path": "docker-icons/crafty.jpg",
-    "is_group": false,
-    "name": "crafty",
-    "category": "Gaming",
-    "type": "Game Server Management",
-    "icon": "mdi:gamepad-round",
-    "description": "Minecraft game server management tool that simplifies the setup and administration of game servers",
-    "is_new": false,
     "new_until": false
   },
   {
@@ -417,19 +404,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/booksonic-air:latest",
-    "picture_path": "docker-icons/booksonic-air.jpg",
-    "is_group": false,
-    "name": "booksonic-air",
-    "category": "Media",
-    "type": "Audiobook Streaming",
-    "icon": "mdi:volume-high",
-    "description": "A server for streaming audiobooks to any device, providing access to your audiobook library anywhere",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/budge:latest",
     "picture_path": "docker-icons/budge.jpg",
     "is_group": false,
@@ -451,19 +425,6 @@
     "type": "E-Book Management",
     "icon": "mdi:book",
     "description": "An e-book management system with extensive features for e-book conversion and syncing locally",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/calibre-web:latest",
-    "picture_path": "docker-icons/calibre-web.jpg",
-    "is_group": false,
-    "name": "calibre-web",
-    "category": "Files & Productivity",
-    "type": "E-Book Management",
-    "icon": "mdi:book",
-    "description": "A web app providing an e-book library interface for reading and managing e-book collections online",
     "is_new": false,
     "new_until": false
   },
@@ -521,19 +482,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/cops:latest",
-    "picture_path": "docker-icons/cops.jpg",
-    "is_group": false,
-    "name": "cops",
-    "category": "Files & Productivity",
-    "type": "E-Book Server",
-    "icon": "mdi:book",
-    "description": "A lightweight e-book server that enables you to access your e-book collection through a web interface",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/cura:latest",
     "picture_path": "docker-icons/cura.jpg",
     "is_group": false,
@@ -542,19 +490,6 @@
     "type": "3D Printing Software",
     "icon": "mdi:cube-outline",
     "description": "User-friendly 3D printing software for preparing models for printing and managing the printing process",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/daapd:latest",
-    "picture_path": "docker-icons/daapd.jpg",
-    "is_group": false,
-    "name": "daapd",
-    "category": "Media",
-    "type": "Audio Streaming Server",
-    "icon": "mdi:volume-high",
-    "description": "Audio streaming server supporting the Digital Audio Access Protocol for sharing music over a network",
     "is_new": false,
     "new_until": false
   },
@@ -1088,8 +1023,8 @@
     "type": "Jellyfin Monitoring",
     "icon": "mdi:arrow-decision",
     "description": "Monitoring tool for Jellyfin Server, providing user insights, analytics, play counts and server activity insights",
-    "is_new": true,
-    "new_until": "04/08/2025"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -1465,8 +1400,8 @@
     "type": "Workflow Automation",
     "icon": "mdi:robot",
     "description": "Workflow automation tool that enables you to connect your favorite apps, services, and devices",
-    "is_new": true,
-    "new_until": "04/08/2025"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],

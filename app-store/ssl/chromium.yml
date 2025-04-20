@@ -12,7 +12,7 @@ services:
       - TZ=Etc/UTC
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
-      - KASM_SSL_CERT=/config/ssl/cert.crt
+      - KASM_SSL_CERT=/config/ssl/cert.pem
       - KASM_SSL_KEY=/config/ssl/cert.key
       - CHROME_CLI=https://www.homedock.cloud/
     volumes:

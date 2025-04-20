@@ -12,9 +12,13 @@ services:
       - TZ=Etc/UTC
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
+      - KASM_SSL_CERT=/config/ssl/cert.pem
+      - KASM_SSL_KEY=/config/ssl/cert.key
       - TITLE=Darktable
     volumes:
       - [[INSTALL_PATH]]/darktable:/config
+      - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
     ports:
-      - 7200:3000
+      - 7200:3001
     restart: unless-stopped

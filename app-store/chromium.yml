@@ -10,6 +10,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
       - CHROME_CLI=https://www.homedock.cloud/
     volumes:
       - [[INSTALL_PATH]]/chromium:/config

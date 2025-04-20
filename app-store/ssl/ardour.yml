@@ -1,22 +1,20 @@
 ---
-version: "2.1"
 services:
-  audacity:
-    image: lscr.io/linuxserver/audacity:latest
-    container_name: audacity
+  ardour:
+    image: lscr.io/linuxserver/ardour:latest
+    container_name: ardour
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - SUBFOLDER=/ #optional
       - CUSTOM_USER=[[HD_USER_NAME]]
       - PASSWORD=[[HD_PASSWORD]]
-      - KASM_SSL_CERT=/config/ssl/cert.pem
-      - KASM_SSL_KEY=/config/ssl/cert.key
-      - TITLE=Audacity
+      - TITLE=Ardour
     volumes:
-      - [[INSTALL_PATH]]/audacity:/config
+      - [[INSTALL_PATH]]/ardour:/config
       - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
       - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
     ports:
-      - 3000:3001
+      - 3976:3001
     restart: unless-stopped

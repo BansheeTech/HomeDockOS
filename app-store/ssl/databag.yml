@@ -1,0 +1,36 @@
+---
+version: "3.9"
+services:
+  databag:
+    container_name: databag
+    image: balzack/databag:latest
+    restart: unless-stopped
+    ports:
+      - "7999:7001"
+    environment:
+      - ADMIN=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/databag:/var/lib/databag
+      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+    entrypoint: ""
+    command: >
+      sh -c "
+      echo '─────────────────────────────────────────────────────────────';
+      echo '';
+      echo '   Running official image by Balzack (Databag developer)';
+      echo '   Visit: https://github.com/balzack/databag';
+      echo '';
+      echo '   Modified at runtime for SSL support by HomeDock OS Team';
+      echo '   Visit too: https://www.homedock.cloud/';
+      echo '';
+      echo '─────────────────────────────────────────────────────────────';
+      echo '';
+      if [ -f /etc/ssl/certs/fullchain.pem ] && [ -f /etc/ssl/private/privkey.pem ]; then
+          echo '[HomeDock] SSL certificates detected, launching Databag in HTTPS mode on port 7001';
+          /app/databag/net/server/databag -p 7001 -w /app/databag/net/web/build -s /var/lib/databag -t /opt/databag/transform -c /etc/ssl/certs/fullchain.pem -k /etc/ssl/private/privkey.pem;
+      else
+          echo '[HomeDock] No SSL certificates found, launching Databag in HTTP mode on port 7000';
+          /app/databag/net/server/databag -p 7000 -w /app/databag/net/web/build -s /var/lib/databag -t /opt/databag/transform;
+      fi
+      "

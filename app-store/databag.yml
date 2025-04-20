@@ -6,6 +6,10 @@ services:
     image: balzack/databag:latest
     restart: unless-stopped
     ports:
-    - "7999:7000"
+      - "7999:7000"
+    environment:
+      - ADMIN=[[HD_PASSWORD]]
     volumes:
-    - [[INSTALL_PATH]]/databag:/var/lib/databag
+      - [[INSTALL_PATH]]/databag:/var/lib/databag
+      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
