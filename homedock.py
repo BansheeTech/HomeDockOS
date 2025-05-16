@@ -5,6 +5,7 @@ https://www.homedock.cloud
 """
 
 import os
+import signal
 import logging
 import asyncio
 import threading
@@ -190,20 +191,35 @@ if __name__ == "__main__":
             hypercorn_config.include_server_header = False
             hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
 
+            redirect_app = redirect_config = None
             if ssl_enabled_var:
-                from pymodules.hd_HTTPRedirector import start_http_redirect_server
-
-                start_http_redirect_server()
                 hypercorn_config.certfile = "/DATA/SSLCerts/fullchain.pem"
                 hypercorn_config.keyfile = "/DATA/SSLCerts/privkey.pem"
                 hypercorn_config.ca_certs = "/DATA/SSLCerts/chain.pem"
 
-            async def homedock_www_asgi(scope, receive, send):
-                hdos_wsgi2asgi = AsyncioWSGIMiddleware(homedock_www, max_body_size=1 * 1024 * 1024 * 1024)
-                homedock_middleware_limited = ContentSizeLimitMiddleware(hdos_wsgi2asgi)
-                await homedock_middleware_limited(scope, receive, send)
+                from pymodules.hd_HTTPRedirector import start_http_redirect_server
 
-            asyncio.run(serve(homedock_www_asgi, hypercorn_config))
+                redirect_app, redirect_config = start_http_redirect_server()
+
+            async def homedock_www_asgi(scope, receive, send):
+                app = AsyncioWSGIMiddleware(homedock_www, max_body_size=1 * 1024 * 1024 * 1024)
+                await ContentSizeLimitMiddleware(app)(scope, receive, send)
+
+            async def run_all_servers():
+                stop_event = asyncio.Event()
+
+                loop = asyncio.get_running_loop()
+                for sig in (signal.SIGINT, signal.SIGTERM):
+                    try:
+                        loop.add_signal_handler(sig, stop_event.set)
+                    except NotImplementedError:
+                        pass  # HDOS00001
+
+                await asyncio.gather(*(serve(app, cfg, shutdown_trigger=stop_event.wait) for app, cfg in [(redirect_app, redirect_config), (homedock_www_asgi, hypercorn_config)] if app and cfg))
+
+                print(" ✓ Servers shut down SIGTERM received")
+
+            asyncio.run(run_all_servers())
 
     except OSError as e:
         if e.errno == 98:

@@ -79,9 +79,7 @@ def api_save_settings():
         if not encrypted_data:
             return jsonify({"error": "No encrypted data provided."}), 400
 
-        private_key = serialization.load_pem_private_key(
-            get_private_key(), password=None, backend=default_backend()
-        )
+        private_key = serialization.load_pem_private_key(get_private_key(), password=None, backend=default_backend())
         decrypted_data_bytes = private_key.decrypt(
             base64.b64decode(encrypted_data),
             padding.OAEP(
@@ -111,7 +109,7 @@ def api_save_settings():
 
         if change_password_checkbox:
             user_password = user_data.get("password", "passwd")
-            
+
             if len(user_password) < 6 or len(user_password) > 30:
                 return jsonify({"error": "Password must be between 6 and 30 characters."}), 400
             password_input = user_password.encode("utf-8")
@@ -156,7 +154,7 @@ def api_save_settings():
             if custom_file and custom_file.filename.endswith(".jpg"):
                 header = custom_file.read(3)
                 custom_file.seek(0)
-                if header == b"\xff\xd8\xff":  # JPG Validation
+                if header == b"\xff\xd8\xff":  # HDOS00002
                     filename = secure_filename("back_custom.jpg")
                     custom_file.save(os.path.join(current_directory, "homedock-ui/static/images/wallpapers", filename))
                 else:

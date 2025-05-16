@@ -30,7 +30,7 @@ def generate_csp(nonce, is_development, endpoint=""):
     if is_development:
         csp = csp.replace("script-src 'self' 'nonce-{{nonceMarker}}'", "script-src 'self' http://localhost:5173 'unsafe-eval' ")
         csp = csp.replace("style-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' http://localhost:5173 ")
-        # Uncomment this line to use nonces for style-src, gotta find CSP workaround for AntDVue inline styles
+        # HDOS00003
         # csp = csp.replace("style-src 'self' 'nonce-{{nonceMarker}}'", "style-src 'self' http://localhost:5173 ")
         csp = csp.replace("connect-src 'self'", "connect-src 'self' ws://localhost:5173 http://localhost:5173 ")
 
@@ -55,7 +55,7 @@ def set_common_headers(response, selected_server, is_development):
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     response.headers["Strict-Transport-Security"] = "max-age=0"
-    
+
     response.headers["Server"] = header_manager.server
     response.headers["Via"] = header_manager.via
     response.headers["X-Powered-By"] = header_manager.powered_by
@@ -66,7 +66,7 @@ def set_common_headers(response, selected_server, is_development):
     response.headers["X-Cloud-Os-Name"] = "HomeDock OS"
     response.headers["X-Cloud-Os-Website"] = "https://www.homedock.cloud"
     response.headers["Server"] = selected_server
-    
+
     if is_development:
         response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
