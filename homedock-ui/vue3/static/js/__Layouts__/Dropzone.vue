@@ -51,6 +51,11 @@
                     <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-12 w-12 min-h-12 min-w-12 transition duration-300 group-hover:scale-110" />
                     <span :class="[themeClasses.dropZoneFileText]" class="mt-2 text-xs break-words w-full overflow-hidden text-ellipsis">{{ file.name }}</span>
                     <span :class="[themeClasses.dropZoneFileSize]" class="px-2 rounded-full text-[10px] mt-1">{{ formatSize(file.size) }}</span>
+
+                    <div class="absolute -bottom-1 left-0 right-0 px-1">
+                      <Progress v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector, 'a-download-bottom-progress']" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
+                    </div>
+
                     <div class="mt-2 flex space-x-2">
                       <Button type="primary" @click="downloadFile(file.name)" size="small"><Icon :icon="arrowDownThickIcon" /></Button>
                       <Button type="dashed" @click="deleteFile(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]"><Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" /></Button>
@@ -70,17 +75,18 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
 
-import { FileEntry } from "../__Types__/DropZoneFileEntry";
-
 import axios from "axios";
+
+import { FileEntry } from "../__Types__/DropZoneFileEntry";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
-import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, theme } from "ant-design-vue";
+import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, Progress } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import cubeIcon from "@iconify-icons/mdi/cube";
 import folderIcon from "@iconify-icons/mdi/folder";
+
 // Begin file icons
 import textFileIcon from "@iconify-icons/mdi/file-document";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
@@ -93,6 +99,7 @@ import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
 import unknownFileIcon from "@iconify-icons/mdi/file";
 // End file icons
+
 import arrowDownThickIcon from "@iconify-icons/mdi/arrow-down-thick";
 import closeIcon from "@iconify-icons/mdi/close";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
@@ -178,11 +185,11 @@ const searchQuery = ref<string>("");
 const fileList = ref([]);
 const fileStates = ref<Record<string, boolean>>({});
 const loadingStates = ref<Record<string, boolean>>({});
+const downloadProgresses = ref<Record<string, number>>({});
 
-const customUpload = async (options: any) => {
-  const { file, onSuccess, onError } = options;
+const customUpload = async ({ file, onSuccess, onError, onProgress }: any) => {
   try {
-    await uploadFile(file);
+    await uploadFile(file, onProgress);
     fileList.value = fileList.value.filter((f: any) => f.uid !== file.uid);
     onSuccess(null, file);
   } catch (error) {
@@ -190,15 +197,23 @@ const customUpload = async (options: any) => {
   }
 };
 
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: File, onProgress?: (event: { percent: number }) => void) => {
   const formData = new FormData();
   formData.append("file", file);
+
   try {
     const response = await axios.post("/api/upload_file", formData, {
       headers: {
         "X-HomeDock-CSRF-Token": csrfToken.value,
       },
+      onUploadProgress: (event) => {
+        if (onProgress && event.total) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress({ percent });
+        }
+      },
     });
+
     if (!response.data.success) {
       message.error(response.data.error.value || "Upload failed");
       console.error("Error during file upload:", response.data.error);
@@ -218,15 +233,26 @@ const uploadFile = async (file: File) => {
 };
 
 const downloadFile = async (fileName: string) => {
+  if (downloadProgresses.value[fileName] !== undefined && downloadProgresses.value[fileName] < 100 && downloadProgresses.value[fileName] > 0) {
+    message.info(`Download for ${fileName} is already in progress.`);
+    return;
+  }
+
   try {
     fileStates.value[fileName] = true;
     loadingStates.value[fileName] = true;
+    downloadProgresses.value[fileName] = 0;
 
     const response = await axios.get(`/api/download_file?file=${encodeURIComponent(fileName)}`, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          downloadProgresses.value[fileName] = percentCompleted;
+        }
+      },
     });
-    loadingStates.value[fileName] = false;
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
@@ -235,13 +261,18 @@ const downloadFile = async (fileName: string) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 
     setTimeout(() => {
       fileStates.value[fileName] = false;
-    }, 2000);
+      loadingStates.value[fileName] = false;
+    }, 1000);
   } catch (error) {
     console.error("Error downloading file:", error);
     message.error("Failed to download file. Please try again.");
+    delete downloadProgresses.value[fileName];
+    loadingStates.value[fileName] = false;
+    fileStates.value[fileName] = false;
   }
 };
 
@@ -433,5 +464,49 @@ onMounted(() => {
 
 :global(.aero-mode-theme .anticon.anticon-delete) {
   color: rgb(184, 20, 20) !important;
+}
+
+/* BG Upload Progress scopeSelector Default */
+:global(.ant-upload-list-item-progress .ant-progress-bg) {
+  height: 2px !important;
+}
+
+/* BG Upload Progress scopeSelector Uploading */
+:global(.white-mode-theme .ant-upload-list-item-progress .ant-progress-bg) {
+  background: rgb(0, 212, 92) !important;
+}
+
+:global(.dark-mode-theme .ant-upload-list-item-progress .ant-progress-bg) {
+  background: rgb(0, 113, 49) !important;
+}
+
+:global(.aero-mode-theme .ant-upload-list-item-progress .ant-progress-bg) {
+  background: linear-gradient(90deg, rgba(0, 255, 175, 0.55), rgba(50, 255, 180, 0.4), rgba(24, 160, 88, 0.25)) !important;
+}
+
+/* BG Upload Progress scopeSelector Success Uploading */
+:global(.white-mode-theme .ant-progress-status-success .ant-progress-bg) {
+  background: rgb(0, 112, 255) !important;
+}
+
+:global(.dark-mode-theme .ant-progress-status-success .ant-progress-bg) {
+  background: rgb(0, 90, 220) !important;
+}
+
+:global(.aero-mode-theme .ant-progress-status-success .ant-progress-bg) {
+  background: linear-gradient(90deg, rgba(0, 120, 255, 0.55), rgba(0, 190, 255, 0.4), rgba(24, 160, 255, 0.25)) !important;
+}
+
+/* BG Download Progress scopeSelector Downloading */
+:global(.white-mode-theme.a-download-bottom-progress .ant-progress-bg) {
+  background: rgb(0, 212, 92) !important;
+}
+
+:global(.dark-mode-theme.a-download-bottom-progress .ant-progress-bg) {
+  background: rgb(0, 113, 49) !important;
+}
+
+:global(.aero-mode-theme.a-download-bottom-progress .ant-progress-bg) {
+  background: linear-gradient(90deg, rgba(0, 255, 175, 0.55), rgba(50, 255, 180, 0.4), rgba(24, 160, 88, 0.25)) !important;
 }
 </style>

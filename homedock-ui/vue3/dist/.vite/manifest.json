@@ -341,7 +341,7 @@
     "name": "chevron-double-down"
   },
   "homedock-ui/vue3/static/css/global.css": {
-    "file": "hdos_9W9dLuDE0J8a-7wr_eHEj.css",
+    "file": "hdos_5lu1BTrHcQE-ECj0uGMZ5.css",
     "src": "homedock-ui/vue3/static/css/global.css",
     "isEntry": true
   },
@@ -466,7 +466,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__dropzone__.ts": {
-    "file": "hdos_D-JY8V2cxYyThS5-Nw6Xu.js",
+    "file": "hdos_CQkKDcXksyvJ5TwXByIT8.js",
     "name": "__dropzone__",
     "src": "homedock-ui/vue3/static/js/MountPoints/__dropzone__.ts",
     "isEntry": true,
@@ -481,6 +481,7 @@
       "_hdos_DadiNNJMC_OA8QwbJELQf.js",
       "_hdos_DGzyl_J1d9QBFU-T6HdbJ.js",
       "_hdos_C_4dtDQEknTaojJIg8yMT.js",
+      "_hdos_BvEG8A6naDrpzNdieGPiz.js",
       "_hdos_mLbhbaLALeOd8sztENRgu.js",
       "_hdos_D6-XlEtGdUWrcdOe4mzvB.js",
       "_hdos_DuTGV_oDpdzXebz1M857D.js",
@@ -488,11 +489,10 @@
       "_hdos_BFPOUbwrgUVzjI_2g6ru4.js",
       "_hdos_uCGFXcRKWSXS79DJcb_rZ.js",
       "_hdos_DTouZyXcNPjlO-nYXuSd0.js",
-      "_hdos_BvEG8A6naDrpzNdieGPiz.js",
       "_hdos_DjU5oz2wa4Yog7sRjtICP.js"
     ],
     "css": [
-      "hdos_DuBG1goXF-05hqpM8ItCX.css"
+      "hdos_BqlLseRD1edDzQxPxmY8H.css"
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts": {
