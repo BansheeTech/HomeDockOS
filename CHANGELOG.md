@@ -1,8 +1,12 @@
 # CHANGELOG
 
-- **1.0.18.102** (Latest): Added upload and download progress bars to Drop Zone, as requested by several users. Each theme (Default, Noir/Dark, and Aero+) now features its own tailored progress bar styling for a more cohesive visual experience. Changelog added.
+- **1.0.18.103** (Latest): Updated `README.md` and `CHANGELOG.md` (we missed this one). Added GitHub icon to social links and integrated Discord with a ticket-based support system.
 
 ---
+
+- **1.0.18.102**: Patched brace-expansion (CVE-2025-5889) and `requests/urllib3` vulnerabilities (CVE-2024-47081, CVE-2025-50181, CVE-2025-50182) related to ReDoS, SSRF, and credential leakage. Removed deprecated apps no longer aligned with current standards. Fixed `filebrowser.yml` for both SSL and non-SSL setups. Added a contextual troubleshooting guide and increased `/app/` endpoint retries to 10, as requested by users. Implemented `HomeDock OS Desktop` detection to disable in-app and HMR updates (**updates are handled externally by Electron in Desktop mode**). Introduced a lightweight entropy-based signature system for internal lighthouse consistency.
+
+- **1.0.17.129**: Added upload and download progress bars to Drop Zone, as requested by several users. Each theme (Default, Noir/Dark, and Aero+) now features its own tailored progress bar styling for a more cohesive visual experience. Changelog added.
 
 - **1.0.17.128**: Upgraded Flask to 3.1.1 (CVE-2025-47278), Vite to 6.3.4 (CVE-2025-46565), Pinia to 3.0.2, and @iconify/vue to 5.0.0. Refactored HTTP-to-HTTPS redirection to run inside Hypercorn via ASGI middleware, ensuring cleaner and more production-aligned behavior.
 
