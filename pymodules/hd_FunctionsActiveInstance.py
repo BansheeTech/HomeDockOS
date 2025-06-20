@@ -12,6 +12,8 @@ import json
 import threading
 import time
 
+from datetime import datetime, timezone
+
 from pymodules.hd_FunctionsGlobals import version, running_OS
 
 CloudFlareWorker = "https://homedock-os-user.banshee-devs.workers.dev/"
@@ -26,10 +28,18 @@ def is_connected():
 
 
 def generate_uuid():
+    # 128-bit entropy Quarterly UUID
     hostname = socket.gethostname()
-    mac_address = ":".join(f"{(uuid.getnode() >> i) & 0xff:02x}" for i in range(0, 48, 8))
+    trimmed_hashed_host = hashlib.sha256(hostname.encode()).hexdigest()[:32]
 
-    unique_string = f"{hostname}-{mac_address}"
+    mac_address = ":".join(f"{(uuid.getnode() >> i) & 0xff:02x}" for i in range(0, 48, 8))
+    trimmed_hashed_mac = hashlib.sha256(mac_address.encode()).hexdigest()[:32]
+
+    now = datetime.now(timezone.utc)
+    quarter = (now.month - 1) // 3 + 1
+    year = now.year
+
+    unique_string = f"Q{quarter}-{year}-{trimmed_hashed_host}-{trimmed_hashed_mac}"
     hash_uuid = hashlib.sha256(unique_string.encode()).hexdigest()
     return str(uuid.UUID(hash_uuid[:32]))
 

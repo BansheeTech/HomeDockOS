@@ -7,9 +7,17 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 <p align="center">
   <a href="https://www.homedock.cloud">Website</a> | 
   <a href="https://docs.homedock.cloud">Documentation</a> | 
-  <a href="https://github.com/BansheeTech/HomeDockOS">GitHub</a>
+  <a href="https://github.com/BansheeTech/HomeDockOS">GitHub</a> |
+  <a href="https://discord.com/invite/PHqHMAvXb7">Discord</a>
 </p>
 
+<kbd>
+  <a href="https://github.com/BansheeTech/HomeDock-OS-Desktop-Releases">
+    <p align="center">
+      <img alt="Get HomeDock OS Desktop now" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/desktop_banner.webp" style="max-width:100%;">
+    </p>
+  </a>
+</kbd>
 
 <kbd>
   <img alt="HomeDock OS Snapshot" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-screen-2.webp" style="max-width:100%;">
@@ -108,8 +116,7 @@ All the guidance you need to unlock the potential of HomeDock OS is available in
 Join our vibrant community and keep up with the latest updates, features, and tips.
 
 - GitHub: [Star HomeDock OS on GitHub](https://github.com/BansheeTech/HomeDockOS)
-- Discord: --pending--
-- Telegram: --pending--
+- Discord: [Join the conversation and get support!](https://discord.com/invite/PHqHMAvXb7)
 
 ---
 
@@ -121,4 +128,4 @@ A huge thanks to all [contributors, partners, and users who make HomeDock OS a r
 
 ---
 
-[Website](https://www.homedock.cloud) | [Docs](https://docs.homedock.cloud) | [GitHub](https://github.com/BansheeTech/HomeDockOS) | [Demo](https://demo.node1.homedock.cloud) | [Company](https://www.banshee.pro)
+[Website](https://www.homedock.cloud) | [Docs](https://docs.homedock.cloud) | [GitHub](https://github.com/BansheeTech/HomeDockOS) | [Company](https://www.banshee.pro)

@@ -26,6 +26,8 @@ UPDATE_URL = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/head
 @login_required
 def check_update():
     try:
+        if os.path.exists(os.path.join(current_directory, ".is_desktop")):
+            return jsonify({"current_version": version, "latest_version": version, "update_available": False})
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
             remote_version = response.text.strip()

@@ -18,3 +18,4 @@ node_modules/
 .vite/
 .DS_Store
 .is_updating
+.is_desktop

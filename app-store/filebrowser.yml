@@ -7,8 +7,17 @@ services:
     restart: unless-stopped
     ports:
       - 8765:80
+    user: "0:0"
+    working_dir: /config
     volumes:
       - [[INSTALL_PATH]]/filebrowser:/config
       - [[APP_MOUNT_POINT]]/filebrowser:/srv
     environment:
       - TZ=UTC
+      - FBUSER=[[HD_USER_NAME]]
+      - FBPASS=[[HD_PASSWORD]]
+    command: >
+      sh -c "filebrowser config init || true &&
+             filebrowser config set --root /srv &&
+             filebrowser users ls | grep $$FBUSER || filebrowser users add $$FBUSER $$FBPASS --perm.admin &&
+             filebrowser -a 0.0.0.0 -p 80"

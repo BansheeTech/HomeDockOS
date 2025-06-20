@@ -89,6 +89,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-200",
       sslAdvsisorIcon: "text-green-600",
       appErrorMessage: "text-red-500 bg-red-200",
+      appDocsMessage: "text-gray-500 bg-gray-200 hover:text-blue-500 hover:bg-blue-200",
       statusBarAppScope: "bg-gray-800/10 text-black/50 border-black/5",
 
       // NavBar
@@ -285,6 +286,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-800",
       sslAdvsisorIcon: "text-green-400",
       appErrorMessage: "text-red-200 bg-red-500",
+      appDocsMessage: "text-gray-200 bg-gray-500 hover:text-blue-200 hover:bg-blue-500",
       statusBarAppScope: "bg-zinc-100/10 text-white/50 border-white/5",
 
       // NavBar
@@ -481,6 +483,7 @@ export function useTheme() {
       sslAdvisorBack: "bg-green-600/50",
       sslAdvsisorIcon: "text-green-400",
       appErrorMessage: "text-red-600 bg-red-900/50",
+      appDocsMessage: "text-gray-400 bg-gray-900/80 hover:text-blue-400 hover:bg-blue-900/80",
       statusBarAppScope: "bg-zinc-800/20 text-white/50 border-zinc-200/5",
 
       // NavBar

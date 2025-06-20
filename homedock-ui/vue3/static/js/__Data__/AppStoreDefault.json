@@ -53,19 +53,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "binhex/arch-phantom:latest",
-    "picture_path": "docker-icons/phantom.jpg",
-    "is_group": false,
-    "name": "phantom",
-    "category": "Files & Productivity",
-    "type": "Gaming DNS",
-    "icon": "mdi:dns",
-    "description": "Minecraft DNS proxy for gaming consoles, improving network latency for a better gaming experience",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "deluan/navidrome:latest",
     "picture_path": "docker-icons/navidrome.jpg",
     "is_group": false,
@@ -755,19 +742,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/fleet:latest",
-    "picture_path": "docker-icons/fleet.jpg",
-    "is_group": false,
-    "name": "fleet",
-    "category": "Developer Tools",
-    "type": "DevOps Platform",
-    "icon": "mdi:shield",
-    "description": "DevOps platform that provides tools for continuous integration, deployment and collaboration",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/flexget:latest",
     "picture_path": "docker-icons/flexget.jpg",
     "is_group": false,
@@ -1114,19 +1088,6 @@
     "type": "Time Tracking",
     "icon": "mdi:clock-time-four",
     "description": "Time tracker that provides clear and focused insight into your project time spent for freelancers",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/kometa:latest",
-    "picture_path": "docker-icons/kometa.jpg",
-    "is_group": false,
-    "name": "kometa",
-    "category": "Media",
-    "type": "Media Library Manager",
-    "icon": "mdi:folder-multiple-image",
-    "description": "Experience seamless multimedia management and tagging, from just metadata to even artworks",
     "is_new": false,
     "new_until": false
   },
@@ -1639,19 +1600,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/plex-meta-manager:latest",
-    "picture_path": "docker-icons/plex-meta-manager.jpg",
-    "is_group": false,
-    "name": "plex-meta-manager",
-    "category": "Media",
-    "type": "Media Management",
-    "icon": "mdi:video",
-    "description": "Automate your Plex media metadata management for a better browsing experience on any device",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/projectsend:latest",
     "picture_path": "docker-icons/projectsend.jpg",
     "is_group": false,
@@ -1756,32 +1704,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/quassel-core:latest",
-    "picture_path": "docker-icons/quassel-core.jpg",
-    "is_group": false,
-    "name": "quassel-core",
-    "category": "Social",
-    "type": "IRC Server",
-    "icon": "mdi:account",
-    "description": "Internet Relay Chat server component of Quassel IRC, a modern, cross-platform, distributed IRC client",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/quassel-web:latest",
-    "picture_path": "docker-icons/quassel-web.jpg",
-    "is_group": false,
-    "name": "quassel-web",
-    "category": "Social",
-    "type": "IRC Client",
-    "icon": "mdi:account",
-    "description": "Easily connect to IRC chat networks from anywhere using this lightweight web-based client",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/radarr:latest",
     "picture_path": "docker-icons/radarr.jpg",
     "is_group": false,
@@ -1803,19 +1725,6 @@
     "type": "Knowledge Base",
     "icon": "mdi:note",
     "description": "A platform for creating detailed knowledge bases with static Markdown files powering the content",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/rdesktop:latest",
-    "picture_path": "docker-icons/rdesktop.jpg",
-    "is_group": false,
-    "name": "rdesktop",
-    "category": "Networking",
-    "type": "Remote Desktop",
-    "icon": "mdi:laptop",
-    "description": "Safely access and manage your Windows desktop from anywhere with this remote desktop client",
     "is_new": false,
     "new_until": false
   },
@@ -2154,19 +2063,6 @@
     "type": "Digital Library",
     "icon": "mdi:book",
     "description": "Access your comics and ebooks easily creating an awesome server that centralizes your digital library",
-    "is_new": false,
-    "new_until": false
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/unifi-controller:latest",
-    "picture_path": "docker-icons/unifi-controller.jpg",
-    "is_group": false,
-    "name": "unifi-controller",
-    "category": "Networking",
-    "type": "Network Management",
-    "icon": "mdi:network-strength-2",
-    "description": "Powerful and intuitive software to manage UniFi network devices, providing advanced control",
     "is_new": false,
     "new_until": false
   },

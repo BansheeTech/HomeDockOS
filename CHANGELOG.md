@@ -1,12 +1,12 @@
 # CHANGELOG
 
-- **1.0.17.129** (Latest): Added upload and download progress bars to Drop Zone, as requested by several users. Each theme (Default, Noir/Dark, and Aero+) now features its own tailored progress bar styling for a more cohesive visual experience. Changelog added.
+- **1.0.18.102** (Latest): Added upload and download progress bars to Drop Zone, as requested by several users. Each theme (Default, Noir/Dark, and Aero+) now features its own tailored progress bar styling for a more cohesive visual experience. Changelog added.
 
 ---
 
 - **1.0.17.128**: Upgraded Flask to 3.1.1 (CVE-2025-47278), Vite to 6.3.4 (CVE-2025-46565), Pinia to 3.0.2, and @iconify/vue to 5.0.0. Refactored HTTP-to-HTTPS redirection to run inside Hypercorn via ASGI middleware, ensuring cleaner and more production-aligned behavior.
 
-- **1.0.17.104**: Added a bunch of SSL native applications, there's a lot of work to do here since not all apps are compatible, may need to add an `HDRole=proxy` quite soon. Implemented automatic SSL environment detection to retrieve certificates dynamically. Fully revamped `/app` preload logic for improved performance and reliability. Also addressed Vite CVE-2025-32395 by updating dependencies. Detailed changelog coming soon (it's on 1.0.17.129!).
+- **1.0.17.104**: Added a bunch of SSL native applications, there's a lot of work to do here since not all apps are compatible, may need to add an `HDRole=proxy` quite soon. Implemented automatic SSL environment detection to retrieve certificates dynamically. Fully revamped `/app` preload logic for improved performance and reliability. Also addressed Vite CVE-2025-32395 by updating dependencies. Detailed changelog coming soon (it's on 1.0.18.102!).
 
 - **1.0.17.102**: Added native SSL support detection for compatible apps and displayed SSL status in the App Store. Introduced `StatusFooter.vue` (requires app image and label), improved image handling options, and applied minor UI tweaks to `OrbitLoader.vue`, `App.vue`, and `Login.vue`. Enforced `Strict-Transport-Security` via `hd_CSPMaxed.py` to prevent single-domain multiport conflicts, and enabled automatic HTTP-to-HTTPS redirection on SSL-enabled instances.
 

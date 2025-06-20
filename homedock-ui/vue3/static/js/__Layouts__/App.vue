@@ -10,18 +10,27 @@
   <NetworkOffline />
   <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
 
-  <div :class="[themeClasses.back]" class="flex items-center justify-center relative p-3 overflow-hidden">
+  <div :class="[themeClasses.back]" class="flex flex-col items-center justify-center relative p-3 overflow-hidden">
     <div class="flex items-center justify-center text-white">
       <OrbitLoader :isChecking="isChecking" :isSuccess="isSuccess" :isError="isError" :isHttps="isHttps" />
-
-      <Transition name="fade-slide" mode="out-in">
-        <p v-if="errorMessage" :class="[themeClasses.appErrorMessage]" class="flex items-center text-xs mt-4 text-center px-3 py-1 rounded-full z-10">
-          <Icon v-if="isChecking" :icon="loadingIcon" class="text-xs mr-1 animate-spin" />
-          <Icon v-if="isError" :icon="linkVariantOff" class="text-xs mr-1" />
-          <span>{{ errorMessage }}</span>
-        </p>
-      </Transition>
     </div>
+
+    <Transition name="fade-slide" mode="out-in">
+      <p v-if="errorMessage" :class="[themeClasses.appErrorMessage]" class="flex items-center text-xs mt-4 text-center px-3 py-1 rounded-full z-10">
+        <Icon v-if="isChecking" :icon="loadingIcon" class="text-xs mr-1 animate-spin" />
+        <Icon v-if="isError" :icon="linkVariantOff" class="text-xs mr-1" />
+        <span>{{ errorMessage }}</span>
+      </p>
+    </Transition>
+
+    <Transition name="fade-slide" mode="out-in">
+      <template v-if="isError">
+        <a target="_blank" v-if="isError" href="https://docs.homedock.cloud/troubleshooting/app-not-available/" :class="[themeClasses.appDocsMessage]" class="flex items-center text-xs mt-2 text-center px-3 py-1 rounded-full z-50 transition duration-300" style="position: relative; pointer-events: auto">
+          <Icon :icon="cursorDefaultClickIcon" class="text-xs mr-1" />
+          <span>Why is this app not loading?</span>
+        </a>
+      </template>
+    </Transition>
   </div>
 
   <StatusFooter :isSuccess="isSuccess" :isError="isError" :statusMessage="statusMessage" :port="String(port)" />
@@ -35,6 +44,7 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { Icon } from "@iconify/vue";
 import linkVariantOff from "@iconify-icons/mdi/link-variant-off";
 import loadingIcon from "@iconify-icons/mdi/loading";
+import cursorDefaultClickIcon from "@iconify-icons/mdi/cursor-default-click";
 
 import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
@@ -68,7 +78,7 @@ const isHttps = ref(false);
 const errorMessage = ref<string | null>(null);
 const statusMessage = ref<string>("Initializing...");
 
-const maxRetries = 5;
+const maxRetries = 10;
 let retryCount = 0;
 
 const checkAppAvailability = async () => {
@@ -113,7 +123,7 @@ const checkAppAvailability = async () => {
   } catch (error) {
     retryCount++;
     errorMessage.value = `Retrying ${retryCount}/${maxRetries}`;
-    statusMessage.value = `Retying ${retryCount}/${maxRetries}`;
+    statusMessage.value = `Retrying ${retryCount}/${maxRetries}`;
 
     if (retryCount < maxRetries) {
       setTimeout(checkAppAvailability, 3000);

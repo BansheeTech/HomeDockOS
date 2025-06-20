@@ -32,8 +32,6 @@ import { computed } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { Icon } from "@iconify/vue";
-import lockIcon from "@iconify-icons/mdi/lock";
-import lockOpenIcon from "@iconify-icons/mdi/lock-open-variant";
 import serverNetworkIcon from "@iconify-icons/mdi/server-network";
 
 import BaseImage from "../__Components__/BaseImage.vue";
