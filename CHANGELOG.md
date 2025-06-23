@@ -1,8 +1,10 @@
 # CHANGELOG
 
-- **1.0.18.103** (Latest): Updated `README.md` and `CHANGELOG.md` (we missed this one). Added GitHub icon to social links and integrated Discord with a ticket-based support system.
+- **1.0.18.104** (Latest): Applied a temporary workaround to restore Filebrowser functionality after unexpected changes in their image and startup behavior, which broke compatibility with previously working Docker Compose setups. This ensures it remains operational while they clarify their recommended deployment approach.
 
 ---
+
+- **1.0.18.103**: Updated `README.md` and `CHANGELOG.md` (we missed this one). Added GitHub icon to social links and integrated Discord with a ticket-based support system.
 
 - **1.0.18.102**: Patched brace-expansion (CVE-2025-5889) and `requests/urllib3` vulnerabilities (CVE-2024-47081, CVE-2025-50181, CVE-2025-50182) related to ReDoS, SSRF, and credential leakage. Removed deprecated apps no longer aligned with current standards. Fixed `filebrowser.yml` for both SSL and non-SSL setups. Added a contextual troubleshooting guide and increased `/app/` endpoint retries to 10, as requested by users. Implemented `HomeDock OS Desktop` detection to disable in-app and HMR updates (**updates are handled externally by Electron in Desktop mode**). Introduced a lightweight entropy-based signature system for internal lighthouse consistency.
 

@@ -9,6 +9,7 @@ services:
       - 8765:80
     user: "0:0"
     working_dir: /config
+    entrypoint: ["/bin/sh", "-c"]
     volumes:
       - [[INSTALL_PATH]]/filebrowser:/config
       - [[APP_MOUNT_POINT]]/filebrowser:/srv
@@ -21,7 +22,7 @@ services:
       - FBUSER=[[HD_USER_NAME]]
       - FBPASS=[[HD_PASSWORD]]
     command: >
-      sh -c "filebrowser config init || true &&
+             "filebrowser config init || true &&
              filebrowser config set --root /srv &&
              filebrowser users ls | grep $$FBUSER || filebrowser users add $$FBUSER $$FBPASS --perm.admin &&
              filebrowser -a 0.0.0.0 -p 80"
