@@ -1,5 +1,5 @@
 """
-hd_ZeroConfThread.py
+hd_ThreadZeroConf.py
 Copyright © 2023-2025 Banshee, All Rights Reserved
 https://www.banshee.pro
 """
@@ -7,7 +7,7 @@ https://www.banshee.pro
 import socket
 import sys
 
-from zeroconf import Zeroconf, ServiceInfo
+from zeroconf import Zeroconf, ServiceInfo, NonUniqueNameException
 
 from pymodules.hd_FunctionsNetwork import local_ip
 from pymodules.hd_FunctionsConfig import read_config
@@ -24,11 +24,14 @@ def announce_homedock_service():
     local_ip_address = local_ip
 
     if not local_ip_address or local_ip_address == "127.0.0.1":
+        print(" * Invalid local IP for homedock.local announcement, skipping.")
         return False
+
+    zeroconf = None
+    info = None
 
     try:
         binary_ip = socket.inet_aton(local_ip_address)
-
         zeroconf = Zeroconf()
 
         info = ServiceInfo(
@@ -41,12 +44,25 @@ def announce_homedock_service():
         )
 
         zeroconf.register_service(info)
+
         return True
+
+    except NonUniqueNameException:
+        print(" ! The name 'homedock.local' is already in use on your local network.")
+        print(" * Please read: https://docs.homedock.cloud/troubleshooting/non-unique-name/")
+
+        if zeroconf:
+            zeroconf.close()
+
+        return False
 
     except OSError as e:
         if "No buffer space available" in str(e):
-            print(" * Insufficient mDNS sockets for the homedock.local address.")
+            print(" ! Insufficient mDNS sockets for the homedock.local address.")
             print(" * Please read: https://docs.homedock.cloud/troubleshooting/multicast-dns/")
         else:
             print(f"\n[Unexpected error] {e}")
-        sys.exit(1)
+            zeroconf.close()
+
+        if zeroconf:
+            zeroconf.close()

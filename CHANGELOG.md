@@ -1,8 +1,10 @@
 # CHANGELOG
 
-- **1.0.18.104** (Latest): Applied a temporary workaround to restore Filebrowser functionality after unexpected changes in their image and startup behavior, which broke compatibility with previously working Docker Compose setups. This ensures it remains operational while they clarify their recommended deployment approach.
+- **1.0.18.106** (Latest): This quality-of-life update focuses on improving the stability and responsiveness of background services. We've enhanced the `homedock.local` (mDNS) service to gracefully handle network name conflicts, preventing potential application crashes and providing clearer user feedback. Some core network services have been reworked to be event-driven, allowing settings changes to take effect in real-time without requiring an application restart. Internal improvements and a monthly rotation in the active instance management service to enhance stability and entropy. Also fixed minor typos and some icon theme issues.
 
 ---
+
+- **1.0.18.104** : Applied a temporary workaround to restore Filebrowser functionality after unexpected changes in their image and startup behavior, which broke compatibility with previously working Docker Compose setups. This ensures it remains operational while they clarify their recommended deployment approach.
 
 - **1.0.18.103**: Updated `README.md` and `CHANGELOG.md` (we missed this one). Added GitHub icon to social links and integrated Discord with a ticket-based support system.
 
@@ -24,7 +26,7 @@
 
 - **1.0.16.141**: Minor tweaks and bug fixes in the Drop Zone module to improve stability and user experience.
 
-- **1.0.16.129**: Addressed CVE-2024-12797 and updated Python dependencies accordingly. Fixed footer rendering behavior, improved uninstall confirmation UX, and increased default time delay for new Atlas instances. Resolved internal port routing in host mode and introduced `hd_FunctionsActiveInstance.py` for centralized active instance management.
+- **1.0.16.129**: Addressed CVE-2024-12797 and updated Python dependencies accordingly. Fixed footer rendering behavior, improved uninstall confirmation UX, and increased default time delay for new Atlas instances (just kidding hehe). Resolved internal port routing in host mode and introduced `hd_FunctionsActiveInstance.py` for centralized active instance management.
 
 - **1.0.15.055**: Fixed a bug in `hd_HMRUpdate.py` where the configuration was being loaded before it was guaranteed to exist, causing execution failures during certain update flows.
 

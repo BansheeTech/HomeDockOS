@@ -22,6 +22,7 @@ interface SettingsData {
   dynamic_dns: string;
   local_dns: string;
   run_on_development: string;
+  disable_usage_data: string;
   delete_old_image_containers_after_update: string;
   delete_old_image_containers_after_uninstall: string;
   default_external_drive: string;
@@ -71,6 +72,7 @@ if (themeData && commonData && settingsData) {
       dynamicDNS: settingsData.dynamic_dns,
       localDNS: settingsData.local_dns,
       runOnDev: settingsData.run_on_development,
+      disableUsageData: settingsData.disable_usage_data,
       deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
       deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
       defaultExternalDrive: settingsData.default_external_drive,

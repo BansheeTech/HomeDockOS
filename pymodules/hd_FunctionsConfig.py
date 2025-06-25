@@ -37,6 +37,7 @@ def check_and_generate_config():
             "dynamic_dns": "get.homedock.cloud",
             "local_dns": "True",
             "run_on_development": "False",
+            "disable_usage_data": "False",
             "delete_old_image_containers_after_update": "False",
             "delete_old_image_containers_after_uninstall": "False",
             "default_external_drive": default_external_drive,
@@ -85,11 +86,10 @@ def check_and_update_config():
     if os.path.exists(config_file):
         config.read(config_file)
 
-        if not config.has_option("Config", "local_dns"):
-            config.set("Config", "local_dns", "True")
+        if not config.has_option("Config", "disable_usage_data"):
+            config.set("Config", "disable_usage_data", "False")
             with open(config_file, "w") as configfile:
                 config.write(configfile)
-                print(" * Added new option 'local_dns' to configuration.")
 
     else:
         print("Configuration file does not exist. Generate it first.")
@@ -119,6 +119,7 @@ def read_config():
         "selected_theme": config.get("Config", "selected_theme"),
         "selected_back": config.get("Config", "selected_back"),
         "run_on_development": config.getboolean("Config", "run_on_development"),
+        "disable_usage_data": config.getboolean("Config", "disable_usage_data"),
         "delete_old_image_containers_after_update": config.getboolean("Config", "delete_old_image_containers_after_update"),
         "delete_old_image_containers_after_uninstall": config.getboolean("Config", "delete_old_image_containers_after_uninstall"),
         "default_external_drive": config.get("Config", "default_external_drive"),

@@ -191,6 +191,7 @@ const settingsData = inject<{
   dynamicDNS: string;
   localDNS: boolean;
   runOnDev: boolean;
+  disableUsageData: boolean;
   deleteImageOnUpdate: boolean;
   deleteImageOnUninstall: boolean;
   defaultExternalDrive: string;
@@ -252,6 +253,7 @@ const formData = reactive({
     runPort: settingsData.runPort,
     hostname: settingsData.dynamicDNS,
     developmentMode: settingsData.runOnDev,
+    disableUsageData: settingsData.disableUsageData,
     deleteOldImages: settingsData.deleteImageOnUpdate,
     deleteOldImagesUninstall: settingsData.deleteImageOnUninstall,
     localDNS: settingsData.localDNS,

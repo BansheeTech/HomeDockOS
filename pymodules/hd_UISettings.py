@@ -25,7 +25,8 @@ from werkzeug.utils import secure_filename
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
 from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, current_year
-from pymodules.hd_FunctionsEnhancedEncryption import get_private_key, get_public_key
+from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
+from pymodules.hd_ConfigEventManager import notify_config_changed
 
 
 @login_required
@@ -38,6 +39,7 @@ def homedocksettings():
     dynamic_dns = config["dynamic_dns"]
     default_external_drive = config["default_external_drive"]
     run_on_development = config["run_on_development"]
+    disable_usage_data = config["disable_usage_data"]
     delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
     delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
     selected_theme = config["selected_theme"]
@@ -60,6 +62,7 @@ def homedocksettings():
         version_hash=version_hash,
         default_external_drive=default_external_drive,
         run_on_development=run_on_development,
+        disable_usage_data=disable_usage_data,
         delete_old_image_containers_after_update=delete_old_image_containers_after_update,
         delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
         selected_theme=selected_theme,
@@ -162,6 +165,7 @@ def api_save_settings():
 
         local_dns = "True" if bool(system_data.get("localDNS", False)) else "False"
         run_on_development = "True" if bool(system_data.get("developmentMode", False)) else "False"
+        disable_usage_data = "True" if bool(system_data.get("disableUsageData", False)) else "False"
         delete_old_image_containers_after_update = "True" if bool(system_data.get("deleteOldImages", False)) else "False"
         delete_old_image_containers_after_uninstall = "True" if bool(system_data.get("deleteOldImagesUninstall", False)) else "False"
 
@@ -178,6 +182,7 @@ def api_save_settings():
             "dynamic_dns": dynamic_dns,
             "local_dns": local_dns,
             "run_on_development": run_on_development,
+            "disable_usage_data": disable_usage_data,
             "delete_old_image_containers_after_update": delete_old_image_containers_after_update,
             "delete_old_image_containers_after_uninstall": delete_old_image_containers_after_uninstall,
             "default_external_drive": default_external_drive,
@@ -186,6 +191,9 @@ def api_save_settings():
         }
         with open(os.path.join(current_directory, "homedock_server.conf"), "w") as config_file:
             config.write(config_file)
+
+        new_config_dict = read_config()
+        notify_config_changed(new_config_dict)
 
         regenerate_csrf_token()
         new_csrf_token = session.get("homedock_csrf_token")

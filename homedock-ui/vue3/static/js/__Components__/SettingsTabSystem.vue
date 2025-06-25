@@ -41,7 +41,7 @@
       <SettingsSeparator :class="[themeClasses.formInputSet]" text="HomeDock Behavior" :mdi_icon="wrenchIcon" />
     </label>
 
-    <div class="form-switch mb-2">
+    <div class="form-switch mb-1">
       <label class="inline-flex items-start">
         <Switch v-model:checked="homedockLocalValue" size="small" name="FormInputHomeDockLOcal" id="FormInputHomeDockLOcal" class="mt-0.5" />
         <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
@@ -51,7 +51,7 @@
       </label>
     </div>
 
-    <div class="form-switch mb-2 hidden">
+    <div class="form-switch mb-1 hidden">
       <label class="inline-flex items-start">
         <Switch v-model:checked="developmentValue" size="small" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" class="mt-0.5" />
         <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
@@ -61,7 +61,17 @@
       </label>
     </div>
 
-    <div class="form-switch mb-2">
+    <div class="form-switch mb-1">
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="disableUsageDataValue" size="small" name="FormInputDisableUsageData" id="FormInputDisableUsageData" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="ChartBellCurveIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
+          <span class="ml-1">Disable sending anonymous usage data</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="form-switch mb-1">
       <label class="inline-flex items-start">
         <Switch v-model:checked="delOldDataUpdateValue" size="small" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" class="mt-0.5" />
         <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
@@ -99,6 +109,7 @@ import hazardLightsIcon from "@iconify-icons/mdi/hazard-lights";
 import lanIcon from "@iconify-icons/mdi/lan";
 import alertIcon from "@iconify-icons/mdi/alert";
 import webRefreshIcon from "@iconify-icons/mdi/web-refresh";
+import ChartBellCurveIcon from "@iconify-icons/mdi/chart-bell-curve-cumulative";
 
 import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
 import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
@@ -120,6 +131,7 @@ const portNumber = ref<number>(props.modelValue.runPort || 80);
 const hostnameValue = ref<string>(props.modelValue.hostname || "get.homedock.cloud");
 const homedockLocalValue = ref<boolean>(props.modelValue.localDNS || false);
 const developmentValue = ref<boolean>(props.modelValue.developmentMode || false);
+const disableUsageDataValue = ref<boolean>(props.modelValue.disableUsageData || false);
 const delOldDataUpdateValue = ref<boolean>(props.modelValue.deleteOldImages || false);
 const delOldDataUninstallValue = ref<boolean>(props.modelValue.deleteOldImagesUninstall || false);
 
@@ -150,6 +162,7 @@ watch(
     hostname: hostnameValue.value,
     localDNS: homedockLocalValue.value,
     developmentMode: developmentValue.value,
+    disableUsageData: disableUsageDataValue.value,
     deleteOldImages: delOldDataUpdateValue.value,
     deleteOldImagesUninstall: delOldDataUninstallValue.value,
   }),
