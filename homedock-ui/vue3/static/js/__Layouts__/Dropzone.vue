@@ -28,40 +28,146 @@
                 <p :class="[themeClasses.dropZoneDragUpText]" class="ant-upload-text px-4 text-balance">Click or drag files to this area to upload and encrypt its content</p>
                 <p :class="[themeClasses.dropZoneDragDownText]" class="ant-upload-hint px-4 text-balance">Maximum file size allowed per file is 1GB</p>
                 <p v-if="totalSize != '0 B'" class="text-xs mt-2">
-                  <strong :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-4 py-0.5 ml-2">{{ totalSize }} total</strong>
+                  <strong :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-4 py-0.5 ml-2"> {{ totalSize }} total in {{ files.length }} {{ files.length === 1 ? "file" : "files" }} </strong>
                 </p>
               </div>
             </UploadDragger>
-            <div class="mt-4">
-              <AutoComplete v-model:value="searchQuery" :options="filteredFiles" :popup-class-name="`${themeClasses.scopeSelector} z-0`" class="w-full mb-4" @select="handleSelect">
-                <InputSearch v-model:value="searchQuery" placeholder="Search files..." :class="[themeClasses.scopeSelector]" class="w-full text-sm" enter-button="Search">
-                  <template #prefix>
-                    <Icon :icon="cubeIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
-                  </template>
-                </InputSearch>
-              </AutoComplete>
-              <div>
-                <div v-if="displayedFiles.length === 0" class="flex justify-center items-center">
-                  <Empty :class="[themeClasses.dropZoneEmptyText]" description="No encrypted files found" />
+
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-col lg:flex-row gap-2 items-start lg:items-center justify-between">
+                <div class="flex-1 min-w-0 w-full lg:w-auto">
+                  <AutoComplete v-model:value="searchQuery" :options="filteredFiles" :popup-class-name="`${themeClasses.scopeSelector} z-0`" class="w-full" @select="handleSelect">
+                    <InputSearch v-model:value="searchQuery" placeholder="Search files..." :class="[themeClasses.scopeSelector]" class="w-full text-sm" enter-button="Search">
+                      <template #prefix>
+                        <Icon :icon="cubeIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
+                      </template>
+                    </InputSearch>
+                  </AutoComplete>
                 </div>
-                <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-                  <div v-for="file in displayedFiles" :key="file.name" :class="[themeClasses.dropZoneFileDisplayer]" class="relative flex flex-col items-center justify-center text-center border border-dashed rounded-lg p-4 shadow-sm hover:shadow-md group transition duration-300">
-                    <Icon :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="absolute right-2 top-2 transition duration-300 h-4 w-4 min-h-4 min-w-4" />
-                    <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="absolute right-7 top-2 transition duration-300 animate-spin h-4 w-4 min-h-4 min-w-4" />
-                    <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-12 w-12 min-h-12 min-w-12 transition duration-300 group-hover:scale-110" />
-                    <span :class="[themeClasses.dropZoneFileText]" class="mt-2 text-xs break-words w-full overflow-hidden text-ellipsis">{{ file.name }}</span>
-                    <span :class="[themeClasses.dropZoneFileSize]" class="px-2 rounded-full text-[10px] mt-1">{{ formatSize(file.size) }}</span>
 
-                    <div class="absolute -bottom-1 left-0 right-0 px-1">
-                      <Progress v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector, 'a-download-bottom-progress']" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
-                    </div>
-
-                    <div class="mt-2 flex space-x-2">
-                      <Button type="primary" @click="downloadFile(file.name)" size="small"><Icon :icon="arrowDownThickIcon" /></Button>
-                      <Button type="dashed" @click="deleteFile(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]"><Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" /></Button>
-                    </div>
+                <div class="flex items-center gap-2 mt-0.5 w-full lg:w-auto lg:flex-shrink-0">
+                  <div :class="[themeClasses.dropZoneViewToggle]" class="flex rounded-md border overflow-hidden h-8 flex-1 lg:flex-none">
+                    <button @click="setViewMode('grid')" :class="['px-3 py-1 text-sm transition-colors h-full flex items-center justify-center flex-1', viewMode === 'grid' ? themeClasses.dropZoneViewButtonActive : themeClasses.dropZoneViewButtonInactive]" title="Grid View">
+                      <Icon :icon="gridIcon" class="w-4 h-4" />
+                    </button>
+                    <button @click="setViewMode('list')" :class="['px-3 py-1 text-sm transition-colors h-full flex items-center justify-center flex-1', viewMode === 'list' ? themeClasses.dropZoneViewButtonActive : themeClasses.dropZoneViewButtonInactive]" title="List View">
+                      <Icon :icon="listIcon" class="w-4 h-4" />
+                    </button>
                   </div>
+
+                  <Select v-model:value="sortBy" :class="[themeClasses.scopeSelector, themeClasses.dropZoneSortSelect]" class="h-8 flex-1 lg:flex-none rounded-md lg:w-auto min-w-[140px] transition duration-150" :popup-class-name="`${themeClasses.scopeSelector} z-0`" :show-search="false">
+                    <template #suffixIcon>
+                      <Icon :icon="axisArrowIcon" class="w-4 h-4" />
+                    </template>
+                    <SelectOption value="name">Sort by Name</SelectOption>
+                    <SelectOption value="size">Sort by Size</SelectOption>
+                    <SelectOption value="date">Sort by Date</SelectOption>
+                  </Select>
+
+                  <button @click="toggleSortDirection" :class="[themeClasses.dropZoneSortButton]" class="px-2 py-1 border rounded-md transition-colors h-8 flex items-center justify-center flex-shrink-0" :title="sortDirection === 'asc' ? 'Sort Ascending' : 'Sort Descending'">
+                    <Icon :icon="sortDirection === 'asc' ? sortAscIcon : sortDescIcon" class="w-4 h-4" />
+                  </button>
                 </div>
+              </div>
+
+              <div class="flex items-center justify-start text-[10px]">
+                <span :class="[themeClasses.dropZoneFilesCount]">
+                  {{ displayedFiles.length }} {{ displayedFiles.length === 1 ? "file" : "files" }}
+                  <span v-if="searchQuery" class="ml-0.5">(filtered from {{ files.length }} total)</span>
+                </span>
+              </div>
+
+              <div>
+                <div v-if="displayedFiles.length === 0" class="flex justify-center items-center py-8">
+                  <Empty :class="[themeClasses.dropZoneEmptyText]" :description="searchQuery ? 'No encrypted files found matching your search' : 'No encrypted files found'" />
+                </div>
+
+                <!-- Grid View -->
+                <transition name="layout-switch" mode="out-in" appear>
+                  <div v-if="viewMode === 'grid'" key="grid-view" class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+                    <transition-group name="file-reorder" tag="div" class="contents">
+                      <div v-for="file in sortedFiles" :key="file.name" :class="[themeClasses.dropZoneFileDisplayer]" class="relative flex flex-col items-center justify-center text-center border border-dashed rounded-lg p-4 shadow-sm hover:shadow-md group transition duration-300">
+                        <span v-if="isNewFile(file)" :class="[themeClasses.dropZoneNewBadge]" class="absolute left-2 top-2 text-[8px] px-1 py-0.5 rounded-full font-bold z-10">NEW</span>
+
+                        <div class="absolute right-2 top-2 flex items-center gap-1">
+                          <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="transition duration-300 animate-spin h-4 w-4 min-h-4 min-w-4" />
+                          <Icon :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="transition duration-300 h-4 w-4 min-h-4 min-w-4" />
+                        </div>
+
+                        <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-12 w-12 min-h-12 min-w-12 transition duration-300 group-hover:scale-110" />
+
+                        <div class="mt-2 w-full">
+                          <span :class="[themeClasses.dropZoneFileText]" class="text-xs break-words w-full overflow-hidden text-ellipsis block text-center" :title="file.name">
+                            {{ file.name }}
+                          </span>
+                          <div class="flex items-center justify-center gap-1 mt-1">
+                            <span :class="[themeClasses.dropZoneFileSize]" class="px-1 rounded-full text-[10px]">
+                              {{ formatSize(file.size) }}
+                            </span>
+                            <span v-if="file.modified" :class="[themeClasses.dropZoneFileSize]" class="px-1 rounded-full text-[10px]" :title="getFullDateString(file.modified)">
+                              {{ getRelativeTime(file.modified) }}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="absolute -bottom-1 left-0 right-0 px-1">
+                          <Progress v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector, 'a-download-bottom-progress']" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
+                        </div>
+
+                        <div class="mt-3 flex space-x-2">
+                          <Button type="primary" @click="downloadFile(file.name)" size="small" :title="`Download ${file.name}`">
+                            <Icon :icon="arrowDownThickIcon" />
+                          </Button>
+                          <Button type="dashed" @click="confirmDelete(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]" :title="`Delete ${file.name}`">
+                            <Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" />
+                          </Button>
+                        </div>
+                      </div>
+                    </transition-group>
+                  </div>
+
+                  <!-- List View -->
+                  <div v-else key="list-view" class="space-y-2">
+                    <transition-group name="file-reorder" tag="div" class="space-y-2">
+                      <div v-for="file in sortedFiles" :key="file.name" :class="[themeClasses.dropZoneFileDisplayer]" class="relative flex items-center gap-4 p-3 border border-dashed rounded-lg hover:shadow-md group transition duration-300">
+                        <span v-if="isNewFile(file)" :class="[themeClasses.dropZoneNewBadge]" class="absolute left-2 top-2 text-[8px] px-1 py-0.5 rounded-full font-bold z-10">NEW</span>
+
+                        <Icon :icon="fileIcon(file.name)" :class="[themeClasses.dropZoneFileIcon]" class="h-8 w-8 min-h-8 min-w-8 flex-shrink-0" />
+
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <span :class="[themeClasses.dropZoneFileText]" class="text-sm font-medium truncate" :title="file.name">
+                              {{ file.name }}
+                            </span>
+                            <div class="flex items-center gap-1">
+                              <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="transition duration-300 animate-spin h-3 w-3" />
+                              <Icon :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="transition duration-300 h-3 w-3" />
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2 mt-1 text-xs">
+                            <span :class="[themeClasses.dropZoneFileSize]" class="px-1 rounded-full text-[10px]">{{ formatSize(file.size) }}</span>
+                            <span v-if="file.modified" :class="[themeClasses.dropZoneFileSize]" class="px-1 rounded-full text-[10px]" :title="getFullDateString(file.modified)">
+                              {{ getRelativeTime(file.modified) }}
+                            </span>
+                          </div>
+
+                          <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute -bottom-1 left-0 right-0 px-1">
+                            <Progress :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector, 'a-download-bottom-progress']" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
+                          </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                          <Button type="primary" @click="downloadFile(file.name)" size="small" :title="`Download ${file.name}`">
+                            <Icon :icon="arrowDownThickIcon" />
+                          </Button>
+                          <Button type="dashed" @click="confirmDelete(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]" :title="`Delete ${file.name}`">
+                            <Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" />
+                          </Button>
+                        </div>
+                      </div>
+                    </transition-group>
+                  </div>
+                </transition>
               </div>
             </div>
           </Card>
@@ -70,24 +176,38 @@
       </div>
     </div>
   </div>
+
+  <transition name="modal-fade">
+    <div v-if="showDeleteModal" :class="[themeClasses.dropZoneModalOverlay]" class="fixed inset-0 flex items-center justify-center z-50 px-4" @click="cancelDelete">
+      <div :class="[themeClasses.dropZoneModalBg]" class="rounded-lg p-6 w-full max-w-md min-w-full sm:min-w-[320px] mx-4" @click.stop>
+        <div class="flex items-center gap-3 mb-4">
+          <Icon :icon="alertIcon" class="text-red-500 w-6 h-6" />
+          <h3 :class="[themeClasses.dropZoneModalTitle]" class="text-lg font-semibold">Confirm Delete</h3>
+        </div>
+        <div :class="[themeClasses.dropZoneModalText]" class="mb-6 break-words">
+          Are you sure you want to delete
+          <strong class="break-words inline"> {{ fileToDelete }} </strong>?
+          <p class="mt-2 text-xs underline">This action cannot be undone.</p>
+        </div>
+        <div class="flex gap-3 justify-end">
+          <Button @click="cancelDelete" size="small">Cancel</Button>
+          <Button type="primary" danger @click="confirmDeleteAction" size="small">Delete</Button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
-
+import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
-
 import { FileEntry } from "../__Types__/DropZoneFileEntry";
-
 import { useTheme } from "../__Themes__/ThemeSelector";
-
-import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, Progress } from "ant-design-vue";
-
+import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, Progress, Select, SelectOption } from "ant-design-vue";
 import { Icon } from "@iconify/vue";
+
 import cubeIcon from "@iconify-icons/mdi/cube";
 import folderIcon from "@iconify-icons/mdi/folder";
-
-// Begin file icons
 import textFileIcon from "@iconify-icons/mdi/file-document";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
 import videoFileIcon from "@iconify-icons/mdi/file-video";
@@ -98,14 +218,18 @@ import powerpointFileIcon from "@iconify-icons/mdi/file-powerpoint";
 import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
 import unknownFileIcon from "@iconify-icons/mdi/file";
-// End file icons
-
 import arrowDownThickIcon from "@iconify-icons/mdi/arrow-down-thick";
 import closeIcon from "@iconify-icons/mdi/close";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
 import lockIcon from "@iconify-icons/mdi/lock";
 import lockOpenIcon from "@iconify-icons/mdi/lock-open-alert";
 import loadingIcon from "@iconify-icons/mdi/loading";
+import gridIcon from "@iconify-icons/mdi/view-grid";
+import listIcon from "@iconify-icons/mdi/view-list";
+import sortAscIcon from "@iconify-icons/mdi/sort-ascending";
+import sortDescIcon from "@iconify-icons/mdi/sort-descending";
+import alertIcon from "@iconify-icons/mdi/alert";
+import axisArrowIcon from "@iconify-icons/mdi/axis-arrow";
 
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import Favicon from "../__Components__/Favicon.vue";
@@ -175,9 +299,7 @@ const fileIconsMap: Record<string, any> = {
 };
 
 const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
-
 const { themeClasses } = useTheme();
-
 const activePath = ref("/drop-zone");
 
 const files = ref<FileEntry[]>([]);
@@ -187,14 +309,126 @@ const fileStates = ref<Record<string, boolean>>({});
 const loadingStates = ref<Record<string, boolean>>({});
 const downloadProgresses = ref<Record<string, number>>({});
 
-const customUpload = async ({ file, onSuccess, onError, onProgress }: any) => {
+interface UploadFile extends File {
+  uid: string;
+}
+
+const uploadQueue = ref<
+  Array<{
+    file: UploadFile;
+    onProgress?: (event: { percent: number }) => void;
+    onSuccess?: (result: any, file: UploadFile) => void;
+    onError?: (error: any) => void;
+  }>
+>([]);
+const activeUploads = ref(0);
+const maxConcurrent = 3;
+
+const viewMode = ref<"grid" | "list">("grid");
+const sortBy = ref<"name" | "size" | "date">("name");
+const sortDirection = ref<"asc" | "desc">("asc");
+
+const showDeleteModal = ref(false);
+const fileToDelete = ref<string>("");
+
+const loadPreferences = () => {
   try {
-    await uploadFile(file, onProgress);
-    fileList.value = fileList.value.filter((f: any) => f.uid !== file.uid);
-    onSuccess(null, file);
+    const saved = localStorage.getItem("dropzoneStatus");
+    if (saved) {
+      const prefs = JSON.parse(saved);
+      viewMode.value = prefs.viewMode || "grid";
+      sortBy.value = prefs.sortBy || "name";
+      sortDirection.value = prefs.sortDirection || "asc";
+    }
   } catch (error) {
-    onError(error);
+    console.warn("Failed to load dropzone preferences:", error);
   }
+};
+
+const savePreferences = () => {
+  try {
+    const prefs = {
+      viewMode: viewMode.value,
+      sortBy: sortBy.value,
+      sortDirection: sortDirection.value,
+    };
+    localStorage.setItem("dropzoneStatus", JSON.stringify(prefs));
+  } catch (error) {
+    console.warn("Failed to save dropzone preferences:", error);
+  }
+};
+
+watch([viewMode, sortBy, sortDirection], () => {
+  savePreferences();
+});
+
+const setViewMode = (mode: "grid" | "list") => {
+  viewMode.value = mode;
+};
+
+const toggleSortDirection = () => {
+  sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+};
+
+const getRelativeTime = (modified: string | number) => {
+  if (!modified) return "";
+
+  const now = new Date();
+  const date = typeof modified === "number" ? new Date(modified * 1000) : new Date(modified);
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 30) return "Now";
+  if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)}mo ago`;
+  return `${Math.floor(diffInSeconds / 31536000)}y ago`;
+};
+
+const getFullDateString = (modified: string | number) => {
+  if (!modified) return "";
+  const date = typeof modified === "number" ? new Date(modified * 1000) : new Date(modified);
+  return date.toLocaleString();
+};
+
+const processQueue = async () => {
+  if (activeUploads.value >= maxConcurrent || uploadQueue.value.length === 0) return;
+
+  const nextUpload = uploadQueue.value.shift();
+  if (!nextUpload) return;
+
+  activeUploads.value++;
+
+  try {
+    await uploadFile(nextUpload.file, nextUpload.onProgress);
+    fileList.value = fileList.value.filter((f: any) => f.uid !== nextUpload.file.uid);
+    if (nextUpload.onSuccess) nextUpload.onSuccess(null, nextUpload.file);
+  } catch (error) {
+    if (nextUpload.onError) nextUpload.onError(error);
+  } finally {
+    activeUploads.value--;
+    processQueue();
+  }
+};
+
+const customUpload = async ({ file, onSuccess, onError, onProgress }: any) => {
+  uploadQueue.value.push({
+    file: file as UploadFile,
+    onProgress,
+    onSuccess,
+    onError,
+  });
+  processQueue();
+};
+
+const isNewFile = (file: FileEntry) => {
+  if (!file.modified) return false;
+
+  const now = new Date();
+  const date = typeof file.modified === "number" ? new Date(file.modified * 1000) : new Date(file.modified);
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+  return diffInHours < 1;
 };
 
 const uploadFile = async (file: File, onProgress?: (event: { percent: number }) => void) => {
@@ -276,6 +510,23 @@ const downloadFile = async (fileName: string) => {
   }
 };
 
+const confirmDelete = (fileName: string) => {
+  fileToDelete.value = fileName;
+  showDeleteModal.value = true;
+};
+
+const cancelDelete = () => {
+  showDeleteModal.value = false;
+  fileToDelete.value = "";
+};
+
+const confirmDeleteAction = async () => {
+  if (fileToDelete.value) {
+    await deleteFile(fileToDelete.value);
+    cancelDelete();
+  }
+};
+
 const deleteFile = async (fileName: string) => {
   try {
     const response = await axios.post("/api/delete_file", { file: fileName }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
@@ -317,6 +568,39 @@ const displayedFiles = computed(() => {
   return files.value.filter((file) => file.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
 });
 
+const sortedFiles = computed(() => {
+  const sorted = [...displayedFiles.value].sort((a, b) => {
+    let comparison = 0;
+
+    switch (sortBy.value) {
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case "size":
+        comparison = a.size - b.size;
+        break;
+      case "date":
+        if (!a.modified && !b.modified) comparison = 0;
+        else if (!a.modified) comparison = 1;
+        else if (!b.modified) comparison = -1;
+        else {
+          const aTime = typeof a.modified === "number" ? a.modified : new Date(a.modified).getTime() / 1000;
+          const bTime = typeof b.modified === "number" ? b.modified : new Date(b.modified).getTime() / 1000;
+          comparison = aTime - bTime;
+        }
+        break;
+    }
+
+    return sortDirection.value === "asc" ? comparison : -comparison;
+  });
+
+  return sorted;
+});
+
+const totalSize = computed(() => {
+  return formatSize(files.value.reduce((acc, file) => acc + file.size, 0));
+});
+
 const handleSelect = (value: string | number | { value: string | number }) => {
   const selectedValue = typeof value === "object" ? value.value : value;
   searchQuery.value = selectedValue.toString();
@@ -331,10 +615,6 @@ const handleChange = (info: any) => {
   }
 };
 
-const totalSize = computed(() => {
-  return formatSize(files.value.reduce((acc, file) => acc + file.size, 0));
-});
-
 function formatSize(size: string | number) {
   const numSize = typeof size === "number" ? size : parseFloat(size);
   if (numSize >= 1e9) return (numSize / 1e9).toFixed(2) + " GBs";
@@ -348,11 +628,45 @@ const handleSuccess = () => {
 };
 
 onMounted(() => {
+  loadPreferences();
   fetchFiles();
 });
 </script>
 
 <style scoped>
+/* Grid-List Transition */
+.layout-switch-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.layout-switch-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.layout-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.layout-switch-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+/* Modal Delete Fade */
+.modal-fade-enter-active {
+  transition: opacity 0.25s ease-out;
+}
+
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease-in;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
 /* AntD Vue Overrides */
 :global(.dark-mode-theme.ant-select-dropdown) {
   background-color: rgb(39, 39, 42) !important;
@@ -508,5 +822,69 @@ onMounted(() => {
 
 :global(.aero-mode-theme.a-download-bottom-progress .ant-progress-bg) {
   background: linear-gradient(90deg, rgba(0, 255, 175, 0.55), rgba(50, 255, 180, 0.4), rgba(24, 160, 88, 0.25)) !important;
+}
+
+/* Custom styles for select and modal */
+::v-deep(.dark-mode-theme select) {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: rgb(61, 61, 61) !important;
+}
+
+::v-deep(.aero-mode-theme select) {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: rgba(62, 62, 62, 0.489) !important;
+}
+
+::v-deep(.dark-mode-theme select:focus) {
+  border-color: rgb(24, 119, 255) !important;
+  box-shadow: 0 0 0 2px rgba(24, 119, 255, 0.2) !important;
+}
+
+::v-deep(.aero-mode-theme select:focus) {
+  border-color: rgb(24, 119, 255) !important;
+  box-shadow: 0 0 0 2px rgba(24, 119, 255, 0.2) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-select-selector) {
+  background-color: rgba(31, 31, 31, 0) !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  border: 1px solid rgb(64, 64, 64) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-select-selector) {
+  background-color: transparent !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.1) inset !important;
+  border: 1px solid rgb(64, 64, 64, 0.5) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-select-item-option) {
+  background-color: rgb(31, 31, 31) !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  border: 1px solid rgb(64, 64, 64) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-select-arrow) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-select-selection-item) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-select-arrow) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-select-selection-item) {
+  color: rgb(115, 115, 115) !important;
+}
+
+:global(.aero-mode-theme .ant-select-item-option-selected) {
+  background-color: rgba(43, 43, 43, 0.218) !important;
 }
 </style>

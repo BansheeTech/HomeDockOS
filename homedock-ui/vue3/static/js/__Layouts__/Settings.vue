@@ -419,6 +419,26 @@ const handleCancel = () => {
   border: 1px solid rgb(64, 64, 64) !important;
 }
 
+::v-deep(.dark-mode-theme .ant-select-arrow) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.dark-mode-theme .ant-select-selection-item) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-select-arrow) {
+  color: rgb(115, 115, 115) !important;
+}
+
+::v-deep(.aero-mode-theme .ant-select-selection-item) {
+  color: rgb(115, 115, 115) !important;
+}
+
+:global(.aero-mode-theme .ant-select-item-option-selected) {
+  background-color: rgba(43, 43, 43, 0.218) !important;
+}
+
 ::v-deep(.ant-btn-primary:disabled) {
   border-color: #85858587 !important;
   background-color: #740a0a !important;

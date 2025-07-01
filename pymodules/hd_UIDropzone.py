@@ -36,6 +36,7 @@ def list_files():
                 {
                     "name": os.path.relpath(file_path, user_dir),
                     "size": file_stats.st_size,
+                    "modified": file_stats.st_mtime,
                 }
             )
 
