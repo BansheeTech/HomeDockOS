@@ -114,13 +114,30 @@
                           <Progress v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector, 'a-download-bottom-progress']" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
                         </div>
 
-                        <div class="mt-3 flex space-x-2">
-                          <Button type="primary" @click="downloadFile(file.name)" size="small" :title="`Download ${file.name}`">
-                            <Icon :icon="arrowDownThickIcon" />
-                          </Button>
-                          <Button type="dashed" @click="confirmDelete(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]" :title="`Delete ${file.name}`">
-                            <Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" />
-                          </Button>
+                        <div class="mt-3 flex justify-center">
+                          <div :class="['transition-all duration-300 ease-out', deleteConfirmStates[file.name] ? 'w-full flex justify-center' : 'flex space-x-2']">
+                            <Button
+                              v-show="!deleteConfirmStates[file.name]"
+                              type="primary"
+                              @click="downloadFile(file.name)"
+                              size="small"
+                              :title="`Download ${file.name}`"
+                              class="transition-all duration-300 ease-out"
+                              :class="{
+                                'opacity-0 scale-95 pointer-events-none': deleteConfirmStates[file.name],
+                                'opacity-100 scale-100': !deleteConfirmStates[file.name],
+                              }"
+                            >
+                              <Icon :icon="arrowDownThickIcon" />
+                            </Button>
+
+                            <Button type="dashed" @click="deleteConfirmStates[file.name] ? confirmDelete(file.name) : startDeleteConfirmation(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon, 'transition-all duration-300 ease-out transform-gpu relative overflow-hidden', deleteConfirmStates[file.name] ? 'min-w-20 border-red-500 text-white px-2' : 'w-8 px-2']" :title="deleteConfirmStates[file.name] ? `Confirm delete ${file.name}` : `Delete ${file.name}`" :danger="deleteConfirmStates[file.name]">
+                              <div class="flex items-center justify-center whitespace-nowrap">
+                                <Icon :icon="closeIcon" :class="['transition-transform duration-300 flex-shrink-0 w-4 h-4', deleteConfirmStates[file.name] ? 'rotate-0' : 'group-hover:rotate-90']" />
+                                <span :class="['text-xs font-medium transition-all duration-300 overflow-hidden', deleteConfirmStates[file.name] ? 'opacity-100 max-w-20 ml-1.5' : 'opacity-0 max-w-0 ml-0']"> Delete? </span>
+                              </div>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </transition-group>
@@ -157,11 +174,26 @@
                         </div>
 
                         <div class="flex items-center gap-2 flex-shrink-0">
-                          <Button type="primary" @click="downloadFile(file.name)" size="small" :title="`Download ${file.name}`">
+                          <Button
+                            v-show="!deleteConfirmStates[file.name]"
+                            type="primary"
+                            @click="downloadFile(file.name)"
+                            size="small"
+                            :title="`Download ${file.name}`"
+                            class="transition-all duration-300 ease-out"
+                            :class="{
+                              'opacity-0 scale-95 pointer-events-none': deleteConfirmStates[file.name],
+                              'opacity-100 scale-100': !deleteConfirmStates[file.name],
+                            }"
+                          >
                             <Icon :icon="arrowDownThickIcon" />
                           </Button>
-                          <Button type="dashed" @click="confirmDelete(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon]" :title="`Delete ${file.name}`">
-                            <Icon :icon="closeIcon" class="transition duration-300 group-hover:rotate-90" />
+
+                          <Button type="dashed" @click="deleteConfirmStates[file.name] ? confirmDelete(file.name) : startDeleteConfirmation(file.name)" size="small" :class="[themeClasses.dropZoneDeleteIcon, 'transition-all duration-300 ease-out transform-gpu relative overflow-hidden', deleteConfirmStates[file.name] ? 'min-w-20 border-red-500 text-white px-3' : 'w-8 px-2']" :title="deleteConfirmStates[file.name] ? `Confirm delete ${file.name}` : `Delete ${file.name}`" :danger="deleteConfirmStates[file.name]">
+                            <div class="flex items-center justify-center gap-1 whitespace-nowrap">
+                              <Icon :icon="closeIcon" :class="['transition-transform duration-300 flex-shrink-0 w-4 h-4', deleteConfirmStates[file.name] ? 'rotate-0' : 'group-hover:rotate-90']" />
+                              <span :class="['text-xs font-medium transition-all duration-300', deleteConfirmStates[file.name] ? 'opacity-100 ml-0' : 'opacity-0 w-0 -ml-1']"> Confirm </span>
+                            </div>
                           </Button>
                         </div>
                       </div>
@@ -176,26 +208,6 @@
       </div>
     </div>
   </div>
-
-  <transition name="modal-fade">
-    <div v-if="showDeleteModal" :class="[themeClasses.dropZoneModalOverlay]" class="fixed inset-0 flex items-center justify-center z-50 px-4" @click="cancelDelete">
-      <div :class="[themeClasses.dropZoneModalBg]" class="rounded-lg p-6 w-full max-w-md min-w-full sm:min-w-[320px] mx-4" @click.stop>
-        <div class="flex items-center gap-3 mb-4">
-          <Icon :icon="alertIcon" class="text-red-500 w-6 h-6" />
-          <h3 :class="[themeClasses.dropZoneModalTitle]" class="text-lg font-semibold">Confirm Delete</h3>
-        </div>
-        <div :class="[themeClasses.dropZoneModalText]" class="mb-6 break-words">
-          Are you sure you want to delete
-          <strong class="break-words inline"> {{ fileToDelete }} </strong>?
-          <p class="mt-2 text-xs underline">This action cannot be undone.</p>
-        </div>
-        <div class="flex gap-3 justify-end">
-          <Button @click="cancelDelete" size="small">Cancel</Button>
-          <Button type="primary" danger @click="confirmDeleteAction" size="small">Delete</Button>
-        </div>
-      </div>
-    </div>
-  </transition>
 </template>
 
 <script lang="ts" setup>
@@ -212,7 +224,7 @@ import textFileIcon from "@iconify-icons/mdi/file-document";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
 import videoFileIcon from "@iconify-icons/mdi/file-video";
 import audioFileIcon from "@iconify-icons/mdi/file-music";
-import zipFileIcon from "@iconify-icons/mdi/folder-zip";
+import zipFileIcon from "@iconify-icons/mdi/zip-box";
 import excelFileIcon from "@iconify-icons/mdi/file-excel";
 import powerpointFileIcon from "@iconify-icons/mdi/file-powerpoint";
 import wordFileIcon from "@iconify-icons/mdi/file-word";
@@ -308,6 +320,8 @@ const fileList = ref([]);
 const fileStates = ref<Record<string, boolean>>({});
 const loadingStates = ref<Record<string, boolean>>({});
 const downloadProgresses = ref<Record<string, number>>({});
+const deleteConfirmStates = ref<Record<string, boolean>>({});
+let deleteConfirmTimeout: Record<string, NodeJS.Timeout> = {};
 
 interface UploadFile extends File {
   uid: string;
@@ -327,9 +341,6 @@ const maxConcurrent = 3;
 const viewMode = ref<"grid" | "list">("grid");
 const sortBy = ref<"name" | "size" | "date">("name");
 const sortDirection = ref<"asc" | "desc">("asc");
-
-const showDeleteModal = ref(false);
-const fileToDelete = ref<string>("");
 
 const loadPreferences = () => {
   try {
@@ -510,21 +521,35 @@ const downloadFile = async (fileName: string) => {
   }
 };
 
-const confirmDelete = (fileName: string) => {
-  fileToDelete.value = fileName;
-  showDeleteModal.value = true;
-};
-
-const cancelDelete = () => {
-  showDeleteModal.value = false;
-  fileToDelete.value = "";
-};
-
-const confirmDeleteAction = async () => {
-  if (fileToDelete.value) {
-    await deleteFile(fileToDelete.value);
-    cancelDelete();
+const startDeleteConfirmation = (fileName: string) => {
+  if (deleteConfirmTimeout[fileName]) {
+    clearTimeout(deleteConfirmTimeout[fileName]);
   }
+
+  deleteConfirmStates.value[fileName] = true;
+
+  deleteConfirmTimeout[fileName] = setTimeout(() => {
+    cancelDeleteConfirmation(fileName);
+  }, 3000);
+};
+
+const cancelDeleteConfirmation = (fileName: string) => {
+  deleteConfirmStates.value[fileName] = false;
+  if (deleteConfirmTimeout[fileName]) {
+    clearTimeout(deleteConfirmTimeout[fileName]);
+    delete deleteConfirmTimeout[fileName];
+  }
+};
+
+const confirmDelete = async (fileName: string) => {
+  if (deleteConfirmTimeout[fileName]) {
+    clearTimeout(deleteConfirmTimeout[fileName]);
+    delete deleteConfirmTimeout[fileName];
+  }
+
+  deleteConfirmStates.value[fileName] = false;
+
+  await deleteFile(fileName);
 };
 
 const deleteFile = async (fileName: string) => {
@@ -627,6 +652,13 @@ const handleSuccess = () => {
   fetchFiles();
 };
 
+const cleanupTimeouts = () => {
+  Object.values(deleteConfirmTimeout).forEach((timeout) => {
+    clearTimeout(timeout);
+  });
+  deleteConfirmTimeout = {};
+};
+
 onMounted(() => {
   loadPreferences();
   fetchFiles();
@@ -653,18 +685,39 @@ onMounted(() => {
   transform: scale(1.02);
 }
 
-/* Modal Delete Fade */
-.modal-fade-enter-active {
-  transition: opacity 0.25s ease-out;
+/* Smooth button transitions sin fragmentación */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-fade-leave-active {
-  transition: opacity 0.2s ease-in;
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-.modal-fade-enter-from,
-.modal-fade-leave-to {
+/* File Reorder Transition */
+.file-reorder-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.file-reorder-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.file-reorder-enter-from {
   opacity: 0;
+  transform: translateY(-10px);
+}
+
+.file-reorder-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.file-reorder-move {
+  transition: transform 0.3s ease;
 }
 
 /* AntD Vue Overrides */

@@ -67,7 +67,9 @@ onMounted(() => {
 %c  Take Control of the Cloud with HomeDock OS
 %c
 %c  🌍 Website: https://www.homedock.cloud
-%c  📖 Docs: https://docs.homedock.cloud
+%c  📖 Documentation: https://docs.homedock.cloud
+%c  🐤 Discord: https://discord.gg/Zj3JCYsRWw
+%c  🧑‍💻 GitHub: https://github.com/BansheeTech/HomeDockOS
 `,
     "color: #FFFFFF; font-weight: bold; font-size: 10px;",
     "color: #EEEEEE; font-weight: bold; font-size: 10px;",
@@ -83,6 +85,8 @@ onMounted(() => {
     "color: #444444; font-weight: bold; font-size: 10px;",
     "color: #333333; font-weight: bold; font-size: 10px;",
     "color: #222222; font-weight: bold; font-size: 10px;",
+    "color: #FFFFFF; font-weight: bold; font-size: 10px;",
+    "color: #FFFFFF; font-weight: bold; font-size: 10px;",
     "color: #FFFFFF; font-weight: bold; font-size: 10px;",
     "color: #FFFFFF; font-weight: bold; font-size: 10px;",
     "color: #FFFFFF; font-weight: bold; font-size: 10px;",
