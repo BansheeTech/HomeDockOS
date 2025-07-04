@@ -23,20 +23,19 @@
           <span class="flex items-center"> <Icon :icon="unpauseIcon" class="mr-2" /> Unpause </span>
         </div>
         <div :class="[themeClasses.hrSelector]"></div>
-        <Popconfirm v-model:open="popconfirmVisible" overlayClassName="w-52 select-none" :color="themeClasses.uninstallPopconfirm" placement="bottom" ok-text="Yes" cancel-text="Cancel" @confirm="handleConfirm" :getPopupContainer="getPopconfirmContainer">
-          <template #title>
-            <p :class="[themeClasses.uninstallPopconfirmTextUp]">Uninstall apps?</p>
-          </template>
-          <template #description>
-            <p :class="[themeClasses.uninstallPopconfirmTextDown]">The selected apps will be uninstalled. Do you want to proceed?</p>
-          </template>
-          <template #icon>
-            <Icon :icon="uninstallIcon" class="text-red-600 animate-pulse" width="20" height="20" />
-          </template>
-          <div :class="[themeClasses.uninstallAction]" class="flex items-center rounded-md !m-2 px-2 py-0.5 cursor-pointer hover:ring-[1px] transition duration-300">
-            <span class="flex items-center"> <Icon :icon="uninstallIcon" class="mr-2" /> Uninstall </span>
+
+        <div :class="['transition-all duration-300 ease-out relative overflow-hidden flex items-center rounded-md !m-2 px-2 py-0.5 cursor-pointer hover:ring-[1px] group', uninstallConfirmState === 0 ? themeClasses.uninstallAction : '', uninstallConfirmState === 1 ? themeClasses.uninstallAction + ' saturate-200 animate-pulse' : '', uninstallConfirmState === 2 ? themeClasses.uninstallAction + ' saturate-200 scale-110 animate-pulse py-1.5' : '']" @click="handleUninstallClick()">
+          <div class="flex items-center justify-center whitespace-nowrap will-change-transform">
+            <Icon :icon="uninstallIcon" :class="['transition-transform duration-300 flex-shrink-0 mr-2', uninstallConfirmState ? 'group-hover:rotate-12' : '', uninstallConfirmState >= 1 ? 'animate-pulse' : '']" />
+            <span class="text-sm font-medium transition-all duration-300 overflow-hidden">
+              <Transition name="text-fade" mode="out-in">
+                <span :key="uninstallConfirmState">
+                  {{ getUninstallButtonText() }}
+                </span>
+              </Transition>
+            </span>
           </div>
-        </Popconfirm>
+        </div>
         <div :class="[themeClasses.hrSelector]"></div>
         <div :class="[themeClasses.updateAction]" class="flex items-center rounded-md !m-2 px-2 py-0.5 cursor-pointer hover:ring-[1px] transition duration-300" @click="handleUpdateSelectedApps">
           <span class="flex items-center"> <Icon :icon="updateIcon" class="mr-2" /> Update </span>
@@ -48,13 +47,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, h, ref } from "vue";
+import { computed, ref, onUnmounted } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { AxiosError } from "axios";
 
-import { Dropdown, Menu, Button, Popconfirm } from "ant-design-vue";
+import { Dropdown, Menu, Button } from "ant-design-vue";
 import { notifyError } from "../__Components__/Notifications.vue";
 
 import { useSelectedAppsStore } from "../__Stores__/selectedAppsStore";
@@ -81,22 +80,82 @@ import menu2Icon from "@iconify-icons/mdi/menu-down";
 const { themeClasses } = useTheme();
 
 const dropdownVisible = ref(false);
-const popconfirmVisible = ref(false);
+const uninstallConfirmState = ref(0);
+let uninstallConfirmTimeout: NodeJS.Timeout | null = null;
 
 const store = useSelectedAppsStore();
 const selectedApps = computed(() => store.selectedApps);
 
 const props = defineProps<{ csrfToken: string }>();
 
-// Weirdo duplicated Popconfirm behaviour on Dropdown not gonnna send an issue
-function getPopconfirmContainer(trigger: HTMLElement): HTMLElement {
-  const container = trigger.parentNode;
-  if (container instanceof HTMLElement) {
-    return container;
+const getUninstallButtonText = () => {
+  switch (uninstallConfirmState.value) {
+    case 0:
+      return "Uninstall";
+    case 1:
+      return "Confirm?";
+    case 2:
+      return "Are you sure?!";
+    default:
+      return "Uninstall";
   }
-  console.warn("Fallback to document.body");
-  return document.body;
-}
+};
+
+const handleUninstallClick = () => {
+  if (uninstallConfirmState.value === 0) {
+    startUninstallConfirmation();
+  } else if (uninstallConfirmState.value === 1) {
+    proceedToFinalConfirmation();
+  } else if (uninstallConfirmState.value === 2) {
+    confirmUninstall();
+  }
+};
+
+const startUninstallConfirmation = () => {
+  if (selectedApps.value.length === 0) {
+    return;
+  }
+
+  if (uninstallConfirmTimeout) {
+    clearTimeout(uninstallConfirmTimeout);
+  }
+
+  uninstallConfirmState.value = 1;
+
+  uninstallConfirmTimeout = setTimeout(() => {
+    cancelUninstallConfirmation();
+  }, 3500);
+};
+
+const proceedToFinalConfirmation = () => {
+  if (uninstallConfirmTimeout) {
+    clearTimeout(uninstallConfirmTimeout);
+  }
+
+  uninstallConfirmState.value = 2;
+
+  uninstallConfirmTimeout = setTimeout(() => {
+    cancelUninstallConfirmation();
+  }, 2000);
+};
+
+const cancelUninstallConfirmation = () => {
+  uninstallConfirmState.value = 0;
+  if (uninstallConfirmTimeout) {
+    clearTimeout(uninstallConfirmTimeout);
+    uninstallConfirmTimeout = null;
+  }
+};
+
+const confirmUninstall = async () => {
+  if (uninstallConfirmTimeout) {
+    clearTimeout(uninstallConfirmTimeout);
+    uninstallConfirmTimeout = null;
+  }
+
+  uninstallConfirmState.value = 0;
+  await handleUninstallSelectedApps();
+};
 
 // Start App
 async function handleStartSelectedApps() {
@@ -311,11 +370,11 @@ async function handleUpdateSelectedApps() {
   }
 }
 
-// Uninstall Popconfirm
-function handleConfirm() {
-  popconfirmVisible.value = false;
-  handleUninstallSelectedApps();
-}
+onUnmounted(() => {
+  if (uninstallConfirmTimeout) {
+    clearTimeout(uninstallConfirmTimeout);
+  }
+});
 </script>
 
 <style>
@@ -323,5 +382,15 @@ function handleConfirm() {
   backdrop-filter: blur(100px) saturate(200%);
   -webkit-backdrop-filter: blur(100px) saturate(100%);
   border-radius: 8px !important;
+}
+
+.text-fade-enter-active,
+.text-fade-leave-active {
+  transition: opacity 0.1s ease;
+}
+
+.text-fade-enter-from,
+.text-fade-leave-to {
+  opacity: 0;
 }
 </style>
