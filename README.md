@@ -11,6 +11,12 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
   <a href="https://discord.gg/Zj3JCYsRWw">Discord</a>
 </p>
 
+<p align="center">
+  <a href="https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/statickidz/homedock-oci-free/archive/refs/heads/main.zip">
+  <img alt="Deploy to Oracle Cloud" src="https://camo.githubusercontent.com/c727d41bca2c71a90844a36f981f17d55fb44a08a9f3f98cd2e9e4c9f157cadc/68747470733a2f2f6f63692d7265736f757263656d616e616765722d706c7567696e2e706c7567696e732e6f63692e6f7261636c65636c6f75642e636f6d2f6c61746573742f6465706c6f792d746f2d6f7261636c652d636c6f75642e737667" style="max-width:100%;">
+  </a>
+</p>
+
 <kbd>
   <a href="https://github.com/BansheeTech/HomeDock-OS-Desktop-Releases">
     <p align="center">
@@ -127,6 +133,8 @@ Join our vibrant community and keep up with the latest updates, features, and ti
 A huge thanks to all [contributors, partners, and users who make HomeDock OS a reality](https://docs.homedock.cloud/others/special-thanks/). Together, we’re redefining how the world experiences the cloud.
 
 > **"Take control of your apps with HomeDock OS and empower your cloud experience."**
+
+Big thanks to our friend [Adrián Barrio](https://github.com/statickidz) for his `homedock-oci-free` project, integrating HomeDock OS with Terraform on Oracle Free Tier. It looks stunning! [Check it out!](https://github.com/statickidz/homedock-oci-free)
 
 ---
 
