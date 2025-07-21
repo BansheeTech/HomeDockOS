@@ -10,8 +10,8 @@
     <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 mb-1.5 text-current cursor-pointer" @click.stop="toggleDropdown" />
     <Transition name="slide-fade">
       <Teleport to="body">
-        <div v-if="showDropdown" @click.stop class="fixed top-16 right-0 mx-4 sm:mx-auto sm:right-16 sm:w-[260px] shadow-md rounded-lg border z-[9999] overflow-hidden" :class="[themeClasses.notCont]">
-          <div :class="[themeClasses.topBack]" class="px-4 py-4 border-b rounded-t-sm text-xs flex items-center">
+        <div v-if="showDropdown" @click.stop class="fixed top-16 right-0 mx-4 sm:mx-auto sm:right-4 sm:w-[260px] shadow-md rounded-lg border z-[9999] overflow-hidden" :class="[themeClasses.notCont]">
+          <div :class="[themeClasses.topBack]" class="px-4 py-2.5 border-b rounded-t-sm text-xs flex items-center">
             <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="mr-3" />
             {{ notifications.length > 0 ? "You have new notifications" : "No new notifications available" }}
           </div>

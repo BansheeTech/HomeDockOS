@@ -13,6 +13,7 @@ from threading import Thread
 
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsMain import get_configured_external_drives
+from pymodules.hd_ExternalDriveManager import get_external_drive_info
 
 HOURS_TO_KEEP = 48
 VALUES_PER_HOUR = 12
@@ -26,14 +27,12 @@ def get_external_disk_usage():
     configured_drive = get_configured_external_drives()
     if configured_drive == "disabled":
         return 0
-    try:
-        for partition in psutil.disk_partitions():
-            if partition.device == configured_drive[0]:
-                usage = psutil.disk_usage(partition.mountpoint)
-                return usage.percent
-    except Exception as e:
-        print("Error obtaining use of external disk:", e)
-    return None
+
+    info = get_external_drive_info(configured_drive[0])
+    if info:
+        return info["usage_percent"]
+
+    return 0
 
 
 def start_log_sample_external_disk_usage():

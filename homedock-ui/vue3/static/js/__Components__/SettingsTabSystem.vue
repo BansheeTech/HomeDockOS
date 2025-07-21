@@ -38,7 +38,7 @@
 
   <SettingsBoxFold>
     <label class="block font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="HomeDock Behavior" :mdi_icon="wrenchIcon" />
+      <SettingsSeparator :class="[themeClasses.formInputSet]" text="HomeDock OS Behavior" :mdi_icon="wrenchIcon" />
     </label>
 
     <div class="form-switch mb-1">
@@ -65,7 +65,7 @@
       <label class="inline-flex items-start">
         <Switch v-model:checked="disableUsageDataValue" size="small" name="FormInputDisableUsageData" id="FormInputDisableUsageData" class="mt-0.5" />
         <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="ChartBellCurveIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
+          <Icon :icon="chartBellCurveIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
           <span class="ml-1">Disable sending anonymous usage data</span>
         </span>
       </label>
@@ -81,12 +81,22 @@
       </label>
     </div>
 
-    <div class="form-switch">
+    <div class="form-switch mb-1">
       <label class="inline-flex items-start">
         <Switch v-model:checked="delOldDataUninstallValue" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" class="mt-0.5" />
         <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
           <Icon :icon="deleteIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
           <span class="ml-1">Delete old installed image on app uninstall</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="form-switch">
+      <label class="inline-flex items-start">
+        <Switch v-model:checked="deleteOldVolumesUninstall" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" class="mt-0.5" />
+        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
+          <Icon :icon="cubeOffIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
+          <span class="ml-1">Delete app and user data volumes on uninstall</span>
         </span>
       </label>
     </div>
@@ -109,7 +119,8 @@ import hazardLightsIcon from "@iconify-icons/mdi/hazard-lights";
 import lanIcon from "@iconify-icons/mdi/lan";
 import alertIcon from "@iconify-icons/mdi/alert";
 import webRefreshIcon from "@iconify-icons/mdi/web-refresh";
-import ChartBellCurveIcon from "@iconify-icons/mdi/chart-bell-curve-cumulative";
+import chartBellCurveIcon from "@iconify-icons/mdi/chart-bell-curve-cumulative";
+import cubeOffIcon from "@iconify-icons/mdi/cube-off";
 
 import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
 import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
@@ -134,6 +145,7 @@ const developmentValue = ref<boolean>(props.modelValue.developmentMode || false)
 const disableUsageDataValue = ref<boolean>(props.modelValue.disableUsageData || false);
 const delOldDataUpdateValue = ref<boolean>(props.modelValue.deleteOldImages || false);
 const delOldDataUninstallValue = ref<boolean>(props.modelValue.deleteOldImagesUninstall || false);
+const deleteOldVolumesUninstall = ref<boolean>(props.modelValue.deleteVolumesUninstall || false);
 
 // Input Validation
 const validateInput = (event: KeyboardEvent) => {
@@ -165,6 +177,7 @@ watch(
     disableUsageData: disableUsageDataValue.value,
     deleteOldImages: delOldDataUpdateValue.value,
     deleteOldImagesUninstall: delOldDataUninstallValue.value,
+    deleteVolumesUninstall: deleteOldVolumesUninstall.value,
   }),
   (newValue) => {
     emit("update:modelValue", newValue);

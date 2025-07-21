@@ -25,6 +25,7 @@ interface SettingsData {
   disable_usage_data: string;
   delete_old_image_containers_after_update: string;
   delete_old_image_containers_after_uninstall: string;
+  delete_internal_data_volumes: string;
   default_external_drive: string;
   valid_drives: string;
 }
@@ -75,6 +76,7 @@ if (themeData && commonData && settingsData) {
       disableUsageData: settingsData.disable_usage_data,
       deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
       deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
+      deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
       defaultExternalDrive: settingsData.default_external_drive,
       validDrives: settingsData.valid_drives,
     });

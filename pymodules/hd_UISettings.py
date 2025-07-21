@@ -27,6 +27,7 @@ from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
 from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, current_year
 from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
 from pymodules.hd_ConfigEventManager import notify_config_changed
+from pymodules.hd_ExternalDriveManager import get_valid_external_drives, is_valid_external_drive
 
 
 @login_required
@@ -42,6 +43,7 @@ def homedocksettings():
     disable_usage_data = config["disable_usage_data"]
     delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
     delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
+    delete_internal_data_volumes = config["delete_internal_data_volumes"]
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
 
@@ -49,7 +51,7 @@ def homedocksettings():
 
     custom_exists = os.path.exists(path_custom)
 
-    valid_drives = [part.device for part in psutil.disk_partitions() if part.device.startswith("/dev/sd")]
+    valid_drives = get_valid_external_drives()
 
     return render_template(
         "settings.html",
@@ -65,6 +67,7 @@ def homedocksettings():
         disable_usage_data=disable_usage_data,
         delete_old_image_containers_after_update=delete_old_image_containers_after_update,
         delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
+        delete_internal_data_volumes=delete_internal_data_volumes,
         selected_theme=selected_theme,
         selected_back=selected_back,
         valid_drives=valid_drives,
@@ -168,10 +171,11 @@ def api_save_settings():
         disable_usage_data = "True" if bool(system_data.get("disableUsageData", False)) else "False"
         delete_old_image_containers_after_update = "True" if bool(system_data.get("deleteOldImages", False)) else "False"
         delete_old_image_containers_after_uninstall = "True" if bool(system_data.get("deleteOldImagesUninstall", False)) else "False"
+        delete_internal_data_volumes = "True" if bool(system_data.get("deleteVolumesUninstall", False)) else "False"
 
-        valid_drives = [part.device for part in psutil.disk_partitions() if part.device.startswith("/dev/sd")]
+        valid_drives = get_valid_external_drives()
         default_external_drive = storage_data.get("externalDrive", "disabled")
-        if default_external_drive not in valid_drives:
+        if not is_valid_external_drive(default_external_drive):
             default_external_drive = "disabled"
 
         config = configparser.ConfigParser()
@@ -185,6 +189,7 @@ def api_save_settings():
             "disable_usage_data": disable_usage_data,
             "delete_old_image_containers_after_update": delete_old_image_containers_after_update,
             "delete_old_image_containers_after_uninstall": delete_old_image_containers_after_uninstall,
+            "delete_internal_data_volumes": delete_internal_data_volumes,
             "default_external_drive": default_external_drive,
             "selected_theme": selected_theme,
             "selected_back": selected_back,

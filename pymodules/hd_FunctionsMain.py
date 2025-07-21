@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 
 from pymodules.hd_FunctionsGlobals import current_directory, running_OS
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_ExternalDriveManager import get_external_drive_info
 
 start_time = datetime.now()
 
@@ -142,15 +143,12 @@ def get_total_external_disk():
     configured_drive = get_configured_external_drives()
     if configured_drive == "disabled":
         return "0GB"
-    try:
-        for partition in psutil.disk_partitions():
-            if partition.device == configured_drive[0]:
-                usage = psutil.disk_usage(partition.mountpoint)
-                total_disk_gb = usage.total / 1024 / 1024 / 1024
-                return f"{round(total_disk_gb)}"
 
-    except Exception as e:
-        print("Error al obtener la cantidad total de espacio en disco externo:", e)
+    info = get_external_drive_info(configured_drive[0])
+    if info:
+        total_disk_gb = info["total_gb"]
+        return f"{round(total_disk_gb)}"
+
     return None
 
 

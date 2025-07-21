@@ -46,6 +46,11 @@ a img {
   user-drag: none;
 }
 
+a {
+  color: inherit !important;
+  text-decoration: none;
+}
+
 /* Unescoped Animation Styles */
 @keyframes noscript-gradient {
   0% {

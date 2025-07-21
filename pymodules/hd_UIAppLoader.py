@@ -24,16 +24,21 @@ def check_port():
     hostname = request.host.split(":")[0]
     urls = [f"https://{hostname}:{port}", f"http://{hostname}:{port}"]
 
+    # HDOS00005
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+
     for url in urls:
         try:
-            response = requests.head(url, timeout=2, allow_redirects=True)
-
+            response = requests.head(url, timeout=5, allow_redirects=True, headers=headers)
+            
             if response.status_code < 400 or response.status_code in [401, 301, 302]:
                 return jsonify({"available": True, "url": url})
 
             if response.status_code in [404, 405]:
-                response = requests.get(url, timeout=2, allow_redirects=True, stream=True)
-
+                response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers)
+                
                 if response.status_code < 400 or response.status_code in [401, 301, 302]:
                     return jsonify({"available": True, "url": url})
 

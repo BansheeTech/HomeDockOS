@@ -194,6 +194,7 @@ const settingsData = inject<{
   disableUsageData: boolean;
   deleteImageOnUpdate: boolean;
   deleteImageOnUninstall: boolean;
+  deleteInternalDataVolumes: boolean;
   defaultExternalDrive: string;
   validDrives: string[];
 }>("data-settings");
@@ -225,6 +226,7 @@ interface SystemData {
   developmentMode?: boolean;
   deleteOldImages?: boolean;
   deleteOldImagesUninstall?: boolean;
+  deleteVolumesUninstall?: boolean;
   localDNS?: boolean;
 }
 
@@ -256,6 +258,7 @@ const formData = reactive({
     disableUsageData: settingsData.disableUsageData,
     deleteOldImages: settingsData.deleteImageOnUpdate,
     deleteOldImagesUninstall: settingsData.deleteImageOnUninstall,
+    deleteVolumesUninstall: settingsData.deleteInternalDataVolumes,
     localDNS: settingsData.localDNS,
   } as SystemData,
 

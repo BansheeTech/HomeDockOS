@@ -11,7 +11,7 @@
         </button>
       </div>
       <a draggable="false" class="brand-logo" href="/dashboard">
-        <BaseImage draggable="false" :class="[themeClasses.logo, 'transition-all duration-300 ease-in-out', isMenuCollapsed ? 'w-0 h-0 overflow-hidden' : 'w-[34px] h-[34px]']" src="/images/logo_trans.svg" alt="logo" />
+        <BaseImage draggable="false" :class="[themeClasses.logo, 'transition-all duration-300 ease-in-out hover:scale-110', isMenuCollapsed ? 'w-0 h-0 overflow-hidden' : 'w-[34px] h-[34px]']" src="/images/logo_trans.svg" alt="HomeDock OS Logo" />
       </a>
     </div>
 
@@ -22,7 +22,9 @@
           <span :class="[themeClasses.greetingMain]" class="font-light">,</span>
           <span :class="[themeClasses.greetingNext]" class="font-medium ml-2">{{ settingsData.userName }}</span>
         </h1>
-        <h3 :class="[themeClasses.greetingMain]" class="font-normal mb-0">Welcome to HomeDock OS</h3>
+        <h3 :class="[themeClasses.greetingMain]" class="font-normal mb-0">
+          <WelcomeMessage />
+        </h3>
       </span>
 
       <div class="flex items-center justify-end w-full lg:w-auto">
@@ -30,11 +32,11 @@
           <DatePicker :popupClassName="themeClasses.scopeSelector" :class="[themeClasses.datePicker, themeClasses.scopeSelector]" v-model:value="currentDate" :inputReadOnly="true" :autofocus="false" :allowClear="false" class="w-32 mt-1 hidden lg:block" />
         </Space>
 
-        <NotificationBell class="px-4 mt-1" />
+        <NotificationBell class="px-2 mr-2 mt-1" />
 
-        <a href="#" class="px-3">
+        <!-- <a href="#" class="px-3" @click.prevent>
           <Icon :class="[themeClasses.navBarIcon]" :icon="accountIcon" class="w-5 h-5" />
-        </a>
+        </a> -->
 
         <div class="px-3 mt-2 block lg:hidden">
           <button :class="[themeClasses.hambIcon]" @click="toggleDrawer">
@@ -61,10 +63,11 @@ import dayjs from "dayjs";
 
 import { Icon } from "@iconify/vue";
 import menuIcon from "@iconify-icons/mdi/menu";
-import accountIcon from "@iconify-icons/mdi/account";
+// import accountIcon from "@iconify-icons/mdi/account";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import UserGreeting from "../__Components__/UserGreeting.vue";
+import WelcomeMessage from "../__Components__/WelcomeMessage.vue";
 import NotificationBell from "../__Components__/NotificationBell.vue";
 import MenuContent from "../__Components__/MenuContent.vue";
 

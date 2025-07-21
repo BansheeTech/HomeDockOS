@@ -126,7 +126,7 @@ const checkAppAvailability = async () => {
     statusMessage.value = `Retrying ${retryCount}/${maxRetries}`;
 
     if (retryCount < maxRetries) {
-      setTimeout(checkAppAvailability, 3000);
+      setTimeout(checkAppAvailability, 1000);
     } else {
       isChecking.value = false;
       isError.value = true;

@@ -12,7 +12,17 @@ import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
 export default defineComponent({
   name: "UserGreeting",
   setup() {
+    const DEFAULT_GREETING = "Hi there";
+
+    const CHANGE_TIMEFRAME = 12500;
+    const TYPE_SPEED_INITIAL = 25;
+    const TYPE_SPEED_DEFAULT = 50;
+    const TYPE_SPEED_CHANGE = 50;
+    const FADE_OUT_DELAY = 200;
+    const STORAGE_KEY = "lastGreeting";
+
     const greetings = ref(["Hola", "Hi there", "Bonjour", "Hallo", "Ciao", "Olá", "Zdravstvuyte", "Nǐ hǎo", "Evoy", "Konnichiwa", "Marhaba", "Namaste", "Shalom", "Yia", "Annyeonghaseyo", "Hej", "Merhaba", "Salaam", "Habari", "Sawubona", "Sav'aaq", "Acho"]);
+
     const lastGreeting = ref("");
     const isChanging = ref(false);
     const intervalId = ref<number | null>(null);
@@ -23,9 +33,10 @@ export default defineComponent({
       do {
         const randomIndex = Math.floor(Math.random() * greetings.value.length);
         newGreeting = greetings.value[randomIndex];
-      } while (newGreeting === lastGreeting.value);
+      } while (newGreeting === lastGreeting.value && greetings.value.length > 1);
+
       lastGreeting.value = newGreeting;
-      localStorage.setItem("lastGreeting", newGreeting);
+      localStorage.setItem(STORAGE_KEY, newGreeting);
       return newGreeting;
     };
 
@@ -54,7 +65,7 @@ export default defineComponent({
           greeting,
           greetingElement.value,
           () => {
-            startGreetingInterval(12500);
+            startGreetingInterval(CHANGE_TIMEFRAME);
           },
           speed
         );
@@ -64,21 +75,24 @@ export default defineComponent({
     const changeGreeting = (): void => {
       if (isChanging.value) return;
       isChanging.value = true;
+
       if (greetingElement.value) {
         greetingElement.value.classList.add("fade-out");
         setTimeout(() => {
-          greetingElement.value!.innerHTML = "";
-          greetingElement.value!.classList.remove("fade-out");
-          const newGreeting = getRandomGreeting();
-          typeWriter(
-            newGreeting,
-            greetingElement.value!,
-            () => {
-              isChanging.value = false;
-            },
-            100
-          );
-        }, 200);
+          if (greetingElement.value) {
+            greetingElement.value.innerHTML = "";
+            greetingElement.value.classList.remove("fade-out");
+            const newGreeting = getRandomGreeting();
+            typeWriter(
+              newGreeting,
+              greetingElement.value,
+              () => {
+                isChanging.value = false;
+              },
+              TYPE_SPEED_CHANGE
+            );
+          }
+        }, FADE_OUT_DELAY);
       }
     };
 
@@ -95,7 +109,7 @@ export default defineComponent({
           clearInterval(intervalId.value);
         }
       } else {
-        startGreetingInterval(12500);
+        startGreetingInterval(CHANGE_TIMEFRAME);
       }
     };
 
@@ -104,6 +118,7 @@ export default defineComponent({
       const month = today.getMonth() + 1;
       const day = today.getDate();
       const usernameElements = document.querySelectorAll(".username_catcher");
+
       if (day === 21 && month === 3) {
         usernameElements.forEach((element) => {
           if (element.textContent === "Anghios") {
@@ -114,6 +129,7 @@ export default defineComponent({
           }
         });
       }
+
       if (day === 31 && month === 12) {
         usernameElements.forEach((element) => {
           const easterSpan = document.createElement("span");
@@ -125,12 +141,12 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      const storedGreeting = localStorage.getItem("lastGreeting");
-      if (storedGreeting) {
+      const storedGreeting = localStorage.getItem(STORAGE_KEY);
+      if (storedGreeting && greetings.value.includes(storedGreeting)) {
         lastGreeting.value = storedGreeting;
-        displayGreeting(storedGreeting, 15);
+        displayGreeting(storedGreeting, TYPE_SPEED_INITIAL);
       } else {
-        displayGreeting("Hi there", 100);
+        displayGreeting(DEFAULT_GREETING, TYPE_SPEED_DEFAULT);
       }
       easterr();
       document.addEventListener("visibilitychange", handleVisibilityChange);

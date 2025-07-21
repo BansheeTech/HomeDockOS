@@ -10,18 +10,14 @@ import psutil
 import bcrypt
 import configparser
 
-from pymodules.hd_FunctionsGlobals import current_directory, compose_upload_folder
+from pymodules.hd_FunctionsGlobals import current_directory, compose_upload_folder, running_OS
+from pymodules.hd_ExternalDriveManager import get_default_external_drive
 
 
 def check_and_generate_config():
     config_file = os.path.join(current_directory, "homedock_server.conf")
 
-    default_external_drive = "disabled"
-    partitions = psutil.disk_partitions()
-    for partition in partitions:
-        if "sd" in partition.device:
-            default_external_drive = partition.device
-            break
+    default_external_drive = get_default_external_drive()
 
     password_input = "passwd".encode("utf-8")
     salt = bcrypt.gensalt()
@@ -40,6 +36,7 @@ def check_and_generate_config():
             "disable_usage_data": "False",
             "delete_old_image_containers_after_update": "False",
             "delete_old_image_containers_after_uninstall": "False",
+            "delete_internal_data_volumes": "True",
             "default_external_drive": default_external_drive,
             "selected_theme": "default",
             "selected_back": "back1.jpg",
@@ -86,10 +83,20 @@ def check_and_update_config():
     if os.path.exists(config_file):
         config.read(config_file)
 
+        missing_options = []
+
         if not config.has_option("Config", "disable_usage_data"):
             config.set("Config", "disable_usage_data", "False")
+            missing_options.append("disable_usage_data")
+
+        if not config.has_option("Config", "delete_internal_data_volumes"):
+            config.set("Config", "delete_internal_data_volumes", "False")
+            missing_options.append("delete_internal_data_volumes")
+
+        if missing_options:
             with open(config_file, "w") as configfile:
                 config.write(configfile)
+            print(f" * Added missing configuration options: {', '.join(missing_options)}")
 
     else:
         print("Configuration file does not exist. Generate it first.")
@@ -122,6 +129,7 @@ def read_config():
         "disable_usage_data": config.getboolean("Config", "disable_usage_data"),
         "delete_old_image_containers_after_update": config.getboolean("Config", "delete_old_image_containers_after_update"),
         "delete_old_image_containers_after_uninstall": config.getboolean("Config", "delete_old_image_containers_after_uninstall"),
+        "delete_internal_data_volumes": config.getboolean("Config", "delete_internal_data_volumes"),
         "default_external_drive": config.get("Config", "default_external_drive"),
     }
 

@@ -57,9 +57,9 @@ def recreate_container():
             f.write(yml_content)
 
         subprocess.run(["docker-compose", "up", "-d"], cwd=temp_folder_path)
-        
+
         original_file_path = os.path.join(compose_upload_folder, f"{container_name}.yml")
-        os.rename(temp_file_path, original_file_path)
+        os.replace(temp_file_path, original_file_path)  # HDOS00004
 
         os.rmdir(temp_folder_path)
 

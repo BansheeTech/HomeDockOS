@@ -7,24 +7,17 @@ https://www.banshee.pro
 import os
 import re
 import yaml
-import random
-import string
-import secrets
-import platform
 
 from flask_login import login_required
 from flask import jsonify, request
 
-
-from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import current_directory
-from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled
+from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders
 
 
 @login_required
 def get_appstore_info():
-
     containerName = request.args.get("containerName")
 
     if not is_valid_container_name(containerName):
@@ -47,8 +40,10 @@ def get_appstore_info():
     with open(yml_file_path, "r") as file:
         yml_str = file.read()
 
-        user_placeholder_present = "[[HD_USER_NAME]]" in yml_str
-        password_placeholder_present = "[[HD_PASSWORD]]" in yml_str
+        placeholders = extract_devhook_placeholders(yml_str)
+        user_placeholder_present = placeholders["user_name"]
+        password_placeholder_present = placeholders["password"]
+        random_string_placeholder_present = placeholders["random_string"]
 
         yml_str, devhook_values = process_devhooks(yml_str)
 
@@ -67,7 +62,6 @@ def get_appstore_info():
 
         dependencies = []
         if is_group:
-
             for service_name, service_data in yml_data.get("services", {}).items():
                 if service_data.get("labels", {}).get("HDRole") == "main":
                     main_service_name = service_name
@@ -83,7 +77,6 @@ def get_appstore_info():
             if main_service_name is None or main_service_data is None:
                 return jsonify({"success": False, "message": "Main container not found in group"}), 404
         else:
-
             main_service_name, main_service_data = next(iter(yml_data.get("services", {}).items()), (None, None))
 
         if main_service_name is None or main_service_data is None:
@@ -93,12 +86,11 @@ def get_appstore_info():
         volumes = main_service_data.get("volumes", [])
 
         yml_data_copy = yml_data.copy()
-
         yml_str = yaml.dump(yml_data_copy)
 
         yml_str, _ = process_devhooks(yml_str)
 
-        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None, "ssl_enabled": use_ssl}})
+        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None, "random_string": devhook_values["random_string"] if random_string_placeholder_present else None, "ssl_enabled": use_ssl}})
 
 
 @login_required
@@ -152,6 +144,7 @@ def process_config():
         restartPolicy = request_data.get("restartPolicy", "unless-stopped")
         user_name = request_data.get("userName", None)
         user_password = request_data.get("userPassword", None)
+        user_random_string = request_data.get("userRandomString", None)  # ← Nueva línea
 
         if not os.path.exists(original_yml_file_path):
             return jsonify({"success": False, "message": "Original YML file not found"}), 404
@@ -166,9 +159,11 @@ def process_config():
             yml_str = yml_str.replace("[[HD_USER_NAME]]", user_name)
         if "[[HD_PASSWORD]]" in yml_str and user_password:
             yml_str = yml_str.replace("[[HD_PASSWORD]]", user_password)
+        if "[[HD_RND_STR]]" in yml_str and user_random_string:
+            yml_str = yml_str.replace("[[HD_RND_STR]]", user_random_string)
 
         try:
-            yml_str, _ = process_devhooks(yml_str)
+            yml_str, _ = process_devhooks(yml_str, generate_passwords=True)
             yml_data = yaml.safe_load(yml_str)
 
         except yaml.YAMLError as e:
@@ -195,69 +190,5 @@ def process_config():
         return jsonify({"success": False, "message": "Invalid configuration type provided"}), 400
 
 
-def generate_simple_password():
-    words = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "iceberg", "jujube", "kiwi", "lemon", "mango", "nectarine", "orange", "papaya", "quince", "raspberry", "strawberry", "tangerine", "ugli", "vanilla", "watermelon", "xigua", "yam", "zucchini"]
-    numbers = random.sample(range(10, 99), 2)
-    password = random.choice(words) + "_" + random.choice(words) + "_" + str(numbers[0]) + str(numbers[1])
-    return password
-
-
-def generate_secure_password(length=20):
-    alphabet = string.ascii_letters + string.digits
-    password = "".join(secrets.choice(alphabet) for i in range(length))
-    return password
-
-
 def is_valid_container_name(name):
     return re.match("^[a-zA-Z0-9-_]+$", name) is not None
-
-
-def get_config_path():
-    system = platform.system()
-    user_home = os.path.expanduser("~")
-
-    if system == "Linux":
-        return "/DATA/HomeDock/AppData"
-    elif system == "Darwin":
-        return f"{user_home}/HomeDock/AppData"
-    elif system == "Windows":
-        return "//c/HomeDock/AppData"
-    else:
-        raise OSError(f"Not supported underlying operative system: {system}")
-
-
-def get_internal_storage_path():
-    system = platform.system()
-    user_home = os.path.expanduser("~")
-
-    if system == "Linux":
-        return "/DATA/HomeDock/AppFolders"
-    elif system == "Darwin":
-        return f"{user_home}/HomeDock/AppFolders"
-    elif system == "Windows":
-        return "//c/HomeDock/AppFolders"
-    else:
-        raise OSError(f"Not supported underlying operative system: {system}")
-
-
-def process_devhooks(yml_str):
-    config = read_config()
-
-    dynamic_dns = config["dynamic_dns"]
-
-    user_name = config["user_name"].lower()
-    password = generate_simple_password()
-    sys_password = generate_secure_password()
-
-    yml_str = yml_str.replace("[[HD_LOCAL_IP]]", local_ip)
-    yml_str = yml_str.replace("[[HD_INTERNET_IP]]", internet_ip)
-    yml_str = yml_str.replace("[[HD_DYN_DNS]]", dynamic_dns)
-
-    yml_str = yml_str.replace("[[HD_USER_NAME]]", user_name)
-    yml_str = yml_str.replace("[[HD_PASSWORD]]", password)
-    yml_str = yml_str.replace("[[HD_SYSTEM_PASSWORD]]", sys_password)
-
-    yml_str = yml_str.replace("[[INSTALL_PATH]]", get_config_path())
-    yml_str = yml_str.replace("[[APP_MOUNT_POINT]]", get_internal_storage_path())
-
-    return yml_str, {"user_name": user_name, "password": password, "sys_password": sys_password}

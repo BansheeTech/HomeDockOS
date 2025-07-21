@@ -12,6 +12,7 @@ HomeDockOS_Update.*.zip
 homedock_ports.conf
 homedock_server.conf
 homedock_dropzone.conf
+unstaged_test.py
 homedock-ui/static/images/wallpapers/back_custom.jpg
 node_modules/
 .deprecated/
