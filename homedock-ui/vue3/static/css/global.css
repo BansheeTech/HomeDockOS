@@ -47,8 +47,11 @@ a img {
 }
 
 a {
-  color: inherit !important;
   text-decoration: none;
+}
+
+.menu-link {
+  color: inherit !important;
 }
 
 /* Unescoped Animation Styles */

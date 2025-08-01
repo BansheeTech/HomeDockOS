@@ -1,0 +1,16 @@
+---
+version: "2"
+services:
+  homebridge:
+    container_name: homebridge
+    image: homebridge/homebridge:latest
+    restart: always
+    ports:
+      - "8581:8581"
+    volumes:
+      - [[INSTALL_PATH]]/homebridge:/homebridge
+    logging:
+      driver: json-file
+      options:
+        max-size: "10mb"
+        max-file: "1"

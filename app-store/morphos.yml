@@ -1,0 +1,12 @@
+---
+version: '3.9'
+services:
+  morphos-server:
+    container_name: morphos
+    user: "0:0"
+    image: ghcr.io/danvergara/morphos-server:latest
+    ports:
+      - "20080:8080"
+    volumes:
+      - [[INSTALL_PATH]]/morphos:/tmp
+    restart: unless-stopped

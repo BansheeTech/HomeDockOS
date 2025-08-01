@@ -1,0 +1,10 @@
+---
+version: '3.9'
+services:
+  downtify:
+    container_name: downtify
+    image: henriquesebastiao/downtify:latest
+    ports:
+      - '8000:8000'
+    volumes:
+      - [[INSTALL_PATH]]/downtify:/downloads

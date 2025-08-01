@@ -1,0 +1,17 @@
+---
+version: "3.4"
+services:
+  homebox:
+    container_name: homebox
+    image: ghcr.io/sysadminsmedia/homebox:latest
+    restart: always
+    environment:
+      - TZ=Europe/Madrid
+      - HBOX_LOG_LEVEL=info
+      - HBOX_LOG_FORMAT=text
+      - HBOX_WEB_MAX_UPLOAD_SIZE=10
+      - HBOX_OPTIONS_ALLOW_REGISTRATION=true
+    volumes:
+      - [[INSTALL_PATH]]/homebox:/data
+    ports:
+      - 3100:7745

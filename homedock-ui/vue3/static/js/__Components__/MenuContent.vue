@@ -14,7 +14,7 @@
         </span>
       </li>
       <li class="group">
-        <a href="/dashboard" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/dashboard' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/dashboard" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/dashboard' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="landPlotsIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">Dashboard</span>
         </a>
@@ -29,25 +29,25 @@
         </div>
       </li>
       <li class="group">
-        <a href="/app-store" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/app-store' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/app-store" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/app-store' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="widgetsOutlineIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">App Store</span>
         </a>
       </li>
       <li class="group">
-        <a href="/control-hub" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/control-hub' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/control-hub" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/control-hub' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="nutIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">Control Hub</span>
         </a>
       </li>
       <li class="group">
-        <a href="/system-logs" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/system-logs' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/system-logs" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/system-logs' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="chartTimelineVariantIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">System Logs</span>
         </a>
       </li>
       <li class="group">
-        <a href="/drop-zone" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/drop-zone' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/drop-zone" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/drop-zone' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="cubeIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">Drop Zone</span>
         </a>
@@ -62,7 +62,7 @@
         </div>
       </li>
       <li class="group">
-        <a href="/settings" :class="['flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/settings' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
+        <a href="/settings" :class="['menu-link flex items-center p-2 text-sm font-light rounded-lg w-full mb-2 transition duration-300 ease-in-out', mode === 'sidebar' && isCollapsed ? 'justify-center' : 'pl-8', activePath === '/settings' ? themeClasses.menuActiveLink : themeClasses.menuInactiveLink]">
           <Icon :icon="tuneIcon" class="h-5 w-5 min-w-5 min-h-5 transition duration-300 group-hover:scale-110" />
           <span v-if="mode === 'drawer' || !isCollapsed" class="ml-4 text-ellipsis overflow-hidden">Settings</span>
         </a>

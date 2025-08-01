@@ -1,0 +1,11 @@
+---
+version: '3.9'
+services:
+  compose-toolbox:
+    container_name: compose-toolbox
+    image: ghcr.io/bluegoosemedia/composetoolbox
+    ports:
+      - "6500:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

@@ -1,0 +1,68 @@
+---
+version: '3.9'
+services:
+version: '3.9'
+services:
+  booklore:
+    container_name: booklore
+    image: ghcr.io/adityachandelgit/booklore-app:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DATABASE_URL=jdbc:mariadb://booklore_mariadb:3306/booklore 
+      - DATABASE_USERNAME=[[HD_USER_NAME]]
+      - DATABASE_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - SWAGGER_ENABLED=false
+    ports:
+      - "6060:6060"
+    depends_on:
+      booklore_mariadb:
+        condition: service_healthy
+    volumes:
+      - [[INSTALL_PATH]]/booklore/booklore/data:/app/data
+      - [[APP_MOUNT_POINT]]/booklore/booklore/books:/books
+      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+    labels:
+      HDGroup: "booklore"
+      HDRole: "main"
+    restart: unless-stopped
+    entrypoint: |
+      sh -c '
+      echo "─────────────────────────────────────────────────────────────"
+      echo ""
+      echo "   Running official image from ghcr.io/adityachandelgit/booklore-app"
+      echo "   Visit: https://github.com/booklore-app/BookLore"
+      echo ""
+      echo "   Modified at runtime for SSL support by HomeDock OS team"
+      echo "   Visit too: https://www.homedock.cloud/"
+      echo ""
+      echo "─────────────────────────────────────────────────────────────"
+      sed -i "s/listen 6060;/listen 6060 ssl;/" /etc/nginx/nginx.conf
+      sed -i "/listen 6060 ssl;/a\\        ssl_certificate \/cert.pem;\\n        ssl_certificate_key \/privkey.pem;" /etc/nginx/nginx.conf
+      exec /__cacert_entrypoint.sh /bin/sh -c "/usr/sbin/nginx -g \"daemon off;\" & java -jar /app/app.jar"
+      '
+            
+  booklore_mariadb:
+    container_name: booklore_mariadb
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MYSQL_ROOT_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - MYSQL_DATABASE=booklore
+      - MYSQL_USER=[[HD_USER_NAME]]
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+    volumes:
+      - [[APP_MOUNT_POINT]]/booklore/booklore_mariadb/config:/config
+    restart: unless-stopped
+    labels:
+      HDGroup: "booklore"
+      HDRole: "dependency"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

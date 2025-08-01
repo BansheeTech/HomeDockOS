@@ -8,10 +8,10 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - "DB_HOST=[[LOCAL_IP]]
+      - DB_HOST=[[HD_LOCAL_IP]]
       - DB_PORT=3306
       - DB_USER=hedgedoc
-      - "DB_PASS=[[HD_SYSTEM_PASSWORD]]"
+      - DB_PASS=[[HD_SYSTEM_PASSWORD]]
       - DB_NAME=hedgedoc
       - CMD_DOMAIN=localhost
       - CMD_URL_ADDPORT=false #optional

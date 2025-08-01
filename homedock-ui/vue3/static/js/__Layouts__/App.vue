@@ -95,7 +95,7 @@ const checkAppAvailability = async () => {
   try {
     const response = await axios.post(
       "/api/check-port",
-      { port },
+      { port: port, subpath: path }, 
       {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       }
@@ -126,7 +126,7 @@ const checkAppAvailability = async () => {
     statusMessage.value = `Retrying ${retryCount}/${maxRetries}`;
 
     if (retryCount < maxRetries) {
-      setTimeout(checkAppAvailability, 1000);
+      setTimeout(checkAppAvailability, 2500);
     } else {
       isChecking.value = false;
       isError.value = true;

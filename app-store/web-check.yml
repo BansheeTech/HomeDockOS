@@ -1,0 +1,9 @@
+---
+version: '3.9'
+services:
+  web-check:
+    container_name: web-check
+    image: lissy93/web-check
+    ports:
+      - 32200:3000
+    restart: unless-stopped

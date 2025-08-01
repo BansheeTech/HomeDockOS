@@ -15,10 +15,10 @@ services:
       - PEERDNS=auto
       - INTERNAL_SUBNET=99.99.99.0
       - ALLOWEDIPS=0.0.0.0/0
-      - SERVERURL=[[HD_DYN_DNS]]
+      - SERVERURL=auto
     volumes:
       - [[INSTALL_PATH]]/wireguard:/config
-      - /lib/modules:/lib/modules
+      - /lib/modules:/lib/modules:ro
     ports:
       - 51820:51820/udp
     sysctls:

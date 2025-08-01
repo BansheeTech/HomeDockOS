@@ -1,0 +1,50 @@
+---
+version: '3.9'
+services:
+  wg-easy:
+    container_name: wg-easy
+    environment:
+      - PORT=51821
+      - HOST=0.0.0.0
+      - INSECURE=false
+      - SERVERURL=auto
+    image: ghcr.io/wg-easy/wg-easy:15
+    volumes:
+      - [[INSTALL_PATH]]/wg-easy:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
+      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+    ports:
+      - "51821:51821/tcp"
+      - "51820:51820/udp"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.all.forwarding=1
+      - net.ipv6.conf.default.forwarding=1
+    command: |
+      sh -c '
+      echo "─────────────────────────────────────────────────────────────"
+      echo ""
+      echo "   Running official image from ghcr.io/wg-easy"
+      echo "   Visit: https://github.com/wg-easy/wg-easy"
+      echo ""
+      echo "   Modified at runtime for SSL support by HomeDock OS team"
+      echo "   Visit too: https://www.homedock.cloud/"
+      echo ""
+      echo "─────────────────────────────────────────────────────────────"
+      echo ""
+      if [ -f /cert.pem ] && [ -f /privkey.pem ]; then
+          export NITRO_SSL_CERT="$$(cat /cert.pem)"
+          export NITRO_SSL_KEY="$$(cat /privkey.pem)"
+          echo "[HomeDock OS] SSL certs detected, launching in HTTPS mode"
+      else
+          echo "[HomeDock OS] No certs found, launching in HTTP mode"
+      fi
+      exec node server/index.mjs
+      '

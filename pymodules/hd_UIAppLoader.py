@@ -17,12 +17,17 @@ from pymodules.hd_FunctionsGlobals import version_hash
 def check_port():
     data = request.json
     port = data.get("port")
+    subpath = data.get("subpath", "").lstrip('/')
 
     if not isinstance(port, int) or port < 1 or port > 65535:
         return jsonify({"error": "Invalid port. Must be an integer between 1 and 65535."}), 400
 
     hostname = request.host.split(":")[0]
-    urls = [f"https://{hostname}:{port}", f"http://{hostname}:{port}"]
+    path_part = f"/{subpath}" if subpath else ""
+    urls = [
+        f"https://{hostname}:{port}{path_part}",
+        f"http://{hostname}:{port}{path_part}"
+    ]
 
     # HDOS00005
     headers = {
@@ -31,16 +36,22 @@ def check_port():
 
     for url in urls:
         try:
+
             response = requests.head(url, timeout=5, allow_redirects=True, headers=headers)
             
-            if response.status_code < 400 or response.status_code in [401, 301, 302]:
-                return jsonify({"available": True, "url": url})
+            if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
+                protocol = url.split('://')[0]
+                base_url = f"{protocol}://{hostname}:{port}"
+                return jsonify({"available": True, "url": base_url})
 
             if response.status_code in [404, 405]:
+
                 response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers)
                 
-                if response.status_code < 400 or response.status_code in [401, 301, 302]:
-                    return jsonify({"available": True, "url": url})
+                if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
+                    protocol = url.split('://')[0]
+                    base_url = f"{protocol}://{hostname}:{port}"
+                    return jsonify({"available": True, "url": base_url})
 
         except requests.RequestException:
             continue
