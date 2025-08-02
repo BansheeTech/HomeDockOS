@@ -345,7 +345,7 @@
     "name": "chevron-double-down"
   },
   "homedock-ui/vue3/static/css/global.css": {
-    "file": "hdos_ChYweX_1GUSVf8PoCTOX3.css",
+    "file": "hdos_BfbSVbtofC1O-g2Gr5QSa.css",
     "src": "homedock-ui/vue3/static/css/global.css",
     "isEntry": true,
     "names": [
@@ -353,7 +353,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__app__.ts": {
-    "file": "hdos_ofOORRXh9oKhbBSb6abS7.js",
+    "file": "hdos_Dt6ojvwT42WZa02_gzlba.js",
     "name": "__app__",
     "src": "homedock-ui/vue3/static/js/MountPoints/__app__.ts",
     "isEntry": true,
@@ -368,7 +368,7 @@
       "_hdos_CqTMk9xzYcDLK8fiYCaFD.js"
     ],
     "css": [
-      "hdos_yfy_5wTXJCjGkV6TOW8cv.css"
+      "hdos_0GOlJ1ggrI2DmNnd9dXaX.css"
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__appstore__.ts": {

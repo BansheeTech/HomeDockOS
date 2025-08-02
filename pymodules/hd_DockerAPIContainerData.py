@@ -19,6 +19,35 @@ from pymodules.hd_ThreadContainerCpuUsage import cpu_usage
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 
 
+# Docker-API - Single Container Data
+def get_container_name_by_port_direct(port):
+    try:
+        manager = DockerClientManager.get_instance()
+        client = manager.get_client()
+
+        for container in client.containers.list(all=True):
+            if container.ports:
+                for container_port, host_bindings in container.ports.items():
+                    if host_bindings:
+                        for binding in host_bindings:
+                            if binding.get("HostPort") == str(port):
+                                return sanitize_container_name(container.name)
+    except Exception:
+        pass
+
+    return None
+
+
+@login_required
+def get_container_by_port(port):
+    container_name = get_container_name_by_port_direct(port)
+
+    if container_name:
+        return jsonify({"sanitized_name": container_name})
+
+    return jsonify({"error": "Container not found for port"}), 404
+
+
 # Docker-API - Container Data
 @login_required
 def get_docker_containers():

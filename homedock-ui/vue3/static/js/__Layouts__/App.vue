@@ -33,7 +33,7 @@
     </Transition>
   </div>
 
-  <StatusFooter :isSuccess="isSuccess" :isError="isError" :statusMessage="statusMessage" :port="String(port)" />
+  <StatusFooter :isSuccess="isSuccess" :isError="isError" :statusMessage="statusMessage" :port="String(port)" :appSlug="appSlug" />
 </template>
 
 <script setup lang="ts">
@@ -62,13 +62,14 @@ const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_t
 const portData = inject<{
   selectedPort: string;
   selectedPath: string;
+  appSlug: string;
 }>("data-port");
 
 if (!portData) {
   throw new Error("Settings data is missing!");
 }
 
-const { selectedPort: port, selectedPath: path } = portData;
+const { selectedPort: port, selectedPath: path, appSlug } = portData;
 
 const isChecking = ref(true);
 const isSuccess = ref(false);

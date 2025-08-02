@@ -146,9 +146,10 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/thread/system_uptime", "get_uptime", CSRF_Protect(get_uptime))
     homedock_www.add_url_rule("/thread/homedock_uptime", "homedock_uptime", CSRF_Protect(homedock_uptime))
 
-    from pymodules.hd_DockerAPIContainerData import get_docker_containers
+    from pymodules.hd_DockerAPIContainerData import get_docker_containers, get_container_by_port
 
     homedock_www.add_url_rule("/api/containers", "get_docker_containers", CSRF_Protect(get_docker_containers))
+    homedock_www.add_url_rule("/api/container-by-port/<int:port>", "get_container_by_port", CSRF_Protect(get_container_by_port))
 
     from pymodules.hd_DockerAPIStartContainer import start_containers
 

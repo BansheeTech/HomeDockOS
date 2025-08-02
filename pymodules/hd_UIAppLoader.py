@@ -11,6 +11,7 @@ from flask_login import login_required
 
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import version_hash
+from pymodules.hd_DockerAPIContainerData import get_container_name_by_port_direct
 
 
 @login_required
@@ -64,5 +65,8 @@ def app_loader(port, subpath=""):
     config = read_config()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    
+    container_name = get_container_name_by_port_direct(port)
+    app_slug = container_name if container_name else None
 
-    return render_template("app.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, nonce=g.get("nonce", ""), port=port, subpath=subpath)
+    return render_template("app.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, nonce=g.get("nonce", ""), port=port, subpath=subpath, app_slug=app_slug)
