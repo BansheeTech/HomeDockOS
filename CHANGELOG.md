@@ -1,8 +1,10 @@
 # CHANGELOG
 
-- **1.0.18.122** (Latest): Improved `/app/` endpoint loader with dynamic app icons and smooth slide-up animations. Added `/api/container-by-port/<port>` to map ports to container names via Docker API, removing static config dependencies. Icons now show next to the HomeDock OS logo when available, UX at its finest... Updated backend-to-frontend data flow (`selected_app_slug`) with TypeScript interfaces and secured new endpoints with `@login_required` and our own CSRF protection module.
+- **1.0.18.124** (Latest): Dependabot security update patching Vite CVE-2025-58751 and CVE-2025-58752. Minor improvements on the notification system to make it cleaner and more consistent with the rest of the HomeDock OS GUI.
 
 ---
+
+- **1.0.18.122**: Improved `/app/` endpoint loader with dynamic app icons and smooth slide-up animations. Added `/api/container-by-port/<port>` to map ports to container names via Docker API, removing static config dependencies. Icons now show next to the HomeDock OS logo when available, UX at its finest... Updated backend-to-frontend data flow (`selected_app_slug`) with TypeScript interfaces and secured new endpoints with `@login_required` and our own CSRF protection module.
 
 - **1.0.18.120**: Added new apps (Jellyseerr, Downtify, Web-Check, IT-Tools, Booklore (SSL too), Morphos, Homebridge, WG-Easy (SSL too), Homebox, Uptime-Kuma, and Compose-Toolbox) to the App Store. Fixed `hd_UIAppLoader.py` to correctly handle HTTP 308 redirects (which broke on some apps like Pi-hole due changing its response behavior). The loader now respects subpaths and makes requests to the exact endpoint configured (e.g., `localhost:8080/test` instead of just `localhost:8080`). Minor design tweaks were also applied to `App.vue` and `MenuContent.vue` to improve visual consistency. Fixed Nextcloud and also added native SSL support if enabled.
 

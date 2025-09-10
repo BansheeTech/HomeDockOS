@@ -5,34 +5,41 @@
 <template>
   <div ref="dropdown" class="relative inline-block">
     <Badge v-if="notifications.length > 0" :count="notifications.length" size="small" :overflow-count="9" @click.stop="toggleDropdown">
-      <Icon :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 text-current cursor-pointer" />
+      <Icon :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 text-current cursor-pointer transition-transform duration-200 hover:scale-110" />
     </Badge>
-    <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 mb-1.5 text-current cursor-pointer" @click.stop="toggleDropdown" />
+    <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 mb-1.5 text-current cursor-pointer transition-transform duration-200 hover:scale-110" @click.stop="toggleDropdown" />
     <Transition name="slide-fade">
       <Teleport to="body">
-        <div v-if="showDropdown" @click.stop class="fixed top-16 right-0 mx-4 sm:mx-auto sm:right-4 sm:w-[260px] shadow-md rounded-lg border z-[9999] overflow-hidden" :class="[themeClasses.notCont]">
-          <div :class="[themeClasses.topBack]" class="px-4 py-2.5 border-b rounded-t-sm text-xs flex items-center">
-            <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="mr-3" />
-            {{ notifications.length > 0 ? "You have new notifications" : "No new notifications available" }}
+        <div v-if="showDropdown" @click.stop class="fixed top-16 right-0 mx-4 sm:mx-auto sm:right-4 sm:w-[320px] shadow-lg rounded-lg border z-[9999] overflow-hidden backdrop-blur-sm" :class="[themeClasses.notCont, themeClasses.aeroExtraScope]">
+          <div :class="[themeClasses.topBack]" class="px-6 py-4 border-b rounded-t-lg text-sm font-medium flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="[themeClasses.notInnerIcon]">
+              <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="font-semibold text-sm" :class="[themeClasses.notTextUp]">Notifications</h3>
+              <p class="text-xs opacity-70" :class="[themeClasses.notTextDown]">
+                {{ notifications.length > 0 ? `${notifications.length} new` : "All caught up" }}
+              </p>
+            </div>
           </div>
-          <TransitionGroup name="list" tag="div" :class="[themeClasses.notMainContainer]" class="notifications-container">
-            <div :class="['notification-item flex items-center px-1 py-2 cursor-pointer last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="(notification, index) in notifications" :key="notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
-              <div :class="[themeClasses.notInnerIcon]" class="w-6 h-6 rounded-full flex items-center justify-center mx-1.5">
-                <span class="icon mb-1">
+          <TransitionGroup name="list" tag="div" :class="[themeClasses.notMainContainer]" class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-thumb-opacity-20 scrollbar-track-transparent">
+            <div :class="['notification-item flex items-start px-4 py-3 cursor-pointer relative group transition-all duration-200 hover:bg-white hover:bg-opacity-5 border-b border-white border-opacity-5 last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="notification in notifications" :key="notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
+              <div class="relative flex-shrink-0">
+                <div :class="[themeClasses.notInnerIcon]" class="w-10 h-10 rounded-xl flex items-center justify-center">
                   <Icon
                     :icon="notification.isUpdating ? loadingIcon : notification.isUpdate ? updateIcon : messageBadgeIcon"
                     :class="{
-                      'w-4 h-4 mt-1 text-current': true,
-                      'animate-pulse h-5 w-5': notification.isUpdate && !notification.isUpdating,
+                      'w-4 h-4 text-current': true,
+                      'animate-pulse': notification.isUpdate && !notification.isUpdating,
                       'animate-spin': notification.isUpdating,
                     }"
-                    size="16px"
                   />
-                </span>
+                </div>
+                <div v-if="notification.isUpdate" class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
-              <div class="flex-1 p-1">
-                <h3 :class="[themeClasses.notTextUp, { 'm-0 mb-1 text-xs font-semibold': true, underline: notification.isUpdate }]">{{ notification.title }}</h3>
-                <p :class="[themeClasses.notTextDown]" class="text-xs">{{ notification.message }}</p>
+              <div class="flex-1 min-w-0 overflow-hidden px-3">
+                <h4 class="text-sm font-semibold leading-tight mb-0.5" :class="[themeClasses.notTextUp, { underline: notification.isUpdate }]">{{ notification.title }}</h4>
+                <p class="text-xs leading-relaxed opacity-80 break-words leading-tight" :class="[themeClasses.notTextDown]">{{ notification.message }}</p>
                 <div v-if="notification.startDate || notification.endDate" :class="[themeClasses.notTextDown]" class="flex items-center underline text-[10px] mt-1">
                   <Icon :icon="calendarIcon" class="mr-1" size="12px" />
                   <span v-if="notification.startDate">{{ formatDate(notification.startDate) }}</span>
@@ -40,19 +47,16 @@
                   <span v-if="notification.endDate">{{ formatDate(notification.endDate) }}</span>
                 </div>
               </div>
-              <button v-if="notification.allowRemove" @click="removeNotification(notification)">
-                <span class="rounded-full overflow-hidden flex items-center justify-center mr-2 ml-2 rounded-lg h-3 w-3">
-                  <Icon :class="[themeClasses.notInnerIcon]" :icon="closeIcon" class="notificationIcon" size="8px" />
-                </span>
+              <button v-if="notification.allowRemove" @click="removeNotification(notification)" class="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" :class="[themeClasses.notCloseBtn]">
+                <Icon :icon="closeIcon" class="w-4 h-4" />
               </button>
             </div>
-            <div v-else :class="[themeClasses.notBack]" class="notification-item flex items-center px-1 py-2 border-b border-gray-300 cursor-pointer last:border-b-0">
-              <div class="w-6 h-6 rounded-full flex items-center justify-center mx-1.5">
-                <Icon :class="[themeClasses.notInnerIcon]" :icon="checkIcon" class="w-5 h-5 text-current rounded-full p-1" />
+            <div v-else class="flex flex-col items-center py-10 px-5 text-center">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 opacity-60" :class="[themeClasses.notInnerIcon]">
+                <Icon :icon="checkIcon" class="w-6 h-6" />
               </div>
-              <div class="flex-1 p-1">
-                <h3 :class="[themeClasses.notTextUp]" class="text-xs font-semibold">No new notifications available at this moment. Please check back later.</h3>
-              </div>
+              <p class="text-base font-semibold mb-1" :class="[themeClasses.notTextUp]">You're all caught up!</p>
+              <p class="text-sm opacity-70" :class="[themeClasses.notTextDown]">No new notifications at the moment</p>
             </div>
           </TransitionGroup>
         </div>
@@ -275,11 +279,6 @@ onMounted(async () => {
   padding: 0;
   margin: 0;
   transition: height 0.3s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
-}
-
-.notifications-container {
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
 }
 
 @keyframes blink {

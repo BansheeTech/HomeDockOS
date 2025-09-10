@@ -112,6 +112,7 @@ export function useTheme() {
       notTextUp: "text-black",
       notTextDown: "text-gray-500",
       notInnerIcon: "bg-gray-300 text-gray-700",
+      notCloseBtn: "text-gray-400 hover:bg-red-100 hover:text-red-600",
 
       // App Store
       storeContMainer: "border-gray-200 bg-gradient-to-b from-gray-100 to-transparent",
@@ -317,6 +318,7 @@ export function useTheme() {
       notTextUp: "text-white",
       notTextDown: "text-zinc-500",
       notInnerIcon: "bg-zinc-600 text-zinc-400",
+      notCloseBtn: "text-zinc-500 hover:bg-red-900/50 hover:text-red-400",
 
       // App Store
       storeContMainer: "border-zinc-800 bg-gradient-to-b from-zinc-800 to-transparent",
@@ -522,6 +524,7 @@ export function useTheme() {
       notTextUp: "text-white",
       notTextDown: "text-zinc-400",
       notInnerIcon: "bg-black/50 text-zinc-400",
+      notCloseBtn: "text-white/60 hover:bg-red-600/20 hover:text-red-300",
 
       // App Store
       storeContMainer: "border-zinc-700/50 bg-gradient-to-b from-zinc-800/50 to-transparent",
