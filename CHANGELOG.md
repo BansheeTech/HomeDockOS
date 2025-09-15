@@ -1,8 +1,10 @@
 # CHANGELOG
 
-- **1.0.18.124** (Latest): Dependabot security update patching Vite CVE-2025-58751 and CVE-2025-58752. Minor improvements on the notification system to make it cleaner and more consistent with the rest of the HomeDock OS GUI.
+- **1.0.18.126** (Latest): Dependabot security update patching Axios CVE-2025-58754
 
 ---
+
+- **1.0.18.124**: Dependabot security update patching Vite CVE-2025-58751 and CVE-2025-58752. Minor improvements on the notification system to make it cleaner and more consistent with the rest of the HomeDock OS GUI.
 
 - **1.0.18.122**: Improved `/app/` endpoint loader with dynamic app icons and smooth slide-up animations. Added `/api/container-by-port/<port>` to map ports to container names via Docker API, removing static config dependencies. Icons now show next to the HomeDock OS logo when available, UX at its finest... Updated backend-to-frontend data flow (`selected_app_slug`) with TypeScript interfaces and secured new endpoints with `@login_required` and our own CSRF protection module.
 
