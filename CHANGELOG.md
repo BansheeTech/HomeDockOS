@@ -1,6 +1,10 @@
 # CHANGELOG
 
-- **2.0.1.88** (Latest): HomeDock OS 2.0 release featuring our brand new **Prism Windows Manager**, introducing real multitasking and a **complete operating system experience**.
+- **2.0.1.102** (Latest): Fixed **RegEx injection issue** in AppExplorer search functionality where special regex characters (like `(`, `)`, `[`, `]`, `*`, `+`, etc.) were not being escaped, causing application crashes and potential security issues. Implemented proper input sanitization by escaping all special regex characters before pattern compilation, preventing malformed expressions and protecting against ReDoS attacks.
+
+---
+
+- **2.0.1.88**: HomeDock OS 2.0 release featuring our brand new **Prism Windows Manager**, introducing real multitasking and a **complete operating system experience**.
 
   - Transformed HomeDock OS from a single-page web application into a **full desktop environment with true multitasking**, similar to **Windows 11** or **macOS**.
   - Released our fully functional **Prism Window Manager** with resizable, draggable, maximizable, and minimizable windows. App load from within this desktop manager will be enabled after the integrated reverse proxy gets released.
@@ -93,8 +97,6 @@
   - Optimized **build system** with intelligent code splitting for faster page loads and improved performance.
   - Enhanced **TypeScript configuration** with stricter type checking and better module structure support.
   - Hi there! We're working! :D
-
----
 
 - **1.0.18.126**: Dependabot security update patching Axios CVE-2025-58754
 

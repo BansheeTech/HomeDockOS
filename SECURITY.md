@@ -11,14 +11,22 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
-- Rate Limiting Bypass & IP Spoofing
-  **Reported by @StringManolo** – Fixed in v2.0.1.88
+- `✦ RegEx Injection in AppExplorer Search`
 
-- Authenticated SSRF via Host Header Manipulation
-  **Reported at Secur0 by @cybernize** – Fixed in v2.0.1.88
+  - **Internally Discovered** – Fixed in v2.0.1.102
 
-- Path Traversal in Drop Zone File Operations
-  **Reported at Secur0 by @esTse** – Fixed in v2.0.1.88
+- `✦ Rate Limiting Bypass & IP Spoofing`
 
-- Path Traversal & DoS via /dev/random in Drop Zone
-  **Reported at Secur0 by @Ismael034** – Fixed in v2.0.1.88
+  - **Reported by @StringManolo** – Fixed in v2.0.1.88
+
+- `✦ Authenticated SSRF via Host Header Manipulation`
+
+  - **Reported at Secur0 by @cybernize** – Fixed in v2.0.1.88
+
+- `✦ Path Traversal in Drop Zone File Operations`
+
+  - **Reported at Secur0 by @esTse** – Fixed in v2.0.1.88
+
+- `✦ Path Traversal & DoS via /dev/random in Drop Zone`
+
+  - **Reported at Secur0 by @Ismael034** – Fixed in v2.0.1.88

@@ -270,7 +270,8 @@ function calculateScore(text: string, query: string): number {
 
   if (lowerText.startsWith(lowerQuery)) return 95;
 
-  const wordBoundaryRegex = new RegExp(`\\b${lowerQuery}\\b`, "i");
+  const escapedQuery = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const wordBoundaryRegex = new RegExp(`\\b${escapedQuery}\\b`, "i");
   if (wordBoundaryRegex.test(lowerText)) return 90;
 
   if (lowerText.includes(lowerQuery)) return 85;
