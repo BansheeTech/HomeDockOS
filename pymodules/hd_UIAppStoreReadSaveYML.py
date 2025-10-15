@@ -1,6 +1,7 @@
 """
 hd_UIAppStoreReadSaveYML.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -144,7 +145,7 @@ def process_config():
         restartPolicy = request_data.get("restartPolicy", "unless-stopped")
         user_name = request_data.get("userName", None)
         user_password = request_data.get("userPassword", None)
-        user_random_string = request_data.get("userRandomString", None)  # ← Nueva línea
+        user_random_string = request_data.get("userRandomString", None)
 
         if not os.path.exists(original_yml_file_path):
             return jsonify({"success": False, "message": "Original YML file not found"}), 404

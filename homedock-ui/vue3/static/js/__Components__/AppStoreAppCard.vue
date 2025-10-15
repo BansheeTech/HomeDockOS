@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/AppStoreAppCard.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -13,7 +14,7 @@
           {{ app.name }}
         </h3>
         <div class="relative">
-          <h4 :class="[themeClasses.storeTypeScope]" class="app-docker_image font-normal truncate text-xs will-change-transform transition duration-500 group-hover:opacity-0 group-hover:-translate-y-2">
+          <h4 :class="[themeClasses.storeTypeScope]" class="app-docker_image font-normal uppercasetruncate text-xs will-change-transform transition duration-500 group-hover:opacity-0 group-hover:-translate-y-2">
             {{ app.type }}
           </h4>
           <h5 :class="[themeClasses.storeCardTextRepo]" class="app-type font-normal text-xs absolute top-0 left-0 right-0 opacity-0 will-change-transform transition duration-500 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 truncate ellipsis">

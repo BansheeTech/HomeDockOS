@@ -1,6 +1,7 @@
 """
 hd_FunctionsNativeSSL.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -16,7 +17,7 @@ def check_ssl_files(cert_dir):
     return os.path.isfile(cert_path) and os.path.isfile(key_path) and os.path.isfile(fullchain_path) and os.path.isfile(chain_path)
 
 
-# Only Linux support atm, workaround for Windows & macOS
+# Only Linux support atm, need workaround for Windows & macOS
 def ssl_enabled(cert_dir="/DATA/SSLCerts"):
     return check_ssl_files(cert_dir)
 

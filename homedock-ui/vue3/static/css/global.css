@@ -1,10 +1,9 @@
-/* src/static/css/global.css */
+@import "./antd.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Utilities */
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -18,13 +17,18 @@
   }
 }
 
-/* Global Styles */
 body,
 html {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  overscroll-behavior: none;
 }
 
 body.theme-default {
@@ -54,7 +58,6 @@ a {
   color: inherit !important;
 }
 
-/* Unescoped Animation Styles */
 @keyframes noscript-gradient {
   0% {
     background-position: 94% 0%;
@@ -67,27 +70,11 @@ a {
   }
 }
 
-/* Regular View Animation Styles */
-.holder {
-  animation: modernSlideFade 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  animation-delay: calc(var(--index) * 0.05s);
+.anim-pusher {
+  animation: ThreeDeePopIn 0.7s ease-in-out forwards;
 }
 
-@keyframes modernSlideFade {
-  0% {
-    transform: scaleX(0.95);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
-/* Transition View Animation Styles */
-.container-scroller {
-  animation: fallOpac 0.7s ease-in-out forwards;
-}
-
-@keyframes fallOpac {
+@keyframes ThreeDeePopIn {
   0% {
     opacity: 0;
     transform: scale(2) perspective(600px) rotateX(45deg) translateZ(-100px);

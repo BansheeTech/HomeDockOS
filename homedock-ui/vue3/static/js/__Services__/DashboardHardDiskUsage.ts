@@ -1,8 +1,9 @@
 // homedock-ui/vue3/static/js/__Services__/DashboardHardDiskUsage.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, inject } from "vue";
 import axios from "axios";
 
 export function useHardDiskUsageUpdater(propCSRF: string, initialIntervalMs = 3000, initialHardDiskUsage: string, maxIntervalMs = 60000) {
@@ -12,11 +13,13 @@ export function useHardDiskUsageUpdater(propCSRF: string, initialIntervalMs = 30
   let unchangedCount = 0;
   let interval: ReturnType<typeof setInterval>;
 
+  const csrfTokenReactive = inject<{ value: string }>("csrf-token");
+
   async function fetchHardDiskUsage() {
     try {
       const response = await axios.get("/thread/update_disk_usage", {
         headers: {
-          "X-HomeDock-CSRF-Token": propCSRF,
+          "X-HomeDock-CSRF-Token": csrfTokenReactive?.value || propCSRF,
         },
       });
 

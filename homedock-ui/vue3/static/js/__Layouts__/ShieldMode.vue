@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Layouts__/ShieldMode.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -7,11 +8,10 @@
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
-  <NetworkOffline />
   <StaticOscillatingLines />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div class="w-full max-w-xl">
-      <div :class="[themeClasses.form]" class="px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 overflow-hidden container-scroller mb-2 animated-line">
+      <div :class="[themeClasses.form]" class="px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 overflow-hidden anim-pusher mb-2 animated-line">
         <div class="flex mb-2">
           <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
         </div>
@@ -60,7 +60,6 @@ import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import TopComment from "../__Components__/TopComment.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
-import NetworkOffline from "../__Components__/NetworkOffline.vue";
 
 const { themeClasses } = useTheme();
 </script>

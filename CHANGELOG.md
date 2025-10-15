@@ -1,8 +1,100 @@
 # CHANGELOG
 
-- **1.0.18.126** (Latest): Dependabot security update patching Axios CVE-2025-58754
+- **2.0.1.88** (Latest): HomeDock OS 2.0 release featuring our brand new **Prism Windows Manager**, introducing real multitasking and a **complete operating system experience**.
+
+  - Transformed HomeDock OS from a single-page web application into a **full desktop environment with true multitasking**, similar to **Windows 11** or **macOS**.
+  - Released our fully functional **Prism Window Manager** with resizable, draggable, maximizable, and minimizable windows. App load from within this desktop manager will be enabled after the integrated reverse proxy gets released.
+  - Implemented **draggable desktop icons** with **snap-to-grid positioning**, allowing users to organize applications freely on the desktop.
+  - Added support for **desktop folders**, enabling users to group related applications together for better organization (e.g., "Media Apps", "Development Tools").
+  - Implemented **Start Menu** with application search, quick access, and organization of both system and installed Docker applications.
+  - Created functional **taskbar** with active application buttons, system clock, notification area and quick access to Start Menu.
+  - Added **real-time system statistics widget** to the taskbar displaying **CPU**, **RAM**, **disk usage**, and **network activity**.
+  - Implemented **context menus** for desktop, applications, and folders with right-click support for quick actions and long-press detection for mobile icon dragging/wiggling.
+  - Converted all main sections (**App Store**, **Control Hub**, **Settings**, **System Logs**, **Drop Zone**) into independent windows that can be opened simultaneously.
+  - Implemented proper **z-index management** ensuring focused windows appear on top of others.
+  - Added support for **window size constraints** (`min`/`max` width/height) configurable per application type.
+  - Implemented **double-click on title bar** to maximize/restore windows, matching standard desktop OS behavior.
+  - Added **resize handles on all eight directions** (`N`, `S`, `E`, `W`, `NE`, `NW`, `SE`, `SW`) for flexible window resizing.
+  - Implemented **smooth minimize animations** with scaling effects.
+  - Implemented **window state persistence**, remembering position and size across sessions.
+  - Added support for **multi-selection** on Desktop using `Ctrl+Click` and **drag-to-select area selection** for batch operations on multiple applications.
+  - Implemented **persistent icon positions** across sessions, maintaining user's desktop layout after logout/login.
+  - Created a **mobile-optimized desktop experience** with horizontal page navigation and touch gestures, mimicking real-life mobile OS home screen behavior.
+  - Created **mobile-optimized fullscreen mode** for windows on touch devices, respecting taskbar height.
+  - Added **visual page indicators** for mobile users to track which page they're currently viewing.
+  - Added **keyboard shortcuts** and accessibility features for window management.
+  - Implemented **smooth animations and transitions** for icon movements, folder operations, and window actions.
+  - Created new **File Explorer** system application for browsing and managing files within the desktop environment.
+  - Implemented **Folder View** system application for viewing folder contents in a dedicated window.
+  - Implemented **Application Properties** window displaying detailed information about Docker containers (status, ports, volumes, multi-service configs, etc).
+  - Redesigned the whole **App Installation** modal using **Ant Design Vue** for customizing Docker Compose settings before installing applications.
+  - Created **About** window displaying HomeDock OS version, credits, system information, and props for what we understand it's unacceptable now.
+  - Massively expanded **theme system** with support for all new components (windows, desktop, context menus, color pickers, dialogs, etc).
+  - Added new **CSS variables** for window shadows, borders, and backdrop effects ensuring consistent theming.
+  - Integrated **Ant Design component styling** adapted to match HomeDock OS theme palette across all three themes (`Default`, `Noir`, `AeroPlus`).
+  - Updated logo and graphics to support **dynamic color adaptation** based on selected theme using `currentColor`.
+  - Implemented **theme-aware animations and transitions** for desktop interactions.
+  - Implemented **modal dialog system** for application interactions (confirmations, inputs, alerts).
+  - Created **color picker menu** for folder customization, allowing users to assign custom colors to organize folders visually.
+  - Added **date/time picker component** with calendar view on the taskbar, replacing the top-right one.
+  - Implemented **info banners** for displaying important system messages prominently.
+  - Created **installation progress indicator** showing real-time status of App Store application installations to the **system tray**.
+  - Added **upload progress indicator** with file-by-file tracking for Drop Zone uploads straight to the **system tray**.
+  - Implemented **status bar** for windows displaying relevant information per application type and a little help section.
+  - Created **consistent section headers** across all applications for improved visual hierarchy.
+  - Added **version control component** for tracking and displaying HomeDock OS version information.
+  - Implemented **unified logo icon component** used across the entire interface.
+  - Refactored **App Store** with window system integration, allowing installation while browsing other sections.
+  - Improved **search and filtering** capabilities with instant results and category-based organization.
+  - Updated **Control Hub** to function as window with enhanced Docker container management capabilities.
+  - Enhanced **chart displays** with better visual feedback and real-time data updates.
+  - Improved **login attempt visualization** with clearer security indicators.
+  - Integrated **notification bell** with taskbar for quick access to system alerts.
+  - Enhanced **port routing logic** for better Docker service discovery and connection handling.
+  - Added new **storage management options** in settings for external drive configuration.
+  - Improved **theme selector** with live preview and instant switching.
+  - Removed obsolete single-page HTML templates consolidating everything into the unified desktop environment.
+  - Updated copyright notices and credits throughout the interface.
+  - Patched **rate-limiting bypass vulnerability** (reported by **@StringManolo**) where attackers could spoof IP addresses via HTTP headers (`X-Forwarded-For`, `X-Real-IP`) to circumvent login attempt restrictions and **Shield Mode** protections. Replaced insecure `get_remote_address()` with `request.remote_addr` to enforce **TCP socket-based IP validation**, making IP spoofing impossible without a trusted reverse proxy. Enhanced `is_local_subnetwork_ip()` to properly validate all **RFC 1918 private networks** (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) and loopback addresses using `ipaddress` module, fixing incomplete subnet validation that only checked `192.168.x.x` ranges.
+  - Mitigated an **Authenticated SSRF vulnerability** in `/api/check-port` (reported at **Secur0** by **@cybernize**), which allowed **Host header manipulation** to probe internal services, implementing strict **hostname allowlisting** and IP validation against trusted local/internet IPs.
+  - Fixed a **Path Traversal** vulnerability in Drop Zone file operations (reported at **Secur0** by **@esTse**), which allowed unauthorized path manipulation during file handling.
+  - Updated `SECURITY.md` security documentation with complete vulnerability history and fix versions, acknowledging security researchers.
+  - Implemented **desktop state persistence** on `localStorage` to remember your icon positions, folder organization, and personal preferences across sessions.
+  - Added **window state management** to remember each window's position, size, and state after closing and reopening.
+  - Added support for **tracking multiple simultaneous file uploads** with real-time progress indicators.
+  - Enhanced application management to support **running multiple instances** of the same app in different windows.
+  - Added **multi-selection support** for performing batch operations on multiple desktop icons simultaneously.
+  - Implemented **custom dialog system** for consistent modal interactions across all applications with full theme support.
+  - Implemented **intelligent responsive design** that automatically adapts the interface based on your device (mobile, tablet, or desktop).
+  - Enhanced **security token management** with automatic token refresh and hot reload ensuring secure API communications throughout the application.
+  - Integrated **real-time system monitoring** for CPU temperature, usage, containers, disk space, network activity, RAM, and uptime with live updates in the system statistics widget.
+  - Unified **Docker container operations** allowing you to manage containers from any window or context seamlessly.
+  - Improved **component rendering engine** for faster and more efficient dynamic window loading.
+  - Enhanced **navigation system** with support for multiple simultaneous windows and intelligent routing (e.g., opening multiple log viewers at once).
+  - Added a Vue Router cosmetic **client-side navigation guard** for better user experience when switching between protected routes (security validation still happens server-side).
+  - Simplified **application layouts** by removing redundant navigation elements now handled by the desktop environment.
+  - Created unified **desktop layout system** as the primary interface for the application.
+  - Maintained **specialized pages** for login, error handling, limited mode, and shield mode with dedicated layouts.
+  - Ensured **backward compatibility** with legacy application routing while supporting the new window-based architecture.
+  - Redesigned **application initialization** to support the new desktop-first architecture with multiple concurrent windows.
+  - Implemented **lazy loading** for window components, significantly improving initial application load performance.
+  - Completely refactored **backend architecture** to support desktop environment with unified routing and data handling.
+  - Enhanced **Docker service integration** with improved dynamic loading, port mapping, and container information retrieval.
+  - Integrated **file management** with the window system for seamless Drop Zone operations within the desktop.
+  - Expanded **settings management** providing comprehensive desktop configuration options and user preferences.
+  - Enhanced **Docker API** to provide extended container information including detailed properties and resource usage (RAM monitoring coming soon).
+  - Updated all **Docker operations** (start, stop, restart, pause, unpause, update, uninstall) to work seamlessly from any window context.
+  - Implemented **comprehensive type safety** across the entire application with strict TypeScript interfaces for better reliability and developer experience.
+  - Enhanced **file metadata system** for improved Drop Zone file management with detailed type information.
+  - Updated **JavaScript dependencies** adding modern libraries for advanced window management, drag-and-drop functionality, and enhanced UI components.
+  - Updated **Python dependencies** ensuring full compatibility with the new architectural patterns and desktop features.
+  - Optimized **build system** with intelligent code splitting for faster page loads and improved performance.
+  - Enhanced **TypeScript configuration** with stricter type checking and better module structure support.
+  - Hi there! We're working! :D
 
 ---
+
+- **1.0.18.126**: Dependabot security update patching Axios CVE-2025-58754
 
 - **1.0.18.124**: Dependabot security update patching Vite CVE-2025-58751 and CVE-2025-58752. Minor improvements on the notification system to make it cleaner and more consistent with the rest of the HomeDock OS GUI.
 

@@ -1,6 +1,7 @@
 """
 hd_FunctionsGlobals.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -10,7 +11,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "1.0.18.126"
+version = "2.0.1.88"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()

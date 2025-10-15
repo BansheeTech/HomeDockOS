@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/SettingsTabStorage.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -45,7 +46,6 @@ import disabledIcon from "@iconify-icons/mdi/close-circle";
 
 const { themeClasses } = useTheme();
 
-// Props & Emit
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -59,10 +59,8 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-// Reactive References
 const externalDriveValue = ref<string>(props.modelValue.externalDrive || "Disabled");
 
-// Sync modelValue with reactive references
 watch(
   () => ({
     externalDrive: externalDriveValue.value,
@@ -74,22 +72,4 @@ watch(
 );
 </script>
 
-<style scoped>
-:global(.dark-mode-theme.ant-select-dropdown) {
-  background-color: rgb(39, 39, 42) !important;
-}
-
-:global(.aero-mode-theme.ant-select-dropdown) {
-  background-color: rgb(0, 0, 0, 0) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-:global(.dark-mode-theme .ant-select-item-group) {
-  color: rgb(161, 161, 170) !important;
-}
-
-:global(.aero-mode-theme .ant-select-item-group) {
-  color: rgb(161, 161, 170) !important;
-}
-</style>
+<style scoped></style>

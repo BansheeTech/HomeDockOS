@@ -26,9 +26,16 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 </kbd>
 
 <kbd>
-  <img alt="HomeDock OS Snapshot" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-screen-2.webp" style="max-width:100%;">
+  <img alt="HomeDock OS + Prism Window Manager White" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-1.png" style="max-width:100%;">
 </kbd>
 
+<kbd>
+  <img alt="HomeDock OS + Prism Window Manager Aero+" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-2.png" style="max-width:100%;">
+</kbd>
+
+<kbd>
+  <img alt="HomeDock OS + Prism Window Manager Noir" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-3.png" style="max-width:100%;">
+</kbd>
 ---
 
 ## Why HomeDock OS?
@@ -38,6 +45,7 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 - **Universal Compatibility**: Any device is your new device. HomeDock OS runs on Linux, Windows, macOS, and Raspberry Pi, supporting both legacy and modern hardware.
 - **Privacy by Design**: Your data, your rules. HomeDock OS is crafted to keep your digital life private and secure, both on-premise and in cloud environments.
 - **Seamless Integration**: Access from anywhere, on any device with a web browser, with SSL-ready deployments and cross-platform functionality, just a few clicks away.
+- **Next-Gen Cloud OS Look & Feel**: Powered by our new Prism Window Manager, HomeDock OS now brings a seamless, visually rich desktop experience to cloud environments.
 
 ---
 
@@ -48,6 +56,7 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 - **SSL-Ready Deployments**: Enjoy peace of mind with pre-configured HTTPs/SSL environments, securing your data right from the start to the end.
 - **Effortless Log Management**: Say goodbye to tedious command lines. Access and monitor the logs of all your applications in the Control Hub.
 - **Advanced Backup Options (Cloud Exclusive)**: Never lose a moment with multiple backups and robust snapshots, exclusively available in our cloud instances for ultimate reliability.
+- **Real Multitask**: Imagine being able to check the logs of an application while another one is getting installed and you upload some files, like if it were a real Desktop.
 
 ---
 

@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/CloudInstances.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -54,7 +55,6 @@ const checkLastShownDateAndShowCloudInstances = (): void => {
     const diffTime = today.getTime() - lastDate.getTime();
     const diffDays = diffTime / (1000 * 3600 * 24);
 
-    // Show the popup every 7 days
     if (diffDays > 7) {
       shouldShowCloudInstanceContainer = true;
     }

@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/SettingsTabSystem.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -127,7 +128,6 @@ import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
 
 const { themeClasses } = useTheme();
 
-// Props & Emit
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -137,7 +137,6 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-// Reactive References
 const portNumber = ref<number>(props.modelValue.runPort || 80);
 const hostnameValue = ref<string>(props.modelValue.hostname || "get.homedock.cloud");
 const homedockLocalValue = ref<boolean>(props.modelValue.localDNS || false);
@@ -147,7 +146,6 @@ const delOldDataUpdateValue = ref<boolean>(props.modelValue.deleteOldImages || f
 const delOldDataUninstallValue = ref<boolean>(props.modelValue.deleteOldImagesUninstall || false);
 const deleteOldVolumesUninstall = ref<boolean>(props.modelValue.deleteVolumesUninstall || false);
 
-// Input Validation
 const validateInput = (event: KeyboardEvent) => {
   const char = String.fromCharCode(event.keyCode);
   if (!/[0-9]/.test(char)) {
@@ -155,7 +153,6 @@ const validateInput = (event: KeyboardEvent) => {
   }
 };
 
-// Computed Validation
 const isPortValid = computed(() => {
   return portNumber.value !== null && portNumber.value >= 80 && portNumber.value <= 65535;
 });
@@ -167,7 +164,6 @@ const portErrorMessage = computed(() => {
   return "";
 });
 
-// Sync modelValue with reactive references
 watch(
   () => ({
     runPort: portNumber.value,

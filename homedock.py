@@ -1,7 +1,8 @@
 """
 homedock.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
-https://www.homedock.cloud
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
+https://www.banshee.pro
 """
 
 import os
@@ -71,13 +72,9 @@ register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], 
 
 if __name__ == "__main__":
 
-    # Pip Autoupdate
     check_and_update_dependencies()
-
-    # Routes
     RouteAllModules(homedock_www, send_public_key)
 
-    # Threads
     start_auto_port_routing_thread()
     start_cpu_usage_thread()
 
@@ -87,7 +84,7 @@ if __name__ == "__main__":
     dynamic_dns = globalConfig["dynamic_dns"]
     run_on_development = globalConfig["run_on_development"]
 
-    ssl_enabled_var = ssl_enabled()  # SSL Check Variable
+    ssl_enabled_var = ssl_enabled()
 
     protocol = "https" if ssl_enabled_var else "http"
 

@@ -1,18 +1,18 @@
 """
 hd_UIDropzone.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
 import io
 import os
 
-from flask import render_template, send_file, session, g, jsonify, request
+from flask import send_file, jsonify, request
 from flask_login import current_user, login_required
 
-from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import dropzone_folder
-from pymodules.hd_FunctionsGlobals import version
+from pymodules.hd_FunctionsSecurity import validate_safe_path
 from pymodules.hd_DropZoneEncryption import save_user_file, load_user_file
 
 from werkzeug.utils import secure_filename
@@ -78,18 +78,23 @@ def download_file():
         return jsonify({"error": "No file specified"}), 400
 
     user_dir = os.path.join(dropzone_folder, user_name)
-    file_path = os.path.join(user_dir, file_name)
+
+    try:
+        file_path = validate_safe_path(user_dir, file_name)
+    except ValueError as e:
+        return jsonify({"error": "Invalid file path", "details": str(e)}), 400
 
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
 
     try:
-        file_content = load_user_file(user_name, file_name)
+        relative_path = os.path.relpath(file_path, user_dir)
+        file_content = load_user_file(user_name, relative_path)
         return send_file(
             io.BytesIO(file_content),
             mimetype="application/octet-stream",
             as_attachment=True,
-            download_name=file_name,
+            download_name=os.path.basename(file_name),
         )
     except Exception as e:
         return jsonify({"error": "Error decrypting file", "details": str(e)}), 500
@@ -104,30 +109,17 @@ def delete_file():
         return jsonify({"error": "No file specified"}), 400
 
     user_dir = os.path.join(dropzone_folder, user_name)
-    file_path = os.path.join(user_dir, file_name)
+
+    try:
+        file_path = validate_safe_path(user_dir, file_name)
+    except ValueError as e:
+        return jsonify({"error": "Invalid file path", "details": str(e)}), 400
 
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
 
     try:
         os.remove(file_path)
-        return jsonify({"success": True, "message": f"File {file_name} deleted successfully"})
+        return jsonify({"success": True, "message": f"File {os.path.basename(file_name)} deleted successfully"})
     except Exception as e:
         return jsonify({"error": "Error deleting file", "details": str(e)}), 500
-
-
-@login_required
-def dropzone():
-    config = read_config()
-    user_name = config["user_name"]
-    selected_theme = config["selected_theme"]
-    selected_back = config["selected_back"]
-
-    return render_template(
-        "dropzone.html",
-        user_name=user_name,
-        version=version,
-        nonce=g.get("nonce", ""),
-        selected_theme=selected_theme,
-        selected_back=selected_back,
-    )

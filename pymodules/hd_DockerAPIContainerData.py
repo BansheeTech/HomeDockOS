@@ -1,6 +1,7 @@
 """
 hd_DockerAPIContainerData.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -19,7 +20,6 @@ from pymodules.hd_ThreadContainerCpuUsage import cpu_usage
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 
 
-# Docker-API - Single Container Data
 def get_container_name_by_port_direct(port):
     try:
         manager = DockerClientManager.get_instance()
@@ -32,6 +32,25 @@ def get_container_name_by_port_direct(port):
                         for binding in host_bindings:
                             if binding.get("HostPort") == str(port):
                                 return sanitize_container_name(container.name)
+
+        # HDOS00011
+        try:
+            containers_response = get_docker_containers()
+            containers_data = containers_response.get_json()
+
+            for container in containers_data:
+                if "ports" in container and container["ports"]:
+                    for container_port in container["ports"]:
+                        if container_port not in ["hostmode", "disabled", ""] and container_port == str(port):
+                            try:
+                                docker_container = client.containers.get(container["name"])
+                                if docker_container.status == "running":
+                                    return sanitize_container_name(container["name"])
+                            except:
+                                continue
+        except Exception:
+            pass
+
     except Exception:
         pass
 
@@ -48,7 +67,6 @@ def get_container_by_port(port):
     return jsonify({"error": "Container not found for port"}), 404
 
 
-# Docker-API - Container Data
 @login_required
 def get_docker_containers():
 

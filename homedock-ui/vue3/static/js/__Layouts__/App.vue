@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Layouts__/App.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -7,8 +8,7 @@
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
-  <NetworkOffline />
-  <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
+  ¡ <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
 
   <div :class="[themeClasses.back]" class="flex flex-col items-center justify-center relative p-3 overflow-hidden">
     <div class="flex items-center justify-center text-white">
@@ -51,7 +51,6 @@ import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
-import NetworkOffline from "../__Components__/NetworkOffline.vue";
 import OrbitLoader from "../__Components__/OrbitLoader.vue";
 import StatusFooter from "../__Components__/StatusFooter.vue";
 
@@ -96,7 +95,7 @@ const checkAppAvailability = async () => {
   try {
     const response = await axios.post(
       "/api/check-port",
-      { port: port, subpath: path }, 
+      { port: port, subpath: path },
       {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       }

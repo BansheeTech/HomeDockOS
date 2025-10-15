@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/WelcomeMessage.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -20,7 +21,7 @@ export default defineComponent({
     const FADE_OUT_DELAY = 200;
     const STORAGE_KEY = "lastWelcomeMessage";
 
-    const welcomeMessages = ref(["Welcome to HomeDock OS", "Your private cloud, now truly multiplatform", "From macOS, Windows or Linux, all roads lead here", "Your infrastructure, simplified and secured", "Designed for professionals, built for control", "Desktop and Cloud, finally in sync", "A real cloud OS, without the lock-in", "Have you ever used Drop Zone storage?", "Workspaces that follow your path, not your steps", "This is what owning your cloud looks like"]);
+    const welcomeMessages = ref(["Welcome to HomeDock OS", "Your private cloud, now truly multiplatform", "From macOS, Windows or Linux, all roads lead here", "Your infrastructure, simplified and secured", "Designed for professionals, built for control", "Desktop and Cloud, finally in sync", "A real cloud OS, without the lock-in", "Have you ever used Drop Zone storage?", "Workspaces that follow your path, not your steps", "This is what owning your cloud looks like", "Prism redefines the desktop experience"]);
 
     const lastWelcomeMessage = ref("");
     const isChanging = ref(false);

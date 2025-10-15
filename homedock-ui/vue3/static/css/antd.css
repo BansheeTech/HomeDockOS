@@ -1,0 +1,668 @@
+.ant-btn-dashed:disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px dashed rgba(132, 132, 132, 0.483) !important;
+}
+
+.ant-input-affix-wrapper > input.ant-input,
+.ant-input-affix-wrapper-disabled .ant-input[disabled] {
+  border: none !important;
+}
+
+.white-mode-theme.ant-select-dropdown {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+.dark-mode-theme.ant-select-dropdown {
+  background-color: rgb(39, 39, 42) !important;
+}
+
+.aero-mode-theme.ant-select-dropdown {
+  background-color: rgba(0, 0, 0, 0) !important;
+  backdrop-filter: blur(100px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(100px) saturate(100%) !important;
+}
+
+.dark-mode-theme .ant-select-item {
+  color: rgb(128, 128, 128) !important;
+}
+
+.aero-mode-theme .ant-select-item {
+  color: rgb(128, 128, 128) !important;
+}
+
+.dark-mode-theme .ant-select-item-group {
+  color: rgb(255, 255, 255) !important;
+}
+
+.aero-mode-theme .ant-select-item-group {
+  color: rgb(161, 161, 170) !important;
+}
+
+.dark-mode-theme .ant-select-item-option {
+  background-color: rgb(31, 31, 31) !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+}
+
+.aero-mode-theme .ant-select-item-option-selected {
+  background-color: rgba(43, 43, 43, 0.218) !important;
+}
+
+.white-mode-theme .ant-select-selector {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(0, 0, 0) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+}
+
+.white-mode-theme .ant-select-arrow {
+  color: rgb(107, 114, 128) !important;
+}
+
+.white-mode-theme .ant-select-selection-item {
+  color: rgb(0, 0, 0) !important;
+}
+
+.dark-mode-theme .ant-select-selector {
+  background-color: rgba(31, 31, 31, 0) !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  border: 1px solid rgb(64, 64, 64) !important;
+}
+
+.dark-mode-theme .ant-select-arrow {
+  color: rgb(115, 115, 115) !important;
+}
+
+.dark-mode-theme .ant-select-selection-item {
+  color: rgb(115, 115, 115) !important;
+}
+
+.aero-mode-theme .ant-select-selector {
+  background-color: transparent !important;
+  color: white !important;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.1) inset !important;
+  border: 1px solid rgba(64, 64, 64, 0.5) !important;
+}
+
+.aero-mode-theme .ant-select-arrow {
+  color: rgb(115, 115, 115) !important;
+}
+
+.aero-mode-theme .ant-select-selection-item {
+  color: rgb(115, 115, 115) !important;
+}
+
+.dark-mode-theme .ant-select-disabled .ant-select-selector,
+.aero-mode-theme .ant-select-disabled .ant-select-selector {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgb(53, 53, 53) !important;
+}
+
+.white-mode-theme input {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(0, 0, 0) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+}
+
+.white-mode-theme input::placeholder {
+  color: rgb(210, 210, 210) !important;
+}
+
+.dark-mode-theme input {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.dark-mode-theme input::placeholder {
+  color: rgb(100, 100, 100) !important;
+}
+
+.dark-mode-theme input:disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgb(53, 53, 53) !important;
+}
+
+.aero-mode-theme input {
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.aero-mode-theme input::placeholder {
+  color: rgb(177, 177, 177) !important;
+}
+
+.aero-mode-theme input:disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgba(53, 53, 53, 0.5) !important;
+}
+
+.white-mode-theme input:autofill {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.white-mode-theme input:autofill:hover {
+  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
+}
+
+.dark-mode-theme input:autofill {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.dark-mode-theme input:autofill:hover {
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+}
+
+.aero-mode-theme input:autofill {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.aero-mode-theme input:autofill:hover {
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0) inset !important;
+}
+
+.white-mode-theme .ant-input-affix-wrapper {
+  background-color: rgb(255, 255, 255) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+}
+
+.white-mode-theme .ant-input-affix-wrapper:hover {
+  border: 1px solid rgb(209, 213, 219) !important;
+}
+
+.white-mode-theme .ant-input-affix-wrapper-disabled {
+  border: 1px solid rgb(217, 217, 217) !important;
+  background-color: rgb(246, 246, 246) !important;
+}
+
+.ant-input-affix-wrapper-disabled.ant-input-password.white-mode-theme,
+.ant-input-affix-wrapper.white-mode-theme.ant-input-affix-wrapper-disabled .ant-input[disabled] {
+  background-color: rgba(244, 245, 245) !important;
+}
+
+input.ant-input.aero-mode-theme::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.dark-mode-theme .ant-input-affix-wrapper {
+  background-color: rgb(39, 39, 42) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+.dark-mode-theme .ant-input-affix-wrapper:hover {
+  border: 1px solid rgb(24, 119, 255) !important;
+}
+
+.dark-mode-theme .ant-input-affix-wrapper-disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+.ant-input-affix-wrapper-disabled.ant-input-password.dark-mode-theme {
+  background-color: rgb(22, 22, 27) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+.ant-input-affix-wrapper.dark-mode-theme.ant-input-affix-wrapper-disabled .ant-input[disabled] {
+  background-color: rgb(22, 22, 27) !important;
+}
+
+input.ant-input.dark-mode-theme::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  opacity: 1;
+}
+
+.aero-mode-theme .ant-input-affix-wrapper {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(62, 62, 62, 0.489) !important;
+}
+
+.aero-mode-theme .ant-input-affix-wrapper:hover {
+  border: 1px solid rgb(24, 119, 255) !important;
+}
+
+.aero-mode-theme .ant-input-affix-wrapper-disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+.ant-input-affix-wrapper-disabled.ant-input-password.aero-mode-theme {
+  background-color: rgba(0, 0, 0, 0) !important;
+  border: 1px solid rgb(61, 61, 61) !important;
+}
+
+.ant-input-affix-wrapper.aero-mode-theme.ant-input-affix-wrapper-disabled .ant-input[disabled] {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+input.ant-input.aero-mode-theme::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.white-mode-theme .ant-input-password-icon {
+  color: rgb(124, 161, 255) !important;
+}
+
+.dark-mode-theme .ant-input-password-icon {
+  color: rgb(66, 119, 255) !important;
+}
+
+.aero-mode-theme .ant-input-password-icon {
+  color: rgba(122, 160, 255, 0.8) !important;
+}
+
+.dark-mode-theme .ant-input-password {
+  border: 1px solid rgb(53, 53, 53) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.dark-mode-theme .ant-input-password:hover,
+.aero-mode-theme .ant-input-password:hover {
+  border: 1px solid rgb(78, 143, 255) !important;
+}
+
+.aero-mode-theme .ant-input-password {
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.white-mode-theme select {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(0, 0, 0) !important;
+  border-color: rgb(229, 231, 235) !important;
+}
+
+.white-mode-theme select:focus {
+  border-color: rgb(59, 130, 246) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark-mode-theme select {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: rgb(61, 61, 61) !important;
+}
+
+.dark-mode-theme select:focus {
+  border-color: rgb(24, 119, 255) !important;
+  box-shadow: 0 0 0 2px rgba(24, 119, 255, 0.2) !important;
+}
+
+.aero-mode-theme select {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: rgba(62, 62, 62, 0.489) !important;
+}
+
+.aero-mode-theme select:focus {
+  border-color: rgb(24, 119, 255) !important;
+  box-shadow: 0 0 0 2px rgba(24, 119, 255, 0.2) !important;
+}
+
+.white-mode-theme.ant-upload-wrapper {
+  text-decoration: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.white-mode-theme.ant-upload-wrapper::before,
+.white-mode-theme.ant-upload-wrapper::after {
+  content: none !important;
+  display: none !important;
+}
+
+.dark-mode-theme .ant-upload-list-item.ant-upload-list-item-uploading {
+  color: white !important;
+}
+
+.aero-mode-theme .ant-upload-list-item.ant-upload-list-item-uploading {
+  color: white !important;
+}
+
+.dark-mode-theme .anticon.anticon-delete {
+  color: rgb(184, 20, 20) !important;
+}
+
+.aero-mode-theme .anticon.anticon-delete {
+  color: rgb(184, 20, 20) !important;
+}
+
+.ant-upload-list-item-progress .ant-progress-bg {
+  height: 2px !important;
+}
+
+.white-mode-theme .ant-upload-list-item-progress .ant-progress-bg {
+  background: rgb(0, 212, 92) !important;
+}
+
+.dark-mode-theme .ant-upload-list-item-progress .ant-progress-bg {
+  background: rgb(0, 113, 49) !important;
+}
+
+.aero-mode-theme .ant-upload-list-item-progress .ant-progress-bg {
+  background: linear-gradient(90deg, rgba(0, 255, 175, 0.55), rgba(50, 255, 180, 0.4), rgba(24, 160, 88, 0.25)) !important;
+}
+
+.white-mode-theme .ant-progress-status-success .ant-progress-bg {
+  background: rgb(0, 112, 255) !important;
+}
+
+.dark-mode-theme .ant-progress-status-success .ant-progress-bg {
+  background: rgb(0, 90, 220) !important;
+}
+
+.aero-mode-theme .ant-progress-status-success .ant-progress-bg {
+  background: linear-gradient(90deg, rgba(0, 120, 255, 0.55), rgba(0, 190, 255, 0.4), rgba(24, 160, 255, 0.25)) !important;
+}
+
+.white-mode-theme.a-download-bottom-progress .ant-progress-bg {
+  background: rgb(0, 212, 92) !important;
+}
+
+.dark-mode-theme.a-download-bottom-progress .ant-progress-bg {
+  background: rgb(0, 113, 49) !important;
+}
+
+.aero-mode-theme.a-download-bottom-progress .ant-progress-bg {
+  background: linear-gradient(90deg, rgba(0, 255, 175, 0.55), rgba(50, 255, 180, 0.4), rgba(24, 160, 88, 0.25)) !important;
+}
+
+.dark-mode-theme .ant-modal-content {
+  background: rgba(30, 30, 30, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode-theme .ant-modal-header {
+  background: transparent !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode-theme .ant-modal-title {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode-theme .ant-modal-body {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark-mode-theme .ant-modal-footer {
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+}
+
+.dark-mode-theme .ant-modal-close-x {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.dark-mode-theme .ant-modal-close {
+  color: #626262 !important;
+  background-color: transparent !important;
+}
+
+.dark-mode-theme .ant-btn-default {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode-theme .ant-btn-default:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode-theme .ant-btn-primary {
+  background: rgba(59, 130, 246, 0.9) !important;
+  border-color: rgba(59, 130, 246, 0.9) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode-theme .ant-btn-primary:hover {
+  background: rgba(59, 130, 246, 1) !important;
+  border-color: rgba(59, 130, 246, 1) !important;
+}
+
+.dark-mode-theme .ant-btn-dangerous {
+  background: rgba(239, 68, 68, 0.9) !important;
+  border-color: rgba(239, 68, 68, 0.9) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode-theme .ant-btn-dangerous:hover {
+  background: rgba(239, 68, 68, 1) !important;
+  border-color: rgba(239, 68, 68, 1) !important;
+}
+
+.dark-mode-theme .ant-modal-confirm-body .anticon {
+  color: rgba(251, 146, 60, 0.9) !important;
+}
+
+.dark-mode-theme .ant-modal-body p,
+.dark-mode-theme .ant-modal-body span,
+.dark-mode-theme .ant-modal-body div {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark-mode-theme .ant-modal-body .ant-input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode-theme .ant-modal-body .ant-input:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+input.ant-input.dark-mode-theme {
+  color: white;
+  border: 1px solid rgb(64, 64, 64);
+}
+
+input.ant-input-disabled.dark-mode-theme,
+input.ant-input-disabled.dark-mode-theme:hover {
+  color: rgb(94, 94, 94);
+  border: 1px solid rgb(64, 64, 64);
+}
+
+.dark-mode-theme .ant-modal-body .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.dark-mode-theme .ant-modal-confirm-body .ant-modal-confirm-content {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.aero-mode-theme .ant-modal-content {
+  background: rgba(40, 40, 45, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.aero-mode-theme .ant-modal-header {
+  background: transparent !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.aero-mode-theme .ant-modal-title {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.aero-mode-theme .ant-modal-body {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.aero-mode-theme .ant-modal-footer {
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+}
+
+.aero-mode-theme .ant-modal-close-x {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.aero-mode-theme .ant-modal-close {
+  color: #b5b5b5 !important;
+  background-color: transparent !important;
+}
+
+.aero-mode-theme .ant-btn-default {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.aero-mode-theme .ant-btn-default:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.aero-mode-theme .ant-btn-primary {
+  background: rgba(59, 130, 246, 0.9) !important;
+  border-color: rgba(59, 130, 246, 0.7) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.aero-mode-theme .ant-btn-primary:hover {
+  background: rgba(59, 130, 246, 1) !important;
+  border-color: rgba(59, 130, 246, 0.9) !important;
+}
+
+.aero-mode-theme .ant-btn-dangerous {
+  background: rgba(239, 68, 68, 0.9) !important;
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.aero-mode-theme .ant-btn-dangerous:hover {
+  background: rgba(239, 68, 68, 1) !important;
+  border-color: rgba(239, 68, 68, 0.9) !important;
+}
+
+.aero-mode-theme .ant-modal-confirm-body .anticon {
+  color: rgba(251, 146, 60, 0.9) !important;
+}
+
+.aero-mode-theme .ant-modal-body p,
+.aero-mode-theme .ant-modal-body span,
+.aero-mode-theme .ant-modal-body div {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.aero-mode-theme .ant-modal-body .ant-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.aero-mode-theme .ant-modal-body .ant-input:focus {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.7) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+}
+
+input.ant-input.aero-mode-theme {
+  color: white;
+  border: 1px solid rgb(64, 64, 64);
+}
+
+input.ant-input-disabled.aero-mode-theme,
+input.ant-input-disabled.aero-mode-theme:hover {
+  color: rgb(94, 94, 94);
+  border: 1px solid rgb(64, 64, 64);
+}
+
+.aero-mode-theme .ant-modal-body .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.aero-mode-theme .ant-modal-confirm-body .ant-modal-confirm-content {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.white-mode-theme .ant-modal-close {
+  color: #747474 !important;
+  background-color: transparent !important;
+}
+
+.dark-mode-theme .ant-switch {
+  background-color: rgb(64, 64, 64) !important;
+}
+
+.aero-mode-theme .ant-switch {
+  background-color: rgba(64, 64, 64, 0.7) !important;
+}
+
+.dark-mode-theme .ant-switch-checked,
+.aero-mode-theme .ant-switch-checked {
+  background-color: rgb(24, 119, 255) !important;
+}
+
+.white-mode-theme .ant-checkbox-inner {
+  background-color: rgb(255, 255, 255) !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+}
+
+.dark-mode-theme .ant-checkbox-inner {
+  background-color: #292929 !important;
+  border: 1px solid #3b3b3b !important;
+}
+
+.aero-mode-theme .ant-checkbox-inner {
+  background-color: #00000000 !important;
+  border: 1px solid #3b3b3b !important;
+}
+
+.dark-mode-theme button:disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgb(53, 53, 53) !important;
+}
+
+.aero-mode-theme button:disabled {
+  color: rgb(66, 66, 66) !important;
+  border: 1px solid rgba(53, 53, 53, 0.5) !important;
+}
+
+.white-mode-theme textarea:focus {
+  border-color: rgb(66, 119, 255);
+  box-shadow: 0 0 0 2px rgba(66, 119, 255, 0.1);
+}
+
+.dark-mode-theme textarea:focus {
+  border-color: rgb(66, 119, 255);
+  box-shadow: 0 0 0 2px rgba(66, 119, 255, 0.15);
+}
+
+.aero-mode-theme textarea:focus {
+  border-color: rgb(66, 119, 255);
+  box-shadow: 0 0 0 2px rgba(66, 119, 255, 0.2);
+}
+
+.white-mode-theme .ant-form-item-control-input-content {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(31, 31, 31) !important;
+}
+
+.white-mode-theme .color-picker-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.white-mode-theme .color-swatch {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.white-mode-theme .color-swatch.selected {
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}

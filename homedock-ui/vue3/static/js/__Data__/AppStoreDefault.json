@@ -48,8 +48,8 @@
     "type": "Universe Simulation",
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
-    "is_new": false,
-    "new_until": false
+    "is_new": true,
+    "new_until": "2025-10-30"
   },
   {
     "dependencies": [],
@@ -2310,8 +2310,8 @@
     "type": "Uptime Monitor",
     "icon": "mdi:wan",
     "description": "A tool to monitor your services, websites, and servers in real time with alerts, history, and a self-hosted visual dashboard",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2323,8 +2323,8 @@
     "type": "Web Tools Suite",
     "icon": "mdi:wan",
     "description": "An all-in-one collection of web tools for developers, engineers, and IT enthusiasts, accessible from a single place",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2336,8 +2336,8 @@
     "type": "Media Requests",
     "icon": "mdi:wan",
     "description": "A modern web interface to request, manage, and track movie and TV show requests on Jellyfin, Plex or Emby servers",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2349,8 +2349,8 @@
     "type": "Storage Control System",
     "icon": "mdi:wan",
     "description": "Storage and inventory tool to organize items with tags, photos, locations, and printable QR codes for easy tracking and access",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2362,8 +2362,8 @@
     "type": "File Converter",
     "icon": "mdi:wan",
     "description": "A self-hosted file conversion tool that transforms documents between formats via a simple web interface",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2375,8 +2375,8 @@
     "type": "Website Research",
     "icon": "mdi:wan",
     "description": "Analyzes websites in depth, extracting detailed information like technologies used, meta tags, headers, links, DNS records, and other technical data",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2388,8 +2388,8 @@
     "type": "Compose YML editor",
     "icon": "mdi:wan",
     "description": "Self-hosted app to visually create, edit, and manage Docker Compose YAML files easily, perfect for organizing and deploying containers",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2401,8 +2401,8 @@
     "type": "Wireguard VPN GUI",
     "icon": "mdi:wan",
     "description": "Simple self-hosted WireGuard VPN manager with a web UI for easy configuration, user management, and QR code access",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2414,8 +2414,8 @@
     "type": "Spotify Downloader",
     "icon": "mdi:wan",
     "description": "Downtify is a self-hosted tool to download Spotify songs and playlists, converting them to MP3 with metadata and cover art",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": [],
@@ -2427,8 +2427,8 @@
     "type": "Home Device Management",
     "icon": "mdi:wan",
     "description": "Homebridge enables non-HomeKit smart devices to work with Apple HomeKit, allowing Siri and Home app control via plugins",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   },
   {
     "dependencies": ["booklore_mariadb"],
@@ -2440,7 +2440,7 @@
     "type": "eBook Library Manager",
     "icon": "mdi:camera",
     "description": "App for managing, reading, and organizing books, supporting PDFs, eBooks, metadata, and reading progress",
-    "is_new": true,
-    "new_until": "2025-08-15"
+    "is_new": false,
+    "new_until": false
   }
 ]

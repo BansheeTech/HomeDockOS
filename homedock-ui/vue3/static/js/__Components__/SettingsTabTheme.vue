@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/SettingsTabTheme.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -37,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch, inject } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -54,7 +55,8 @@ import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
 
 const { themeClasses } = useTheme();
 
-// Props & Emit
+const updateTheme = inject<(newTheme: { selectedTheme?: string; selectedBack?: string }) => void>("update-theme");
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -64,17 +66,22 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-// Reactive References
 const themeValue = ref<string>(props.modelValue.selectedTheme || "default");
 const wallValue = ref<string>(props.modelValue.selectedBack || "back1.jpg");
 
-// Sync modelValue with reactive references
 watch(
   () => ({
     selectedTheme: themeValue.value,
     selectedBack: wallValue.value,
   }),
   (newValue) => {
+    if (updateTheme) {
+      updateTheme({
+        selectedTheme: newValue.selectedTheme,
+        selectedBack: newValue.selectedBack,
+      });
+    }
+
     emit("update:modelValue", newValue);
   },
   { deep: true }

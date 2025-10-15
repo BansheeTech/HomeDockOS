@@ -1,0 +1,15 @@
+---
+version: "3.9"
+services:
+  the-atlas:
+    image: bansheetech/atlas:latest
+    container_name: the-atlas
+    ports:
+      - 42424:42424
+    environment:
+      - EXTERNAL_P2P_OPEN_PORT=42424
+      - ENABLE_P2P=true
+    volumes:
+      - [[INSTALL_PATH]]/the-atlas:/app
+      - /DATA/SSLCerts:/app/ssl:ro
+    restart: unless-stopped

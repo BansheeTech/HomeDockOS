@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/BannersTilt.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -21,7 +22,7 @@
       <Button ref="installButton" size="small" type="primary" class="tilt-install" @click="handleLearnMore">
         <div class="flex items-center">
           <Icon :icon="bookOpenBlankVariantIcon" class="optionsIcon mr-2" />
-          <span class="text-white">Learn More</span>
+          <span class="text-white">Install</span>
         </div>
       </Button>
     </div>
@@ -31,8 +32,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-import { useModalStore } from "../__Stores__/useModalStore";
 import { useAppStore } from "../__Stores__/useAppStore";
+import { useWindowStore } from "../__Stores__/windowStore";
 
 import { Button } from "ant-design-vue";
 
@@ -41,8 +42,8 @@ import VanillaTilt from "vanilla-tilt";
 import { Icon } from "@iconify/vue";
 import bookOpenBlankVariantIcon from "@iconify-icons/mdi/arrow-expand-all";
 
-const modalStore = useModalStore();
 const appStore = useAppStore();
+const windowStore = useWindowStore();
 
 const props = defineProps({
   maxTilt: {
@@ -85,16 +86,26 @@ const appIconElement = ref<HTMLElement | null>(null);
 const deskScreenElement = ref<HTMLElement | null>(null);
 const installButton = ref<any>(null);
 
-const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
-
 const handleLearnMore = () => {
-  const appStore = useAppStore();
   const app = appStore.apps.find((a) => a.name.toLowerCase() === props.appName.toLowerCase());
-  if (app) {
-    modalStore.openModal(app, csrfToken);
-  } else {
-    console.error(`App "${props.appName}" not found in appStore`);
+
+  if (!app) return;
+
+  const existingWindow = windowStore.windows.find((w) => w.appId === "installconfig" && w.data?.app?.name === app.name);
+
+  if (existingWindow) {
+    windowStore.focusWindow(existingWindow.id);
+    if (existingWindow.isMinimized) {
+      existingWindow.isMinimized = false;
+    }
+    return;
   }
+
+  windowStore.openWindow("installconfig", {
+    title: `Install ${app.name}`,
+    data: { app: app },
+    allowMultiple: true,
+  });
 };
 
 const startTilt = () => {

@@ -1,8 +1,9 @@
 // homedock-ui/vue3/static/js/__Services__/DashboardNetworkUsage.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, inject } from "vue";
 import axios from "axios";
 
 export function useNetworkDataUpdater(propCSRF: string, initialIntervalMs = 3000, initialDownloadData: string, initialUploadData: string, maxIntervalMs = 60000) {
@@ -19,11 +20,13 @@ export function useNetworkDataUpdater(propCSRF: string, initialIntervalMs = 3000
   let unchangedUploadCount = 0;
   let uploadInterval: ReturnType<typeof setInterval>;
 
+  const csrfTokenReactive = inject<{ value: string }>("csrf-token");
+
   async function fetchDownloadData() {
     try {
       const response = await axios.get("/thread/downloaded_data", {
         headers: {
-          "X-HomeDock-CSRF-Token": propCSRF,
+          "X-HomeDock-CSRF-Token": csrfTokenReactive?.value || propCSRF,
         },
       });
 
@@ -64,7 +67,7 @@ export function useNetworkDataUpdater(propCSRF: string, initialIntervalMs = 3000
     try {
       const response = await axios.get("/thread/uploaded_data", {
         headers: {
-          "X-HomeDock-CSRF-Token": propCSRF,
+          "X-HomeDock-CSRF-Token": csrfTokenReactive?.value || propCSRF,
         },
       });
 

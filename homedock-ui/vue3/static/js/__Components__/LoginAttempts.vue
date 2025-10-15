@@ -1,10 +1,11 @@
 <!-- homedock-ui/vue3/static/js/__Components__/LoginAttempts.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
   <div>
-    <AutoComplete v-model:value="searchQuery" class="w-full" :popup-class-name="`${themeClasses.scopeSelector} z-0`" :options="autocompleteOptions" @select="handleSelect">
+    <AutoComplete v-model:value="searchQuery" class="w-full" :popup-class-name="`${themeClasses.scopeSelector}`" :options="autocompleteOptions" @select="handleSelect">
       <template #option="item">
         <span v-if="item.options">
           <Icon v-if="item.value === ipLabel" class="inline-flex mb-1" :icon="mapMarkerIcon" color="#bbb" />
@@ -17,13 +18,13 @@
           {{ item.label || item.value }}
         </div>
       </template>
-      <InputSearch placeholder="Search records..." enter-button="Search" :class="[themeClasses.scopeSelector]" class="mb-3 w-full text-sm">
+      <InputSearch placeholder="Search records..." enter-button="Search" class="w-full text-sm">
         <template #prefix>
           <Icon :icon="magnifyExpandIcon" class="mx-1 text-stone-400" />
         </template>
       </InputSearch>
     </AutoComplete>
-    <table v-if="!loading" :class="[themeClasses.tableTextInner]" class="w-full text-[10px] leading-none antialiased">
+    <table v-if="!loading" :class="[themeClasses.tableTextInner]" class="w-full text-[10px] leading-none antialiased mt-3">
       <thead>
         <tr>
           <th :class="[themeClasses.tableTextUp]" class="w-1/4 font-semibold">
@@ -57,41 +58,54 @@
                 <Tooltip placement="bottom" trigger="click" :color="themeClasses.tooltipBackColor" :destroyTooltipOnHide="true">
                   <template #title>
                     <div class="text-[10px] max-w-48 py-1 transition-all duration-600 ease-in-out">
-                      <div>
-                        <Icon :icon="shieldAlertOutlineIcon" />
+                      <div class="flex items-start">
+                        <Icon class="h-3 w-3 min-h-3 min-w-3 mr-1 mt-0.5" :icon="shieldAlertOutlineIcon" />
                         <span>The login attempt from the network address {{ log.ip }} has been detected for the first time.</span>
                       </div>
 
                       <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
 
-                      <div class="mt-1" v-if="!ipData[log.ip]">
-                        <div class="flex items-center"><Icon :icon="loadingIcon" class="mr-1 mb-0.5 animate-spin" /> Gathering...</div>
+                      <div v-if="isPrivateIP(log.ip)" class="mt-1">
+                        <div class="flex items-start">
+                          <Icon :icon="flagIcon" class="h-3 w-3 min-h-3 min-w-3 mr-1 mt-0.5" />
+                          <span>This connection was made from a local/private network.</span>
+                        </div>
+                        <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
+                        <div class="mt-1 ml-4 opacity-50">
+                          <span>{{ getPrivateNetworkType(log.ip) }}</span>
+                        </div>
                       </div>
 
-                      <div class="mt-1" v-else-if="hasValidFields(log.ip)">
-                        <div v-if="ipData[log.ip].city !== 'Unknown'"><Icon :icon="flagIcon" class="inline-block mr-1" /> {{ ipData[log.ip].city }}</div>
-                        <div v-if="ipData[log.ip].country !== 'Unknown'"><Icon :icon="mapMarkerIcon" class="inline-block mr-1" /> {{ ipData[log.ip].country }}</div>
-                        <div v-if="ipData[log.ip].org !== 'Unknown'"><Icon :icon="magnifyIcon" class="inline-block mr-1" /> {{ ipData[log.ip].org }}</div>
-                        <div v-if="ipData[log.ip].timezone !== 'Unknown'"><Icon :icon="cityIcon" class="inline-block mr-1" /> {{ ipData[log.ip].timezone }}</div>
-                        <div v-if="ipData[log.ip].latitude !== 'Unknown'"><Icon :icon="mapIcon" class="inline-block mr-1" /> {{ ipData[log.ip].latitude }}</div>
-                        <div v-if="ipData[log.ip].longitude !== 'Unknown'"><Icon :icon="mapIcon" class="inline-block mr-1" /> {{ ipData[log.ip].longitude }}</div>
-                      </div>
+                      <div v-else>
+                        <div class="mt-1" v-if="!ipData[log.ip]">
+                          <div class="flex items-center"><Icon :icon="loadingIcon" class="mr-1 mb-0.5 animate-spin" /> Gathering...</div>
+                        </div>
 
-                      <div class="mt-1" v-else>
-                        <div><Icon :icon="alertIcon" class="inline-block" /> Unable to retrieve data</div>
-                      </div>
+                        <div class="mt-1" v-else-if="hasValidFields(log.ip)">
+                          <div v-if="ipData[log.ip].city !== 'Unknown'"><Icon :icon="flagIcon" class="inline-block mr-1" /> {{ ipData[log.ip].city }}</div>
+                          <div v-if="ipData[log.ip].country !== 'Unknown'"><Icon :icon="mapMarkerIcon" class="inline-block mr-1" /> {{ ipData[log.ip].country }}</div>
+                          <div v-if="ipData[log.ip].org !== 'Unknown'"><Icon :icon="magnifyIcon" class="inline-block mr-1" /> {{ ipData[log.ip].org }}</div>
+                          <div v-if="ipData[log.ip].timezone !== 'Unknown'"><Icon :icon="cityIcon" class="inline-block mr-1" /> {{ ipData[log.ip].timezone }}</div>
+                          <div v-if="ipData[log.ip].latitude !== 'Unknown'"><Icon :icon="mapIcon" class="inline-block mr-1" /> {{ ipData[log.ip].latitude }}</div>
+                          <div v-if="ipData[log.ip].longitude !== 'Unknown'"><Icon :icon="mapIcon" class="inline-block mr-1" /> {{ ipData[log.ip].longitude }}</div>
+                        </div>
 
-                      <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
+                        <div class="mt-1" v-else>
+                          <div><Icon :icon="alertIcon" class="inline-block" /> Unable to retrieve data</div>
+                        </div>
 
-                      <div :class="[themeClasses.tooltipViewMore]" class="transition-all duration-300 ease-in-out mt-1 hover:ml-1">
-                        <a :href="'https://ip.guide/' + log.ip" class="mt-2 flex items-center space-x-1" target="_blank" rel="noreferrer">
-                          <Icon :icon="checkDecagramIcon" :size="12" class="inline-block" />
-                          <span class="text-[10px] leading-none">View more</span>
-                        </a>
+                        <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
+
+                        <div :class="[themeClasses.tooltipViewMore]" class="transition-all duration-300 ease-in-out mt-1 hover:ml-1">
+                          <a :href="'https://ip.guide/' + log.ip" class="mt-2 flex items-center space-x-1" target="_blank" rel="noreferrer">
+                            <Icon :icon="checkDecagramIcon" :size="12" class="inline-block" />
+                            <span class="text-[10px] leading-none">View more</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </template>
-                  <div @click="handleTooltip(log.ip)" class="absolute cursor-pointer inline-block mt-[1px]">
+                  <div @click="handleTooltip(log.ip)" class="relative cursor-pointer inline-block -translate-x-1 -translate-y-2">
                     <Icon :class="[themeClasses.discoverNotifyIconBack]" class="absolute cursor-pointer inline-block" :icon="circleMediumIcon" />
                     <Icon :class="[themeClasses.discoverNotifyIconPulse]" class="absolute animate-ping inline-block" :icon="circleMediumIcon" />
                   </div>
@@ -107,7 +121,7 @@
         </TransitionGroup>
       </tbody>
     </table>
-    <div v-else class="text-center mt-4">
+    <div v-else class="text-center mt-3">
       <Spin size="large" :loadingSpinIndicator="loadingSpinIndicator" />
     </div>
     <div v-if="!loading && showButtons" class="mt-3 flex justify-between">
@@ -136,13 +150,14 @@
 </template>
 
 <script lang="ts" setup>
+import axios from "axios";
+
 import { ref, reactive, computed, watch, onMounted } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
-import { AutoComplete, Button, InputSearch, Spin, theme, Tooltip } from "ant-design-vue";
-
-import axios from "axios";
+import { AutoComplete, Button, InputSearch, Spin, Tooltip } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import mapMarkerIcon from "@iconify-icons/mdi/map-marker";
@@ -199,8 +214,7 @@ const loading = ref(true);
 const loadingSpinIndicator = null;
 const ipData = reactive<IPData>({});
 
-const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
-
+const csrfToken = useCsrfToken();
 const { themeClasses } = useTheme();
 
 // Computed properties
@@ -243,7 +257,6 @@ const fetchData = async () => {
       updateAutocompleteOptions();
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
     dataCache.value = [{ timestamp: "Nothing to show yet", status: "", ip: "", users: "" }];
   } finally {
     loading.value = false;
@@ -297,7 +310,6 @@ const fetchIPData = async (ip: string) => {
     cachedIPs[ip] = { data, timestamp: new Date().toISOString() };
     localStorage.setItem("cachedIPs", JSON.stringify(cachedIPs));
   } catch (error) {
-    console.error("Error fetching IP data:", error);
     ipData[ip] = { city: "Unknown", country: "Unknown", org: "Unknown", timezone: "Unknown", latitude: "Unknown", longitude: "Unknown" };
   }
 };
@@ -312,6 +324,8 @@ const handleSelect = (value: any) => {
 };
 
 const handleTooltip = (ip: string) => {
+  if (isPrivateIP(ip)) return;
+
   if (!ipData[ip]) fetchIPData(ip);
 };
 
@@ -347,6 +361,43 @@ const clearView = () => {
 const isRealIP = (ip: string): boolean => {
   const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   return regex.test(ip);
+};
+
+const isPrivateIP = (ip: string): boolean => {
+  if (!isRealIP(ip)) return false;
+
+  const parts = ip.split(".").map(Number);
+
+  // 10.0.0.0/8
+  if (parts[0] === 10) return true;
+
+  // 172.16.0.0/12
+  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+
+  // 192.168.0.0/16
+  if (parts[0] === 192 && parts[1] === 168) return true;
+
+  // 127.0.0.0/8 (localhost)
+  if (parts[0] === 127) return true;
+
+  // 169.254.0.0/16 (link-local)
+  if (parts[0] === 169 && parts[1] === 254) return true;
+
+  return false;
+};
+
+const getPrivateNetworkType = (ip: string): string => {
+  if (!isRealIP(ip)) return "";
+
+  const parts = ip.split(".").map(Number);
+
+  if (parts[0] === 10) return "Class A Private Network (10.0.0.0/8)";
+  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return "Class B Private Network (172.16.0.0/12)";
+  if (parts[0] === 192 && parts[1] === 168) return "Class C Private Network (192.168.0.0/16)";
+  if (parts[0] === 127) return "Localhost / Loopback (127.0.0.0/8)";
+  if (parts[0] === 169 && parts[1] === 254) return "Link-Local Address (169.254.0.0/16)";
+
+  return "Unknown Network";
 };
 
 const getStatusClass = (status: string): string => {
@@ -424,102 +475,5 @@ onMounted(() => {
 .fade-enter-to,
 .fade-leave-from {
   transform: scaleY(1);
-}
-
-/* AntD Vue Overrides */
-:global(.dark-mode-theme.ant-select-dropdown) {
-  background-color: rgb(39, 39, 42) !important;
-}
-
-:global(.aero-mode-theme.ant-select-dropdown) {
-  background-color: rgba(0, 0, 0, 0) !important;
-  backdrop-filter: blur(100px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(100px) saturate(100%) !important;
-}
-
-:global(.dark-mode-theme .ant-select-item) {
-  color: rgb(128, 128, 128) !important;
-}
-
-:global(.aero-mode-theme .ant-select-item) {
-  color: rgba(255, 255, 255, 0.501) !important;
-}
-
-:global(.dark-mode-theme .ant-select-item-group) {
-  color: rgb(255, 255, 255) !important;
-}
-
-:global(.aero-mode-theme .ant-select-item-group) {
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.dark-mode-theme input) {
-  background-color: rgb(39, 39, 42) !important;
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.aero-mode-theme input) {
-  background-color: rgba(0, 0, 0, 0) !important;
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.white-mode-theme input::placeholder) {
-  color: rgb(210, 210, 210) !important;
-}
-
-::v-deep(.dark-mode-theme input::placeholder) {
-  color: rgb(100, 100, 100) !important;
-}
-
-::v-deep(.aero-mode-theme input::placeholder) {
-  color: rgb(177, 177, 177) !important;
-}
-
-::v-deep(.white-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-::v-deep(.aero-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-::v-deep(.white-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-}
-
-::v-deep(.aero-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-}
-
-::v-deep(.dark-mode-theme .ant-input-affix-wrapper) {
-  background-color: rgb(39, 39, 42) !important;
-  border: 1px solid rgb(61, 61, 61) !important;
-}
-
-::v-deep(.aero-mode-theme .ant-input-affix-wrapper) {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid rgba(62, 62, 62, 0.489) !important;
-}
-
-::v-deep(.dark-mode-theme .ant-input-affix-wrapper:hover) {
-  border: 1px solid rgb(24, 119, 255) !important;
-}
-
-::v-deep(.aero-mode-theme .ant-input-affix-wrapper:hover) {
-  border: 1px solid rgb(24, 119, 255) !important;
 }
 </style>

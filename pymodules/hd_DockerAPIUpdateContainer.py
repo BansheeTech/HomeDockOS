@@ -1,6 +1,7 @@
 """
 hd_DockerAPIUpdateContainer.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -22,7 +23,6 @@ manager = DockerClientManager.get_instance()
 client = manager.get_client()
 
 
-# Docker-API - Update
 @login_required
 def pull_and_update_containers():
     config = read_config()
@@ -32,7 +32,7 @@ def pull_and_update_containers():
     updated_containers = []
     containers_data = []
 
-    update_event.clear()  # Stop port autoruoting
+    update_event.clear()  # Stop port autorouting
 
     for name in container_names:
         process_container_update(name, client, updated_containers, containers_data, delete_old_image_containers_after_update)

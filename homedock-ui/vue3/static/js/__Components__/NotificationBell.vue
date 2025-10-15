@@ -1,17 +1,18 @@
 <!-- homedock-ui/vue3/static/js/__Components__/NotificationBell.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="dropdown" class="relative inline-block">
-    <Badge v-if="notifications.length > 0" :count="notifications.length" size="small" :overflow-count="9" @click.stop="toggleDropdown">
-      <Icon :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 text-current cursor-pointer transition-transform duration-200 hover:scale-110" />
+  <div ref="dropdown" class="relative inline-flex items-center">
+    <Badge v-if="notifications.length > 0" :count="notifications.length" size="small" :overflow-count="9">
+      <Icon :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-[18px] h-[18px] text-current transition-transform duration-200 hover:scale-110" />
     </Badge>
-    <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-5 h-5 mb-1.5 text-current cursor-pointer transition-transform duration-200 hover:scale-110" @click.stop="toggleDropdown" />
+    <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-[18px] h-[18px] text-current transition-transform duration-200 hover:scale-110" />
     <Transition name="slide-fade">
       <Teleport to="body">
-        <div v-if="showDropdown" @click.stop class="fixed top-16 right-0 mx-4 sm:mx-auto sm:right-4 sm:w-[320px] shadow-lg rounded-lg border z-[9999] overflow-hidden backdrop-blur-sm" :class="[themeClasses.notCont, themeClasses.aeroExtraScope]">
-          <div :class="[themeClasses.topBack]" class="px-6 py-4 border-b rounded-t-lg text-sm font-medium flex items-center space-x-3">
+        <div v-if="showDropdown" @click.stop class="notification-dropdown shadow-lg rounded-lg border z-[9999] overflow-hidden backdrop-blur-sm" :class="[themeClasses.notCont, themeClasses.aeroExtraScope]">
+          <div :class="[themeClasses.topBack]" class="px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="[themeClasses.notInnerIcon]">
               <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="w-4 h-4" />
             </div>
@@ -47,7 +48,7 @@
                   <span v-if="notification.endDate">{{ formatDate(notification.endDate) }}</span>
                 </div>
               </div>
-              <button v-if="notification.allowRemove" @click="removeNotification(notification)" class="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" :class="[themeClasses.notCloseBtn]">
+              <button v-if="notification.allowRemove" @click="removeNotification(notification)" class="transition-all duration-200 hover:scale-110 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" :class="[themeClasses.notCloseBtn]">
                 <Icon :icon="closeIcon" class="w-4 h-4" />
               </button>
             </div>
@@ -229,7 +230,6 @@ onMounted(async () => {
         try {
           await updateStore.triggerUpdate(csrfToken);
         } catch (error) {
-          console.error("❌ Update failed:", error);
           this.title = "Update Failed";
           this.message = "Something went wrong while updating HomeDock OS. Please contact our support team.";
         }
@@ -237,17 +237,21 @@ onMounted(async () => {
     });
   }
 });
+
+defineExpose({
+  toggleDropdown,
+});
 </script>
 
 <style scoped>
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: transform 0.1s ease, opacity 0.1s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateY(-20px);
+  transform: translateY(10px);
   opacity: 0;
 }
 
@@ -294,5 +298,13 @@ onMounted(async () => {
 
 :deep(.ant-scroll-number) {
   animation: blink 4s infinite;
+}
+
+.notification-dropdown {
+  position: fixed;
+  bottom: 4rem;
+  right: 1rem;
+  left: auto;
+  width: 280px;
 }
 </style>

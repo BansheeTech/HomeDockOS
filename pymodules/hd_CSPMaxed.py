@@ -1,6 +1,7 @@
 """
 hd_CSPMaxed.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -41,7 +42,7 @@ def generate_csp(nonce, is_development, endpoint=""):
 
 
 def csp_endpoint_evaluator(csp, endpoint):
-    if endpoint == "#CSP_EVAL_SYSLOGS":
+    if endpoint == "dashboard":
         csp = csp.replace("connect-src 'self'", "connect-src 'self' https://ip.guide ")
     return csp
 

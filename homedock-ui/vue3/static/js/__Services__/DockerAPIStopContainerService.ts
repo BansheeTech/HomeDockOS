@@ -1,5 +1,6 @@
 // homedock-ui/vue3/static/js/__Services__/DockerAPIStopContainerService.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
 import axios from "axios";
@@ -28,7 +29,7 @@ export async function stopContainers(applications: Application[], containerName:
   const dependencies = applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group);
 
   const affectedContainers = [mainContainer, ...dependencies];
-  
+
   affectedContainers.forEach((app) => store.setDesiredState(app.name, "exited"));
 
   const containersToStop = affectedContainers.filter((app) => app.status !== "exited");

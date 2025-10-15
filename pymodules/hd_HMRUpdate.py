@@ -1,6 +1,7 @@
 """
 hd_HMRUpdate.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -91,7 +92,7 @@ def download_and_extract_github_repo(remote_version):
     replace_dir("app-store")
     replace_dir("homedock-ui")
     replace_dir("pymodules")
-    replace_files(["homedock.py", "requirements.txt", "version.txt," "package.json", "package-lock.json"])
+    replace_files(["homedock.py", "requirements.txt", "version.txt", "package.json", "package-lock.json"])
 
     print(" * Cleaning up temporary update files...")
     if os.path.exists(extract_path):

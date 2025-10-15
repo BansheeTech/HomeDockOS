@@ -1,12 +1,14 @@
 """
 hd_UILogin.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
 import os
 import bcrypt
 import base64
+import ipaddress
 
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -18,7 +20,6 @@ from cryptography.hazmat.backends import default_backend
 from flask import render_template, request, session, g, jsonify, redirect, url_for
 from flask_login import UserMixin, login_user, current_user, LoginManager
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 
 from pymodules.hd_HDOSWebServerInit import homedock_www
 from pymodules.hd_FunctionsConfig import read_config
@@ -33,7 +34,7 @@ login_manager.init_app(homedock_www)
 login_manager.login_view = "login"
 login_attempts_log = os.path.join(current_directory, "logs", "loginattempts.log")
 
-limiter = Limiter(app=homedock_www, key_func=get_remote_address, storage_uri="memory://")
+limiter = Limiter(app=homedock_www, key_func=lambda: request.remote_addr, storage_uri="memory://")
 
 limited_ips_added_to_shield = []
 shield_mode_active = False
@@ -63,8 +64,13 @@ def load_user(user_id):
 
 
 def is_local_subnetwork_ip(ip, successful_ips):
-    if ip.startswith("192.168."):
-        return True
+    try:
+        ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.is_private or ip_obj.is_loopback:
+            return True
+    except ValueError:
+        pass
+
     if successful_ips is None:
         return False
     return ip in successful_ips
@@ -106,7 +112,7 @@ def handle_shield_mode():
     login_log_path = login_attempts_log
     successful_ips = get_successful_ips(login_log_path)
 
-    ip_address = get_remote_address()
+    ip_address = request.remote_addr
 
     if shield_mode_active and not is_local_subnetwork_ip(ip_address, successful_ips):
         shield_mode_time = 60 * shield_mode_count
@@ -138,7 +144,7 @@ def log_attempt(ip_address, status, username):
 
 
 def login_page():
-    ip_address = get_remote_address()
+    ip_address = request.remote_addr
     aux_config = read_config()
     selected_theme = aux_config["selected_theme"]
     selected_back = aux_config["selected_back"]
@@ -167,7 +173,7 @@ def api_login():
     global shield_mode_timestamp
     global shield_mode_count
 
-    ip_address = get_remote_address()
+    ip_address = request.remote_addr
 
     failed_attempts_within_hour = [attempt for attempt in failed_attempts[ip_address] if attempt > datetime.now() - timedelta(hours=1)]
     remaining_attempts = 3 - len(failed_attempts_within_hour)

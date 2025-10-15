@@ -1,6 +1,7 @@
 """
 hd_DockerAPIRestartContainer.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -10,7 +11,6 @@ from flask_login import login_required
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 
 
-# Docker-API - Restart
 @login_required
 def restart_containers():
     manager = DockerClientManager.get_instance()

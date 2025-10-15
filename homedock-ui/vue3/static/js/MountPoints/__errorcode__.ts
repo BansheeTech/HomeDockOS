@@ -1,7 +1,10 @@
 // homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
+// https://www.banshee.pro
 
 import { createApp } from "vue";
-import { createHead } from '@vueuse/head';
+import { createHead } from "@vueuse/head";
 
 import ErrorCode from "../__Layouts__/ErrorCode.vue";
 

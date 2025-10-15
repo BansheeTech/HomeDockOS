@@ -1,5 +1,6 @@
 // homedock-ui/vue3/static/js/__Stores__/useAppStore.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
@@ -44,25 +45,10 @@ export const useAppStore = defineStore("AppStore", {
           };
         });
 
-        await this.syncInstallationStatus();
         await this.initalInstallationPolling(csrfToken);
       } catch (error) {
         console.error("Error loading apps:", error);
       }
-    },
-    async syncInstallationStatus() {
-      const installationStore = useInstallationStore();
-      const { currentlyInstalling, queue } = installationStore;
-
-      this.apps = this.apps.map((app) => {
-        const isInQueue = queue.includes(app.name);
-        const isCurrentlyInstalling = app.name === currentlyInstalling;
-
-        return {
-          ...app,
-          installation_status: isCurrentlyInstalling ? "installing" : isInQueue ? `queued (${queue.indexOf(app.name) + 1}/${queue.length})` : app.is_installed ? "installed" : "not_installed",
-        };
-      });
     },
     async initalInstallationPolling(csrfToken: string) {
       const installationStore = useInstallationStore();
@@ -78,6 +64,16 @@ export const useAppStore = defineStore("AppStore", {
     setCategoryFilter(category: string) {
       this.selectedCategory = category;
       this.currentPage = 1;
+    },
+
+    updateAppInstallationStatus(appName: string, isInstalled: boolean) {
+      const appIndex = this.apps.findIndex((app) => app.name === appName);
+      if (appIndex !== -1) {
+        this.apps[appIndex] = {
+          ...this.apps[appIndex],
+          is_installed: isInstalled,
+        };
+      }
     },
   },
   getters: {

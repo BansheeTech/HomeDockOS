@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Layouts__/Login.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -7,12 +8,11 @@
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
-  <NetworkOffline />
   <SplashScreen />
   <StaticOscillatingLines />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
-      <div :class="[themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 container-scroller mb-2">
+      <div :class="[themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
         <div class="flex justify-between items-start mb-6">
           <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
         </div>
@@ -78,10 +78,11 @@
   </div>
 </template>
 <script setup lang="ts">
+import axios from "axios";
+
 import { ref, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
-import axios from "axios";
 import { AxiosError } from "axios";
 
 import { Icon } from "@iconify/vue";
@@ -106,7 +107,6 @@ import BaseImage from "../__Components__/BaseImage.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
 import SplashScreen from "../__Components__/SplashScreen.vue";
 import CloudInstances from "../__Components__/CloudInstances.vue";
-import NetworkOffline from "../__Components__/NetworkOffline.vue";
 
 const formState = ref({
   username: "",
@@ -273,7 +273,6 @@ const handleFinish = async () => {
           return;
         }
       } else {
-        console.error("There was an error while signing in:", error);
         message.error("There was an error while signing in.");
       }
     }
@@ -290,9 +289,7 @@ watch(remainingAttempts, () => {
   }
 });
 
-const handleFinishFailed = (errors: any): void => {
-  console.log("Validation failed:", errors);
-};
+const handleFinishFailed = (errors: any): void => {};
 </script>
 
 <style scoped>

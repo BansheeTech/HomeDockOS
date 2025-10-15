@@ -1,10 +1,13 @@
 <!-- homedock-ui/vue3/static/js/__Components__/ChartDetails.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
   <div>
-    <canvas :id="chartId"></canvas>
+    <div class="chart-container">
+      <canvas :id="chartId"></canvas>
+    </div>
     <div ref="sliderContainer" class="slider-container flex items-center">
       <Slider v-model:value="groupSize" :tooltipOpen="false" :min="1" :max="50" @input="processChartData" class="custom-slider w-full" />
     </div>
@@ -12,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 
 import axios from "axios";
 
@@ -89,6 +92,7 @@ const chartOptions: ChartConfiguration = {
   },
   options: {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: true,
@@ -128,11 +132,9 @@ const fetchDataFromApi = async () => {
       serverData.value = response.data;
       processChartData();
     } else {
-      console.warn("No data received or invalid response format");
       showNoDataMessage("No data available");
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
     showNoDataMessage("Error fetching data");
   }
 };
@@ -183,11 +185,59 @@ function hasMoreThanTwoDecimals(value: number): boolean {
   return decimalPart ? decimalPart.length > 2 : false;
 }
 
+let resizeObserver: ResizeObserver | null = null;
+let resizeTimeout: number | null = null;
+let isFirstResize = true;
+
 onMounted(() => {
-  const ctx = (document.getElementById(chartId) as HTMLCanvasElement)?.getContext("2d");
+  const canvas = document.getElementById(chartId) as HTMLCanvasElement;
+  const ctx = canvas?.getContext("2d");
+
   if (ctx) {
     chartInstance = new Chart(ctx, chartOptions);
     fetchDataFromApi();
+
+    const container = canvas.parentElement;
+    if (container) {
+      resizeObserver = new ResizeObserver((entries) => {
+        if (isFirstResize) {
+          isFirstResize = false;
+          return;
+        }
+
+        if (resizeTimeout !== null) {
+          clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = window.setTimeout(() => {
+          if (chartInstance && canvas.parentElement) {
+            canvas.width = 0;
+            canvas.height = 0;
+
+            canvas.removeAttribute("style");
+
+            void canvas.parentElement.offsetHeight;
+
+            chartInstance.resize();
+
+            chartInstance.update("none");
+          }
+        }, 50);
+      });
+      resizeObserver.observe(container);
+    }
+  }
+});
+
+onUnmounted(() => {
+  if (resizeTimeout !== null) {
+    clearTimeout(resizeTimeout);
+  }
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
+  if (chartInstance) {
+    chartInstance.destroy();
   }
 });
 
@@ -195,6 +245,18 @@ watch(groupSize, processChartData);
 </script>
 
 <style scoped>
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 :deep(.ant-slider-track) {
   background-color: rgba(100, 181, 34) !important;
 }

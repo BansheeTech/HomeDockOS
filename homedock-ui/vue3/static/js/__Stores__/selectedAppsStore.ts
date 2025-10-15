@@ -1,5 +1,6 @@
 // homedock-ui/vue3/static/js/__Stores__/selectedAppsStore.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
@@ -11,7 +12,7 @@ interface Application {
   host: string;
   ports: string[];
   usagePercent: number;
-  status: string;
+  status: "running" | "exited" | "paused" | "created";
   statusColor: string;
   image_path: string;
   checked: boolean;
@@ -60,6 +61,13 @@ export const useSelectedAppsStore = defineStore("selectedApps", {
           isProcessing,
           checked: this.selectedApps.includes(newApp.name),
         };
+      });
+
+      const currentAppNames = new Set(newApps.map((app) => app.name));
+      Object.keys(this.desiredStates).forEach((appName) => {
+        if (!currentAppNames.has(appName)) {
+          delete this.desiredStates[appName];
+        }
       });
     },
     setDesiredState(appName: string, state: string) {

@@ -1,10 +1,11 @@
 <!-- homedock-ui/vue3/static/js/__Components__/AppStoreSearch.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
   <div>
-    <AutoComplete :class="[themeClasses.scopeSelector]" v-model:value="searchQuery" class="w-full" :popup-class-name="`${themeClasses.scopeSelector} w-10`" :options="autocompleteOptions" @select="handleSelect" @popupScroll="handlePopupScroll">
+    <AutoComplete v-model:value="searchQuery" class="w-full" :popup-class-name="`${themeClasses.scopeSelector} w-10`" :options="autocompleteOptions" @select="handleSelect" @popupScroll="handlePopupScroll">
       <template #option="item">
         <span v-if="item.options">
           <Icon v-if="item.value === 'Reset'" class="inline-flex mb-1" :icon="deleteEmptyIcon" size="14px" color="#bbb" />
@@ -157,95 +158,4 @@ watch(searchQuery, (newQuery) => {
 });
 </script>
 
-<style scoped>
-/* AntD Vue Overrides */
-:global(.dark-mode-theme.ant-select-dropdown) {
-  background-color: rgb(39, 39, 42) !important;
-}
-
-:global(.aero-mode-theme.ant-select-dropdown) {
-  background-color: rgb(39, 39, 42) !important;
-}
-
-:global(.dark-mode-theme .ant-select-item) {
-  color: rgb(128, 128, 128) !important;
-}
-
-:global(.aero-mode-theme .ant-select-item) {
-  color: rgb(128, 128, 128) !important;
-}
-
-:global(.dark-mode-theme .ant-select-item-group) {
-  color: rgb(255, 255, 255) !important;
-}
-
-:global(.aero-mode-theme .ant-select-item-group) {
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.dark-mode-theme input) {
-  background-color: rgb(39, 39, 42) !important;
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.aero-mode-theme input) {
-  background-color: rgba(0, 0, 0, 0) !important;
-  color: rgb(255, 255, 255) !important;
-}
-
-::v-deep(.white-mode-theme input::placeholder) {
-  color: rgb(210, 210, 210) !important;
-}
-
-::v-deep(.dark-mode-theme input::placeholder) {
-  color: rgb(100, 100, 100) !important;
-}
-
-::v-deep(.white-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-::v-deep(.aero-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-::v-deep(.white-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0) inset !important;
-}
-
-::v-deep(.dark-mode-theme .ant-input-affix-wrapper) {
-  background-color: rgb(39, 39, 42) !important;
-  border: 1px solid rgb(61, 61, 61) !important;
-}
-
-::v-deep(.aero-mode-theme .ant-input-affix-wrapper) {
-  background-color: rgba(35, 35, 35, 0.355) !important;
-  border: 1px solid rgba(61, 61, 61, 0.439) !important;
-}
-
-::v-deep(.dark-mode-theme .ant-input-affix-wrapper:hover) {
-  border: 1px solid rgb(24, 119, 255) !important;
-}
-
-::v-deep(.aero-mode-theme .ant-input-affix-wrapper:hover) {
-  border: 1px solid rgb(24, 119, 255) !important;
-}
-</style>
+<style scoped></style>

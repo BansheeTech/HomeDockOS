@@ -1,6 +1,7 @@
 """
 hd_UIHomeDockSettings.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -9,10 +10,9 @@ import re
 import json
 import base64
 import bcrypt
-import psutil
 import configparser
 
-from flask import jsonify, render_template, session, g, request
+from flask import jsonify, session, request
 from flask_login import login_required
 from urllib.parse import urlparse
 
@@ -24,57 +24,10 @@ from werkzeug.utils import secure_filename
 
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
-from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, current_year
+from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
 from pymodules.hd_ConfigEventManager import notify_config_changed
 from pymodules.hd_ExternalDriveManager import get_valid_external_drives, is_valid_external_drive
-
-
-@login_required
-def homedocksettings():
-    config = read_config()
-    user_name = config["user_name"]
-    user_password = config["user_password"]
-    run_port = config["run_port"]
-    local_dns = config["local_dns"]
-    dynamic_dns = config["dynamic_dns"]
-    default_external_drive = config["default_external_drive"]
-    run_on_development = config["run_on_development"]
-    disable_usage_data = config["disable_usage_data"]
-    delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
-    delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
-    delete_internal_data_volumes = config["delete_internal_data_volumes"]
-    selected_theme = config["selected_theme"]
-    selected_back = config["selected_back"]
-
-    path_custom = os.path.join(current_directory, "homedock-ui/static/images/wallpapers/back_custom.jpg")
-
-    custom_exists = os.path.exists(path_custom)
-
-    valid_drives = get_valid_external_drives()
-
-    return render_template(
-        "settings.html",
-        user_name=user_name,
-        user_password=user_password,
-        run_port=run_port,
-        local_dns=local_dns,
-        dynamic_dns=dynamic_dns,
-        version=version,
-        version_hash=version_hash,
-        default_external_drive=default_external_drive,
-        run_on_development=run_on_development,
-        disable_usage_data=disable_usage_data,
-        delete_old_image_containers_after_update=delete_old_image_containers_after_update,
-        delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
-        delete_internal_data_volumes=delete_internal_data_volumes,
-        selected_theme=selected_theme,
-        selected_back=selected_back,
-        valid_drives=valid_drives,
-        year=current_year,
-        custom_exists=custom_exists,
-        nonce=g.get("nonce", ""),
-    )
 
 
 @login_required

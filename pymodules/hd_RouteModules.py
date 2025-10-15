@@ -1,6 +1,7 @@
 """
 hd_RouteModules.py
-Copyright © 2023-2025 Banshee, All Rights Reserved
+Copyright © 2023-2026 Banshee, All Rights Reserved
+See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
@@ -22,39 +23,25 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/logout", "logout", CSRF_Protect(logout), methods=["POST"])
 
-    from pymodules.hd_UIDashboard import dashboard
+    from pymodules.hd_UIDesktop import desktop
 
-    homedock_www.add_url_rule("/dashboard", "dashboard", dashboard)
+    homedock_www.add_url_rule("/dashboard", "dashboard", desktop)
 
-    from pymodules.hd_UIControlHub import controlhub
+    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, delete_file
 
-    homedock_www.add_url_rule("/control-hub", "control-hub", controlhub)
-
-    from pymodules.hd_UIDropzone import dropzone, list_files, upload_file, download_file, delete_file
-
-    homedock_www.add_url_rule("/drop-zone", "dropzone", dropzone)
     homedock_www.add_url_rule("/api/get_files", "list_files", CSRF_Protect(list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/upload_file", "upload_file", CSRF_Protect(upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/delete_file", "delete_file", CSRF_Protect(delete_file), methods=["POST"])
 
+    from pymodules.hd_UISettings import api_save_settings
+
+    homedock_www.add_url_rule("/api/save_settings", "save_settings", CSRF_Protect(api_save_settings), methods=["POST"])
+
     from pymodules.hd_HMRUpdate import check_update, update_now
 
     homedock_www.add_url_rule("/api/check_update", "check_update", CSRF_Protect(check_update), methods=["GET"])
     homedock_www.add_url_rule("/api/update_now", "update_now", CSRF_Protect(update_now), methods=["POST"])
-
-    from pymodules.hd_UIAppStore import appstore
-
-    homedock_www.add_url_rule("/app-store", "app-store", appstore)
-
-    from pymodules.hd_UISystemLogs import system_logs
-
-    homedock_www.add_url_rule("/system-logs", "#CSP_EVAL_SYSLOGS", system_logs)
-
-    from pymodules.hd_UISettings import homedocksettings, api_save_settings
-
-    homedock_www.add_url_rule("/settings", "settings", homedocksettings)
-    homedock_www.add_url_rule("/api/save_settings", "save_settings", CSRF_Protect(api_save_settings), methods=["POST"])
 
     from pymodules.hd_UILimited import limited
 

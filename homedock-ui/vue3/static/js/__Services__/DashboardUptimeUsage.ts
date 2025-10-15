@@ -1,8 +1,9 @@
 // homedock-ui/vue3/static/js/__Services__/DashboardUptimeUsage.ts
-// Copyright © 2023-2025 Banshee, All Rights Reserved
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, inject } from "vue";
 import axios from "axios";
 
 export function useUptimeUpdater(propCSRF: string, initialIntervalMs = 3000, initialSystemUptime: string, initialHomeDockUptime: string, maxIntervalMs = 60000) {
@@ -19,11 +20,13 @@ export function useUptimeUpdater(propCSRF: string, initialIntervalMs = 3000, ini
   let unchangedHomeDockCount = 0;
   let homeDockInterval: ReturnType<typeof setInterval>;
 
+  const csrfTokenReactive = inject<{ value: string }>("csrf-token");
+
   async function fetchSystemUptime() {
     try {
       const response = await axios.get("/thread/system_uptime", {
         headers: {
-          "X-HomeDock-CSRF-Token": propCSRF,
+          "X-HomeDock-CSRF-Token": csrfTokenReactive?.value || propCSRF,
         },
       });
 
@@ -55,7 +58,7 @@ export function useUptimeUpdater(propCSRF: string, initialIntervalMs = 3000, ini
     try {
       const response = await axios.get("/thread/homedock_uptime", {
         headers: {
-          "X-HomeDock-CSRF-Token": propCSRF,
+          "X-HomeDock-CSRF-Token": csrfTokenReactive?.value || propCSRF,
         },
       });
 

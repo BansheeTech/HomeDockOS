@@ -1,0 +1,1 @@
+.animated-line[data-v-e839ca68]:after{content:"";position:absolute;left:0;top:-100%;width:100%;height:30px;background-color:#ff000053;animation:moveLine-e839ca68 5s linear infinite;z-index:-1}@keyframes moveLine-e839ca68{0%{top:-800px}50%{top:800px}to{top:-800px}}

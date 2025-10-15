@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/SplashScreen.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -53,7 +54,7 @@ const addClassAfterDelay = (element: HTMLElement, className: string, delay: numb
 };
 
 const triggerAnimations = (): void => {
-  startupSound.play().catch((e) => console.error("Error playing sound: ", e));
+  startupSound.play().catch(() => {});
 
   let totalDelay = ANIMATION_DELAY;
   const logoItems = splashElement.value!.querySelectorAll<HTMLElement>(".object");

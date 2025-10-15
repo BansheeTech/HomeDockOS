@@ -1,5 +1,6 @@
 <!-- homedock-ui/vue3/static/js/__Components__/SettingsTabUser.vue -->
-<!-- Copyright © 2023-2025 Banshee, All Rights Reserved -->
+<!-- Copyright © 2023-2026 Banshee, All Rights Reserved -->
+<!-- See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/ -->
 <!-- https://www.banshee.pro -->
 
 <template>
@@ -88,7 +89,6 @@ import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
 
 const { themeClasses } = useTheme();
 
-// Props & Emit
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -98,13 +98,11 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-// Reactive References
 const usernameValue = ref<string>(props.modelValue.username || "");
 const passwordCheckbox = ref<boolean>(props.modelValue.changePassword || false);
 const passwordValue = ref<string>(props.modelValue.password || "");
 const confirmPassword = ref<string>(props.modelValue.confirmPassword || "");
 
-// Reactive Validation
 const isUsernameValid = computed(() => /^[a-zA-Z0-9]+$/.test(usernameValue.value));
 
 const usernameErrorMessage = computed(() => {
@@ -135,7 +133,6 @@ const confirmPasswordErrorMessage = computed(() => {
   return "";
 });
 
-// Sync modelValue with reactive references
 watch(
   () => ({
     username: usernameValue.value,
