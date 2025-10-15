@@ -19,3 +19,6 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 - Path Traversal in Drop Zone File Operations
   **Reported at Secur0 by @esTse** – Fixed in v2.0.1.88
+
+- Path Traversal & DoS via /dev/random in Drop Zone
+  **Reported at Secur0 by @Ismael034** – Fixed in v2.0.1.88

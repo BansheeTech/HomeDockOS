@@ -58,6 +58,8 @@
   - Patched **rate-limiting bypass vulnerability** (reported by **@StringManolo**) where attackers could spoof IP addresses via HTTP headers (`X-Forwarded-For`, `X-Real-IP`) to circumvent login attempt restrictions and **Shield Mode** protections. Replaced insecure `get_remote_address()` with `request.remote_addr` to enforce **TCP socket-based IP validation**, making IP spoofing impossible without a trusted reverse proxy. Enhanced `is_local_subnetwork_ip()` to properly validate all **RFC 1918 private networks** (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) and loopback addresses using `ipaddress` module, fixing incomplete subnet validation that only checked `192.168.x.x` ranges.
   - Mitigated an **Authenticated SSRF vulnerability** in `/api/check-port` (reported at **Secur0** by **@cybernize**), which allowed **Host header manipulation** to probe internal services, implementing strict **hostname allowlisting** and IP validation against trusted local/internet IPs.
   - Fixed a **Path Traversal** vulnerability in Drop Zone file operations (reported at **Secur0** by **@esTse**), which allowed unauthorized path manipulation during file handling.
+  - Additionally mitigated **DoS variant** of the Path Traversal vulnerability (reported at **Secur0** by **@Ismael034**) where accessing
+    `/dev/random` could crash the application.
   - Updated `SECURITY.md` security documentation with complete vulnerability history and fix versions, acknowledging security researchers.
   - Implemented **desktop state persistence** on `localStorage` to remember your icon positions, folder organization, and personal preferences across sessions.
   - Added **window state management** to remember each window's position, size, and state after closing and reopening.
