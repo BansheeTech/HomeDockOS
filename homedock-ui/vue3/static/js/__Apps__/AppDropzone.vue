@@ -7,7 +7,7 @@
   <div class="app-dropzone flex flex-col h-full overflow-hidden">
     <div class="flex-1 overflow-auto p-5">
       <div class="mb-4">
-        <UploadDragger :class="[themeClasses.dropZoneDragHolder]" v-model:fileList="fileList" name="file" :multiple="true" :customRequest="customUpload" @change="handleChange" @success="handleSuccess" :showUploadList="true" class="compact-dragger">
+        <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:fileList="fileList" name="file" :multiple="true" :customRequest="customUpload" @change="handleChange" @success="handleSuccess" :showUploadList="true" class="compact-dragger">
           <div class="flex items-center align-center justify-center flex-col py-6">
             <p class="ant-upload-drag-icon">
               <AnimatedIcon :icons="[cubeIcon, shieldLockIcon]" :iconSize="48" :interval="2000" :class="[themeClasses.dropZoneDragIcon]" class="text-3xl" />

@@ -1,8 +1,17 @@
 # CHANGELOG
 
-- **2.0.1.102** (Latest): Fixed **RegEx injection issue** in AppExplorer search functionality where special regex characters (like `(`, `)`, `[`, `]`, `*`, `+`, etc.) were not being escaped, causing application crashes and potential security issues. Implemented proper input sanitization by escaping all special regex characters before pattern compilation, preventing malformed expressions and protecting against ReDoS attacks.
+- **2.0.1.104** (Latest): Implemented **session expiration detection system** with ultra-hardened axios interceptor and fixed **CSS theming bugs** in `AppDropzone.vue` and `ThemeSelector.ts`.
+
+  - Added new `SessionExpiredTray.vue` component to taskbar that monitors HTTP 401/403 responses to automatically detect expired sessions and CSRF token failures.
+  - Implemented **ultra-hardened axios interceptor** with comprehensive security protections against prototype pollution, getter traps, type coercion, ReDoS, and DoS attacks using native method caching, strict validation, string length limits, and rate limiting.
+  - Added visual indicator to taskbar with animated SVG icon (gear with slash) showing session status.
+  - Implemented dropdown panel with "Log in again" button for seamless re-authentication experience.
+  - Fixed **CSS theming bug** in `AppDropzone` where upload list item text (`.ant-upload-list-item-name`) and loading icons (`.ant-upload-text-icon`) appeared black in Noir and Aero+ themes due to missing `themeClasses.scopeSelector` class on the `UploadDragger` component, preventing CSS rules in `antd.css` from applying correctly.
+  - Fixed missing theme class in `ThemeSelector.ts` for folder color picker context menu text styling.
 
 ---
+
+- **2.0.1.102**: Fixed **RegEx injection issue** in AppExplorer search functionality where special regex characters (like `(`, `)`, `[`, `]`, `*`, `+`, etc.) were not being escaped, causing application crashes and potential security issues. Implemented proper input sanitization by escaping all special regex characters before pattern compilation, preventing malformed expressions and protecting against ReDoS attacks.
 
 - **2.0.1.88**: HomeDock OS 2.0 release featuring our brand new **Prism Windows Manager**, introducing real multitasking and a **complete operating system experience**.
 

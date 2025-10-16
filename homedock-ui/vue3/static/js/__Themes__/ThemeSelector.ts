@@ -304,6 +304,7 @@ export function useTheme() {
       contextMenuIcon: "text-gray-600",
       contextMenuIconHover: "group-hover:text-blue-500",
       contextMenuShortcut: "text-gray-500",
+      contextMenuText: "text-gray-900",
 
       startMenuBg: "bg-white/80",
       startMenuBorder: "border border-gray-200",
@@ -928,6 +929,7 @@ export function useTheme() {
       contextMenuIcon: "text-white/70",
       contextMenuIconHover: "group-hover:text-blue-500",
       contextMenuShortcut: "text-white/50",
+      contextMenuText: "text-white/50",
 
       startMenuBg: "bg-zinc-900/80",
       startMenuBorder: "border border-white/10",
@@ -1552,6 +1554,7 @@ export function useTheme() {
       contextMenuIcon: "text-white/70",
       contextMenuIconHover: "group-hover:text-blue-500",
       contextMenuShortcut: "text-white/50",
+      contextMenuText: "text-white/50",
 
       startMenuBg: "bg-zinc-900/75",
       startMenuBorder: "border border-white/10",

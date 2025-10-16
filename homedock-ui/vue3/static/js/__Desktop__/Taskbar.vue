@@ -34,6 +34,8 @@
 
         <NetworkOfflineTray />
 
+        <SessionExpiredTray />
+
         <SystemStatsWidget :csrfToken="csrfToken" />
 
         <button class="flex items-center justify-center w-9 h-9 rounded-lg border-0 cursor-pointer transition-all duration-150" :class="[themeClasses.trayIconBg, themeClasses.trayIconText, themeClasses.trayIconBgHover, themeClasses.trayIconTextHover]" title="Notifications" @click.stop="notificationBellRef?.toggleDropdown()">
@@ -91,6 +93,7 @@ import DateTimePicker from "../__Components__/DateTimePicker.vue";
 import InstallationIndicator from "../__Components__/InstallationIndicator.vue";
 import UploadIndicator from "../__Components__/UploadIndicator.vue";
 import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
+import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";
 import SystemStatsWidget from "./SystemStatsWidget.vue";
 
