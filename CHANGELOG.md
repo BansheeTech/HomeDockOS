@@ -1,6 +1,15 @@
 # CHANGELOG
 
-- **2.0.1.104** (Latest): Implemented **session expiration detection system** with ultra-hardened axios interceptor and fixed **CSS theming bugs** in `AppDropzone.vue` and `ThemeSelector.ts`.
+- **2.0.1.106** (Latest): Updated JavaScript and Python dependencies to latest versions, migrated head management library and simplified rate limiting architecture.
+
+  - Updated all **JavaScript dependencies** to their latest stable versions for improved security and performance.
+  - Updated all **Python dependencies** to their latest stable versions ensuring compatibility and security patches.
+  - Removed **Flask-Limiter** dependency, simplifying the rate limiting architecture with custom implementation.
+  - Migrated from **vue-meta** to **@unhead/vue** for improved head/meta tag management with better Vue 3 compatibility, performance, and modern API.
+
+---
+
+- **2.0.1.104**: Implemented **session expiration detection system** with ultra-hardened axios interceptor and fixed **CSS theming bugs** in `AppDropzone.vue` and `ThemeSelector.ts`.
 
   - Added new `SessionExpiredTray.vue` component to taskbar that monitors HTTP 401/403 responses to automatically detect expired sessions and CSRF token failures.
   - Implemented **ultra-hardened axios interceptor** with comprehensive security protections against prototype pollution, getter traps, type coercion, ReDoS, and DoS attacks using native method caching, strict validation, string length limits, and rate limiting.

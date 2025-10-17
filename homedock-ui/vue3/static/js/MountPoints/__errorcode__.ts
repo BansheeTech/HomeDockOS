@@ -4,7 +4,7 @@
 // https://www.banshee.pro
 
 import { createApp } from "vue";
-import { createHead } from "@vueuse/head";
+import { createHead } from "@unhead/vue/client";
 
 import ErrorCode from "../__Layouts__/ErrorCode.vue";
 

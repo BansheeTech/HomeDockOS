@@ -19,7 +19,6 @@ from cryptography.hazmat.backends import default_backend
 
 from flask import render_template, request, session, g, jsonify, redirect, url_for
 from flask_login import UserMixin, login_user, current_user, LoginManager
-from flask_limiter import Limiter
 
 from pymodules.hd_HDOSWebServerInit import homedock_www
 from pymodules.hd_FunctionsConfig import read_config
@@ -33,8 +32,6 @@ login_manager = LoginManager()
 login_manager.init_app(homedock_www)
 login_manager.login_view = "login"
 login_attempts_log = os.path.join(current_directory, "logs", "loginattempts.log")
-
-limiter = Limiter(app=homedock_www, key_func=lambda: request.remote_addr, storage_uri="memory://")
 
 limited_ips_added_to_shield = []
 shield_mode_active = False

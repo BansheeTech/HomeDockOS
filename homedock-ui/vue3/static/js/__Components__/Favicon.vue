@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { useHead } from "@vueuse/head";
+import { useHead } from "@unhead/vue";
 
 export default {
   name: "Favicon",

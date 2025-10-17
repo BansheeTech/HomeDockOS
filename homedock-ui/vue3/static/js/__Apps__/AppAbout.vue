@@ -193,8 +193,8 @@
                 <span>Node Forge</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
-              <a href="https://github.com/vueuse/head/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
-                <span>VueUse Head</span>
+              <a href="https://github.com/unjs/unhead/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>Unhead</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
               <a href="https://github.com/micku7zu/vanilla-tilt.js/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
@@ -216,10 +216,6 @@
               </a>
               <a href="https://github.com/maxcountryman/flask-login/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>Flask-Login</span>
-                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
-              </a>
-              <a href="https://github.com/alisaifee/flask-limiter/blob/master/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
-                <span>Flask-Limiter</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
               <a href="https://github.com/colour-science/flask-compress/blob/master/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">

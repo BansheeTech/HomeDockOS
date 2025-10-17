@@ -4,7 +4,7 @@
 // https://www.banshee.pro
 
 import { createApp, reactive } from "vue";
-import { createHead } from "@vueuse/head";
+import { createHead } from "@unhead/vue/client";
 import { createPinia } from "pinia";
 import router from "../__Router__/index";
 
