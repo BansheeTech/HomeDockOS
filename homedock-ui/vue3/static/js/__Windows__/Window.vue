@@ -26,7 +26,9 @@
     >
       <div class="window-header" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
         <div class="window-header-draggable" @mousedown="handleHeaderMouseDown" @dblclick="handleHeaderDblClick">
-          <Icon v-if="window.icon" :icon="window.icon" class="window-icon" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText" width="16" height="16" />
+          <div v-if="window.icon" class="window-icon-container transition duration-150" :class="isActive ? themeClasses.windowIconContainerBgFocused : themeClasses.windowIconContainerBg">
+            <Icon :icon="window.icon" class="window-icon" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText" width="16" height="16" />
+          </div>
 
           <span class="window-title" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText">{{ window.title }}</span>
         </div>
@@ -442,6 +444,16 @@ onUnmounted(() => {
 .window.maximized .window-header-draggable,
 .window.fullscreen-mobile .window-header-draggable {
   cursor: default;
+}
+
+.window-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .window-icon {

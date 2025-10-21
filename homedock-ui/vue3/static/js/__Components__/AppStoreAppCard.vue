@@ -11,7 +11,7 @@
 
       <div class="flex flex-col overflow-hidden w-full">
         <h3 :class="[themeClasses.storeCardTextAppName]" class="app-name font-semibold text-xs">
-          {{ app.name }}
+          {{ app.display_name || app.name }}
         </h3>
         <div class="relative">
           <h4 :class="[themeClasses.storeTypeScope]" class="app-docker_image font-normal uppercasetruncate text-xs will-change-transform transition duration-500 group-hover:opacity-0 group-hover:-translate-y-2">
@@ -32,6 +32,11 @@
 
     <div v-if="isNew(app)" class="app-new-badge absolute top-2 left-11 p-1 rounded-3xl bg-blue-500 border-[1px] border-gray-100 animate-bounce">
       <span class="flex items-center"><Icon :icon="newBoxIcon" class="text-current text-white" /></span>
+    </div>
+
+    <!-- External package badge -->
+    <div v-if="app.is_external" class="app-external-badge absolute top-2 right-2 p-1 rounded-3xl bg-amber-600 border-[1px] border-gray-100 shadow-md">
+      <span class="flex items-center"><Icon :icon="packageIcon" class="text-current text-white w-4 h-4" /></span>
     </div>
 
     <Transition name="button-fade" mode="out-in">
@@ -75,6 +80,7 @@ import checkBoldIcon from "@iconify-icons/mdi/check-bold";
 import chevronDoubleDownIcon from "@iconify-icons/mdi/chevron-double-down";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import queueIcon from "@iconify-icons/mdi/queue";
+import packageIcon from "@iconify-icons/mdi/package-variant-closed";
 
 import { App } from "../__Types__/AppStoreApp";
 
@@ -84,7 +90,7 @@ const { themeClasses } = useTheme();
 
 const installationStore = useInstallationStore();
 
-const props = defineProps<{
+defineProps<{
   app: App;
   onInstall: (app: App) => void;
 }>();

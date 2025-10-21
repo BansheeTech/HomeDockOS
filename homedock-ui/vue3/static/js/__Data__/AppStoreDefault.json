@@ -10,7 +10,8 @@
     "icon": "mdi:wan",
     "description": "The lightweight bridge emulator to integrate non-Hue devices with smart home ecosystems like Alexa and Google Assistant seamlessly",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "HABridge"
   },
   {
     "dependencies": [],
@@ -23,7 +24,8 @@
     "icon": "mdi:wan",
     "description": "The comprehensive and lightweight solution for network monitoring, analysis and management on your networks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Watch Your LAN"
   },
   {
     "dependencies": [],
@@ -36,7 +38,8 @@
     "icon": "mdi:message",
     "description": "Secure messaging with control. Decentralized, encrypted, safe to save and also runs on the Raspberry Pi!",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Databag"
   },
   {
     "dependencies": [],
@@ -49,7 +52,8 @@
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
     "is_new": true,
-    "new_until": "2025-10-30"
+    "new_until": "2025-10-30",
+    "display_name": "The Atlas"
   },
   {
     "dependencies": [],
@@ -62,7 +66,8 @@
     "icon": "mdi:music",
     "description": "Modern music server and streamer that gives you freedom to listen to your music collection on any device",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Navidrome"
   },
   {
     "dependencies": [],
@@ -75,7 +80,8 @@
     "icon": "mdi:file-find",
     "description": "Easy-to-use file manager for the web, making remote file management accessible from anywhere",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "File Browser"
   },
   {
     "dependencies": [],
@@ -88,7 +94,8 @@
     "icon": "mdi:file-document",
     "description": "Versatile PDF editor offering a wide range of tools for modifying, creating, and annotating PDF documents",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Stirling PDF"
   },
   {
     "dependencies": [],
@@ -101,7 +108,8 @@
     "icon": "mdi:book",
     "description": "Audiobookshelf is a free and open-source application for managing your whole audiobook library",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Audiobookshelf"
   },
   {
     "dependencies": [],
@@ -114,7 +122,8 @@
     "icon": "mdi:video-box",
     "description": "YouTube downloader that enables saving videos and music in mp3 format directly from YouTube in just a few clicks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MeTube"
   },
   {
     "dependencies": [],
@@ -127,7 +136,8 @@
     "icon": "mdi:arrow-down-bold",
     "description": "Autobrr grabs new torrents matching your defined criteria and sends them to your download client",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "autobrr"
   },
   {
     "dependencies": ["zipline_postgres"],
@@ -140,7 +150,8 @@
     "icon": "mdi:upload",
     "description": "A ShareX/file upload server that is easy to use, packed with awesome features, and with an easy setup!",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Zipline"
   },
   {
     "dependencies": ["redis", "postgres15"],
@@ -153,7 +164,8 @@
     "icon": "mdi:camera",
     "description": "Photos and videos cloud storage solution, securing photos and videos for easy access anywhere",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Immich"
   },
   {
     "dependencies": ["ollama"],
@@ -166,7 +178,8 @@
     "icon": "mdi:robot-excited",
     "description": "Elevate your privacy with Llama2 and Open WebUI, guaranteeing secure and data-protective prompts with AI",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Ollama GPT"
   },
   {
     "dependencies": [],
@@ -179,7 +192,8 @@
     "icon": "mdi:gamepad-round",
     "description": "Enables easily hosting of a Minecraft Bedrock edition server for multiplayer gaming with your friends",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MC Bedrock Server"
   },
   {
     "dependencies": [],
@@ -192,7 +206,8 @@
     "icon": "mdi:gamepad-round",
     "description": "Hosts a server for the popular game Minecraft, allowing players to join a central world for multiplayer gaming",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Minecraft Server"
   },
   {
     "dependencies": [],
@@ -205,7 +220,8 @@
     "icon": "mdi:arrow-decision",
     "description": "NPM is an easy way to manage and configure a NGINX server as a proxy for your favorite web services",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Nginx Proxy Manager"
   },
   {
     "dependencies": [],
@@ -218,7 +234,8 @@
     "icon": "mdi:chart-tree",
     "description": "Diagram software for making flowcharts, process diagrams, org charts, UML, ER diagrams, etc...",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Draw.io"
   },
   {
     "dependencies": [],
@@ -231,7 +248,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "Optimize your downloads with a powerful tool designed for speed and ease, backed by a vast community",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "JDownloader 2"
   },
   {
     "dependencies": [],
@@ -244,7 +262,8 @@
     "icon": "mdi:block-helper",
     "description": "A network-wide ad and tracker blocking application that enhances online privacy and security",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "AdGuard Home Sync"
   },
   {
     "dependencies": [],
@@ -257,7 +276,8 @@
     "icon": "mdi:music",
     "description": "A versatile music streaming server that allows you to access and listen to your music library from anywhere",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Airsonic Advanced"
   },
   {
     "dependencies": [],
@@ -270,7 +290,8 @@
     "icon": "mdi:account",
     "description": "Messaging client that improves communication by consolidating various WhatsApp messaging clients",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Altus"
   },
   {
     "dependencies": [],
@@ -283,7 +304,8 @@
     "icon": "mdi:checkbox-blank-badge-outline",
     "description": "Tool for sending notifications across a wide range of services, simplifying alert management",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Apprise API"
   },
   {
     "dependencies": [],
@@ -296,7 +318,8 @@
     "icon": "mdi:volume-high",
     "description": "Ardour is a free and versatile digital audio workstation for recording, editing, and mixing audio and MIDI",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Ardour"
   },
   {
     "dependencies": [],
@@ -309,7 +332,8 @@
     "icon": "mdi:volume-high",
     "description": "A comprehensive audio editor for recording, editing, and mixing sound files with a multitude of features",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Audacity"
   },
   {
     "dependencies": [],
@@ -322,7 +346,8 @@
     "icon": "mdi:baby-bottle",
     "description": "An application for managing all aspects of childcare, from feeding schedules to diaper changes",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Baby Buddy"
   },
   {
     "dependencies": [],
@@ -335,7 +360,8 @@
     "icon": "mdi:cube-outline",
     "description": "Specialized software for slicing 3D models in preparation for printing, enhancing 3D printing workflows",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Bambu Studio"
   },
   {
     "dependencies": [],
@@ -348,7 +374,8 @@
     "icon": "mdi:subtitles",
     "description": "A subtitle management tool that automatically finds and syncs subtitles for your media collection",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Bazarr"
   },
   {
     "dependencies": [],
@@ -361,7 +388,8 @@
     "icon": "mdi:music",
     "description": "A music library manager designed for organizing, tagging, and searching music collections efficiently",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Beets"
   },
   {
     "dependencies": [],
@@ -374,7 +402,8 @@
     "icon": "mdi:cube-outline",
     "description": "Professional-grade 3D modeling software for creating animated films, visual effects, art, and more",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Blender"
   },
   {
     "dependencies": [],
@@ -387,7 +416,8 @@
     "icon": "mdi:resistor-nodes",
     "description": "Distributed computing platform that supports scientific research by utilizing idle computing resources",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "BOINC"
   },
   {
     "dependencies": [],
@@ -400,7 +430,8 @@
     "icon": "mdi:calendar-check",
     "description": "Task management application that helps organize and prioritize tasks to enhance productivity",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Budge"
   },
   {
     "dependencies": [],
@@ -413,7 +444,8 @@
     "icon": "mdi:book",
     "description": "An e-book management system with extensive features for e-book conversion and syncing locally",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Calibre"
   },
   {
     "dependencies": [],
@@ -426,7 +458,8 @@
     "icon": "mdi:file-document",
     "description": "A comprehensive office suite offering word processing, excel spreadsheets, project planning and much more",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Calligra"
   },
   {
     "dependencies": [],
@@ -439,7 +472,8 @@
     "icon": "mdi:eye",
     "description": "Tool for monitoring changes on web pages, useful for tracking updates without manual checking",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Change Detection"
   },
   {
     "dependencies": [],
@@ -452,7 +486,8 @@
     "icon": "mdi:web",
     "description": "Experience the world wide web safely and swiftly with this web browser designed for stability and speed",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Chromium"
   },
   {
     "dependencies": [],
@@ -465,7 +500,8 @@
     "icon": "mdi:source-branch",
     "description": "Develop anywhere just using a web browser, it makes development more accessible and convenient",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Code Server"
   },
   {
     "dependencies": [],
@@ -478,7 +514,8 @@
     "icon": "mdi:cube-outline",
     "description": "User-friendly 3D printing software for preparing models for printing and managing the printing process",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Cura"
   },
   {
     "dependencies": [],
@@ -491,7 +528,8 @@
     "icon": "mdi:camera",
     "description": "Photo processing app designed for photographers to manage digital negatives and develop raw docker_images",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Darktable"
   },
   {
     "dependencies": [],
@@ -504,7 +542,8 @@
     "icon": "mdi:swap-horizontal",
     "description": "FTP automation tool that streamlines the process of syncing folders by downloading and uploading files",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Davos"
   },
   {
     "dependencies": [],
@@ -517,7 +556,8 @@
     "icon": "mdi:dns",
     "description": "Tool for updating dynamic DNS records, ensuring your domain name points to your current IP address",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "DDClient"
   },
   {
     "dependencies": [],
@@ -530,7 +570,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "Lightweight, free software and cross-platform BitTorrent client with a focus on being fully-featured yet slim",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Deluge"
   },
   {
     "dependencies": [],
@@ -543,7 +584,8 @@
     "icon": "mdi:camera",
     "description": "Photo management app that provides a set of tools for importing, managing, and sharing photos",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "DigiKam"
   },
   {
     "dependencies": [],
@@ -556,7 +598,8 @@
     "icon": "mdi:format-header-pound",
     "description": "Online markdown editor that provides a convenient interface for writing and exporting documents",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Dillinger"
   },
   {
     "dependencies": [],
@@ -569,7 +612,8 @@
     "icon": "mdi:note",
     "description": "Simple to use and highly versatile Open Source wiki software that doesn't require a database to run",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "DokuWiki"
   },
   {
     "dependencies": [],
@@ -582,7 +626,8 @@
     "icon": "mdi:home",
     "description": "Lightweight Home Automation System that allows you to monitor and manage various IOT devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Domoticz"
   },
   {
     "dependencies": [],
@@ -595,7 +640,8 @@
     "icon": "mdi:basket",
     "description": "Media request tool that allows users to easily request new content for their favorite media servers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Doplarr"
   },
   {
     "dependencies": [],
@@ -608,7 +654,8 @@
     "icon": "mdi:file-find",
     "description": "Cross-platform open-source file manager with two panels side by side, inspired by Total Commander",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Double Commander"
   },
   {
     "dependencies": [],
@@ -621,7 +668,8 @@
     "icon": "mdi:dns",
     "description": "Free dynamic DNS service that provides you with a domain name for your device for easy remote access",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "DuckDNS"
   },
   {
     "dependencies": [],
@@ -634,7 +682,8 @@
     "icon": "mdi:backup-restore",
     "description": "Backup tool that securely saves data to different cloud storage providers or any other remote file servers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Duplicati"
   },
   {
     "dependencies": [],
@@ -647,7 +696,8 @@
     "icon": "mdi:video",
     "description": "Media server designed to organize, play, and stream video and audio to a wide variety of devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Emby"
   },
   {
     "dependencies": [],
@@ -660,7 +710,8 @@
     "icon": "mdi:poll",
     "description": "Provides detailed analytics and statistics about your Emby media server, helping understand viewership",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "EmbyStat"
   },
   {
     "dependencies": [],
@@ -673,7 +724,8 @@
     "icon": "mdi:gamepad-round",
     "description": "Browser-based emulator for playing retro games, bringing classic games to modern devices without installation",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "EmulatorJS"
   },
   {
     "dependencies": [],
@@ -686,7 +738,8 @@
     "icon": "mdi:console-line",
     "description": "SSH tarpit that slows down brute-force attacks by trapping attackers in slow interactions, wasting their time",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Endlessh"
   },
   {
     "dependencies": [],
@@ -699,7 +752,8 @@
     "icon": "mdi:security",
     "description": "Intrusion prevention software framework that protects computer servers from brute-force attacks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Fail2ban"
   },
   {
     "dependencies": [],
@@ -712,7 +766,8 @@
     "icon": "mdi:account",
     "description": "Messaging aggregator that unifies multiple messaging services into a single application for convenience",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Ferdium"
   },
   {
     "dependencies": [],
@@ -725,7 +780,8 @@
     "icon": "mdi:swap-horizontal",
     "description": "Fast and reliable cross-platform FTP, FTPS, and SFTP client with lots of useful features and an intuitive GUI",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "FileZilla"
   },
   {
     "dependencies": [],
@@ -738,7 +794,8 @@
     "icon": "mdi:web",
     "description": "Popular and fast web browser with strong privacy features and a commitment to open web standards",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Firefox"
   },
   {
     "dependencies": [],
@@ -751,7 +808,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "Automated downloader for torrents, podcasts, and more, capable of being configured to suit any needs",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "FlexGet"
   },
   {
     "dependencies": [],
@@ -764,7 +822,8 @@
     "icon": "mdi:resistor-nodes",
     "description": "Project focused on disease research simulating different proteins folding and computational drug design",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Folding@Home"
   },
   {
     "dependencies": [],
@@ -777,7 +836,8 @@
     "icon": "mdi:file-cad-box",
     "description": "Parametric 3D CAD modeler suitable for designing real-life objects of any size, with robust modeling tools",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "FreeCAD"
   },
   {
     "dependencies": [],
@@ -790,7 +850,8 @@
     "icon": "mdi:play-box",
     "description": "Ditch the bored ads and data-tracking and embrace a privacy-focused YouTube with FreeTube",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "FreeTube"
   },
   {
     "dependencies": [],
@@ -803,7 +864,8 @@
     "icon": "mdi:rss",
     "description": "Stay updated with your favorite websites through an RSS feed aggregator enjoying offline reading",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "FreshRSS"
   },
   {
     "dependencies": [],
@@ -816,7 +878,8 @@
     "icon": "mdi:image",
     "description": "Open-source image editor for tasks such as photo retouching, image composition, and image authoring",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "GIMP"
   },
   {
     "dependencies": [],
@@ -829,7 +892,8 @@
     "icon": "mdi:code-braces",
     "description": "A seamless way to contribute to projects on GitHub, simplifying the process of cloning and developing",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "GitHub Desktop"
   },
   {
     "dependencies": [],
@@ -842,7 +906,8 @@
     "icon": "mdi:code-braces",
     "description": "Multi-platform Git client with a focus on simplicity and efficiency for managing git repositories",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "GitQlient"
   },
   {
     "dependencies": [],
@@ -855,7 +920,8 @@
     "icon": "mdi:web",
     "description": "Modern open-source flat-file CMS focused on speed and simplicity, without the need for a database",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Grav"
   },
   {
     "dependencies": [],
@@ -868,7 +934,8 @@
     "icon": "mdi:silverware-fork-knife",
     "description": "Optimize groceries and household management to reduce waste and save money with this home solution",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Grocy"
   },
   {
     "dependencies": [],
@@ -881,7 +948,8 @@
     "icon": "mdi:music",
     "description": "Automated music downloader and Torrent, designed for music, allowing downloads from various sources",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Headphones"
   },
   {
     "dependencies": [],
@@ -894,7 +962,8 @@
     "icon": "mdi:dog",
     "description": "Monitoring service for cron jobs and background services, sending alerts if something goes wrong",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Healthchecks"
   },
   {
     "dependencies": [],
@@ -907,7 +976,8 @@
     "icon": "mdi:pencil",
     "description": "Collaborative markdown editor that lets you write notes with others in real-time, focusing on collaboration",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "HedgeDoc"
   },
   {
     "dependencies": [],
@@ -920,7 +990,8 @@
     "icon": "mdi:view-dashboard",
     "description": "Docker containers dashboard that consolidates links to your applications in a convenient single place",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Heimdall"
   },
   {
     "dependencies": [],
@@ -933,7 +1004,8 @@
     "icon": "mdi:console-line",
     "description": "Tool for tracking and sharing shell command history, enhancing collaboration and record-keeping",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Hishtory Server"
   },
   {
     "dependencies": [],
@@ -946,7 +1018,8 @@
     "icon": "mdi:home",
     "description": "Python based home automation platform which integrates a multitude of smart home devices compatibility",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Home Assistant"
   },
   {
     "dependencies": [],
@@ -959,7 +1032,8 @@
     "icon": "mdi:eye",
     "description": "Application for managing various media servers and software at once, providing a unified interface",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "HTPC Manager"
   },
   {
     "dependencies": [],
@@ -972,7 +1046,8 @@
     "icon": "mdi:vector-intersection",
     "description": "Professional vector graphics editor for creating illustrations, icons, logos, diagrams, maps, and web graphics",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Inkscape"
   },
   {
     "dependencies": [],
@@ -985,7 +1060,8 @@
     "icon": "mdi:arrow-decision",
     "description": "Proxy server that integrates with your favorite torrent clients and makes it easier to find torrent files",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Jackett"
   },
   {
     "dependencies": ["jellystat_postgres"],
@@ -998,7 +1074,8 @@
     "icon": "mdi:arrow-decision",
     "description": "Monitoring tool for Jellyfin Server, providing user insights, analytics, play counts and server activity insights",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Jellystat"
   },
   {
     "dependencies": [],
@@ -1011,7 +1088,8 @@
     "icon": "mdi:video",
     "description": "Turn your media into a personal streaming hub, easily shared and managed across all your devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Jellyfin"
   },
   {
     "dependencies": [],
@@ -1024,7 +1102,8 @@
     "icon": "mdi:laptop",
     "description": "Virtual desktop that provides a secure and disposable browsing experience and desktop streaming",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Kasm"
   },
   {
     "dependencies": [],
@@ -1037,7 +1116,8 @@
     "icon": "mdi:book",
     "description": "Digital library server for comics, novels, manga, providing an easy way to read and share digital books",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Kavita"
   },
   {
     "dependencies": [],
@@ -1050,7 +1130,8 @@
     "icon": "mdi:video",
     "description": "Non-linear video editor, providing an intuitive and powerful interface for creating professional-quality videos",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Kdenlive"
   },
   {
     "dependencies": [],
@@ -1063,7 +1144,8 @@
     "icon": "mdi:lock",
     "description": "Take control of your passwords and safeguard your online presence with this free and reliable tool",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "KeePassXC"
   },
   {
     "dependencies": [],
@@ -1076,7 +1158,8 @@
     "icon": "mdi:file-cad-box",
     "description": "EDA software suite for creating professional schematics and printed circuit boards up to 16 layers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "KiCad"
   },
   {
     "dependencies": ["kimai_mariadb"],
@@ -1089,7 +1172,8 @@
     "icon": "mdi:clock-time-four",
     "description": "Time tracker that provides clear and focused insight into your project time spent for freelancers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Kimai"
   },
   {
     "dependencies": [],
@@ -1102,7 +1186,8 @@
     "icon": "mdi:palette-outline",
     "description": "Professional painting program, made by artists that want to see affordable art tools for everyone",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Krita"
   },
   {
     "dependencies": [],
@@ -1115,7 +1200,8 @@
     "icon": "mdi:book",
     "description": "Automated downloader for ebooks and audiobooks, which grabs new books based on your preferences",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "LazyLibrarian"
   },
   {
     "dependencies": [],
@@ -1128,7 +1214,8 @@
     "icon": "mdi:lock",
     "description": "Lightweight LDAP authentication server which provides a safe bridge for authentication services",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "LDAP Auth"
   },
   {
     "dependencies": [],
@@ -1141,7 +1228,8 @@
     "icon": "mdi:file-document",
     "description": "Powerful office suite with a clean interface and feature-rich tools that help you unleash your creativity",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "LibreOffice"
   },
   {
     "dependencies": [],
@@ -1154,7 +1242,8 @@
     "icon": "mdi:speedometer",
     "description": "Private speed tests to measure your internet bandwidth, keeping your data secure from third-party sharing",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "LibreSpeed"
   },
   {
     "dependencies": [],
@@ -1167,7 +1256,8 @@
     "icon": "mdi:web",
     "description": "The privacy-focused web browser that empowers you to take control of your online experience",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "LibreWolf"
   },
   {
     "dependencies": [],
@@ -1180,7 +1270,8 @@
     "icon": "mdi:music",
     "description": "Music collection manager designed to automate the finding, downloading, and cataloging of music tracks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Lidarr"
   },
   {
     "dependencies": [],
@@ -1193,7 +1284,8 @@
     "icon": "mdi:music",
     "description": "Modern music player, focusing on simplicity and an intuitive interface to make music listening a pleasure",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Lollypop"
   },
   {
     "dependencies": ["lychee_mariadb"],
@@ -1206,7 +1298,8 @@
     "icon": "mdi:camera",
     "description": "Elevate your photo collection with an intuitive platform for uploading, organizing, and sharing images",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Lychee"
   },
   {
     "dependencies": [],
@@ -1219,7 +1312,8 @@
     "icon": "mdi:database",
     "description": "A relational database enhancing MySQL compatibility with superior performance for data management",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MariaDB"
   },
   {
     "dependencies": [],
@@ -1232,7 +1326,8 @@
     "icon": "mdi:account",
     "description": "Discover a world of social freedom, decentralized, private, and controlled by no one. Your space, your rules",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Mastodon"
   },
   {
     "dependencies": [],
@@ -1245,7 +1340,8 @@
     "icon": "mdi:video",
     "description": "Media organizer for movies, TV shows, concerts, and music, compatible with Kodi, Emby, and Plex",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MediaElch"
   },
   {
     "dependencies": [],
@@ -1258,7 +1354,8 @@
     "icon": "mdi:video",
     "description": "Streamline your TV show collection with an automated manager that tracks and downloads new episodes",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Medusa"
   },
   {
     "dependencies": [],
@@ -1271,7 +1368,8 @@
     "icon": "mdi:gamepad-round",
     "description": "A Minecraft inspire voxel game engine server for creative modding and game creation in a sandbox",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Minetest"
   },
   {
     "dependencies": [],
@@ -1284,7 +1382,8 @@
     "icon": "mdi:television",
     "description": "Multi-stream DVB to IP that allows streaming of TV content over a network to different and various devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Minisatip"
   },
   {
     "dependencies": [],
@@ -1297,7 +1396,8 @@
     "icon": "mdi:earth",
     "description": "Elevate your web browsing with a fast, secure, and feature-packed Chromium-powered browser",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Microsoft Edge"
   },
   {
     "dependencies": [],
@@ -1310,7 +1410,8 @@
     "icon": "mdi:music",
     "description": "Enjoy your music collection anywhere with the ultimate platform that streams to multiple devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "mStream"
   },
   {
     "dependencies": [],
@@ -1323,7 +1424,8 @@
     "icon": "mdi:web",
     "description": "Isolated browser focused on privacy and security, integrating Mullvad VPN to protect user data",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Mullvad Browser"
   },
   {
     "dependencies": [],
@@ -1336,7 +1438,8 @@
     "icon": "mdi:thought-bubble-outline",
     "description": "Comic and manga book management tool that automates downloading and organizing comic books",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Mylar3"
   },
   {
     "dependencies": [],
@@ -1349,7 +1452,8 @@
     "icon": "mdi:database",
     "description": "Unified visual tool for database architects, developers, and DBAs to manage MySQL databases",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MySQL Workbench"
   },
   {
     "dependencies": [],
@@ -1362,7 +1466,8 @@
     "icon": "mdi:robot",
     "description": "Workflow automation tool that enables you to connect your favorite apps, services, and devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "n8n"
   },
   {
     "dependencies": [],
@@ -1375,7 +1480,8 @@
     "icon": "mdi:network-strength-2",
     "description": "Network boot loader that provides a friendly interface for remotely installing an OS over the network",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "NetbootXYZ"
   },
   {
     "dependencies": [],
@@ -1388,7 +1494,8 @@
     "icon": "mdi:apple-keyboard-command",
     "description": "Manage all your computer networks safe and efficiently, ensuring they stay organized and up-to-date",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "NetBox"
   },
   {
     "dependencies": [],
@@ -1401,7 +1508,8 @@
     "icon": "mdi:cloud",
     "description": "Suite of client-server software for creating and using file hosting services, including file sharing and hosting",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Nextcloud"
   },
   {
     "dependencies": [],
@@ -1414,7 +1522,8 @@
     "icon": "mdi:server",
     "description": "Enhance web serving with a fast, stable, safe and easily configured HTTP/reverse proxy server",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "NGINX"
   },
   {
     "dependencies": [],
@@ -1427,7 +1536,8 @@
     "icon": "mdi:account",
     "description": "Lightweight and easy to configure IRC server software, designed for small or private networks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "ngIRCd"
   },
   {
     "dependencies": [],
@@ -1440,7 +1550,8 @@
     "icon": "mdi:note",
     "description": "Write everything and unleash your inner genius with a powerful, customizable note-taking app on the cloud",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Obsidian"
   },
   {
     "dependencies": [],
@@ -1453,7 +1564,8 @@
     "icon": "mdi:basket",
     "description": "Content request system for Plex, allowing friends and users to request movies, TV shows, and more",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Ombi"
   },
   {
     "dependencies": [],
@@ -1466,7 +1578,8 @@
     "icon": "mdi:console-line",
     "description": "Provides secure shell access to a server, allowing for secure remote logins over the internet",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "OpenSSH Server"
   },
   {
     "dependencies": [],
@@ -1479,7 +1592,8 @@
     "icon": "mdi:source-branch",
     "description": "Offers the capabilities of Visual Studio Code as a web-based service, enabling code editing from anywhere",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "OpenVSCode Server"
   },
   {
     "dependencies": [],
@@ -1492,7 +1606,8 @@
     "icon": "mdi:web",
     "description": "Fast and secure web browser with built-in ad blocker, free secure VPN, and personalized news",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Opera"
   },
   {
     "dependencies": [],
@@ -1505,7 +1620,8 @@
     "icon": "mdi:cube-outline",
     "description": "3D printing software that prepares 3D models for printing and slicing, optimizing the printing process",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "OrcaSlicer"
   },
   {
     "dependencies": [],
@@ -1518,7 +1634,8 @@
     "icon": "mdi:antenna",
     "description": "Software used for unlocking locked content on a receiver by emulating a conditional access module card",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "OSCam"
   },
   {
     "dependencies": [],
@@ -1531,7 +1648,8 @@
     "icon": "mdi:basket",
     "description": "Request management and media discovery tool for Plex, allowing users to find and request new content easily",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Overseerr"
   },
   {
     "dependencies": [],
@@ -1544,7 +1662,8 @@
     "icon": "mdi:share-variant",
     "description": "Simple and secure file sharing tool, making it easy to send files between devices without complex setups",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "PairDrop"
   },
   {
     "dependencies": [],
@@ -1557,7 +1676,8 @@
     "icon": "mdi:database",
     "description": "Free software tool written in PHP, intended to handle the administration of MySQL over the Web",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "phpMyAdmin"
   },
   {
     "dependencies": [],
@@ -1570,7 +1690,8 @@
     "icon": "mdi:account",
     "description": "Universal chat client, allowing you to consolidate multiple chat protocols into a single interface",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Pidgin"
   },
   {
     "dependencies": [],
@@ -1583,7 +1704,8 @@
     "icon": "mdi:camera",
     "description": "Photo gallery software for the web, built by an active community of users and awesome developers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Piwigo"
   },
   {
     "dependencies": [],
@@ -1596,7 +1718,8 @@
     "icon": "mdi:video",
     "description": "Streaming software that organizes video and more from online services enabling access from any device",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Plex"
   },
   {
     "dependencies": [],
@@ -1609,7 +1732,8 @@
     "icon": "mdi:currency-usd",
     "description": "Enhance your workflow and customer relations with a platform designed for secure file and project sharing",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "ProjectSend"
   },
   {
     "dependencies": [],
@@ -1622,7 +1746,8 @@
     "icon": "mdi:arrow-decision",
     "description": "Indexer manager for Usenet and torrents, integrating with popular download clients for automation",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Prowlarr"
   },
   {
     "dependencies": [],
@@ -1635,7 +1760,8 @@
     "icon": "mdi:share-variant",
     "description": "Self-deployable file hosting service for sending files anonymously, prioritizing privacy and ease of use",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "pwndrop"
   },
   {
     "dependencies": [],
@@ -1648,7 +1774,8 @@
     "icon": "mdi:share-variant",
     "description": "Offers a scalable file sharing solution that meets the collaboration needs of teams and enterprises",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Pydio Cells"
   },
   {
     "dependencies": [],
@@ -1661,7 +1788,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "Download manager for fetching and managing downloads from different services, optimizing the downloads",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "PyLoad NG"
   },
   {
     "dependencies": [],
@@ -1674,7 +1802,8 @@
     "icon": "mdi:source-branch",
     "description": "Streamline coding with a sleek editor that supports a wide number of languages and frameworks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Pylon"
   },
   {
     "dependencies": [],
@@ -1687,7 +1816,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "An awesome BitTorrent client with a legendary user interface and an integrated search engine to find torrents",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "qBittorrent"
   },
   {
     "dependencies": [],
@@ -1700,7 +1830,8 @@
     "icon": "mdi:harddisk",
     "description": "Graphical disk usage utility that makes you able to visualizes the disk space usage of all your storage systems",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "QDirStat"
   },
   {
     "dependencies": [],
@@ -1713,7 +1844,8 @@
     "icon": "mdi:movie-open",
     "description": "Automatically manage and download movies via Usenet and BitTorrent, following the user’s defined criteria",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Radarr"
   },
   {
     "dependencies": [],
@@ -1726,7 +1858,8 @@
     "icon": "mdi:note",
     "description": "A platform for creating detailed knowledge bases with static Markdown files powering the content",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Raneto"
   },
   {
     "dependencies": [],
@@ -1739,7 +1872,8 @@
     "icon": "mdi:book",
     "description": "eBook download manager that automates the downloading of your digital book collection automatically",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Readarr"
   },
   {
     "dependencies": [],
@@ -1752,7 +1886,8 @@
     "icon": "mdi:laptop",
     "description": "Remote desktop client written in GTK, supporting multiple protocols in a consistent user interface",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Remmina"
   },
   {
     "dependencies": [],
@@ -1765,7 +1900,8 @@
     "icon": "mdi:sync",
     "description": "Fast, reliable, and simple file sync and share solution, powered by P2P technology between devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Resilio Sync"
   },
   {
     "dependencies": [],
@@ -1778,7 +1914,8 @@
     "icon": "mdi:backup-restore",
     "description": "Snapshot utility for backups of local and remote systems, using rsync and hard links to minimize storage",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "rsnapshot"
   },
   {
     "dependencies": [],
@@ -1791,7 +1928,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "Automate Usenet downloads with a binary newsreader for better and effortless file retrieval",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SABnzbd"
   },
   {
     "dependencies": [],
@@ -1804,7 +1942,8 @@
     "icon": "mdi:television",
     "description": "TV series manager that tracks TV show episodes, ensuring you’re up-to-date with your favorite series",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Series Troxide"
   },
   {
     "dependencies": [],
@@ -1817,7 +1956,8 @@
     "icon": "mdi:video-plus",
     "description": "Unleash your creativity with a versatile video editor, built for everyone from beginners to professionals",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Shotcut"
   },
   {
     "dependencies": [],
@@ -1830,7 +1970,8 @@
     "icon": "mdi:television",
     "description": "Automatic Video Library Manager for TV shows. Grabs, sorts, and renames new episodes automatically",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SickChill"
   },
   {
     "dependencies": [],
@@ -1843,7 +1984,8 @@
     "icon": "mdi:television",
     "description": "Provides management of TV shows and automatically processes them as they become available",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SickGear"
   },
   {
     "dependencies": [],
@@ -1856,7 +1998,8 @@
     "icon": "mdi:eye",
     "description": "Keeps track of your network latency, providing a detailed visualization of your network performance insights",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SmokePing"
   },
   {
     "dependencies": [],
@@ -1869,7 +2012,8 @@
     "icon": "mdi:share-variant",
     "description": "File-sharing tool inspired by Apple's AirDrop, facilitating quick and easy file transfers between devices",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Snapdrop"
   },
   {
     "dependencies": [],
@@ -1882,7 +2026,8 @@
     "icon": "mdi:application-outline",
     "description": "Asset management system that helps you manage assets, licenses, accessories and components",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Snipe-IT"
   },
   {
     "dependencies": [],
@@ -1895,7 +2040,8 @@
     "icon": "mdi:television",
     "description": "Sonarr is a BitTorrent PVR, auto-manages and download TV show episodes from different RSS feeds",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Sonarr"
   },
   {
     "dependencies": [],
@@ -1908,7 +2054,8 @@
     "icon": "mdi:poll",
     "description": "It's time to effortlessly start tracking and analyzing the performance of your internet provider",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Speedtest Tracker"
   },
   {
     "dependencies": [],
@@ -1921,7 +2068,8 @@
     "icon": "mdi:music",
     "description": "Craft your perfect playlist and listen to everything with diverse audio sources beyond Spotify Premium",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Spotube"
   },
   {
     "dependencies": [],
@@ -1934,7 +2082,8 @@
     "icon": "mdi:database",
     "description": "A high-quality, visual tool to create, modify, design, and edit database files compatible with SQLite",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SQLite Browser"
   },
   {
     "dependencies": [],
@@ -1947,7 +2096,8 @@
     "icon": "mdi:gamepad-round",
     "description": "Linux-based OS designed for the Steam Machine gaming console platform, optimizing gaming",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SteamOS"
   },
   {
     "dependencies": [],
@@ -1960,7 +2110,8 @@
     "icon": "mdi:server",
     "description": "Simplifies the process of setting up an NGINX web server with Let's Encrypt certificate management",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SWAG"
   },
   {
     "dependencies": [],
@@ -1973,7 +2124,8 @@
     "icon": "mdi:video",
     "description": "Tool for watching Plex content with friends together online, syncing playback across multiple users",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "SyncLounge"
   },
   {
     "dependencies": [],
@@ -1986,7 +2138,8 @@
     "icon": "mdi:sync",
     "description": "Continuous file synchronization program that synchronizes files between computers in real-time",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Syncthing"
   },
   {
     "dependencies": [],
@@ -1999,7 +2152,8 @@
     "icon": "mdi:sine-wave",
     "description": "Flexible log management solution that captures, classifies, and stores log messages from your infrastructure",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Syslog-NG"
   },
   {
     "dependencies": [],
@@ -2012,7 +2166,8 @@
     "icon": "mdi:eye",
     "description": "Monitoring tool for Plex Media Server, providing user insights, analytics, play counts and server activity insights",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Tautulli"
   },
   {
     "dependencies": [],
@@ -2025,7 +2180,8 @@
     "icon": "mdi:account",
     "description": "IRC client focused on simplicity and privacy, providing an easy and secure way to connect to IRC networks",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "The Lounge"
   },
   {
     "dependencies": [],
@@ -2038,7 +2194,8 @@
     "icon": "mdi:arrow-down-thick",
     "description": "BitTorrent client with a simple and almost-magical interface, focusing on low resource usage and simplicity",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Transmission"
   },
   {
     "dependencies": [],
@@ -2051,7 +2208,8 @@
     "icon": "mdi:television",
     "description": "TV streaming server and recorder for Linux, supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, IPTV...",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "TVHeadend"
   },
   {
     "dependencies": [],
@@ -2064,7 +2222,8 @@
     "icon": "mdi:book",
     "description": "Access your comics and ebooks easily creating an awesome server that centralizes your digital library",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Ubooquity"
   },
   {
     "dependencies": [],
@@ -2077,7 +2236,8 @@
     "icon": "mdi:source-branch",
     "description": "Experience a privacy-focused code editor, offering all the power you expect without compromising you",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "VSCodium"
   },
   {
     "dependencies": [],
@@ -2090,7 +2250,8 @@
     "icon": "mdi:account",
     "description": "Discord client offering an alternative to the official client with a focus on privacy and efficiency",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WebCord"
   },
   {
     "dependencies": [],
@@ -2103,7 +2264,8 @@
     "icon": "mdi:text-long",
     "description": "Multi-site incremental XMLTV EPG grabber, which grabs internet TV guides in multiple languages",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WebGrab+Plus"
   },
   {
     "dependencies": [],
@@ -2116,7 +2278,8 @@
     "icon": "mdi:laptop",
     "description": "Virtual desktop environment designed to deliver desktop-as-a-service for remote work scenarios",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Webtop"
   },
   {
     "dependencies": [],
@@ -2129,7 +2292,8 @@
     "icon": "mdi:note",
     "description": "Powerful wiki app built on Node.js, featuring a beautiful and intuitive UI, built for speed and performance",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Wiki.js"
   },
   {
     "dependencies": [],
@@ -2142,7 +2306,8 @@
     "icon": "mdi:key",
     "description": "Modern VPN that utilizes state-of-the-art cryptography, aiming to be faster, simpler, and leaner than IPSec",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WireGuard"
   },
   {
     "dependencies": [],
@@ -2155,7 +2320,8 @@
     "icon": "mdi:network-strength-2",
     "description": "Network protocol analyzer used for network troubleshooting, analysis and communications development",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Wireshark"
   },
   {
     "dependencies": [],
@@ -2168,7 +2334,8 @@
     "icon": "mdi:file-document",
     "description": "Microsoft Office compatible office suite that provides a complete solution for office productivity",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WPS Office"
   },
   {
     "dependencies": [],
@@ -2181,7 +2348,8 @@
     "icon": "mdi:cloud",
     "description": "File hosting software with support for file sharing, allowing you to upload via web interface and WebDAV",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "XBackbone"
   },
   {
     "dependencies": [],
@@ -2194,7 +2362,8 @@
     "icon": "mdi:account",
     "description": "IRC bouncer that allows you to stay connected to your IRC channels, maintaining your presence",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "ZNC"
   },
   {
     "dependencies": [],
@@ -2207,7 +2376,8 @@
     "icon": "mdi:share-variant",
     "description": "A minimalist and privacy-focused file sharing tool, enabling quick and easy file transfers without tracking",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "PicoShare"
   },
   {
     "dependencies": [],
@@ -2220,7 +2390,8 @@
     "icon": "mdi:eye",
     "description": "Offers real-time health monitoring and performance analytics for systems and applications",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Netdata"
   },
   {
     "dependencies": ["owncloud_mariadb", "owncloud_redis"],
@@ -2233,7 +2404,8 @@
     "icon": "mdi:cloud",
     "description": "File sync sharing software designed to let you store your data providing a flexible cloud storage solution",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "ownCloud"
   },
   {
     "dependencies": [],
@@ -2246,7 +2418,8 @@
     "icon": "mdi:block-helper",
     "description": "Advertisement and internet tracker blocking application that acts as a DNS sinkhole, improving privacy",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Pi-hole"
   },
   {
     "dependencies": [],
@@ -2259,7 +2432,8 @@
     "icon": "mdi:dots-grid",
     "description": "Simplifies container management in Docker, Swarm and more by providing a detailed overview",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Portainer"
   },
   {
     "dependencies": [],
@@ -2272,7 +2446,8 @@
     "icon": "mdi:currency-usd",
     "description": "Track your investments, analyze performance, all while keeping your financial data secure and private",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Rotki"
   },
   {
     "dependencies": [],
@@ -2285,7 +2460,8 @@
     "icon": "mdi:key",
     "description": "Alternative implementation of the Bitwarden server API written in Rust, focusing on ease of use and privacy",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Vaultwarden"
   },
   {
     "dependencies": ["wordpress_mariadb"],
@@ -2298,7 +2474,8 @@
     "icon": "mdi:web",
     "description": "The most popular open-source CMS, used for creating websites and blogs with a vast ecosystem of plugins",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WordPress"
   },
   {
     "dependencies": [],
@@ -2311,7 +2488,8 @@
     "icon": "mdi:wan",
     "description": "A tool to monitor your services, websites, and servers in real time with alerts, history, and a self-hosted visual dashboard",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Uptime Kuma"
   },
   {
     "dependencies": [],
@@ -2324,7 +2502,8 @@
     "icon": "mdi:wan",
     "description": "An all-in-one collection of web tools for developers, engineers, and IT enthusiasts, accessible from a single place",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "IT Tools"
   },
   {
     "dependencies": [],
@@ -2337,7 +2516,8 @@
     "icon": "mdi:wan",
     "description": "A modern web interface to request, manage, and track movie and TV show requests on Jellyfin, Plex or Emby servers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Jellyseerr"
   },
   {
     "dependencies": [],
@@ -2350,7 +2530,8 @@
     "icon": "mdi:wan",
     "description": "Storage and inventory tool to organize items with tags, photos, locations, and printable QR codes for easy tracking and access",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Homebox"
   },
   {
     "dependencies": [],
@@ -2363,7 +2544,8 @@
     "icon": "mdi:wan",
     "description": "A self-hosted file conversion tool that transforms documents between formats via a simple web interface",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "MorphOS"
   },
   {
     "dependencies": [],
@@ -2376,7 +2558,8 @@
     "icon": "mdi:wan",
     "description": "Analyzes websites in depth, extracting detailed information like technologies used, meta tags, headers, links, DNS records, and other technical data",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Web Check"
   },
   {
     "dependencies": [],
@@ -2389,7 +2572,8 @@
     "icon": "mdi:wan",
     "description": "Self-hosted app to visually create, edit, and manage Docker Compose YAML files easily, perfect for organizing and deploying containers",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Compose Toolbox"
   },
   {
     "dependencies": [],
@@ -2402,7 +2586,8 @@
     "icon": "mdi:wan",
     "description": "Simple self-hosted WireGuard VPN manager with a web UI for easy configuration, user management, and QR code access",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "WireGuard Easy"
   },
   {
     "dependencies": [],
@@ -2415,7 +2600,8 @@
     "icon": "mdi:wan",
     "description": "Downtify is a self-hosted tool to download Spotify songs and playlists, converting them to MP3 with metadata and cover art",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Downtify"
   },
   {
     "dependencies": [],
@@ -2428,7 +2614,8 @@
     "icon": "mdi:wan",
     "description": "Homebridge enables non-HomeKit smart devices to work with Apple HomeKit, allowing Siri and Home app control via plugins",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Homebridge"
   },
   {
     "dependencies": ["booklore_mariadb"],
@@ -2441,6 +2628,7 @@
     "icon": "mdi:camera",
     "description": "App for managing, reading, and organizing books, supporting PDFs, eBooks, metadata, and reading progress",
     "is_new": false,
-    "new_until": false
+    "new_until": false,
+    "display_name": "Booklore"
   }
 ]

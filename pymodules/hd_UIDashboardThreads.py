@@ -14,6 +14,7 @@ from threading import Thread
 from pymodules.hd_FunctionsMain import get_total_containers, get_active_containers
 from pymodules.hd_FunctionsMain import actual_uptime, get_server_uptime
 from pymodules.hd_FunctionsMain import get_active_network_interface
+from pymodules.hd_FunctionsMain import get_total_disk
 
 from pymodules.hd_LogCPUTemp import get_cpu_temp
 from pymodules.hd_LogCPUUsage import get_cpu_usage
@@ -48,7 +49,7 @@ def homedock_ram_usage():
 
 @login_required
 def homedock_disk_usage():
-    return jsonify(disk_usage=get_disk_usage())
+    return jsonify(disk_usage=get_disk_usage(), disk_total=get_total_disk())
 
 
 @login_required

@@ -10,7 +10,7 @@
 
       <div class="flex flex-col justify-center overflow-hidden">
         <h3 :class="[themeClasses.hubCardTextAppName]" class="font-semibold text-xs truncate">
-          {{ app.name }}
+          {{ app.display_name || app.name }}
         </h3>
         <h4 :class="[themeClasses.hubCardTextRepo]" class="font-normal text-xs truncate ellipsis">
           {{ app.image }}
@@ -77,7 +77,7 @@ const props = defineProps({
 });
 
 const fallbackIcon = "docker-icons/notfound.jpg";
-const appIcon = props.app.name ? `docker-icons/${props.app.name}.jpg` : fallbackIcon;
+const appIcon = props.app.image_path || fallbackIcon;
 const fileList = ref([]);
 
 const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
@@ -88,7 +88,7 @@ const windowStore = useWindowStore();
 
 const showEditModal = (containerName: string) => {
   windowStore.openWindow("edit", {
-    title: `${containerName} - Edit Config`,
+    title: `${props.app.display_name || containerName} - Edit Config`,
     data: { appName: containerName },
     allowMultiple: true,
   });
@@ -96,7 +96,7 @@ const showEditModal = (containerName: string) => {
 
 const showLogsModal = (containerName: string) => {
   windowStore.openWindow("logs", {
-    title: `${containerName} - Logs`,
+    title: `${props.app.display_name || containerName} - Logs`,
     data: { appName: containerName },
     allowMultiple: true,
   });
@@ -155,7 +155,7 @@ const handleCustomRequest = async ({ file, onSuccess, onError }: any) => {
     if (response.ok) {
       const data = await response.json();
       onSuccess(data, file);
-      message.success(`${file.name} uploaded succesfully for ${props.app.name} application.`);
+      message.success(`${file.name} uploaded succesfully for ${props.app.display_name || props.app.name} application.`);
     } else {
       throw new Error("Upload failed");
     }

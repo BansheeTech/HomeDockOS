@@ -57,8 +57,9 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/shieldmode", "shieldmode", shieldmode)
 
-    from pymodules.hd_UIFileDelivery import send_static_images, send_static_favicon, send_static_audio, send_src_static, send_src_dist
+    from pymodules.hd_UIFileDelivery import send_static_images, send_static_favicon, send_static_audio, send_user_images, send_src_static, send_src_dist
 
+    homedock_www.add_url_rule("/images/user-images/<path:path>", "send_user_images", send_user_images)
     homedock_www.add_url_rule("/images/<path:path>", "send_static_images", send_static_images)
     homedock_www.add_url_rule("/favicon/<path:path>", "send_static_favicon", send_static_favicon)
     homedock_www.add_url_rule("/audio/<path:path>", "send_static_audio", send_static_audio)
@@ -166,3 +167,15 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/pull_and_update_containers", "pull_and_update_containers", CSRF_Protect(pull_and_update_containers), methods=["POST"])
     homedock_www.add_url_rule("/api/check_new_images", "check_new_images", CSRF_Protect(check_new_images), methods=["POST"])
+
+    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose
+
+    homedock_www.add_url_rule("/api/pkg/list", "list_external_apps", CSRF_Protect(list_external_apps), methods=["GET"])
+    homedock_www.add_url_rule("/api/pkg/upload", "upload_hds_package", CSRF_Protect(upload_hds_package), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/install", "install_hds_app", CSRF_Protect(install_hds_app), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/delete", "delete_external_app", CSRF_Protect(delete_external_app), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/create", "create_hds_from_files", CSRF_Protect(create_hds_from_files), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/imported", "list_imported_apps", CSRF_Protect(list_imported_apps), methods=["GET"])
+    homedock_www.add_url_rule("/api/pkg/export-imported", "export_imported_app", CSRF_Protect(export_imported_app), methods=["GET"])
+    homedock_www.add_url_rule("/api/pkg/external-apps", "get_external_apps_for_store", CSRF_Protect(get_external_apps_for_store), methods=["GET"])
+    homedock_www.add_url_rule("/api/pkg/parse-compose", "parse_compose", CSRF_Protect(parse_compose), methods=["POST"])

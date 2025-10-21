@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="fixed top-0 left-0 right-0 bottom-0 z-[2000] flex items-end justify-center pb-[58px] md:pb-[62px] max-md:bottom-14 max-md:pb-0" :class="desktopStore.startMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'" @click="handleWrapperClick">
+  <div class="fixed top-0 left-0 right-0 bottom-0 z-[2000] flex items-end justify-center pb-[58px] md:pb-[62px] max-md:bottom-14 max-md:pb-0" :class="desktopStore.startMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'" @click="handleWrapperClick" @contextmenu="handleWrapperContextMenu">
     <Transition name="start-menu">
       <div v-show="desktopStore.startMenuOpen" class="rounded-xl w-[600px] max-h-[700px] flex flex-col overflow-hidden pointer-events-auto" :class="[themeClasses.startMenuPanelBg, themeClasses.startMenuPanelBorder, themeClasses.startMenuPanelShadow, { 'start-menu-fullscreen': isMobile }]">
         <div class="p-3 max-md:!p-3 max-md:!px-4 max-md:!pt-4" :class="themeClasses.startMenuSectionBg">
@@ -32,35 +32,32 @@
           </div>
         </div>
 
-        <div class="flex-shrink-0 px-6 py-2 pt-4 max-md:!px-4 max-md:!py-2 md:overflow-y-auto max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
+        <div class="flex-shrink-0 px-6 py-2 pt-4 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
           <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">System Applications</h3>
-          <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-            <div v-for="app in filteredSystemApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
-              <div class="app-icon" :class="themeClasses.startMenuAppIconBg">
-                <Icon v-if="app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
-                <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
+          <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
+            <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
+              <div v-for="app in filteredSystemApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+                <div class="app-icon" :class="themeClasses.startMenuAppIconBg">
+                  <Icon v-if="app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
+                  <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
+                </div>
+                <span class="text-xs text-center w-full overflow-hidden whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
               </div>
-              <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
             </div>
           </div>
         </div>
 
-        <div v-if="filteredInstalledApps.length > 0" class="flex-shrink-0 px-6 py-2 max-md:!px-4 max-md:!py-2 md:overflow-y-auto max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 max-md:!text-xs" :class="themeClasses.startMenuSectionTitle">Installed Applications</h3>
-            <span v-if="hasMoreInstalledApps" class="inline-flex items-center gap-1 text-xs font-medium cursor-pointer transition-all whitespace-nowrap hover:underline" :class="[themeClasses.startMenuViewAllText, themeClasses.startMenuViewAllTextHover]" @click="toggleViewAll">
-              {{ showAllInstalledApps ? "View Less" : `View All (${filteredInstalledApps.length})` }}
-              <Icon :icon="showAllInstalledApps ? chevronUpIcon : chevronDownIcon" width="14" height="14" />
-            </span>
-          </div>
-
-          <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-            <div v-for="app in displayedInstalledApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
-              <div class="app-icon bg-transparent p-0" :class="getContainerClasses(app)">
-                <BaseImage v-if="app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
-                <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
+        <div v-if="filteredInstalledApps.length > 0" class="flex-shrink-0 px-6 py-2 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
+          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">Installed Applications</h3>
+          <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
+            <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
+              <div v-for="app in filteredInstalledApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+                <div class="app-icon bg-transparent p-0" :class="getContainerClasses(app)">
+                  <BaseImage v-if="app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
+                  <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
+                </div>
+                <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
               </div>
-              <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
             </div>
           </div>
         </div>
@@ -80,9 +77,6 @@
               <path fill="currentColor" d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.1.1 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.1 16.1 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02M8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12m6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12" />
             </svg>
           </a>
-          <button @click="openAbout" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5 border-0 cursor-pointer bg-transparent" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" title="About HomeDock OS">
-            <Icon :icon="helpIcon" width="16" height="16" />
-          </button>
         </div>
 
         <div class="flex items-center justify-between px-6 py-4 max-md:!px-4 max-md:!py-3" :class="[themeClasses.startMenuFooterBg, themeClasses.startMenuFooterBorder]">
@@ -112,7 +106,7 @@ import { ref, computed, inject, watch, nextTick } from "vue";
 
 import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { getAllApps } from "../__Config__/WindowDefaultDetails";
+import { getStartMenuApps } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
@@ -126,14 +120,12 @@ import defaultAppIcon from "@iconify-icons/mdi/application";
 import githubIcon from "@iconify-icons/mdi/github";
 import websiteIcon from "@iconify-icons/mdi/web";
 import docsIcon from "@iconify-icons/mdi/lifebuoy";
-import chevronUpIcon from "@iconify-icons/mdi/chevron-up";
-import chevronDownIcon from "@iconify-icons/mdi/chevron-down";
-import helpIcon from "@iconify-icons/mdi/cloud-question";
 
 import BaseImage from "../__Components__/BaseImage.vue";
-import { clientSignOut } from "../__Services__/ClientSignOut";
 import UserGreeting from "../__Components__/UserGreeting.vue";
 import WelcomeMessage from "../__Components__/WelcomeMessage.vue";
+
+import { clientSignOut } from "../__Services__/ClientSignOut";
 
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
@@ -147,9 +139,7 @@ const userName = computed(() => settingsData?.userName || "User");
 const searchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
-const showAllInstalledApps = ref(false);
-
-const systemApps = getAllApps();
+const systemApps = getStartMenuApps();
 
 interface CombinedApp {
   id: string;
@@ -162,15 +152,13 @@ interface CombinedApp {
 }
 
 const systemApplications = computed<CombinedApp[]>(() => {
-  return systemApps
-    .filter((app) => app.showInStartMenu !== false)
-    .map((app) => ({
-      id: app.id,
-      name: app.name,
-      description: app.description,
-      icon: app.icon,
-      type: "system" as const,
-    }));
+  return systemApps.map((app) => ({
+    id: app.id,
+    name: app.name,
+    description: app.description,
+    icon: app.icon,
+    type: "system" as const,
+  }));
 });
 
 const installedApplications = computed<CombinedApp[]>(() => {
@@ -184,7 +172,7 @@ const installedApplications = computed<CombinedApp[]>(() => {
   return desktopStore.mainDockerApps
     .map((dockerApp) => ({
       id: `docker:${dockerApp.id}`,
-      name: dockerApp.name,
+      name: dockerApp.display_name || dockerApp.name,
       description: dockerApp.image,
       image_path: dockerApp.image_path,
       type: "docker" as const,
@@ -228,26 +216,6 @@ const filteredInstalledApps = computed(() => {
   return installedApplications.value.filter((app) => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query)));
 });
 
-const displayedInstalledApps = computed(() => {
-  if (isMobile.value) {
-    return filteredInstalledApps.value;
-  }
-
-  if (searchQuery.value) {
-    return filteredInstalledApps.value;
-  }
-
-  if (showAllInstalledApps.value) {
-    return filteredInstalledApps.value;
-  }
-
-  return filteredInstalledApps.value.slice(0, 6);
-});
-
-const hasMoreInstalledApps = computed(() => {
-  return !isMobile.value && !searchQuery.value && filteredInstalledApps.value.length > 6;
-});
-
 function getContainerClasses(app: CombinedApp): string {
   if (app.type !== "docker" || !app.dockerApp) return "";
 
@@ -271,7 +239,7 @@ function openApp(app: CombinedApp) {
       desktopStore.openDockerApp(app.dockerApp);
     } else {
       windowStore.openWindow("properties", {
-        title: `${app.dockerApp.name} - Properties`,
+        title: `${app.dockerApp.display_name || app.dockerApp.name} - Properties`,
         data: { appId: app.dockerApp.id },
         allowMultiple: true,
       });
@@ -283,7 +251,6 @@ function openApp(app: CombinedApp) {
 function close() {
   desktopStore.closeStartMenu();
   searchQuery.value = "";
-  showAllInstalledApps.value = false;
 }
 
 function clearSearch() {
@@ -296,17 +263,32 @@ function handleWrapperClick(event: MouseEvent) {
   }
 }
 
-function toggleViewAll() {
-  showAllInstalledApps.value = !showAllInstalledApps.value;
+async function handleWrapperContextMenu(event: MouseEvent) {
+  if (event.target === event.currentTarget) {
+    event.preventDefault();
+    const x = event.clientX;
+    const y = event.clientY;
+
+    close();
+
+    await nextTick();
+
+    const desktopElement = document.querySelector(".desktop-icons-container") as HTMLElement;
+    if (desktopElement) {
+      const contextMenuEvent = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: x,
+        clientY: y,
+      });
+      desktopElement.dispatchEvent(contextMenuEvent);
+    }
+  }
 }
 
 function handleLogout() {
   clientSignOut(csrfToken.value);
-}
-
-function openAbout() {
-  windowStore.openWindow("about");
-  close();
 }
 
 watch(
@@ -363,7 +345,7 @@ watch(
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -418,7 +400,7 @@ watch(
   }
 }
 
-/* Vue Transitions - Mobile: slide up */
+/* Transitions - Mobile slide up */
 @media (max-width: 768px) {
   .start-menu-enter-active,
   .start-menu-leave-active {

@@ -14,7 +14,8 @@ from flask import jsonify, request
 
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled
-from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders
+from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders, DEVHOOK_USER_NAME_KEY, DEVHOOK_PASSWORD_KEY, DEVHOOK_RANDOM_STRING_KEY
+from pymodules.hd_HDSPackageManager import normalize_app_slug
 
 
 @login_required
@@ -31,20 +32,32 @@ def get_appstore_info():
     if use_ssl and os.path.exists(os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")):
         yml_file_path = os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")
         use_ssl = True
-    else:
+
+    elif os.path.exists(os.path.join(path_to_yml_files, f"{containerName}.yml")):
         yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
         use_ssl = False
 
-    if not os.path.exists(yml_file_path):
+    elif os.path.exists(os.path.join(current_directory, "_user_packages", "_available", f"{containerName}.yml")):
+        yml_file_path = os.path.join(current_directory, "_user_packages", "_available", f"{containerName}.yml")
+        use_ssl = False
+
+    elif " " in containerName:
+        normalized_name = normalize_app_slug(containerName)
+        if os.path.exists(os.path.join(current_directory, "_user_packages", "_available", f"{normalized_name}.yml")):
+            yml_file_path = os.path.join(current_directory, "_user_packages", "_available", f"{normalized_name}.yml")
+            use_ssl = False
+        else:
+            return jsonify({"success": False, "message": "Container not found"}), 404
+    else:
         return jsonify({"success": False, "message": "Container not found"}), 404
 
     with open(yml_file_path, "r") as file:
         yml_str = file.read()
 
         placeholders = extract_devhook_placeholders(yml_str)
-        user_placeholder_present = placeholders["user_name"]
-        password_placeholder_present = placeholders["password"]
-        random_string_placeholder_present = placeholders["random_string"]
+        user_placeholder_present = placeholders[DEVHOOK_USER_NAME_KEY]
+        password_placeholder_present = placeholders[DEVHOOK_PASSWORD_KEY]
+        random_string_placeholder_present = placeholders[DEVHOOK_RANDOM_STRING_KEY]
 
         yml_str, devhook_values = process_devhooks(yml_str)
 
@@ -114,13 +127,23 @@ def process_config():
 
     if use_ssl and os.path.exists(os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")):
         original_yml_file_path = os.path.join(path_to_yml_files, "ssl", f"{containerName}.yml")
-    else:
+
+    elif os.path.exists(os.path.join(path_to_yml_files, f"{containerName}.yml")):
         original_yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
 
-    new_yml_file_path = os.path.join(path_to_yml_files, containerName, "docker-compose.yml")
+    elif os.path.exists(os.path.join(current_directory, "_user_packages", "_available", f"{containerName}.yml")):
+        original_yml_file_path = os.path.join(current_directory, "_user_packages", "_available", f"{containerName}.yml")
 
-    if not os.path.exists(original_yml_file_path):
+    elif " " in containerName:
+        normalized_name = normalize_app_slug(containerName)
+        if os.path.exists(os.path.join(current_directory, "_user_packages", "_available", f"{normalized_name}.yml")):
+            original_yml_file_path = os.path.join(current_directory, "_user_packages", "_available", f"{normalized_name}.yml")
+        else:
+            return jsonify({"success": False, "message": "Container not found"}), 404
+    else:
         return jsonify({"success": False, "message": "Container not found"}), 404
+
+    new_yml_file_path = os.path.join(path_to_yml_files, containerName, "docker-compose.yml")
 
     if configType == "advanced":
         ymlContent = request_data.get("ymlContent")
@@ -192,4 +215,5 @@ def process_config():
 
 
 def is_valid_container_name(name):
-    return re.match("^[a-zA-Z0-9-_]+$", name) is not None
+
+    return re.match("^[a-zA-Z0-9-_ ]+$", name) is not None

@@ -23,6 +23,8 @@ export interface SystemApp {
   closeable: boolean;
   category: "system" | "tools" | "settings" | "media";
   showInStartMenu?: boolean;
+  showInExplorerApp?: boolean;
+  showInMyHomeApp?: boolean;
 }
 
 const AppAppStore = defineAsyncComponent(() => import("../__Apps__/AppAppStore.vue"));
@@ -37,6 +39,8 @@ const AppEdit = defineAsyncComponent(() => import("../__Apps__/AppEdit.vue"));
 const AppInstallConfig = defineAsyncComponent(() => import("../__Apps__/AppInstallConfig.vue"));
 const AppFolder = defineAsyncComponent(() => import("../__Apps__/AppFolder.vue"));
 const AppAbout = defineAsyncComponent(() => import("../__Apps__/AppAbout.vue"));
+const AppPackager = defineAsyncComponent(() => import("../__Apps__/AppPackager.vue"));
+const AppHome = defineAsyncComponent(() => import("../__Apps__/AppHome.vue"));
 
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline"; // App Store
 import nutIcon from "@iconify-icons/mdi/nut"; // Control Hub
@@ -50,9 +54,30 @@ import codeBracesIcon from "@iconify-icons/mdi/code-braces"; // Edit Config
 import downloadIcon from "@iconify-icons/mdi/download"; // Install Config
 import folderOpenIcon from "@iconify-icons/mdi/folder-open"; // Folder View
 import informationOutlineIcon from "@iconify-icons/mdi/cloud-question"; // About
+import packageVariantIcon from "@iconify-icons/mdi/package-variant"; // App Packager
+import cloudIcon from "@iconify-icons/mdi/cloud"; // App Home
 
 // The Registry System Apps
 export const SYSTEM_APPS: SystemApp[] = [
+  {
+    id: "apphome",
+    name: "My Home",
+    description: "View system information and access applications",
+    icon: cloudIcon,
+    component: AppHome,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "system",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: false,
+  },
   {
     id: "explorer",
     name: "Explorer",
@@ -68,6 +93,9 @@ export const SYSTEM_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "tools",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
   {
     id: "appstore",
@@ -84,6 +112,28 @@ export const SYSTEM_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "system",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
+  },
+  {
+    id: "packager",
+    name: "Packager",
+    description: "Export and import .hds application packages",
+    icon: packageVariantIcon,
+    component: AppPackager,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "tools",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
   {
     id: "controlhub",
@@ -100,22 +150,9 @@ export const SYSTEM_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "system",
-  },
-  {
-    id: "settings",
-    name: "Settings",
-    description: "Configure HomeDock OS",
-    icon: tuneIcon,
-    component: AppSettings,
-    defaultWidth: 1024,
-    defaultHeight: 768,
-    minWidth: 400,
-    minHeight: 700,
-    resizable: true,
-    maximizable: true,
-    minimizable: true,
-    closeable: true,
-    category: "settings",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
   {
     id: "dropzone",
@@ -132,13 +169,16 @@ export const SYSTEM_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "tools",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
   {
-    id: "systemlogs",
-    name: "System Logs",
-    description: "View system and application logs",
-    icon: chartTimelineVariantIcon,
-    component: AppSystemLogs,
+    id: "settings",
+    name: "Settings",
+    description: "Configure HomeDock OS",
+    icon: tuneIcon,
+    component: AppSettings,
     defaultWidth: 1024,
     defaultHeight: 768,
     minWidth: 400,
@@ -147,24 +187,10 @@ export const SYSTEM_APPS: SystemApp[] = [
     maximizable: true,
     minimizable: true,
     closeable: true,
-    category: "system",
-  },
-  {
-    id: "properties",
-    name: "Properties",
-    description: "View and manage application properties",
-    icon: propertiesIcon,
-    component: AppProperties,
-    defaultWidth: 400,
-    defaultHeight: 700,
-    minWidth: 400,
-    minHeight: 700,
-    resizable: false,
-    maximizable: false,
-    minimizable: true,
-    closeable: true,
-    category: "tools",
-    showInStartMenu: false,
+    category: "settings",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
   {
     id: "logs",
@@ -182,6 +208,46 @@ export const SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
+  },
+  {
+    id: "systemlogs",
+    name: "System Logs",
+    description: "View system and application logs",
+    icon: chartTimelineVariantIcon,
+    component: AppSystemLogs,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "system",
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
+  },
+  {
+    id: "properties",
+    name: "Properties",
+    description: "View and manage application properties",
+    icon: propertiesIcon,
+    component: AppProperties,
+    defaultWidth: 400,
+    defaultHeight: 700,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: false,
+    maximizable: false,
+    minimizable: true,
+    closeable: true,
+    category: "tools",
+    showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
   },
   {
     id: "edit",
@@ -199,6 +265,8 @@ export const SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
   },
   {
     id: "installconfig",
@@ -216,6 +284,8 @@ export const SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
   },
   {
     id: "folder-view",
@@ -233,10 +303,12 @@ export const SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
   },
   {
     id: "about",
-    name: "About HomeDock OS",
+    name: "About",
     description: "View version, license, and system information",
     icon: informationOutlineIcon,
     component: AppAbout,
@@ -249,7 +321,9 @@ export const SYSTEM_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "system",
-    showInStartMenu: false,
+    showInStartMenu: true,
+    showInExplorerApp: true,
+    showInMyHomeApp: true,
   },
 ];
 
@@ -272,4 +346,16 @@ export function searchApps(query: string): SystemApp[] {
 
 export function appExists(appId: string): boolean {
   return SYSTEM_APPS.some((app) => app.id === appId);
+}
+
+export function getStandaloneApps(): SystemApp[] {
+  return SYSTEM_APPS.filter((app) => app.showInMyHomeApp !== false);
+}
+
+export function getExplorerApps(): SystemApp[] {
+  return SYSTEM_APPS.filter((app) => app.showInExplorerApp !== false);
+}
+
+export function getStartMenuApps(): SystemApp[] {
+  return SYSTEM_APPS.filter((app) => app.showInStartMenu !== false);
 }

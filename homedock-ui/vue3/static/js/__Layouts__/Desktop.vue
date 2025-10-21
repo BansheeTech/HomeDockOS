@@ -29,13 +29,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, inject, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { useDesktopStore } from "../__Stores__/desktopStore";
-import { useWindowStore } from "../__Stores__/windowStore";
+import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
 import { useResponsive } from "../__Composables__/useResponsive";
 
@@ -51,18 +50,12 @@ import StartMenu from "../__Desktop__/StartMenu.vue";
 import Taskbar from "../__Desktop__/Taskbar.vue";
 import DesktopIconsGrid from "../__Desktop__/DesktopIconsGrid.vue";
 
-const settingsData = inject<{ userName: string }>("data-settings");
-
 const { themeClasses } = useTheme();
 
-const { taskbarHeight, isMobile, availableHeight } = useResponsive();
+const { availableHeight } = useResponsive();
 
 const desktopStore = useDesktopStore();
-const windowStore = useWindowStore();
-
-const router = useRouter();
-
-const userName = computed(() => settingsData?.userName || "User");
+const systemStatsStore = useSystemStatsStore();
 
 const desktopIconsGridRef = ref<InstanceType<typeof DesktopIconsGrid> | null>(null);
 
@@ -78,6 +71,11 @@ function handleDesktopClick(e: MouseEvent) {
 
 onMounted(() => {
   desktopStore.initialize();
+  systemStatsStore.startPolling();
+});
+
+onUnmounted(() => {
+  systemStatsStore.stopPolling();
 });
 </script>
 

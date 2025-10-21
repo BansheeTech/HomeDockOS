@@ -67,7 +67,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useUploadStore } from "../__Stores__/useUploadStore";
+import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { Icon } from "@iconify/vue";
@@ -83,7 +83,7 @@ import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
 import unknownFileIcon from "@iconify-icons/mdi/file";
 
-const uploadStore = useUploadStore();
+const uploadStore = useDropZoneUploadingStore();
 const { themeClasses } = useTheme();
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);

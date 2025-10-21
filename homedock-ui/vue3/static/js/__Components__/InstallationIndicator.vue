@@ -34,20 +34,24 @@
 
           <div v-if="installationStore.currentlyInstalling" class="installation-section" :class="themeClasses.installSectionBorder">
             <div class="section-label" :class="themeClasses.installSectionLabel">Currently Installing</div>
-            <div class="app-item" :class="themeClasses.installAppItemInstalling" :key="`installing-${installationStore.currentlyInstalling}`">
-              <BaseImage :key="`img-installing-${installationStore.currentlyInstalling}`" :src="getAppIcon(installationStore.currentlyInstalling)" class="app-icon rounded-sm" alt="" draggable="false" />
-              <span class="app-name" :class="themeClasses.installAppName">{{ installationStore.currentlyInstalling }}</span>
-              <div class="spinner border-2" :class="[themeClasses.installSpinnerBorder, themeClasses.installSpinnerTop]"></div>
-            </div>
+            <TransitionGroup name="app-switch" tag="div">
+              <div class="app-item" :class="themeClasses.installAppItemInstalling" :key="`installing-${installationStore.currentlyInstalling}`">
+                <BaseImage :key="`img-installing-${installationStore.currentlyInstalling}`" :src="getAppIcon(installationStore.currentlyInstalling)" class="app-icon rounded-md" alt="" draggable="false" />
+                <span class="app-name" :class="themeClasses.installAppName">{{ getAppDisplayName(installationStore.currentlyInstalling) }}</span>
+                <div class="spinner border-2" :class="[themeClasses.installSpinnerBorder, themeClasses.installSpinnerTop]"></div>
+              </div>
+            </TransitionGroup>
           </div>
 
           <div v-if="installationStore.queue.length > 0" class="installation-section" :class="themeClasses.installSectionBorder">
             <div class="section-label" :class="themeClasses.installSectionLabel">In Queue ({{ installationStore.queue.length }})</div>
             <div class="app-list">
-              <div v-for="(appName, index) in visibleQueue" :key="`queue-${index}-${appName}`" class="app-item" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover]">
-                <BaseImage :key="`img-queue-${index}-${appName}`" :src="getAppIcon(appName)" class="app-icon rounded-sm" alt="" draggable="false" />
-                <span class="app-name" :class="themeClasses.installAppName">{{ appName }}</span>
-              </div>
+              <TransitionGroup name="queue-item" tag="div">
+                <div v-for="(appName, index) in visibleQueue" :key="`queue-${appName}`" class="app-item" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover]">
+                  <BaseImage :key="`img-queue-${index}-${appName}`" :src="getAppIcon(appName)" class="app-icon rounded-md" alt="" draggable="false" />
+                  <span class="app-name" :class="themeClasses.installAppName">{{ getAppDisplayName(appName) }}</span>
+                </div>
+              </TransitionGroup>
               <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">And {{ remainingCount }} more...</div>
             </div>
           </div>
@@ -60,12 +64,14 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useInstallationStore } from "../__Stores__/useInstallationStore";
+import { useAppStore } from "../__Stores__/useAppStore";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import BaseImage from "./BaseImage.vue";
 
 const installationStore = useInstallationStore();
+const appStore = useAppStore();
 const { themeClasses } = useTheme();
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
@@ -87,7 +93,19 @@ const remainingCount = computed(() => {
 });
 
 function getAppIcon(appName: string): string {
+  const app = appStore.apps.find((a) => a.name === appName);
+  if (app && app.picture_path) {
+    return app.picture_path;
+  }
   return `docker-icons/${appName}.jpg`;
+}
+
+function getAppDisplayName(appName: string): string {
+  const app = appStore.apps.find((a) => a.name === appName);
+  if (app && app.display_name) {
+    return app.display_name;
+  }
+  return appName;
 }
 
 function toggleDropdown(e: MouseEvent) {
@@ -189,7 +207,6 @@ onUnmounted(() => {
   height: 24px;
   object-fit: cover;
   flex-shrink: 0;
-  border-radius: 0.125rem;
 }
 
 .app-name {
@@ -248,5 +265,49 @@ onUnmounted(() => {
 .taskbar-item-leave-to {
   opacity: 0;
   transform: scale(0.8) translateY(10px);
+}
+
+/* App switch animation */
+.app-switch-move,
+.app-switch-enter-active,
+.app-switch-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-switch-enter-from {
+  opacity: 0;
+  transform: translateX(15px);
+}
+
+.app-switch-leave-to {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+
+.app-switch-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+/* Queue item animation */
+.queue-item-move,
+.queue-item-enter-active,
+.queue-item-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.queue-item-enter-from {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.queue-item-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.queue-item-leave-active {
+  position: absolute;
+  width: 100%;
 }
 </style>

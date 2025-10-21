@@ -10,13 +10,13 @@ import re
 import time
 import psutil
 import docker
-import subprocess
 import configparser
 
 from datetime import datetime, timedelta
 
 from pymodules.hd_FunctionsGlobals import current_directory, running_OS
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_ClassDockerComposeHelper import DockerComposeHelper
 from pymodules.hd_ExternalDriveManager import get_external_drive_info
 
 start_time = datetime.now()
@@ -24,30 +24,36 @@ start_time = datetime.now()
 
 def check_docker():
     try:
-        subprocess.run(["docker", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        manager = DockerClientManager.get_instance()
+        client = manager.get_client()
 
-        result = subprocess.run(["docker", "info"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.returncode == 0:
-            return True, "Docker is installed and running"
-        else:
-            return False, "Docker is installed but not running"
+        client.ping()
 
-    except FileNotFoundError:
-        return False, "Docker is not installe."
-    except subprocess.CalledProcessError:
-        return False, "Error running Docker detection command"
+        version_info = client.version()
+        version = version_info.get("Version", "unknown")
+
+        return True, f"Docker is installed and running (v{version})"
+
+    except docker.errors.DockerException as e:
+        return False, f"Docker error: {e}"
+    except Exception as e:
+        return False, f"Docker is not installed or not running: {e}"
 
 
 def check_docker_compose():
     try:
-        subprocess.run(["docker-compose", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        compose_helper = DockerComposeHelper.get_instance()
+        success, version = compose_helper.get_version()
 
-        return True, "Docker-Compose is installed"
+        if success:
+            return True, version
+        else:
+            return False, "Docker Compose not available"
 
-    except FileNotFoundError:
-        return False, "Docker-Compose is not installed"
-    except subprocess.CalledProcessError:
-        return False, "Error running Docker-Compose detection command"
+    except RuntimeError as e:
+        return False, str(e)
+    except Exception as e:
+        return False, f"Error detecting Docker Compose: {e}"
 
 
 def validate_docker_installation():

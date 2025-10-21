@@ -28,13 +28,17 @@
       <div class="flex-grow md:flex-grow-0"></div>
 
       <div class="flex items-center gap-[0.15rem]">
+        <SessionExpiredTray />
+
         <InstallationIndicator />
+
+        <AppUpdatesIndicator />
+
+        <UpdateIndicator />
 
         <UploadIndicator />
 
         <NetworkOfflineTray />
-
-        <SessionExpiredTray />
 
         <SystemStatsWidget :csrfToken="csrfToken" />
 
@@ -91,6 +95,8 @@ import closeIcon from "@iconify-icons/mdi/close";
 import NotificationBell from "../__Components__/NotificationBell.vue";
 import DateTimePicker from "../__Components__/DateTimePicker.vue";
 import InstallationIndicator from "../__Components__/InstallationIndicator.vue";
+import AppUpdatesIndicator from "../__Components__/AppUpdatesIndicator.vue";
+import UpdateIndicator from "../__Components__/UpdateIndicator.vue";
 import UploadIndicator from "../__Components__/UploadIndicator.vue";
 import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
 import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";

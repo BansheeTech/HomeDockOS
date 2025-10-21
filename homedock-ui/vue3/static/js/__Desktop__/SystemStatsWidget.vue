@@ -7,7 +7,9 @@
   <div class="system-stats-widget" ref="widgetRef">
     <div class="compact-view" :class="[themeClasses.statsWidgetCompactBg, themeClasses.statsWidgetCompactBgHover]" @click="toggleExpanded" :title="isExpanded ? 'Click to collapse' : 'Click to expand'">
       <div class="stat-item">
-        <Icon :icon="cpuIcon" class="stat-icon-bg" :class="themeClasses.statsWidgetIconColor" />
+        <Transition name="icon-fade">
+          <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon-bg" :class="themeClasses.statsWidgetIconColor" />
+        </Transition>
         <span class="stat-value" :class="[themeClasses.statsWidgetValueColor, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
       </div>
     </div>
@@ -24,7 +26,7 @@
           <div v-if="tempValue > 0" class="stat-card">
             <div class="stat-header">
               <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temperature</span>
+              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temp</span>
               <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
             </div>
             <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
@@ -32,8 +34,12 @@
 
           <div class="stat-card">
             <div class="stat-header">
-              <Icon :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU</span>
+              <div class="icon-wrapper">
+                <Transition name="icon-fade">
+                  <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                </Transition>
+              </div>
+              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Usage</span>
               <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
             </div>
             <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
@@ -154,10 +160,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, inject, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 import { Icon } from "@iconify/vue";
-import cpuIcon from "@iconify-icons/mdi/speedometer";
+import cpuIconSlow from "@iconify-icons/mdi/speedometer-slow";
+import cpuIconMedium from "@iconify-icons/mdi/speedometer-medium";
+import cpuIconFast from "@iconify-icons/mdi/speedometer";
 import ramIcon from "@iconify-icons/mdi/memory";
 import tempIcon from "@iconify-icons/mdi/thermometer";
 import diskIcon from "@iconify-icons/mdi/harddisk";
@@ -169,14 +177,7 @@ import appsIcon from "@iconify-icons/mdi/apps";
 import uptimeIcon from "@iconify-icons/mdi/clock-outline";
 import serverIcon from "@iconify-icons/mdi/server";
 
-import { useCpuTempUpdater } from "../__Services__/DashboardCPUTemp";
-import { useCpuUsageUpdater } from "../__Services__/DashboardCPUUsage";
-import { useRamUsageUpdater } from "../__Services__/DashboardRAMUsage";
-import { useHardDiskUsageUpdater } from "../__Services__/DashboardHardDiskUsage";
-import { useExternalDiskUsageUpdater } from "../__Services__/DashboardExternalDiskUsage";
-import { useNetworkDataUpdater } from "../__Services__/DashboardNetworkUsage";
-import { useContainersDataUpdater } from "../__Services__/DashboardContainersUsage";
-import { useUptimeUpdater } from "../__Services__/DashboardUptimeUsage";
+import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 interface Props {
@@ -190,26 +191,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { themeClasses } = useTheme();
 
-const dashboardData = inject<{
-  cpuTemp?: string;
-  cpuGhz?: string;
-  cpuUsage?: string;
-  cpuCores?: string;
-  ramUsage?: string;
-  totalRam?: string;
-  hardDiskUsage?: string;
-  hardDiskTotal?: string;
-  externalDefaultDisk?: string;
-  externalDiskUsage?: string;
-  externalDiskTotal?: string;
-  interfaceName?: string;
-  downloadData?: string;
-  uploadData?: string;
-  totalContainers?: string;
-  activeContainers?: string;
-  uptimeData?: string;
-  startTime?: string;
-}>("data-dashboard");
+const systemStatsStore = useSystemStatsStore();
 
 const widgetRef = ref<HTMLElement | null>(null);
 
@@ -238,31 +220,35 @@ onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
 
-const dynCpuUsage = useCpuUsageUpdater(props.csrfToken, 3000, dashboardData?.cpuUsage || "0");
-const cpuUsage = computed(() => dynCpuUsage.value || dashboardData?.cpuUsage || "0");
-const cpuValue = computed(() => Math.round(parseFloat(cpuUsage.value) || 0));
-const cpuCores = ref(dashboardData?.cpuCores || "0");
-const cpuGhz = ref(dashboardData?.cpuGhz || "0");
+const cpuValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuUsage) || 0));
+const cpuCores = computed(() => systemStatsStore.cpuCores);
+const cpuGhz = computed(() => systemStatsStore.cpuGhz);
 
-const dynRamUsage = useRamUsageUpdater(props.csrfToken, 3000, dashboardData?.ramUsage || "0");
-const ramUsage = computed(() => dynRamUsage.value || dashboardData?.ramUsage || "0");
-const ramValue = computed(() => Math.round(parseFloat(ramUsage.value) || 0));
-const totalRam = ref(dashboardData?.totalRam || "0");
+const cpuIcon = computed(() => {
+  const usage = cpuValue.value;
+  if (usage <= 33) return cpuIconSlow;
+  if (usage <= 66) return cpuIconMedium;
+  return cpuIconFast;
+});
 
-const dynCpuTemp = useCpuTempUpdater(props.csrfToken, 3000, dashboardData?.cpuTemp || "0");
-const cpuTemp = computed(() => dynCpuTemp.value || dashboardData?.cpuTemp || "0");
-const tempValue = computed(() => Math.round(parseFloat(cpuTemp.value) || 0));
+const cpuIconKey = computed(() => {
+  const usage = cpuValue.value;
+  if (usage <= 33) return "slow";
+  if (usage <= 66) return "medium";
+  return "fast";
+});
 
-const dynDiskUsage = useHardDiskUsageUpdater(props.csrfToken, 3000, dashboardData?.hardDiskUsage || "0");
-const diskUsage = computed(() => dynDiskUsage.value || dashboardData?.hardDiskUsage || "0");
-const diskValue = computed(() => Math.round(parseFloat(diskUsage.value) || 0));
-const hardDiskTotal = ref(dashboardData?.hardDiskTotal || "0");
+const ramValue = computed(() => Math.round(parseFloat(systemStatsStore.ramUsage) || 0));
+const totalRam = computed(() => systemStatsStore.totalRam);
 
-const externalDefaultDisk = ref(dashboardData?.externalDefaultDisk || "disabled");
-const dynExternalDiskUsage = useExternalDiskUsageUpdater(props.csrfToken, 3000, dashboardData?.externalDiskUsage || "0");
-const externalDiskUsage = computed(() => dynExternalDiskUsage.value || dashboardData?.externalDiskUsage || "0");
-const externalDiskValue = computed(() => Math.round(parseFloat(externalDiskUsage.value) || 0));
-const externalDiskTotal = ref(dashboardData?.externalDiskTotal || "0");
+const tempValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuTemp) || 0));
+
+const diskValue = computed(() => Math.round(parseFloat(systemStatsStore.hardDiskUsage) || 0));
+const hardDiskTotal = computed(() => systemStatsStore.hardDiskTotal);
+
+const externalDefaultDisk = computed(() => systemStatsStore.externalDefaultDisk);
+const externalDiskValue = computed(() => Math.round(parseFloat(systemStatsStore.externalDiskUsage) || 0));
+const externalDiskTotal = computed(() => systemStatsStore.externalDiskTotal);
 const formattedExternalDiskTotal = computed(() => {
   const totalGB = Number(externalDiskTotal.value);
   if (isNaN(totalGB)) return "0";
@@ -273,27 +259,43 @@ const diskUnit = computed(() => {
   return totalGB > 900 ? "TB" : "GB";
 });
 
-const interfaceName = ref(dashboardData?.interfaceName || "Network");
-const { downloadData: dynDownloadData, uploadData: dynUploadData } = useNetworkDataUpdater(props.csrfToken, 3000, dashboardData?.downloadData || "0 GB", dashboardData?.uploadData || "0 GB");
-const networkDown = computed(() => dynDownloadData.value || dashboardData?.downloadData || "0 GB");
-const networkUp = computed(() => dynUploadData.value || dashboardData?.uploadData || "0 GB");
+const networkDown = computed(() => systemStatsStore.downloadData);
+const networkUp = computed(() => systemStatsStore.uploadData);
 
-const networkDownValue = computed(() => networkDown.value.split(" ")[0]);
-const networkDownUnit = computed(() => networkDown.value.split(" ")[1] || "GB");
-const networkUpValue = computed(() => networkUp.value.split(" ")[0]);
-const networkUpUnit = computed(() => networkUp.value.split(" ")[1] || "GB");
+const networkDownValue = computed(() => {
+  if (typeof networkDown.value === "string") {
+    return networkDown.value.split(" ")[0];
+  }
+  return "0";
+});
+const networkDownUnit = computed(() => {
+  if (typeof networkDown.value === "string") {
+    return networkDown.value.split(" ")[1] || "GB";
+  }
+  return "GB";
+});
+const networkUpValue = computed(() => {
+  if (typeof networkUp.value === "string") {
+    return networkUp.value.split(" ")[0];
+  }
+  return "0";
+});
+const networkUpUnit = computed(() => {
+  if (typeof networkUp.value === "string") {
+    return networkUp.value.split(" ")[1] || "GB";
+  }
+  return "GB";
+});
 
-const { totalContainers: dynTotalContainers, activeContainers: dynActiveContainers } = useContainersDataUpdater(props.csrfToken, 3000, dashboardData?.totalContainers || "0", dashboardData?.activeContainers || "0");
-const totalContainers = computed(() => dynTotalContainers.value || dashboardData?.totalContainers || "0");
-const activeContainers = computed(() => dynActiveContainers.value || dashboardData?.activeContainers || "0");
+const totalContainers = computed(() => systemStatsStore.totalContainers);
+const activeContainers = computed(() => systemStatsStore.activeContainers);
 
 import { useDesktopStore } from "../__Stores__/desktopStore";
 const desktopStore = useDesktopStore();
 const totalApps = computed(() => desktopStore.mainDockerApps.length.toString());
 
-const { systemUptime: dynSystemUptime, homeDockUptime: dynHomeDockUptime } = useUptimeUpdater(props.csrfToken, 3000, dashboardData?.uptimeData || "0d 0h", dashboardData?.startTime || "0d 0h");
-const systemUptime = computed(() => dynSystemUptime.value || dashboardData?.uptimeData || "0d 0h");
-const homeDockUptime = computed(() => dynHomeDockUptime.value || dashboardData?.startTime || "0d 0h");
+const systemUptime = computed(() => systemStatsStore.uptimeData);
+const homeDockUptime = computed(() => systemStatsStore.startTime);
 </script>
 
 <style scoped>
@@ -430,6 +432,16 @@ const homeDockUptime = computed(() => dynHomeDockUptime.value || dashboardData?.
   flex-shrink: 0;
 }
 
+.icon-wrapper {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .progress-bar {
   height: 3px;
   border-radius: 2px;
@@ -506,6 +518,21 @@ const homeDockUptime = computed(() => dynHomeDockUptime.value || dashboardData?.
   50% {
     opacity: 0.7;
   }
+}
+
+/* Icon Transition Animation */
+.icon-fade-enter-active,
+.icon-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+}
+
+.icon-fade-enter-from {
+  opacity: 0;
+}
+
+.icon-fade-leave-to {
+  opacity: 0;
 }
 
 /* Dropdown Animation */

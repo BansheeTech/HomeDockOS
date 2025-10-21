@@ -120,7 +120,7 @@ const iconColorClass = computed(() => {
     case "success":
       return "text-green-500";
     case "warning":
-      return "text-yellow-500";
+      return "";
     case "error":
       return "text-red-500";
     case "confirm":
@@ -132,7 +132,10 @@ const iconColorClass = computed(() => {
 });
 
 const okButtonClasses = computed(() => {
-  if (props.type === "error" || (props.type === "confirm" && props.okText.toLowerCase().includes("delete")) || props.okText.toLowerCase().includes("uninstall") || props.okText.toLowerCase().includes("remove")) {
+  const okTextLower = props.okText.toLowerCase();
+  const isDangerous = props.type === "error" || (props.type === "confirm" && okTextLower.includes("delete")) || (props.type === "warning" && okTextLower.includes("anyway")) || okTextLower.includes("uninstall") || okTextLower.includes("remove");
+
+  if (isDangerous) {
     return [themeClasses.value.appPropsActionButtonDangerBg, themeClasses.value.appPropsActionButtonDangerBorder, themeClasses.value.appPropsActionButtonDangerText, themeClasses.value.appPropsActionButtonDangerBgHover, themeClasses.value.appPropsActionButtonDangerBorderHover];
   } else {
     return [themeClasses.value.appPropsActionButtonPrimaryBg, themeClasses.value.appPropsActionButtonPrimaryBorder, themeClasses.value.appPropsActionButtonPrimaryText, themeClasses.value.appPropsActionButtonPrimaryBgHover, themeClasses.value.appPropsActionButtonPrimaryBorderHover];

@@ -8,7 +8,11 @@ export interface App {
   docker_image: string;
   picture_path: string;
   is_group: boolean;
+
   name: string;
+
+  display_name?: string;
+
   category: string;
   type: string;
   icon: string;
@@ -17,4 +21,7 @@ export interface App {
   new_until: string | boolean;
   is_installed?: boolean;
   sslEnabled?: boolean;
+  is_external?: boolean;
+  author?: string;
+  version?: string;
 }

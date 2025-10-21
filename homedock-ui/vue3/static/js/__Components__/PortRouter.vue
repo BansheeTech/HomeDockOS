@@ -9,7 +9,7 @@
       <!-- View -->
       <div v-if="!isEditing" class="port-content" key="view-mode">
         <div class="port-display" :class="[themeClasses.appPropsInfoValue, displayClass]">
-          <Icon :class="iconClass" :icon="currentIcon" width="16" height="16" />
+          <Icon :class="[iconClass, { 'animate-spin': isDisabled }]" :icon="currentIcon" width="16" height="16" />
           <Transition mode="out-in" name="fade-in">
             <span :key="portsDisplay" class="port-text">{{ portsDisplay }}</span>
           </Transition>
@@ -52,7 +52,6 @@ import saveIcon from "@iconify-icons/mdi/content-save";
 import multiplePortsIcon from "@iconify-icons/mdi/alert-rhombus";
 import singlePortIcon from "@iconify-icons/mdi/check-bold";
 import hostmodeIcon from "@iconify-icons/mdi/network-strength-4-cog";
-import disabledIcon from "@iconify-icons/mdi/cloud-question";
 import editIcon from "@iconify-icons/mdi/pencil-outline";
 import closeIcon from "@iconify-icons/mdi/close";
 import loadingIcon from "@iconify-icons/mdi/loading";
@@ -85,7 +84,7 @@ const hasMultiplePorts = computed(() => portsArray.value.length > 1);
 const portsDisplay = computed(() => (isHostMode.value ? "hostmode" : props.initialPorts));
 
 const currentIcon = computed(() => {
-  if (isDisabled.value) return disabledIcon;
+  if (isDisabled.value) return loadingIcon;
   if (isHostMode.value) return hostmodeIcon;
   if (hasMultiplePorts.value) return multiplePortsIcon;
   return singlePortIcon;

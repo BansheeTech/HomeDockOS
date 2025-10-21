@@ -8,22 +8,31 @@
     <div ref="pagesContainerRef" class="desktop-pages-container" @scroll="handlePageScroll" @touchstart="handlePageTouchStart" @touchmove="handlePageTouchMove" @touchend="handlePageTouchEnd">
       <div v-for="(pageItems, pageIndex) in iconsByPage" :key="`page-${pageIndex}`" class="desktop-page" :data-page="pageIndex">
         <TransitionGroup name="icon-appear">
-          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 rounded-lg touch-none select-none outline-none border', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="`${item.name} (${item.status})`">
-            <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(item)]">
-              <BaseImage :src="item.image_path" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-              <Transition name="loading-overlay-fade">
-                <div v-if="item.isProcessing === true" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
-                  <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
-                </div>
-              </Transition>
-              <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(item.status), themeClasses.desktopStatusBadgeBorder, item.status === 'running' && 'status-pulse']"></div>
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'systemicon')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center gap-0.5 cursor-pointer px-1 py-1.5 rounded-lg touch-none select-none outline-none border', selectedSystemIcon === item.id ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="item.name">
+            <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === item.id ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
+              <Icon :icon="getSystemIconObject(item)" class="w-10 h-10 pointer-events-none" :class="themeClasses.desktopIconText" />
             </div>
-            <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ item.name }}</span>
+            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-20 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ item.name }}</span>
           </div>
         </TransitionGroup>
 
         <TransitionGroup name="icon-appear">
-          <DesktopFolderIcon v-for="item in pageItems.filter((i: any) => i.type === 'folder')" :key="item.id" :folder="item" :is-selected="selectedFolder === item.id" :is-dragging="draggedFolder === item.id" :style="getIconStyle(item, pageIndex)" @touchstart="(e: TouchEvent) => handleTouchStart(e, item)" @touchmove="(e: TouchEvent) => handleTouchMove(e, item)" @touchend="(e: TouchEvent) => handleTouchEnd(e, item)" @click="handleFolderClick" @dblclick="handleFolderDoubleClick" @contextmenu="handleFolderContextMenu" />
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center gap-0.5 cursor-pointer px-1 py-1.5 rounded-lg touch-none select-none outline-none border', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="`${(item as any).display_name || item.name} (${getAppStatus(item)})`">
+            <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(item)]">
+              <BaseImage :src="getAppImagePath(item)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
+              <Transition name="loading-overlay-fade">
+                <div v-if="isAppProcessing(item)" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
+                  <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
+                </div>
+              </Transition>
+              <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(getAppStatus(item)), themeClasses.desktopStatusBadgeBorder, getAppStatus(item) === 'running' && 'status-pulse']"></div>
+            </div>
+            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-20 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ (item as any).display_name || item.name }}</span>
+          </div>
+        </TransitionGroup>
+
+        <TransitionGroup name="icon-appear">
+          <DesktopFolderIcon v-for="item in pageItems.filter((i: any) => i.type === 'folder')" :key="item.id" :folder="getAsFolder(item)" :is-selected="selectedFolder === item.id" :is-dragging="draggedFolder === item.id" :is-wiggle-mode="isWiggleMode && draggedFolder !== item.id" :style="getIconStyle(item, pageIndex)" @touchstart="(e: TouchEvent) => handleTouchStart(e, item)" @touchmove="(e: TouchEvent) => handleTouchMove(e, item)" @touchend="(e: TouchEvent) => handleTouchEnd(e, item)" @click="handleFolderClick" @dblclick="handleFolderDoubleClick" @contextmenu="handleFolderContextMenu" />
         </TransitionGroup>
       </div>
     </div>
@@ -40,13 +49,19 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { useDesktopStore, type DockerApp, type DesktopFolder } from "../__Stores__/desktopStore";
+
+import { useDesktopStore, type DockerApp, type DesktopFolder, type SystemDesktopIcon } from "../__Stores__/desktopStore";
+
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
+
 import BaseImage from "../__Components__/BaseImage.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
 import PageIndicator from "./PageIndicator.vue";
+
+import { Icon } from "@iconify/vue";
+import cloudIcon from "@iconify-icons/mdi/cloud";
 
 interface Props {
   selectedApp: string | null;
@@ -54,6 +69,8 @@ interface Props {
   selectedFolder: string | null;
   draggedApp: string | null;
   draggedFolder: string | null;
+  selectedSystemIcon?: string | null;
+  draggedSystemIcon?: string | null;
 }
 
 const props = defineProps<Props>();
@@ -62,8 +79,10 @@ const emit = defineEmits<{
   (e: "update:selectedApp", value: string | null): void;
   (e: "update:selectedApps", value: Set<string>): void;
   (e: "update:selectedFolder", value: string | null): void;
+  (e: "update:selectedSystemIcon", value: string | null): void;
   (e: "update:draggedApp", value: string | null): void;
   (e: "update:draggedFolder", value: string | null): void;
+  (e: "update:draggedSystemIcon", value: string | null): void;
   (e: "update:isWiggleMode", value: boolean): void;
   (e: "click", app: DockerApp, event?: MouseEvent): void;
   (e: "dblclick", app: DockerApp): void;
@@ -130,6 +149,7 @@ const GRID_SIZE_Y = ref(100);
 
 const mainDockerApps = computed(() => desktopStore.desktopRootApps);
 const desktopFolders = computed(() => desktopStore.desktopFolders);
+const systemDesktopIcons = computed(() => desktopStore.systemDesktopIcons);
 
 const gridColumns = computed(() => {
   return isPortrait.value ? 4 : 6;
@@ -149,9 +169,10 @@ const iconsByPage = computed(() => {
   const container = pagesContainerRef.value;
   const pageWidth = container?.clientWidth || windowWidth.value;
 
+  const systemIcons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
   const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
   const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...folders, ...apps];
+  const allItems = [...systemIcons, ...folders, ...apps];
 
   if (allItems.length === 0) return [[]];
 
@@ -304,9 +325,10 @@ function isPositionOccupied(x: number, y: number, pageIndex: number, excludeId?:
 
   const pageWidth = container.clientWidth;
 
+  const systemIcons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
   const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
   const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...folders, ...apps];
+  const allItems = [...systemIcons, ...folders, ...apps];
 
   return allItems.some((item) => {
     if (excludeId && item.id === excludeId) return false;
@@ -440,6 +462,13 @@ function getContainerClasses(app: any): string {
   return statusClasses[app.status] || "";
 }
 
+function getSystemIconObject(icon: any) {
+  const iconMap: Record<string, any> = {
+    "mdi:cloud": cloudIcon,
+  };
+  return iconMap[icon.icon] || cloudIcon;
+}
+
 function handlePageScroll() {
   const container = pagesContainerRef.value;
   if (!container) return;
@@ -562,6 +591,7 @@ function handlePageTouchEnd(e: TouchEvent) {
       emit("update:selectedApp", null);
       emit("update:selectedApps", new Set<string>());
       emit("update:selectedFolder", null);
+      emit("update:selectedSystemIcon", null);
     }
   }
 
@@ -633,6 +663,8 @@ function handleTouchStart(e: TouchEvent, item: any) {
       emit("update:draggedApp", item.id);
     } else if (item.type === "folder") {
       emit("update:draggedFolder", item.id);
+    } else if (item.type === "systemicon") {
+      emit("update:draggedSystemIcon", item.id);
     }
 
     return;
@@ -674,6 +706,8 @@ function handleTouchStart(e: TouchEvent, item: any) {
             emit("update:draggedApp", item.id);
           } else if (item.type === "folder") {
             emit("update:draggedFolder", item.id);
+          } else if (item.type === "systemicon") {
+            emit("update:draggedSystemIcon", item.id);
           }
 
           if (navigator.vibrate) {
@@ -879,6 +913,8 @@ function handleTouchEnd(e: TouchEvent, item: any) {
         desktopStore.updateIconPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col);
       } else if (currentTouchItem.value.type === "folder") {
         desktopStore.updateFolderPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col);
+      } else if (currentTouchItem.value.type === "systemicon") {
+        desktopStore.updateSystemIconPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col, finalPage);
       }
     }
 
@@ -890,6 +926,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
 
     emit("update:draggedApp", null);
     emit("update:draggedFolder", null);
+    emit("update:draggedSystemIcon", null);
 
     dragStartX.value = 0;
     dragStartY.value = 0;
@@ -924,6 +961,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
 
     emit("update:draggedApp", null);
     emit("update:draggedFolder", null);
+    emit("update:draggedSystemIcon", null);
 
     return;
   }
@@ -938,6 +976,8 @@ function handleTouchEnd(e: TouchEvent, item: any) {
     if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && distance < DOUBLE_TAP_DISTANCE) {
       if (currentTouchItem.value.type === "folder") {
         emit("folderDblclick", currentTouchItem.value);
+      } else if (currentTouchItem.value.type === "systemicon") {
+        desktopStore.openSystemApp(currentTouchItem.value.appId);
       } else {
         emit("dblclick", currentTouchItem.value);
       }
@@ -948,6 +988,8 @@ function handleTouchEnd(e: TouchEvent, item: any) {
     } else {
       if (currentTouchItem.value.type === "folder") {
         emit("folderClick", currentTouchItem.value);
+      } else if (currentTouchItem.value.type === "systemicon") {
+        // System icon click - just select it
       } else {
         emit("click", currentTouchItem.value);
       }
@@ -957,10 +999,17 @@ function handleTouchEnd(e: TouchEvent, item: any) {
           emit("update:selectedFolder", currentTouchItem.value.id);
           emit("update:selectedApp", null);
           emit("update:selectedApps", new Set<string>());
+          emit("update:selectedSystemIcon", null);
+        } else if (currentTouchItem.value.type === "systemicon") {
+          emit("update:selectedSystemIcon", currentTouchItem.value.id);
+          emit("update:selectedApp", null);
+          emit("update:selectedApps", new Set<string>());
+          emit("update:selectedFolder", null);
         } else {
           emit("update:selectedApp", currentTouchItem.value.id);
           emit("update:selectedApps", new Set<string>());
           emit("update:selectedFolder", null);
+          emit("update:selectedSystemIcon", null);
         }
       }
 
@@ -978,6 +1027,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
 
   emit("update:draggedApp", null);
   emit("update:draggedFolder", null);
+  emit("update:draggedSystemIcon", null);
 
   dragStartX.value = 0;
   dragStartY.value = 0;
@@ -1003,6 +1053,22 @@ function handleFolderDoubleClick(folder: DesktopFolder) {
 
 function handleFolderContextMenu(e: MouseEvent, folder: DesktopFolder) {
   emit("folderContextmenu", e, folder);
+}
+
+function getAppImagePath(item: any): string {
+  return (item as DockerApp).image_path;
+}
+
+function isAppProcessing(item: any): boolean {
+  return (item as DockerApp).isProcessing === true;
+}
+
+function getAppStatus(item: any): string {
+  return (item as DockerApp).status;
+}
+
+function getAsFolder(item: any): DesktopFolder {
+  return item as DesktopFolder;
 }
 
 function calculateGridSettings() {

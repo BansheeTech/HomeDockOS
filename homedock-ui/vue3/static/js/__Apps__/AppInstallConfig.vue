@@ -21,16 +21,23 @@
               <div v-if="sslEnabled" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1 rounded-full -top-1 -right-1 shadow-sm border">
                 <Icon :icon="lockIcon" class="h-2.5 w-2.5" />
               </div>
+              <div v-if="app?.is_external" class="absolute flex items-center justify-center p-1 rounded-full -bottom-2 -right-2 shadow-md border bg-amber-600 border-gray-100 animate-bounce">
+                <Icon :icon="packageIcon" class="h-4 w-4 text-white" />
+              </div>
             </div>
 
             <div class="flex-1 min-w-0">
               <h1 :class="[themeClasses.storeModalAppName]" class="text-xl md:text-2xl font-bold mb-1">
-                {{ app?.name }}
+                {{ app?.display_name || app?.name }}
               </h1>
               <div class="flex items-center gap-2 flex-wrap text-xs">
                 <span :class="[themeClasses.storeModalAppType]" class="font-medium">{{ app?.type }}</span>
                 <span :class="[themeClasses.storeModalAppCategory]">•</span>
                 <span :class="[themeClasses.storeModalAppCategory]">{{ app?.category }}</span>
+                <div v-if="app?.is_external" class="flex items-center px-2 py-0.5 rounded-md bg-amber-600 text-white font-medium">
+                  <Icon :icon="packageIcon" class="mr-1 h-3 w-3" />
+                  <span>External Package</span>
+                </div>
                 <div v-if="sslEnabled" :class="[themeClasses.storeTextSSLFlag]" class="flex items-center">
                   <Icon :icon="lockIcon" class="mr-1 h-3 w-3" />
                   <span class="font-medium">HTTPS</span>
@@ -59,7 +66,7 @@
               </Button>
             </Transition>
 
-            <a :href="`https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" class="flex-shrink-0">
+            <a :href="app?.is_external ? 'https://www.homedock.cloud' : `https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" class="flex-shrink-0">
               <Button :class="[themeClasses.storeLinkHDOSButton]" class="flex items-center" type="dashed">
                 <Icon :icon="earthIcon" class="w-4 h-4" />
               </Button>
@@ -159,7 +166,7 @@
         </div>
       </div>
 
-      <StatusBar :icon="downloadIcon" message="Install App" :info="app?.name ? `Installing ${app.name}` : 'Configure application'" :showHelp="true">
+      <StatusBar :icon="downloadIcon" message="Install App" :info="app?.name ? `Installing ${app.display_name || app.name}` : 'Configure application'" :showHelp="true">
         <template #help>
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
@@ -174,6 +181,45 @@
         </template>
       </StatusBar>
     </div>
+
+    <AppDialog v-model:visible="showExternalWarning" type="warning" title="External Package Warning" ok-text="Install Anyway" cancel-text="Cancel" @ok="handleExternalWarningOk" @cancel="handleExternalWarningCancel">
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <Icon :icon="alertIcon" class="w-6 h-6 text-red-500 flex-shrink-0" />
+          <div class="flex-1">
+            <p :class="['font-semibold mb-3', themeClasses.externalWarningTitle]" class="text-sm">You are about to install an external package</p>
+            <p :class="['text-sm mb-2', themeClasses.externalWarningText]">This application was not added or verified by the HomeDock OS team. External packages can potentially be dangerous if they contain malicious code.</p>
+
+            <div :class="['border rounded-lg p-3 mb-3', themeClasses.externalWarningAuthorBg, themeClasses.externalWarningAuthorBorder]">
+              <p :class="['text-sm font-semibold', themeClasses.externalWarningAuthorTitle]">HDS Package Author:</p>
+              <p :class="['text-sm', themeClasses.externalWarningAuthorText]">{{ app?.author || "Unknown" }}</p>
+            </div>
+
+            <p :class="['text-sm font-semibold mb-2', themeClasses.externalWarningTitle]">Security Recommendations:</p>
+            <ul :class="['text-xs -space-y-1', themeClasses.externalWarningListText]">
+              <li class="flex items-start gap-1">
+                <span class="mt-0.5">•</span>
+                <span>Only install packages from authors you trust</span>
+              </li>
+              <li class="flex items-start gap-1">
+                <span class="mt-0.5">•</span>
+                <span>Review the package configuration before installing</span>
+              </li>
+              <li class="flex items-start gap-1">
+                <span class="mt-0.5">•</span>
+                <span>Be cautious of packages requesting unusual permissions</span>
+              </li>
+              <li class="flex items-start gap-1">
+                <span class="mt-0.5">•</span>
+                <span>Report suspicious packages to <a href="mailto:support@homedock.cloud" :class="[themeClasses.hyperLink]">support@homedock.cloud</a></span>
+              </li>
+            </ul>
+
+            <p :class="['text-xs mt-2 underline', themeClasses.externalWarningDisclaimerText]">By proceeding, you acknowledge the risks associated with installing external packages.</p>
+          </div>
+        </div>
+      </div>
+    </AppDialog>
   </div>
 </template>
 
@@ -200,9 +246,12 @@ import earthIcon from "@iconify-icons/mdi/earth";
 import queueIcon from "@iconify-icons/mdi/queue";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import lockIcon from "@iconify-icons/mdi/lock";
+import packageIcon from "@iconify-icons/mdi/package-variant-closed";
+import alertIcon from "@iconify-icons/mdi/alert-circle";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import AppDialog from "../__Components__/AppDialog.vue";
 
 interface Props {
   app?: App;
@@ -231,6 +280,8 @@ const userName = ref<string | undefined>(undefined);
 const userPassword = ref<string | undefined>(undefined);
 const sslEnabled = ref(false);
 const hasLoadedConfig = ref(false);
+const showExternalWarning = ref(false);
+const pendingInstall = ref(false);
 
 const csrfToken = useCsrfToken();
 
@@ -286,7 +337,13 @@ function handleAdvancedModeToggle(checked: unknown, _e: Event) {
 async function handleInstall() {
   if (!app.value?.name) return;
 
+  if (app.value.is_external && !pendingInstall.value) {
+    showExternalWarning.value = true;
+    return;
+  }
+
   try {
+    pendingInstall.value = false;
     const currentToken = csrfToken.value;
     const configData = isAdvancedMode.value
       ? {
@@ -315,7 +372,7 @@ async function handleInstall() {
       return;
     }
 
-    await installationStore.trackInstallations(currentToken);
+    await installationStore.trackInstallations();
 
     await axios.post("/api/app-store-install-container", {
       containerName: app.value.name,
@@ -324,6 +381,17 @@ async function handleInstall() {
   } catch (error) {
     console.error("Error during installation process:", error);
   }
+}
+
+function handleExternalWarningOk() {
+  showExternalWarning.value = false;
+  pendingInstall.value = true;
+  handleInstall();
+}
+
+function handleExternalWarningCancel() {
+  showExternalWarning.value = false;
+  pendingInstall.value = false;
 }
 
 watch(

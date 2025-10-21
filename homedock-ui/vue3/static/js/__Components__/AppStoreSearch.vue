@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -65,7 +65,7 @@ const autocompleteOptions = computed(() => {
   const apps = appStore.sortedApps;
   const lowerSearchQuery = searchQuery.value.toLowerCase();
 
-  const filteredApps = lowerSearchQuery ? apps.filter((app) => app.name.toLowerCase().includes(lowerSearchQuery) || app.type.toLowerCase().includes(lowerSearchQuery)) : apps;
+  const filteredApps = lowerSearchQuery ? apps.filter((app) => app.name.toLowerCase().includes(lowerSearchQuery) || (app.display_name && app.display_name.toLowerCase().includes(lowerSearchQuery)) || app.type.toLowerCase().includes(lowerSearchQuery)) : apps;
 
   const installedApps = filteredApps.filter((app) => app.is_installed);
   const newApps = filteredApps.filter((app) => app.is_new && !app.is_installed && typeof app.new_until === "string" && dayjs().isBefore(dayjs(app.new_until))); // Aplicaciones nuevas que no están instaladas
@@ -82,7 +82,7 @@ const autocompleteOptions = computed(() => {
       label: `New (${newApps.length})`,
       options: newApps.map((app) => ({
         value: app.name,
-        label: app.name,
+        label: app.display_name || app.name,
         picture_path: app.picture_path,
         type: app.type,
         icon: app.icon,
@@ -93,7 +93,7 @@ const autocompleteOptions = computed(() => {
       label: `Installed (${installedApps.length})`,
       options: installedApps.map((app) => ({
         value: app.name,
-        label: app.name,
+        label: app.display_name || app.name,
         picture_path: app.picture_path,
         type: app.type,
         icon: app.icon,
@@ -105,7 +105,7 @@ const autocompleteOptions = computed(() => {
       label: `Not Installed (${notInstalledApps.length})`,
       options: notInstalledApps.map((app) => ({
         value: app.name,
-        label: app.name,
+        label: app.display_name || app.name,
         picture_path: app.picture_path,
         type: app.type,
         icon: app.icon,
@@ -155,6 +155,12 @@ watch(searchQuery, (newQuery) => {
   if (newQuery) {
     appStore.setCategoryFilter("");
   }
+});
+
+onMounted(() => {
+  searchQuery.value = "";
+  selectedApp.value = null;
+  appStore.setSearchQuery("");
 });
 </script>
 

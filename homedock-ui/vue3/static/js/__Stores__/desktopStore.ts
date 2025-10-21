@@ -9,6 +9,7 @@ import { useWindowStore } from "./windowStore";
 export interface DockerApp {
   id: string;
   name: string;
+  display_name?: string;
   image: string;
   image_path: string;
   status: "running" | "exited" | "paused" | "created";
@@ -17,10 +18,14 @@ export interface DockerApp {
   host: string;
   ports: string[];
   usagePercent: number;
+  memoryUsagePercent: number;
+  networkRxBytes: number;
+  networkTxBytes: number;
   HDGroup: string;
   HDRole?: string;
   checked: boolean;
   isProcessing: boolean;
+  has_update?: boolean;
 
   x?: number;
   y?: number;
@@ -46,11 +51,25 @@ export interface DesktopFolder {
   createdAt: number;
 }
 
+export interface SystemDesktopIcon {
+  id: string;
+  appId: string;
+  name: string;
+  icon: any;
+  x?: number;
+  y?: number;
+  gridRow?: number;
+  gridCol?: number;
+  page?: number;
+  isPermanent?: boolean;
+}
+
 export const useDesktopStore = defineStore("desktop", {
   state: () => ({
     startMenuOpen: false,
     dockerApps: [] as DockerApp[],
     desktopFolders: [] as DesktopFolder[],
+    systemDesktopIcons: [] as SystemDesktopIcon[],
     recentApps: [] as string[],
     pinnedApps: [] as string[],
     desktopLayout: "grid" as "grid" | "list",
@@ -108,7 +127,7 @@ export const useDesktopStore = defineStore("desktop", {
       } else {
         const windowStore = useWindowStore();
         windowStore.openWindow("properties", {
-          title: `${app.name} - Properties`,
+          title: `${app.display_name || app.name} - Properties`,
           data: { appId: app.id },
           allowMultiple: true,
         });
@@ -138,6 +157,13 @@ export const useDesktopStore = defineStore("desktop", {
 
     updateDockerApp(appId: string, updates: Partial<DockerApp>) {
       const app = this.dockerApps.find((a) => a.id === appId);
+      if (app) {
+        Object.assign(app, updates);
+      }
+    },
+
+    updateDockerAppByName(appName: string, updates: Partial<DockerApp>) {
+      const app = this.dockerApps.find((a) => a.name === appName);
       if (app) {
         Object.assign(app, updates);
       }
@@ -185,9 +211,6 @@ export const useDesktopStore = defineStore("desktop", {
       this.savePinnedApps();
     },
 
-    /**
-     * Verifica si una app está pinned
-     */
     isAppPinned(appId: string): boolean {
       return this.pinnedApps.includes(appId);
     },
@@ -242,6 +265,69 @@ export const useDesktopStore = defineStore("desktop", {
       this.loadRecentApps();
       this.loadPinnedApps();
       this.loadDesktopPreferences();
+      this.initializeSystemIcons();
+    },
+
+    initializeSystemIcons() {
+      const savedPositions = this.loadSystemIconPositions();
+
+      const appHomeIcon: SystemDesktopIcon = {
+        id: "system-icon-apphome",
+        appId: "apphome",
+        name: "My Home",
+        icon: "mdi:cloud",
+        isPermanent: true,
+        ...savedPositions["system-icon-apphome"],
+      };
+
+      this.systemDesktopIcons = [appHomeIcon];
+    },
+
+    updateSystemIconPosition(iconId: string, x: number, y: number, gridRow?: number, gridCol?: number, page?: number) {
+      const icon = this.systemDesktopIcons.find((i) => i.id === iconId);
+      if (icon) {
+        icon.x = x;
+        icon.y = y;
+        if (gridRow !== undefined) icon.gridRow = gridRow;
+        if (gridCol !== undefined) icon.gridCol = gridCol;
+        if (page !== undefined) icon.page = page;
+
+        this.saveSystemIconPositions();
+      }
+    },
+
+    saveSystemIconPositions() {
+      try {
+        const positions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }> = {};
+
+        this.systemDesktopIcons.forEach((icon) => {
+          if (icon.x !== undefined || icon.y !== undefined || icon.gridRow !== undefined || icon.gridCol !== undefined || icon.page !== undefined) {
+            positions[icon.id] = {
+              x: icon.x,
+              y: icon.y,
+              gridRow: icon.gridRow,
+              gridCol: icon.gridCol,
+              page: icon.page,
+            };
+          }
+        });
+
+        localStorage.setItem("homedock_system_icon_positions", JSON.stringify(positions));
+      } catch (error) {
+        console.error("Error saving system icon positions:", error);
+      }
+    },
+
+    loadSystemIconPositions(): Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }> {
+      try {
+        const stored = localStorage.getItem("homedock_system_icon_positions");
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (error) {
+        console.error("Error loading system icon positions:", error);
+      }
+      return {};
     },
 
     updateIconPosition(appId: string, x: number, y: number, gridRow?: number, gridCol?: number, page?: number) {
@@ -311,8 +397,17 @@ export const useDesktopStore = defineStore("desktop", {
         folder.page = undefined;
       });
 
+      this.systemDesktopIcons.forEach((icon) => {
+        icon.x = undefined;
+        icon.y = undefined;
+        icon.gridRow = undefined;
+        icon.gridCol = undefined;
+        icon.page = undefined;
+      });
+
       this.saveIconPositions();
       this.saveFolders();
+      this.saveSystemIconPositions();
     },
 
     generateFolderId(): string {

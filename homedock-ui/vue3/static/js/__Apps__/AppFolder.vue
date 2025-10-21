@@ -22,7 +22,7 @@
 
     <div class="folder-apps-grid" ref="containerRef" @contextmenu="handleDesktopContextMenu">
       <TransitionGroup name="icon-appear">
-        <div v-for="(app, index) in folderApps" :key="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', selectedApp !== app.id && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], selectedApp === app.id && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected]]" :style="getIconStyle(index)" @click="handleClick(app)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.name} (${app.status})`">
+        <div v-for="(app, index) in folderApps" :key="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', selectedApp !== app.id && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], selectedApp === app.id && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected]]" :style="getIconStyle(index)" @click="handleClick(app)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
           <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedApp !== app.id && ['border-transparent', themeClasses.desktopIconContainerBgHover], selectedApp === app.id && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
             <BaseImage :src="app.image_path" class="app-image rounded-xl" alt="" draggable="false" />
             <Transition name="loading-overlay-fade">
@@ -32,7 +32,7 @@
             </Transition>
             <div :class="['status-badge', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder, { 'status-pulse': app.status === 'running' }]"></div>
           </div>
-          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ app.name }}</span>
+          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ app.display_name || app.name }}</span>
         </div>
       </TransitionGroup>
     </div>
@@ -230,7 +230,7 @@ function handleDoubleClick(app: DockerApp) {
     window.open(app.service_url, "_blank", "noopener,noreferrer");
   } else {
     windowStore.openWindow("properties", {
-      title: `${app.name} - Properties`,
+      title: `${app.display_name || app.name} - Properties`,
       data: { appId: app.id },
       allowMultiple: true,
     });
@@ -349,7 +349,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     action: () => {
       if (contextMenuApp.value) {
         windowStore.openWindow("logs", {
-          title: `${contextMenuApp.value.name} - Logs`,
+          title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Logs`,
           data: { appName: contextMenuApp.value.name },
           allowMultiple: true,
         });
@@ -381,7 +381,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     action: () => {
       if (!contextMenuApp.value) return;
       windowStore.openWindow("properties", {
-        title: `${contextMenuApp.value.name} - Properties`,
+        title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Properties`,
         data: { appId: contextMenuApp.value.id },
         allowMultiple: true,
       });
@@ -410,7 +410,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
 
       confirm({
         title: "Confirm Uninstall",
-        content: `Are you sure you want to uninstall ${appToUninstall.name}? This action cannot be undone.`,
+        content: `Are you sure you want to uninstall ${appToUninstall.display_name || appToUninstall.name}? This action cannot be undone.`,
         okText: "Uninstall",
         cancelText: "Cancel",
         onOk: async () => {
@@ -428,7 +428,6 @@ function closeContextMenu() {
   contextMenuApp.value = null;
 }
 
-// Mobile Touch Handlers (Long-Press for Context Menu)
 function handleTouchStart(e: TouchEvent, app: DockerApp) {
   if (e.touches.length > 1) return;
 
@@ -482,8 +481,6 @@ function handleTouchEnd(e: TouchEvent, app: DockerApp) {
 
   longPressMoved.value = false;
 }
-
-// Drop into Folder Handling
 
 function isMouseOver(x: number, y: number): boolean {
   if (!containerRef.value) return false;

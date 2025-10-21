@@ -12,7 +12,7 @@
             <LogoIcon class="h-24 w-24 p-4 rounded-3xl ring-1 shadow-xl" :class="[themeClasses.aboutLogo]" />
           </div>
           <h1 :class="['text-3xl font-bold', themeClasses.aboutTitle]">HomeDock OS</h1>
-          <p :class="['text-lg mt-2', themeClasses.aboutSubtitle]">Your Personal Cloud Operating System</p>
+          <p :class="['text-lg mt-2 text-balance leading-none mb-1 opacity-80', themeClasses.aboutSubtitle]">Your Personal Cloud Operating System</p>
           <p :class="['text-[10px] opacity-40', themeClasses.aboutSubtitle]">Private, secure and universally multiplatform</p>
         </div>
 
@@ -226,6 +226,10 @@
                 <span>Docker SDK</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
+              <a href="https://github.com/gabrieldemarmiesse/python-on-whales/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>Python on Whales</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
               <a href="https://github.com/pgjones/hypercorn/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>Hypercorn</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
@@ -276,7 +280,7 @@
       </div>
     </div>
 
-    <StatusBar :icon="infoIcon" message="About HomeDock OS" :info="`Version ${version}`" :showHelp="true">
+    <StatusBar :icon="infoIcon" message="About" :info="`Version ${version}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">

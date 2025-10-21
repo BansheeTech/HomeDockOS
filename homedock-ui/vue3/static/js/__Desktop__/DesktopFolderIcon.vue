@@ -4,13 +4,19 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="['desktop-folder group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 md:p-3 rounded-lg w-[100px] z-[1] touch-none select-none outline-none border', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
+  <div :class="['desktop-folder group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 md:p-3 rounded-lg w-[100px] z-[1] touch-none select-none outline-none border', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
     <div :class="['folder-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-visible pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !isSelected && ['border-transparent', themeClasses.desktopIconContainerBgHover], isSelected && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]" :style="{ backgroundColor: folder.color }">
       <div v-if="itemCount > 0" class="folder-papers-stack">
         <BaseImage v-for="(item, index) in previewItems" :key="item.id" :src="item.image_path" class="folder-paper-icon" :class="`paper-icon-${index}`" alt="" draggable="false" />
       </div>
 
       <Icon :icon="folderIcon" :class="['w-10 h-10 pointer-events-none absolute inset-0 m-auto z-10', themeClasses.folderIconColor, themeClasses.folderIconShadow]" />
+
+      <Transition name="loading-indicator-fade">
+        <div v-if="hasProcessingApps" :class="['absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full z-[20] pointer-events-none shadow-lg', themeClasses.folderLoadingBg]">
+          <div :class="['w-3 h-3 rounded-full border-[2px] animate-spin', themeClasses.folderLoadingSpinner, themeClasses.folderLoadingSpinnerTop]"></div>
+        </div>
+      </Transition>
 
       <Transition name="badge-pop">
         <div v-if="itemCount > 0" :key="itemCount" :class="['absolute bottom-1 right-1 min-w-[20px] h-5 flex items-center justify-center px-1.5 rounded-[10px] text-[0.65rem] font-semibold z-[20] pointer-events-none', themeClasses.folderBadgeBg, themeClasses.folderBadgeText, themeClasses.folderBadgeBorder, themeClasses.folderBadgeShadow]">{{ itemCount }}</div>
@@ -37,11 +43,13 @@ interface Props {
   folder: DesktopFolder;
   isSelected?: boolean;
   isDragging?: boolean;
+  isWiggleMode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isSelected: false,
   isDragging: false,
+  isWiggleMode: false,
 });
 
 const emit = defineEmits<{
@@ -63,6 +71,13 @@ const itemCount = computed(() => props.folder.items.length);
 const previewItems = computed(() => {
   const apps = props.folder.items.map((appId) => desktopStore.dockerApps.find((app) => app.id === appId)).filter((app) => app !== undefined); // Filtrar undefined
   return apps.slice(0, 4);
+});
+
+const hasProcessingApps = computed(() => {
+  return props.folder.items.some((appId) => {
+    const app = desktopStore.dockerApps.find((a) => a.id === appId);
+    return app?.isProcessing === true;
+  });
 });
 
 const getStyle = computed<CSSProperties>(() => {
@@ -289,5 +304,44 @@ function handleContextMenu(e: MouseEvent) {
   pointer-events: none;
   font-weight: 500;
   line-height: 1.25rem;
+}
+
+/* Wiggle Animation */
+.icon-wiggle {
+  animation: wiggle-animation 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes wiggle-animation {
+  0% {
+    transform: rotate(-1deg) translateY(0);
+  }
+  25% {
+    transform: rotate(1deg) translateY(-1px);
+  }
+  50% {
+    transform: rotate(-1.5deg) translateY(0);
+  }
+  75% {
+    transform: rotate(1.5deg) translateY(-1px);
+  }
+  100% {
+    transform: rotate(-1deg) translateY(0);
+  }
+}
+
+/* Loading Indicator Fade Transition */
+.loading-indicator-fade-enter-active,
+.loading-indicator-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.loading-indicator-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.loading-indicator-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
 }
 </style>

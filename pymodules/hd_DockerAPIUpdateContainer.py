@@ -9,7 +9,6 @@ import os
 import yaml
 import time
 import docker
-import subprocess
 
 from flask import request
 from flask_login import login_required
@@ -18,6 +17,8 @@ from pymodules.hd_FunctionsGlobals import compose_upload_folder
 from pymodules.hd_ThreadAutoPortRouting import update_event
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_ClassDockerComposeHelper import DockerComposeHelper
+from pymodules.hd_ThreadAppUpdatesChecker import clear_update_flag
 
 manager = DockerClientManager.get_instance()
 client = manager.get_client()
@@ -107,7 +108,13 @@ def stop_and_update_container(name, old_image_id, delete_old_image_flag):
         container.stop()
         container.remove()
 
-        subprocess.run(["docker-compose", "up", "-d", name], cwd=os.path.join(compose_upload_folder, name))
+        compose_helper = DockerComposeHelper.get_instance()
+        success, message = compose_helper.up(cwd=os.path.join(compose_upload_folder, name), detach=True, service_names=[name])
+
+        if not success:
+            print(f"Error starting container {name}: {message}")
+        else:
+            clear_update_flag(name)
 
         if delete_old_image_flag:
             client.images.remove(old_image_id)
@@ -152,7 +159,15 @@ def stop_and_update_group(group_name, old_image_ids, delete_old_image_flag):
     except Exception as e:
         print(f"An error occurred while stopping the main container {main_container_name}: {e}")
 
-    subprocess.run(["docker-compose", "up", "-d"], cwd=os.path.join(compose_upload_folder, main_container_name))
+    compose_helper = DockerComposeHelper.get_instance()
+    success, message = compose_helper.up(cwd=os.path.join(compose_upload_folder, main_container_name), detach=True)
+
+    if not success:
+        print(f"Error starting group {group_name}: {message}")
+    else:
+        new_group_containers = client.containers.list(filters={"label": f"HDGroup={group_name}"}, all=True)
+        for container in new_group_containers:
+            clear_update_flag(container.name)
 
     new_group_containers = client.containers.list(filters={"label": f"HDGroup={group_name}"}, all=True)
     new_image_ids = [c.attrs["Config"]["Image"] for c in new_group_containers]
@@ -180,9 +195,22 @@ def check_for_new_images(container_names):
         except (FileNotFoundError, KeyError):
             continue
 
-        pull_process = subprocess.run(["docker", "pull", docker_image], capture_output=True, text=True)
-        if "Image is up to date" not in pull_process.stdout:
-            new_images_containers.append(name)
+        try:
+            try:
+                old_image = client.images.get(docker_image)
+                old_digest = old_image.id
+            except docker.errors.ImageNotFound:
+                old_digest = None
+
+            client.images.pull(docker_image)
+            new_image = client.images.get(docker_image)
+
+            if old_digest != new_image.id:
+                new_images_containers.append(name)
+
+        except docker.errors.APIError as e:
+            print(f"Error pulling image {docker_image}: {e}")
+            continue
 
     return new_images_containers
 

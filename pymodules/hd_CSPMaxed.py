@@ -20,7 +20,7 @@ def generate_csp(nonce, is_development, endpoint=""):
         "style-src 'self' 'unsafe-inline' ;"
         "form-action 'self' ;"
         "media-src 'self' ;"
-        "img-src 'self' cdn.homedock.cloud ;"
+        "img-src 'self' cdn.homedock.cloud data: ;"
         "base-uri 'self' ;"
         "object-src 'none' ;"
         "font-src 'self' ;"

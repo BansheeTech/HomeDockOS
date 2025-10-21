@@ -8,7 +8,6 @@ https://www.banshee.pro
 import os
 import time
 import docker
-import subprocess
 
 from flask import request
 from flask_login import login_required
@@ -17,6 +16,7 @@ from pymodules.hd_FunctionsGlobals import current_directory, compose_upload_fold
 from pymodules.hd_ThreadAutoPortRouting import update_event
 
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_ClassDockerComposeHelper import DockerComposeHelper
 
 
 @login_required
@@ -57,7 +57,11 @@ def recreate_container():
         with open(temp_file_path, "w") as f:
             f.write(yml_content)
 
-        subprocess.run(["docker-compose", "up", "-d"], cwd=temp_folder_path)
+        compose_helper = DockerComposeHelper.get_instance()
+        success, message = compose_helper.up(cwd=temp_folder_path, detach=True)
+
+        if not success:
+            return {"message": f"Failed to recreate container: {message}"}, 500
 
         original_file_path = os.path.join(compose_upload_folder, f"{container_name}.yml")
         os.replace(temp_file_path, original_file_path)  # HDOS00004

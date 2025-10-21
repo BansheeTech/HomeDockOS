@@ -155,11 +155,27 @@ onMounted(() => {
   const nativeToLowerCase = String.prototype.toLowerCase;
 
   let lastActivationTime = 0;
-  const ACTIVATION_COOLDOWN = 1000; // 1 second
+  const ACTIVATION_COOLDOWN = 1000;
+  let successfulRequests = 0;
+  const RECOVERY_THRESHOLD = 3;
 
   interceptorDecepticonId = axios.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      if (sessionExpired.value && response.status >= 200 && response.status < 300) {
+        successfulRequests++;
+
+        if (successfulRequests >= RECOVERY_THRESHOLD) {
+          sessionExpired.value = false;
+          expiredTime.value = null;
+          isExpanded.value = false;
+          successfulRequests = 0;
+        }
+      }
+
+      return response;
+    },
     (error: AxiosError) => {
+      successfulRequests = 0;
       try {
         if (!error || typeof error !== "object") {
           return Promise.reject(error);

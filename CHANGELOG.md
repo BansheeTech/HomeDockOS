@@ -1,6 +1,63 @@
 # CHANGELOG
 
-- **2.0.1.106** (Latest): Updated JavaScript and Python dependencies to latest versions, migrated head management library and simplified rate limiting architecture.
+- **2.0.2.144** (Latest): Introduced the **HDS Package Management System** with the new **Packager** system tool, allowing you to create, import, and share custom application packages directly into the App Store. Added comprehensive **update tracking** for your apps with automatic detection. Enhanced system monitoring with a brand new **Home** dashboard displaying real-time storage statistics and system health.
+
+  - Launched the **Packager** application, your personal package creation studio for building custom app distributions in the new `.hds` format.
+  - Added **Package Generator** interface where you can bundle Docker Compose files with custom icons, metadata, and configurations into shareable packages.
+  - Introduced **Package Manager** allowing you to import, browse, and manage all your custom application packages in one place.
+  - Implemented support for **HDS package files** (`.hds`), a specialized format designed to simplify app distribution and installation across all HomeDock OS instances, making them instantly available on the App Store.
+  - Created automatic **update detection system** that monitors your installed applications and alerts you when newer versions are available.
+  - Added **App Updates Indicator** to the taskbar showing at-a-glance how many of your apps have updates ready to install.
+  - Implemented background **update checker thread** that automatically scans for app updates every 6 hours without impacting system performance.
+  - Built the new **My Home app** application serving as your system's dashboard, displaying storage usage, encrypted files, and external drive information at a glance.
+  - Added **system storage overview** on My Home app showing your cloud storage usage with visual progress bars and detailed capacity information.
+  - Integrated **encrypted storage statistics** on My Home app displaying how much space your secure Drop Zone files are using with file count tracking.
+  - Implemented **external drive detection** and monitoring on My Home app, automatically showing external storage capacity and usage when drives are connected.
+  - Enhanced **system statistics monitoring** with new real-time tracking capabilities for container resource usage and performance metrics.
+  - Created dedicated **resource monitoring thread** for tracking CPU, memory, and network usage of individual Docker containers tracking CPU, RAM and network usage.
+  - Introduced **system stats store** providing centralized state management for all performance metrics across the interface.
+  - Upgraded the **Desktop icons grid** with improved drag-and-drop behavior, smoother animations, and better multi-selection support.
+  - Enhanced **folder management** with refined context menus, improved color customization, and more intuitive organization features.
+  - Refined **Start Menu** with better app categorization, improved search functionality, and visual polish for custom package apps.
+  - Updated **Application Properties** window to display more comprehensive container information including now RAM and traffic usage too.
+  - Added **Docker Compose Helper** class providing standardized utilities for parsing, validating, and managing compose file operations.
+  - Enhanced **container data retrieval** with improved caching, better error handling, and support for user-created package apps.
+  - Implemented **devhook placeholder detection** on Packager app allowing package creators to include dynamic variables like random strings or generated API keys in their compose files.
+  - Added comprehensive .hds **validation system** for package creation including slug format checking, category validation, and file size limits.
+  - Introduced .hds **package metadata system** supporting display names, descriptions, categories, types, and custom branding for user packages.
+  - Created **package export functionality** allowing you to download your created packages as `.hds` files for backup or sharing.
+  - Implemented **package import workflow** with drag-and-drop support, validation checks, and automatic installation to your app library.
+  - Added **user packages directory** (`_user_packages/`) organizing imported packages with dedicated folders for package files, icons, and compose configurations.
+  - Enhanced **App Store integration** to seamlessly display both official HomeDock OS apps and your custom imported packages in a unified interface.
+  - Improved **desktop icon rendering** for custom package apps with proper icon loading, fallback handling, and theme-aware styling.
+  - Updated **installation workflow** to support custom packages with the same reliability and features as official HomeDock OS App Store applications.
+  - Refined **taskbar indicators** with new visual designs for updates, installations, and uploads maintaining consistent styling across themes.
+  - Added support for **package deletion** with proper cleanup of associated files, icons, and compose configurations.
+  - Implemented **package editing capabilities** allowing you to modify existing package metadata, icons, and compose files after creation.
+  - Created **compose file editor** within Packager system app featuring syntax validation, live preview, and formatting assistance.
+  - Added **icon preview system** in the package generator showing real-time previews of uploaded icons with size and format validation.
+  - Introduced **category selection** with predefined options including Media, Development, Security, Networking, and more for better app organization.
+  - Enhanced **error messaging** throughout the packaging system with clear, user-friendly feedback for validation failures and upload issues.
+  - Implemented **file size limits** ensuring packages remain manageable (5MB for packages, 10MB for compose files, 5MB for icons).
+  - Added **path traversal protection** in package handling preventing security issues when extracting or processing package files.
+  - Created **package versioning support** within `.hds` format version tracking ensuring compatibility across future HomeDock OS releases.
+  - Improved **container update logic** with smarter image comparison using manifest digests for accurate update detection.
+  - Added **update filtering** to exclude dependency containers (marked with `HDRole=dependency`) from update notifications.
+  - Refined **mobile responsiveness** for AppPackager with optimized layouts for tablets and smaller screens.
+  - Updated **window configurations** adding proper size constraints, default dimensions, and positioning for the new Home and Packager system apps.
+  - Enhanced **desktop layout** to accommodate the new Home system app as a quick-access system dashboard alongside other core applications.
+  - Improved **Docker API interactions** with better error handling, retry logic, and timeout management for registry checks and container operations.
+  - Added **cache invalidation** for external apps ensuring package changes are immediately reflected throughout the interface.
+  - Fixed **compose version compatibility** in WireGuard and WG-Easy templates ensuring proper deployment across different Docker Compose versions.
+  - Refined **notification system** to handle package installation progress, update availability, and error states with contextual messages.
+  - Improved **state persistence** for package-related data ensuring your custom apps remain available across sessions and restarts.
+  - Added **sanitization utilities** for container names and package slugs preventing conflicts and ensuring filesystem compatibility.
+  - Enhanced **global functions** with new utilities for package path resolution, directory creation, and file operations.
+  - Enhanced **file delivery system** supporting package downloads with proper MIME types and headers for `.hds` files.
+
+---
+
+- **2.0.1.106**: Updated JavaScript and Python dependencies to latest versions, migrated head management library and simplified rate limiting architecture.
 
   - Updated all **JavaScript dependencies** to their latest stable versions for improved security and performance.
   - Updated all **Python dependencies** to their latest stable versions ensuring compatibility and security patches.

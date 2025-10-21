@@ -8,6 +8,7 @@ import { notifyError } from "../__Components__/Notifications.vue";
 import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
 import { useSelectedAppsStore } from "../__Stores__/selectedAppsStore";
 import { useAppStore } from "../__Stores__/useAppStore";
+import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 
 import { startContainers } from "./DockerAPIStartContainerService";
 import { stopContainers } from "./DockerAPIStopContainerService";
@@ -16,7 +17,6 @@ import { pauseContainers } from "./DockerAPIPauseContainerService";
 import { unpauseContainers } from "./DockerAPIUnpauseContainerService";
 import { uninstallContainers } from "./DockerAPIUninstallContainerService";
 import { updateContainers } from "./DockerAPIUpdateContainerService";
-import { fetchContainers } from "./DockerAPIFetchContainerData";
 
 export async function startContainer(app: DockerApp, csrfToken: string, themeClass?: string) {
   const desktopStore = useDesktopStore();
@@ -146,15 +146,27 @@ export async function uninstallContainer(app: DockerApp, csrfToken: string, them
   }
 }
 
-export async function updateContainer(app: DockerApp, csrfToken: string, themeClass?: string) {
+export async function updateContainer(app: DockerApp, csrfToken: string, themeClass?: string, skipQueue: boolean = false) {
   const desktopStore = useDesktopStore();
   const selectedAppsStore = useSelectedAppsStore();
+  const updateStore = useAppUpdateStore();
+
+  if (!skipQueue) {
+    updateStore.addToQueue({
+      name: app.name,
+      display_name: app.display_name || app.name,
+      image_path: app.image_path,
+    });
+    return;
+  }
 
   try {
     desktopStore.updateDockerApp(app.id, { isProcessing: true });
     selectedAppsStore.setProcessing(app.name, true);
 
     await updateContainers(selectedAppsStore.applications, app.name, csrfToken);
+
+    desktopStore.updateDockerAppByName(app.name, { has_update: false });
   } catch (error) {
     if (error instanceof AxiosError && themeClass) {
       notifyError(error, themeClass);
@@ -162,7 +174,8 @@ export async function updateContainer(app: DockerApp, csrfToken: string, themeCl
       console.error("Error updating container:", error);
     }
   } finally {
-    desktopStore.updateDockerApp(app.id, { isProcessing: false });
+    desktopStore.updateDockerAppByName(app.name, { isProcessing: false });
     selectedAppsStore.setProcessing(app.name, false);
+    updateStore.finishUpdating();
   }
 }

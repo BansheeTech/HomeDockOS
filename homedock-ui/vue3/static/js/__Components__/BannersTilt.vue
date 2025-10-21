@@ -102,7 +102,7 @@ const handleLearnMore = () => {
   }
 
   windowStore.openWindow("installconfig", {
-    title: `Install ${app.name}`,
+    title: `Install ${app.display_name || app.name}`,
     data: { app: app },
     allowMultiple: true,
   });

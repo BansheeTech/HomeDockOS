@@ -9,7 +9,7 @@
       <div class="app-details flex items-center space-x-4 mb-4">
         <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
         <div class="flex flex-col justify-center">
-          <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-sm">{{ appName }} logs</p>
+          <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-sm">{{ displayName }} logs</p>
           <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">Real-time container logs</p>
         </div>
       </div>
@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <StatusBar :icon="scriptTextIcon" message="Logs" :info="`Viewing ${appName}`" :showHelp="true">
+    <StatusBar :icon="scriptTextIcon" message="Logs" :info="`Viewing ${displayName}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
@@ -58,6 +58,7 @@ import axios from "axios";
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { useDesktopStore } from "../__Stores__/desktopStore";
 import { Switch } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
@@ -76,8 +77,13 @@ interface Props {
 
 const props = defineProps<Props>();
 const { themeClasses } = useTheme();
+const desktopStore = useDesktopStore();
 
 const appName = computed(() => props.appName || props.data?.appName || "Unknown");
+const displayName = computed(() => {
+  const app = desktopStore.mainDockerApps.find((a) => a.name === appName.value);
+  return app?.display_name || appName.value;
+});
 
 const containerLogs = ref("");
 const autoRefresh = ref(false);
@@ -85,7 +91,10 @@ const refreshInterval = ref<NodeJS.Timeout | null>(null);
 
 const csrfToken = useCsrfToken();
 const fallbackIcon = "docker-icons/notfound.jpg";
-const appIcon = computed(() => (appName.value ? `docker-icons/${appName.value}.jpg` : fallbackIcon));
+const appIcon = computed(() => {
+  const app = desktopStore.mainDockerApps.find((a) => a.name === appName.value);
+  return app?.image_path || fallbackIcon;
+});
 
 const fetchContainerLogs = async () => {
   try {

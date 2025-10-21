@@ -10,13 +10,17 @@ import os
 from flask import send_from_directory
 
 from pymodules.hd_FunctionsConfig import read_config
-from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsGlobals import current_directory, user_packages_images_folder
 
 globalConfig = read_config()
 
 
 def send_static_images(path):
     return send_from_directory(os.path.join(current_directory, "homedock-ui", "static", "images"), path)
+
+
+def send_user_images(path):
+    return send_from_directory(user_packages_images_folder, path)
 
 
 def send_static_favicon(path):

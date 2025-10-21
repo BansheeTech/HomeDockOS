@@ -213,7 +213,8 @@ import axios from "axios";
 import { FileEntry } from "../__Types__/DropZoneFileEntry";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { useUploadStore } from "../__Stores__/useUploadStore";
+import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
+import { useDropZoneStore } from "../__Stores__/useDropZoneStore";
 import { message, UploadDragger, AutoComplete, InputSearch, Empty, Button, Progress, Select, SelectOption } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
@@ -302,7 +303,8 @@ const fileIconsMap: Record<string, any> = {
 
 const csrfToken = useCsrfToken();
 const { themeClasses } = useTheme();
-const uploadStore = useUploadStore();
+const uploadStore = useDropZoneUploadingStore();
+const dropZoneStore = useDropZoneStore();
 
 const files = ref<FileEntry[]>([]);
 const searchQuery = ref<string>("");
@@ -412,6 +414,8 @@ const processQueue = async () => {
     fileList.value = fileList.value.filter((f: any) => f.uid !== nextUpload.file.uid);
 
     uploadStore.completeUpload(nextUpload.file.uid);
+
+    await fetchFiles();
 
     if (nextUpload.onSuccess) nextUpload.onSuccess(null, nextUpload.file);
   } catch (error) {
@@ -599,6 +603,8 @@ const fetchFiles = async () => {
     });
 
     files.value = response.data.files || [];
+
+    dropZoneStore.setFiles(files.value);
   } catch (error) {
     console.error("Failed to fetch files:", error);
     if (axios.isAxiosError(error)) {
@@ -670,10 +676,11 @@ const handleChange = (info: any) => {
 
 function formatSize(size: string | number) {
   const numSize = typeof size === "number" ? size : parseFloat(size);
-  if (numSize >= 1e9) return (numSize / 1e9).toFixed(2) + " GBs";
-  if (numSize >= 1e6) return (numSize / 1e6).toFixed(2) + " MBs";
-  if (numSize >= 1e3) return (numSize / 1e3).toFixed(2) + " KBs";
-  return numSize + " B";
+  if (numSize === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(numSize) / Math.log(k));
+  return Math.round((numSize / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
 const handleSuccess = () => {

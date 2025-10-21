@@ -12,6 +12,9 @@ interface Application {
   host: string;
   ports: string[];
   usagePercent: number;
+  memoryUsagePercent: number;
+  networkRxBytes: number;
+  networkTxBytes: number;
   status: "running" | "exited" | "paused" | "created";
   statusColor: string;
   image_path: string;

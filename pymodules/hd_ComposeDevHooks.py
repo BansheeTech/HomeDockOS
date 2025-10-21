@@ -9,10 +9,28 @@ import os
 import random
 import string
 import secrets
+import hashlib
 
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsGlobals import running_OS
+
+
+DEVHOOK_PLACEHOLDERS = {
+    hashlib.sha256("[[HD_USER_NAME]]".encode()).hexdigest()[:16]: "[[HD_USER_NAME]]",
+    hashlib.sha256("[[HD_PASSWORD]]".encode()).hexdigest()[:16]: "[[HD_PASSWORD]]",
+    hashlib.sha256("[[HD_SYSTEM_PASSWORD]]".encode()).hexdigest()[:16]: "[[HD_SYSTEM_PASSWORD]]",
+    hashlib.sha256("[[HD_RND_STR]]".encode()).hexdigest()[:16]: "[[HD_RND_STR]]",
+    hashlib.sha256("[[HD_LOCAL_IP]]".encode()).hexdigest()[:16]: "[[HD_LOCAL_IP]]",
+    hashlib.sha256("[[HD_INTERNET_IP]]".encode()).hexdigest()[:16]: "[[HD_INTERNET_IP]]",
+    hashlib.sha256("[[HD_DYN_DNS]]".encode()).hexdigest()[:16]: "[[HD_DYN_DNS]]",
+    hashlib.sha256("[[INSTALL_PATH]]".encode()).hexdigest()[:16]: "[[INSTALL_PATH]]",
+    hashlib.sha256("[[APP_MOUNT_POINT]]".encode()).hexdigest()[:16]: "[[APP_MOUNT_POINT]]",
+}
+
+DEVHOOK_USER_NAME_KEY = hashlib.sha256("[[HD_USER_NAME]]".encode()).hexdigest()[:16]
+DEVHOOK_PASSWORD_KEY = hashlib.sha256("[[HD_PASSWORD]]".encode()).hexdigest()[:16]
+DEVHOOK_RANDOM_STRING_KEY = hashlib.sha256("[[HD_RND_STR]]".encode()).hexdigest()[:16]
 
 
 def get_config_path():
@@ -100,7 +118,7 @@ def process_devhooks(yml_str, generate_passwords=True):
 
 
 def extract_devhook_placeholders(yml_str):
-    placeholders = {"user_name": "[[HD_USER_NAME]]" in yml_str, "password": "[[HD_PASSWORD]]" in yml_str, "system_password": "[[HD_SYSTEM_PASSWORD]]" in yml_str, "random_string": "[[HD_RND_STR]]" in yml_str, "local_ip": "[[HD_LOCAL_IP]]" in yml_str, "internet_ip": "[[HD_INTERNET_IP]]" in yml_str, "dynamic_dns": "[[HD_DYN_DNS]]" in yml_str, "install_path": "[[INSTALL_PATH]]" in yml_str, "app_mount_point": "[[APP_MOUNT_POINT]]" in yml_str}
+    placeholders = {hash_key: placeholder in yml_str for hash_key, placeholder in DEVHOOK_PLACEHOLDERS.items()}
 
     return placeholders
 

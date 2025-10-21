@@ -121,11 +121,11 @@ import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
 import { useAppStore } from "../__Stores__/useAppStore";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useUploadStore } from "../__Stores__/useUploadStore";
+import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { getAllApps, SystemApp } from "../__Config__/WindowDefaultDetails";
+import { getExplorerApps, SystemApp } from "../__Config__/WindowDefaultDetails";
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
@@ -156,7 +156,7 @@ import fileSearchIcon from "@iconify-icons/mdi/file-search";
 const desktopStore = useDesktopStore();
 const appStore = useAppStore();
 const windowStore = useWindowStore();
-const uploadStore = useUploadStore();
+const uploadStore = useDropZoneUploadingStore();
 const { isMobile } = useResponsive();
 const { themeClasses } = useTheme();
 
@@ -223,7 +223,7 @@ interface SearchResult {
 }
 
 const systemApps = computed(() => {
-  return getAllApps().filter((app) => app.showInStartMenu !== false);
+  return getExplorerApps();
 });
 
 const installedDockerApps = computed(() => {
@@ -328,7 +328,7 @@ const allResults = computed<SearchResult[]>(() => {
     results.push({
       id: `docker-${app.id}`,
       type: "docker",
-      name: app.name,
+      name: app.display_name || app.name,
       description: app.image,
       image_path: app.image_path,
       category: "Installed Apps",
@@ -356,9 +356,9 @@ const allResults = computed<SearchResult[]>(() => {
     results.push({
       id: `available-${app.name}`,
       type: "available",
-      name: app.name,
+      name: app.display_name || app.name,
       description: app.category,
-      image_path: `docker-icons/${app.name}.jpg`,
+      image_path: app.picture_path || `docker-icons/${app.name}.jpg`,
       category: "Available in Store",
       score: 0,
       action: () => openAppStore(app.name),
@@ -580,7 +580,7 @@ function openAppStore(appName: string) {
   }
 
   windowStore.openWindow("installconfig", {
-    title: `Install ${app.name}`,
+    title: `Install ${app.display_name || app.name}`,
     data: { app },
     allowMultiple: true,
   });

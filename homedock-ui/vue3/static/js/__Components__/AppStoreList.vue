@@ -53,8 +53,10 @@ const openModal = (app: App) => {
     return;
   }
 
+  const displayName = selectedAppFromStore.display_name || selectedAppFromStore.name;
+
   windowStore.openWindow("installconfig", {
-    title: `Install ${selectedAppFromStore.name}`,
+    title: `Install ${displayName}`,
     data: { app: selectedAppFromStore },
     allowMultiple: true,
   });

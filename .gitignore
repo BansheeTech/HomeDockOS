@@ -3,6 +3,7 @@ __pycache__/
 HomeDockVenvDEV/
 pymodules/__pycache__/
 compose-link/
+_user_packages/
 dropzone/
 logs/
 otherfiles/
@@ -20,3 +21,5 @@ node_modules/
 .DS_Store
 .is_updating
 .is_desktop
+*.backup_*
+*.hds

@@ -158,7 +158,7 @@ const handleFinish = async () => {
   isSubmitting.value = true;
 
   try {
-    // 1 Clave pública RSA + Token from Back
+    // 1. RSA Pub key + Token from Back
     const publicKeyResponse = await axios.get("/api/pksend", {
       headers: {
         "Content-Type": "application/json",
@@ -172,7 +172,7 @@ const handleFinish = async () => {
       throw new Error("Public Key or token not found in response.");
     }
 
-    // 2 Cypher password with RSA
+    // 2. Cypher password with RSA
     const forge = (await import("node-forge")).default;
     const encoder = new TextEncoder();
     const encodedPassword = encoder.encode(formState.value.password);
@@ -188,7 +188,7 @@ const handleFinish = async () => {
 
     const encryptedPasswordBase64 = forge.util.encode64(encryptedPassword);
 
-    // 3 Encrypt password with pcrypt
+    // 3. Encrypt password with pcrypt
     const pcryptResponse = await axios.post(
       "/api/pcrypt",
       {
@@ -208,7 +208,7 @@ const handleFinish = async () => {
       return;
     }
 
-    // 4 Login Push
+    // 4. Login Push
     const loginResponse = await axios.post(
       "/login",
       {

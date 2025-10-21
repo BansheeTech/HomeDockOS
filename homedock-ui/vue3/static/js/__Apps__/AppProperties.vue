@@ -14,7 +14,7 @@
               <BaseImage :src="app.image_path" alt="App Icon" class="app-icon rounded-xl" draggable="false" />
             </div>
             <div class="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-              <h2 class="text-2xl font-bold m-0 leading-tight" :class="[themeClasses.notTextUp]">{{ app.name }}</h2>
+              <h2 class="text-2xl font-bold m-0 leading-tight" :class="[themeClasses.notTextUp]">{{ app.display_name || app.name }}</h2>
               <p class="text-sm opacity-70 m-0 overflow-hidden text-ellipsis whitespace-nowrap" :class="[themeClasses.notTextDown]">{{ app.image }}</p>
               <div :class="[...getStatusClasses(app.statusColor), 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border w-fit']">
                 <div :class="[getStatusDotClasses(app.status), 'w-1.5 h-1.5 rounded-full shadow-[0_0_6px_currentColor]', { 'animate-[pulse-success_2s_cubic-bezier(0.4,0,0.6,1)_infinite]': app.status === 'running' }]"></div>
@@ -40,9 +40,9 @@
             <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
               <div class="grid md:grid-cols-2 grid-cols-1 gap-3">
                 <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
-                  <div class="flex items-center gap-2 mb-2.5 text-[13px] font-semibold">
-                    <Icon :icon="cpuIcon" width="24" height="24" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                    <span :class="[themeClasses.appPropsCardHeaderText]">CPU</span>
+                  <div class="flex items-center gap-2 mb-2.5">
+                    <Icon :icon="cpuIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">CPU</span>
                   </div>
                   <div class="flex flex-col gap-1.5">
                     <span class="text-xl font-bold leading-none" :class="[themeClasses.appPropsInfoValue]">{{ app.usagePercent }}%</span>
@@ -52,71 +52,87 @@
                   </div>
                 </div>
 
-                <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200 opacity-50 cursor-not-allowed" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.aeroExtraScope]">
-                  <div class="flex items-center gap-2 mb-2.5 text-[13px] font-semibold">
-                    <Icon :icon="memoryIcon" width="24" height="24" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                    <span :class="[themeClasses.appPropsInfoLabel]">RAM</span>
+                <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                  <div class="flex items-center gap-2 mb-2.5">
+                    <Icon :icon="memoryIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">RAM</span>
                   </div>
                   <div class="flex flex-col gap-1.5">
-                    <span class="text-xl font-bold leading-none" :class="[themeClasses.appPropsInfoLabel]">N/A</span>
+                    <span class="text-xl font-bold leading-none" :class="[themeClasses.appPropsInfoValue]">{{ app.memoryUsagePercent }}%</span>
                     <div class="w-full h-1.5 rounded-full overflow-hidden" :class="[themeClasses.appPropsProgressBarBg]">
-                      <div class="h-full rounded-full transition-[width] duration-300" :class="[themeClasses.appPropsProgressBarFillNormal]" style="width: 0%"></div>
+                      <div class="h-full rounded-full transition-[width] duration-300" :style="{ width: `${app.memoryUsagePercent}%` }" :class="app.memoryUsagePercent >= 80 ? themeClasses.appPropsProgressBarFillCritical : app.memoryUsagePercent >= 50 ? themeClasses.appPropsProgressBarFillWarning : themeClasses.appPropsProgressBarFillNormal"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="rounded-[10px] px-4 py-3.5 transition-all duration-200" :class="[themeClasses.appPropsInfoCardBg, themeClasses.appPropsInfoCardBorder, themeClasses.appPropsInfoCardBgHover, themeClasses.appPropsInfoCardBorderHover, themeClasses.aeroExtraScope]">
-                <div class="flex items-center gap-2">
+              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="networkIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <h3 class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Network & Ports</h3>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Network</span>
                 </div>
-                <div class="flex flex-col gap-4">
-                  <div class="flex justify-between items-start gap-4 py-2.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Host</span>
-                    <span class="text-sm font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.host }}</span>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="downloadIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <span class="text-sm font-bold" :class="[themeClasses.appPropsInfoValue]">{{ formatBytes(app.networkRxBytes) }}</span>
                   </div>
-                  <div class="flex flex-col items-stretch gap-2 py-2.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Ports</span>
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="uploadIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <span class="text-sm font-bold" :class="[themeClasses.appPropsInfoValue]">{{ formatBytes(app.networkTxBytes) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <Icon :icon="accesPointNetworkIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Access & Ports</span>
+                </div>
+                <div class="flex flex-col">
+                  <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Host</span>
+                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.host }}</span>
+                  </div>
+                  <div class="flex flex-col items-stretch gap-1.5 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Ports</span>
                     <div class="w-full text-left">
                       <PortRouter :key="app.ports.join(':')" :containerId="app.name" :initialPorts="app.ports.join(':')" @update="handlePortsUpdate" />
                     </div>
                   </div>
-                  <div v-if="app.service_url" class="flex flex-col items-stretch gap-2 py-2.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium text-left" :class="[themeClasses.appPropsInfoLabel]">Service URL</span>
-                    <a :href="app.service_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm no-underline transition-colors duration-200 max-w-full overflow-hidden text-ellipsis whitespace-nowrap hover:underline" :class="[themeClasses.appPropsInfoLink, themeClasses.appPropsInfoLinkHover]" :title="app.service_url">
-                      {{ app.service_url }}
-                      <Icon :icon="openIcon" width="14" height="14" class="ml-1" />
+                  <div v-if="app.service_url" class="flex items-center gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <a :href="app.service_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium transition-colors duration-200 hover:opacity-70" :class="[themeClasses.appPropsInfoLink, themeClasses.appPropsInfoLinkHover]" :title="app.service_url">
+                      <span>Access</span>
+                      <Icon :icon="openIcon" width="14" height="14" />
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div v-if="showConfiguration" class="rounded-[10px] px-4 py-3.5 transition-all duration-200" :class="[themeClasses.appPropsInfoCardBg, themeClasses.appPropsInfoCardBorder, themeClasses.appPropsInfoCardBgHover, themeClasses.appPropsInfoCardBorderHover, themeClasses.aeroExtraScope]">
-                <div class="flex items-center gap-2">
+              <div v-if="showConfiguration" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="settingsIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <h3 class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Configuration</h3>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Configuration</span>
                 </div>
-                <div class="flex flex-col gap-4">
-                  <div v-if="app.HDGroup" class="flex justify-between items-start gap-4 py-2.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group</span>
-                    <span class="text-sm font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.HDGroup }}</span>
+                <div class="flex flex-col">
+                  <div v-if="app.HDGroup" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group</span>
+                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.HDGroup }}</span>
                   </div>
-                  <div v-if="app.HDRole === 'dependency'" class="flex justify-between items-start gap-4 py-2.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Role</span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border" :class="[themeClasses.appPropsBadgeDependency]">Dependency</span>
+                  <div v-if="app.HDRole === 'dependency'" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Role</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border" :class="[themeClasses.appPropsBadgeDependency]">Dependency</span>
                   </div>
-                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-2.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group Containers</span>
-                    <span class="text-sm font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ groupContainers.length + 1 }} containers</span>
+                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group Containers</span>
+                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ groupContainers.length + 1 }} containers</span>
                   </div>
-                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-2.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-[13px] font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Related</span>
-                    <div class="flex flex-col gap-1 flex-1">
-                      <div v-for="container in groupContainers" :key="container.id" class="flex items-center gap-2" :class="[themeClasses.appPropsInfoValue]">
-                        <Icon :icon="containerIcon" width="14" height="14" />
-                        <span class="text-sm">{{ container.name }}</span>
-                        <span class="text-xs opacity-60">({{ container.status }})</span>
+                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Related</span>
+                    <div class="flex flex-col gap-0.5 flex-1">
+                      <div v-for="container in groupContainers" :key="container.id" class="flex items-center gap-1.5" :class="[themeClasses.appPropsInfoValue]">
+                        <Icon :icon="containerIcon" width="12" height="12" />
+                        <span class="text-xs">{{ container.name }}</span>
+                        <span class="text-[10px] opacity-60">({{ container.status }})</span>
                       </div>
                     </div>
                   </div>
@@ -180,7 +196,7 @@
       </div>
     </div>
 
-    <StatusBar v-if="app" :icon="infoIcon" message="Properties" :info="`Viewing ${app.name}`" :showHelp="true">
+    <StatusBar v-if="app" :icon="infoIcon" message="Properties" :info="`Viewing ${app.display_name || app.name}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
@@ -189,7 +205,7 @@
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>View detailed information about your application including real-time CPU usage, detected port network configuration with editable ports, and grouped applications relationships. The General tab displays resource metrics and configuration details, while the Actions tab provides quick controls to start, stop, restart, pause, or unpause your application.</p>
+            <p>View detailed information about your application including real-time CPU and RAM usage, network traffic (sent/received data), detected port network configuration with editable ports, and grouped applications relationships. The General tab displays resource metrics and configuration details, while the Actions tab provides quick controls to start, stop, restart, pause, or unpause your application.</p>
           </div>
         </div>
       </template>
@@ -222,6 +238,9 @@ import settingsIcon from "@iconify-icons/mdi/tune";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
 import containerIcon from "@iconify-icons/mdi/package-variant-closed";
+import downloadIcon from "@iconify-icons/mdi/download";
+import uploadIcon from "@iconify-icons/mdi/upload";
+import accesPointNetworkIcon from "@iconify-icons/mdi/access-point-network";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import PortRouter from "../__Components__/PortRouter.vue";
@@ -309,6 +328,16 @@ function getStatusDotClasses(status: string): string {
   return dotMap[status] || themeClasses.value.appPropsDotDark;
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const k = 1024;
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${units[i]}`;
+}
+
 function handlePortsUpdate(newPorts: string) {
   if (!app.value) return;
 
@@ -386,7 +415,7 @@ function handleOpenUrl() {
 </script>
 
 <style scoped>
-/* Hero Section - Special effects */
+/* Hero Section */
 .hero-section {
   position: relative;
   overflow: hidden;
@@ -401,7 +430,7 @@ function handleOpenUrl() {
   pointer-events: none;
 }
 
-/* App Icon Container - Special effects */
+/* App Icon Container */
 .app-icon-container {
   flex-shrink: 0;
   width: 80px;
@@ -423,7 +452,7 @@ function handleOpenUrl() {
   object-fit: contain;
 }
 
-/* Pulse animation for running status dot */
+/* Pulse animation */
 @keyframes pulse-success {
   0%,
   100% {

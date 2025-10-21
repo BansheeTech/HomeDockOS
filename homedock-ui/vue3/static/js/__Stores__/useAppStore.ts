@@ -4,6 +4,7 @@
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
+import axios from "axios";
 import { App } from "../__Types__/AppStoreApp";
 import { fetchContainers } from "../__Services__/DockerAPIFetchContainerData";
 import AppStoreDefault from "../__Data__/AppStoreDefault.json";
@@ -31,6 +32,19 @@ export const useAppStore = defineStore("AppStore", {
       this.apps = AppStoreDefault;
 
       try {
+        const externalResponse = await axios.get("/api/pkg/external-apps", {
+          headers: {
+            "X-HomeDock-CSRF-Token": csrfToken,
+          },
+        });
+
+        if (externalResponse.status === 200) {
+          const externalData = externalResponse.data;
+          if (externalData.success && externalData.apps.length > 0) {
+            this.apps = [...this.apps, ...externalData.apps];
+          }
+        }
+
         const fetchedContainers = await fetchContainers(csrfToken);
         const installedAppNames = fetchedContainers.map((app: { name: string }) => app.name);
 

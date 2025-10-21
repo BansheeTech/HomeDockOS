@@ -47,6 +47,11 @@ def desktop():
     delete_internal_data_volumes = config["delete_internal_data_volumes"]
     default_external_drive = config["default_external_drive"]
 
+    download_gb = get_download_data(interface_name)["received"]
+    upload_gb = get_upload_data(interface_name)["sent"]
+    vdownload_formatted = f"{download_gb} GB" if download_gb is not None else "0 GB"
+    vupload_formatted = f"{upload_gb} GB" if upload_gb is not None else "0 GB"
+
     return render_template(
         "desktop.html",
         user_name=user_name,
@@ -67,8 +72,8 @@ def desktop():
         local_ip=local_ip,
         internet_ip=internet_ip,
         interface_name=interface_name,
-        vdownload=get_download_data(interface_name)["received"],
-        vupload=get_upload_data(interface_name)["sent"],
+        vdownload=vdownload_formatted,
+        vupload=vupload_formatted,
         n_total_containers=get_total_containers(),
         n_active_containers=get_active_containers(),
         uptime_data=actual_uptime(),
