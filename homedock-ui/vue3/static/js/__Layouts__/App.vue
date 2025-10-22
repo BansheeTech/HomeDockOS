@@ -8,7 +8,7 @@
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
-  ¡ <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
+  <StaticOscillatingLines :numLines="12" :line-width="3" :amplitude="600" :points-per-line="2" />
 
   <div :class="[themeClasses.back]" class="flex flex-col items-center justify-center relative p-3 overflow-hidden">
     <div class="flex items-center justify-center text-white">

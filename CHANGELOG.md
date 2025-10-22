@@ -1,6 +1,10 @@
 # CHANGELOG
 
-- **2.0.2.144** (Latest): Introduced the **HDS Package Management System** with the new **Packager** system tool, allowing you to create, import, and share custom application packages directly into the App Store. Added comprehensive **update tracking** for your apps with automatic detection. Enhanced system monitoring with a brand new **Home** dashboard displaying real-time storage statistics and system health.
+- **2.0.2.146** (Latest): Fixed a typo in `homedock-ui/vue3/static/js/__Layouts__/App.vue`, last-minute catch, we're on VDS 2025 and VC investors really do have eagle vision.
+
+---
+
+- **2.0.2.144**: Introduced the **HDS Package Management System** with the new **Packager** system tool, allowing you to create, import, and share custom application packages directly into the App Store. Added comprehensive **update tracking** for your apps with automatic detection. Enhanced system monitoring with a brand new **Home** dashboard displaying real-time storage statistics and system health.
 
   - Launched the **Packager** application, your personal package creation studio for building custom app distributions in the new `.hds` format.
   - Added **Package Generator** interface where you can bundle Docker Compose files with custom icons, metadata, and configurations into shareable packages.
@@ -55,16 +59,12 @@
   - Enhanced **global functions** with new utilities for package path resolution, directory creation, and file operations.
   - Enhanced **file delivery system** supporting package downloads with proper MIME types and headers for `.hds` files.
 
----
-
 - **2.0.1.106**: Updated JavaScript and Python dependencies to latest versions, migrated head management library and simplified rate limiting architecture.
 
   - Updated all **JavaScript dependencies** to their latest stable versions for improved security and performance.
   - Updated all **Python dependencies** to their latest stable versions ensuring compatibility and security patches.
   - Removed **Flask-Limiter** dependency, simplifying the rate limiting architecture with custom implementation.
   - Migrated from **vue-meta** to **@unhead/vue** for improved head/meta tag management with better Vue 3 compatibility, performance, and modern API.
-
----
 
 - **2.0.1.104**: Implemented **session expiration detection system** with ultra-hardened axios interceptor and fixed **CSS theming bugs** in `AppDropzone.vue` and `ThemeSelector.ts`.
 
@@ -74,8 +74,6 @@
   - Implemented dropdown panel with "Log in again" button for seamless re-authentication experience.
   - Fixed **CSS theming bug** in `AppDropzone` where upload list item text (`.ant-upload-list-item-name`) and loading icons (`.ant-upload-text-icon`) appeared black in Noir and Aero+ themes due to missing `themeClasses.scopeSelector` class on the `UploadDragger` component, preventing CSS rules in `antd.css` from applying correctly.
   - Fixed missing theme class in `ThemeSelector.ts` for folder color picker context menu text styling.
-
----
 
 - **2.0.1.102**: Fixed **RegEx injection issue** in AppExplorer search functionality where special regex characters (like `(`, `)`, `[`, `]`, `*`, `+`, etc.) were not being escaped, causing application crashes and potential security issues. Implemented proper input sanitization by escaping all special regex characters before pattern compilation, preventing malformed expressions and protecting against ReDoS attacks.
 
