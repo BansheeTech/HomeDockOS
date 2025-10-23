@@ -59,13 +59,6 @@
       "_hdos_6c83BLatckOj0tZu21IHA.js"
     ]
   },
-  "_hdos_BD0db19hMIOHg407TcxDW.js": {
-    "file": "hdos_BD0db19hMIOHg407TcxDW.js",
-    "name": "useDropZoneStore",
-    "imports": [
-      "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"
-    ]
-  },
   "_hdos_BW-i5UGMkVNRYrcW_CmuW.js": {
     "file": "hdos_BW-i5UGMkVNRYrcW_CmuW.js",
     "name": "robot-confused"
@@ -345,6 +338,13 @@
       "_hdos_6c83BLatckOj0tZu21IHA.js"
     ]
   },
+  "_hdos_QA6vmOtu3WncmyCO2fF6W.js": {
+    "file": "hdos_QA6vmOtu3WncmyCO2fF6W.js",
+    "name": "useDropZoneStore",
+    "imports": [
+      "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"
+    ]
+  },
   "_hdos_R8ecdjzHoP22_qvuHhYVs.js": {
     "file": "hdos_R8ecdjzHoP22_qvuHhYVs.js",
     "name": "earth"
@@ -389,7 +389,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts": {
-    "file": "hdos_Ddw-ebvn8vw4UeXOz1egp.js",
+    "file": "hdos_D6BEoqZ1mDNmRWeMzY_yh.js",
     "name": "__desktop__",
     "src": "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
     "isEntry": true,
@@ -516,7 +516,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppAbout.vue": {
-    "file": "hdos_B42pGLItl0pw7y7df9AZX.js",
+    "file": "hdos_BoW5euvLUTKNpysMDams4.js",
     "name": "AppAbout",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppAbout.vue",
     "isDynamicEntry": true,
@@ -538,7 +538,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppAppStore.vue": {
-    "file": "hdos_A3PVERKLuz-6LP37Eps2f.js",
+    "file": "hdos_BhdOGduEf4yfPYV989z2Y.js",
     "name": "AppAppStore",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppAppStore.vue",
     "isDynamicEntry": true,
@@ -580,7 +580,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppControlHub.vue": {
-    "file": "hdos_D04PlXRH32ImnmlhFiOTa.js",
+    "file": "hdos_QZ6RVmRYqm90mQb049h2T.js",
     "name": "AppControlHub",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppControlHub.vue",
     "isDynamicEntry": true,
@@ -614,7 +614,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppDropzone.vue": {
-    "file": "hdos_BNtohV8I2j3kAuOF4v0O0.js",
+    "file": "hdos_3KE_1hJv3FmTFvQDTbIJi.js",
     "name": "AppDropzone",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppDropzone.vue",
     "isDynamicEntry": true,
@@ -622,7 +622,7 @@
       "_hdos_6c83BLatckOj0tZu21IHA.js",
       "_hdos_DaRSEFpqf81ZuDgc4Rzsj.js",
       "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
-      "_hdos_BD0db19hMIOHg407TcxDW.js",
+      "_hdos_QA6vmOtu3WncmyCO2fF6W.js",
       "_hdos_DPhlMBAcwmj4N6C-RIU0v.js",
       "_hdos_DRbIdIhy-OvLgw7me6Ygf.js",
       "_hdos_BbyPp1drR54pKkiCegWNp.js",
@@ -654,7 +654,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppEdit.vue": {
-    "file": "hdos_B3r96zk9cnuqbiH4EWUep.js",
+    "file": "hdos_6_3RueDgkIvbZhHtnlL4Z.js",
     "name": "AppEdit",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppEdit.vue",
     "isDynamicEntry": true,
@@ -681,7 +681,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppExplorer.vue": {
-    "file": "hdos_BdNxhM4ACF2oCWx327-f8.js",
+    "file": "hdos_C5gEYQirXVQymxep3yctp.js",
     "name": "AppExplorer",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppExplorer.vue",
     "isDynamicEntry": true,
@@ -705,7 +705,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppFolder.vue": {
-    "file": "hdos_BTS0xJqBEfq7QYueZWoeo.js",
+    "file": "hdos_BbnA1vSyygj8R7Q-FKFCa.js",
     "name": "AppFolder",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppFolder.vue",
     "isDynamicEntry": true,
@@ -730,7 +730,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppHome.vue": {
-    "file": "hdos_DK3uQ7iGiiVow-BuVoEWp.js",
+    "file": "hdos_B6daXrQbNSfCILjOvV27P.js",
     "name": "AppHome",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppHome.vue",
     "isDynamicEntry": true,
@@ -738,7 +738,7 @@
       "_hdos_6c83BLatckOj0tZu21IHA.js",
       "_hdos_DaRSEFpqf81ZuDgc4Rzsj.js",
       "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
-      "_hdos_BD0db19hMIOHg407TcxDW.js",
+      "_hdos_QA6vmOtu3WncmyCO2fF6W.js",
       "_hdos_DRbIdIhy-OvLgw7me6Ygf.js",
       "_hdos_Bsxh6ryxTjz-q3-Ls2Gll.js",
       "_hdos_DPhlMBAcwmj4N6C-RIU0v.js",
@@ -753,7 +753,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppInstallConfig.vue": {
-    "file": "hdos_CHBQ-MiBY7yUdhmztGP1Y.js",
+    "file": "hdos_DgLXMXG0MoImOfhFNid3J.js",
     "name": "AppInstallConfig",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppInstallConfig.vue",
     "isDynamicEntry": true,
@@ -795,7 +795,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppLogs.vue": {
-    "file": "hdos_B5NtJCr-Vy58lg0pWOBNu.js",
+    "file": "hdos_B0sAN33Jqh9sNmRhqny8j.js",
     "name": "AppLogs",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppLogs.vue",
     "isDynamicEntry": true,
@@ -823,7 +823,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppPackager.vue": {
-    "file": "hdos_TNris9Qoij8pAlGo-MRSS.js",
+    "file": "hdos_BCEkEI2zVgxXWrxw-_B8b.js",
     "name": "AppPackager",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppPackager.vue",
     "isDynamicEntry": true,
@@ -867,7 +867,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppProperties.vue": {
-    "file": "hdos_85a3MJyN8Lsq3l9tkR7pb.js",
+    "file": "hdos_D6vl1BVc6kxKE8Rw-LHjH.js",
     "name": "AppProperties",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppProperties.vue",
     "isDynamicEntry": true,
@@ -901,7 +901,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppSettings.vue": {
-    "file": "hdos_LmiC2rfxMhg9kFvAHeXEA.js",
+    "file": "hdos_BaTo42NHajgiS1BGDsjzm.js",
     "name": "AppSettings",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppSettings.vue",
     "isDynamicEntry": true,
@@ -945,7 +945,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppSystemLogs.vue": {
-    "file": "hdos_BEPQu0Fdl87WS300roSZa.js",
+    "file": "hdos_CUaV4F4EjXrtt6LBwnNQa.js",
     "name": "AppSystemLogs",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppSystemLogs.vue",
     "isDynamicEntry": true,

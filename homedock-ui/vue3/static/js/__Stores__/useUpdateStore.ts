@@ -12,6 +12,26 @@ interface UpdateInfo {
   update_available: boolean;
 }
 
+function isVersionGreater(v1: string, v2: string): boolean {
+  try {
+    const parts1 = v1.split(".").map((x) => parseInt(x, 10));
+    const parts2 = v2.split(".").map((x) => parseInt(x, 10));
+
+    const maxLen = Math.max(parts1.length, parts2.length);
+    while (parts1.length < maxLen) parts1.push(0);
+    while (parts2.length < maxLen) parts2.push(0);
+
+    for (let i = 0; i < maxLen; i++) {
+      if (parts1[i] > parts2[i]) return true;
+      if (parts1[i] < parts2[i]) return false;
+    }
+
+    return false;
+  } catch (error) {
+    return v1 !== v2;
+  }
+}
+
 export const useUpdateStore = defineStore("updateStore", {
   state: () => ({
     currentVersion: "",
@@ -31,7 +51,7 @@ export const useUpdateStore = defineStore("updateStore", {
         this.latestVersion = parsedData.latestVersion;
         this.lastChecked = parsedData.lastChecked;
 
-        if (parsedData.latestVersion !== parsedData.currentVersion) {
+        if (isVersionGreater(parsedData.latestVersion, parsedData.currentVersion)) {
           this.updateAvailable = true;
           return;
         }

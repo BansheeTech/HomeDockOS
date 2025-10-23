@@ -25,31 +25,32 @@ client = manager.get_client()
 
 
 @login_required
-def pull_and_update_containers():
+def update_containers():
     config = read_config()
     delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
 
     container_names = request.json.get("container_names", [])
+
+    containers_with_updates = check_for_new_images(container_names)
+    missing_compose_files = check_for_missing_files(container_names)
+
+    if not containers_with_updates:
+        return {"message": "No updates available.", "updated_containers": [], "skipped_containers": container_names, "missing_compose_files": missing_compose_files}, 200
+
     updated_containers = []
     containers_data = []
 
     update_event.clear()  # Stop port autorouting
 
-    for name in container_names:
-        process_container_update(name, client, updated_containers, containers_data, delete_old_image_containers_after_update)
+    for name in containers_with_updates:
+        if name not in missing_compose_files:
+            process_container_update(name, client, updated_containers, containers_data, delete_old_image_containers_after_update)
 
     update_event.set()  # Resume port autorouting
 
-    return {"message": "Containers updated successfully.", "updated_containers": updated_containers, "containers_data": containers_data}, 200
+    skipped = [name for name in container_names if name not in updated_containers]
 
-
-# Docker-API - Search & Send to pull_and_update_containers
-@login_required
-def check_new_images():
-
-    container_names = request.json.get("container_names", [])
-
-    return {"new_images_containers": check_for_new_images(container_names), "missing_compose_files": check_for_missing_files(container_names)}, 200
+    return {"message": "Containers updated successfully." if updated_containers else "No updates performed.", "updated_containers": updated_containers, "skipped_containers": skipped, "containers_data": containers_data, "missing_compose_files": missing_compose_files}, 200
 
 
 def process_container_update(name, client, updated_containers, containers_data, delete_old_image_flag):
@@ -62,9 +63,18 @@ def process_container_update(name, client, updated_containers, containers_data, 
         return
 
     try:
-        with open(docker_compose_yml, "r"):
-            pass
-    except FileNotFoundError:
+        with open(docker_compose_yml, "r") as file:
+            compose_file = yaml.safe_load(file)
+            image_name = compose_file["services"][name]["image"]
+    except (FileNotFoundError, KeyError):
+        return
+
+    try:
+        print(f" * Pulling new image for {name}: {image_name}")
+        client.images.pull(image_name)
+    except docker.errors.APIError as e:
+        print(f" ! Error pulling image {image_name}: {e}")
+        containers_data.append({"name": name, "composeLink": "pull_failed"})
         return
 
     new_dir = os.path.join(os.path.dirname(docker_compose_yml), name)
@@ -191,25 +201,42 @@ def check_for_new_images(container_names):
         try:
             with open(docker_compose_yml, "r") as file:
                 compose_file = yaml.safe_load(file)
-            docker_image = compose_file["services"][name]["image"]
+            image_name = compose_file["services"][name]["image"]
         except (FileNotFoundError, KeyError):
             continue
 
         try:
             try:
-                old_image = client.images.get(docker_image)
-                old_digest = old_image.id
-            except docker.errors.ImageNotFound:
-                old_digest = None
+                container = client.containers.get(name)
+                container_image_id = container.attrs.get("Image", "")
+                if not container_image_id:
+                    continue
 
-            client.images.pull(docker_image)
-            new_image = client.images.get(docker_image)
+                container_image = client.images.get(container_image_id)
+                repo_digests = container_image.attrs.get("RepoDigests", [])
+                if not repo_digests:
+                    continue
 
-            if old_digest != new_image.id:
+                local_manifest_digest = repo_digests[0].split("@")[1] if "@" in repo_digests[0] else None
+                if not local_manifest_digest:
+                    continue
+
+            except (docker.errors.ImageNotFound, docker.errors.NotFound):
+                new_images_containers.append(name)
+                continue
+
+            try:
+                registry_data = client.images.get_registry_data(image_name)
+                remote_manifest_digest = registry_data.id
+            except Exception as e:
+                print(f"Could not get registry data for {image_name}: {e}")
+                continue
+
+            if local_manifest_digest != remote_manifest_digest:
                 new_images_containers.append(name)
 
-        except docker.errors.APIError as e:
-            print(f"Error pulling image {docker_image}: {e}")
+        except Exception as e:
+            print(f"Error checking image {image_name}: {e}")
             continue
 
     return new_images_containers

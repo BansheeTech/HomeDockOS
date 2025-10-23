@@ -16,8 +16,11 @@ interface Application {
 }
 
 interface UpdateResponse {
-  new_images_containers: string[];
+  message: string;
+  updated_containers: string[];
+  skipped_containers: string[];
   missing_compose_files: string[];
+  containers_data?: Array<{ name: string; composeLink: string }>;
 }
 
 export async function updateContainers(applications: Application[], containerName: string, csrfToken: string): Promise<void> {
@@ -34,28 +37,26 @@ export async function updateContainers(applications: Application[], containerNam
 
   const containersToUpdate = isGrouped ? [mainContainer] : [mainContainer];
 
-  containersToUpdate.forEach((app) => store.setDesiredState(app.name, "checking"));
+  containersToUpdate.forEach((app) => store.setDesiredState(app.name, "updating"));
 
   try {
-    const response = await axios.post<UpdateResponse>("/api/check_new_images", { container_names: [mainContainer.name] }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
+    const response = await axios.post<UpdateResponse>("/api/update_containers", { container_names: [mainContainer.name] }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
 
-    const { new_images_containers, missing_compose_files } = response.data;
+    const { updated_containers, skipped_containers, missing_compose_files } = response.data;
 
     if (missing_compose_files.includes(mainContainer.name)) {
       console.warn(`Container "${mainContainer.name}" is missing a docker-compose.yml file.`);
-      store.setDesiredState(mainContainer.name, "idle");
       return;
     }
 
-    const containersWithUpdates = new_images_containers.filter((name) => name === mainContainer.name);
-    if (containersWithUpdates.length === 0) {
+    if (updated_containers.length === 0) {
       console.info(isGrouped ? `No updates available for containers in group: ${group}` : `No updates available for container: ${mainContainer.name}`);
       return;
     }
 
-    for (const name of containersWithUpdates) {
-      store.setDesiredState(name, "updating");
-      await axios.post("/api/pull_and_update_containers", { container_names: [name] }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
+    console.info(`Successfully updated: ${updated_containers.join(", ")}`);
+    if (skipped_containers.length > 0) {
+      console.info(`Skipped (no updates): ${skipped_containers.join(", ")}`);
     }
   } catch (error) {
     console.error("Error during container update process:", error);

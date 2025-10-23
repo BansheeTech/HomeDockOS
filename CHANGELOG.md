@@ -1,6 +1,15 @@
 # CHANGELOG
 
-- **2.0.2.146** (Latest): Fixed a typo in `homedock-ui/vue3/static/js/__Layouts__/App.vue`, last-minute catch, we're on VDS 2025 and VC investors really do have eagle vision.
+- **2.0.2.148** (Latest): Major improvements to the application update system for better stability and efficiency.
+
+  - Improved version comparison system to detect updates more accurately an follow only real newer versions instead of just different ones.
+  - Fixed critical issue that caused orphaned images during insatlled application updates, making them dangling.
+  - Implemented auto-cleanup update flag system with 120-second timeout to prevent locks while updating HomeDock OS.
+  - Modified availale applications update check interval to 3 hours to reduce system load.
+
+---
+
+- **2.0.2.146**: Fixed a typo in `homedock-ui/vue3/static/js/__Layouts__/App.vue`, last-minute catch, we're on VDS 2025 and VC investors really do have eagle vision.
 
 ---
 

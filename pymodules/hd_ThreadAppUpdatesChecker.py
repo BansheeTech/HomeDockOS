@@ -27,7 +27,7 @@ def check_app_updates():
     is_first_run = True
 
     while True:
-        time.sleep(21600)  # 6 hours
+        time.sleep(10800)  # 3 hours
 
         try:
             all_containers = client.containers.list(all=True)

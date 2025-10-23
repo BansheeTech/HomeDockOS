@@ -163,10 +163,9 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/uninstall_containers", "uninstall_containers", CSRF_Protect(uninstall_containers), methods=["POST"])
 
-    from pymodules.hd_DockerAPIUpdateContainer import pull_and_update_containers, check_new_images
+    from pymodules.hd_DockerAPIUpdateContainer import update_containers
 
-    homedock_www.add_url_rule("/api/pull_and_update_containers", "pull_and_update_containers", CSRF_Protect(pull_and_update_containers), methods=["POST"])
-    homedock_www.add_url_rule("/api/check_new_images", "check_new_images", CSRF_Protect(check_new_images), methods=["POST"])
+    homedock_www.add_url_rule("/api/update_containers", "update_containers", CSRF_Protect(update_containers), methods=["POST"])
 
     from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose
 

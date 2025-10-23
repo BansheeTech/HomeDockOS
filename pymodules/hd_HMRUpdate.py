@@ -13,6 +13,7 @@ import signal
 import asyncio
 import zipfile
 import requests
+import threading
 
 from flask import jsonify
 from flask_login import login_required
@@ -24,6 +25,26 @@ shutdown_event = asyncio.Event()
 UPDATE_URL = "https://raw.githubusercontent.com/BansheeTech/HomeDockOS/refs/heads/main/version.txt"
 
 
+def is_version_greater(v1: str, v2: str) -> bool:
+    try:
+        parts1 = [int(x) for x in v1.split(".")]
+        parts2 = [int(x) for x in v2.split(".")]
+
+        max_len = max(len(parts1), len(parts2))
+        parts1 += [0] * (max_len - len(parts1))
+        parts2 += [0] * (max_len - len(parts2))
+
+        for p1, p2 in zip(parts1, parts2):
+            if p1 > p2:
+                return True
+            elif p1 < p2:
+                return False
+
+        return False
+    except (ValueError, AttributeError):
+        return v1 != v2
+
+
 @login_required
 def check_update():
     try:
@@ -32,7 +53,7 @@ def check_update():
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
             remote_version = response.text.strip()
-            update_available = remote_version != version
+            update_available = is_version_greater(remote_version, version)
             return jsonify({"current_version": version, "latest_version": remote_version, "update_available": update_available})
         return jsonify({"error": "Failed to check for updates"}), 500
     except requests.RequestException:
@@ -48,7 +69,7 @@ def update_now():
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
             remote_version = response.text.strip()
-            if remote_version != version:
+            if is_version_greater(remote_version, version):
                 download_and_extract_github_repo(remote_version=remote_version)
             return jsonify({"message": "Already up-to-date"})
         return jsonify({"error": "Failed to fetch update"}), 500
@@ -56,11 +77,21 @@ def update_now():
         return jsonify({"error": "Unable to update"}), 500
 
 
+def clear_update_flag_after_timeout():
+    time.sleep(120)
+    update_flag = os.path.join(current_directory, ".is_updating")
+    if os.path.exists(update_flag):
+        print(" ! WARNING: Update timeout reached (120s), clearing .is_updating flag")
+        os.remove(update_flag)
+
+
 def set_updating_state(value: bool):
     update_flag = os.path.join(current_directory, ".is_updating")
 
     if value:
         open(update_flag, "w").close()
+        timeout_thread = threading.Thread(target=clear_update_flag_after_timeout, daemon=True)
+        timeout_thread.start()
     else:
         if os.path.exists(update_flag):
             os.remove(update_flag)
