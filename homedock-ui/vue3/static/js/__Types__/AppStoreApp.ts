@@ -24,4 +24,5 @@ export interface App {
   is_external?: boolean;
   author?: string;
   version?: string;
+  screenshot_count?: number;
 }

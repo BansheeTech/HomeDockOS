@@ -97,8 +97,9 @@
 <script lang="ts" setup>
 import axios, { AxiosError } from "axios";
 
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import { Icon } from "@iconify/vue";
 import shieldIcon from "@iconify-icons/mdi/shield-alert";
@@ -107,6 +108,9 @@ import clockIcon from "@iconify-icons/mdi/clock-outline";
 import loginIcon from "@iconify-icons/mdi/login";
 
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "session-expired-tray";
 
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
@@ -127,10 +131,17 @@ function formatTime(date: Date): string {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -139,6 +150,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 function redirectToLogin() {
   window.location.href = "/";

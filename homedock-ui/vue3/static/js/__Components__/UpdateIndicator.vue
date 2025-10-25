@@ -72,15 +72,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 
 import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import BaseImage from "./BaseImage.vue";
 
 const updateStore = useAppUpdateStore();
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "update-indicator";
+
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
 
@@ -106,10 +111,17 @@ const remainingCount = computed(() => {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -118,6 +130,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

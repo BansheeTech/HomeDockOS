@@ -47,6 +47,8 @@
         </button>
 
         <DateTimePicker placement="top" />
+
+        <ShowDesktopVerticalLine />
       </div>
     </div>
   </div>
@@ -82,6 +84,7 @@ import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { getAppById } from "../__Config__/WindowDefaultDetails";
 
 import { Icon } from "@iconify/vue";
 import themeIconLight from "@iconify-icons/mdi/white-balance-sunny";
@@ -102,6 +105,7 @@ import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
 import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";
 import SystemStatsWidget from "./SystemStatsWidget.vue";
+import ShowDesktopVerticalLine from "../__Components__/ShowDesktopVerticalLine.vue";
 
 interface ContextMenuItem {
   label?: string;
@@ -158,6 +162,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
   const win = contextMenu.value.window;
   if (!win) return [];
 
+  const appConfig = getAppById(win.appId);
+  const isMaximizable = appConfig?.maximizable !== false;
+
   const items: ContextMenuItem[] = [];
 
   if (win.isMinimized) {
@@ -187,7 +194,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     });
   }
 
-  if (!win.isMinimized && !win.isMaximized) {
+  if (!win.isMinimized && !win.isMaximized && isMaximizable) {
     items.push({
       label: "Maximize",
       icon: maximizeIcon,

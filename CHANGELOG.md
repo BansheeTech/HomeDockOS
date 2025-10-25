@@ -1,17 +1,23 @@
 # CHANGELOG
 
-- **2.0.2.148** (Latest): Major improvements to the application update system for better stability and efficiency.
+- **2.0.2.260** (Latest): Enhanced App Store experience with screenshot previews, overall experience and more improvements.
+
+  - Added **screenshot preview galleries** to the App Installation dialog, allowing you to view app screenshots before installing with smooth drag-to-scroll navigation.
+  - Implemented **fullscreen screenshot viewer** with keyboard navigation support (arrow keys and ESC) for better preview experience.
+  - Introduced **Show Desktop button** on the taskbar (vertical line on the bottom right) with right-click context menu for quick desktop access and window management.
+  - Added **centralized system tray manager** preventing multiple tray panels from opening simultaneously for cleaner interface management.
+  - Expanded App Store with **screenshot support for all available applications**, providing visual previews to help you choose the right apps.
+  - Improved **update system reliability** with automatic server restart detection and smart polling to ensure smooth updates without manual intervention.
+  - Refined **App Installation dialog layout** with reorganized screenshot placement and improved visual hierarchy.
+
+- **2.0.2.148**: Major improvements to the application update system for better stability and efficiency.
 
   - Improved version comparison system to detect updates more accurately an follow only real newer versions instead of just different ones.
   - Fixed critical issue that caused orphaned images during insatlled application updates, making them dangling.
   - Implemented auto-cleanup update flag system with 120-second timeout to prevent locks while updating HomeDock OS.
   - Modified availale applications update check interval to 3 hours to reduce system load.
 
----
-
 - **2.0.2.146**: Fixed a typo in `homedock-ui/vue3/static/js/__Layouts__/App.vue`, last-minute catch, we're on VDS 2025 and VC investors really do have eagle vision.
-
----
 
 - **2.0.2.144**: Introduced the **HDS Package Management System** with the new **Packager** system tool, allowing you to create, import, and share custom application packages directly into the App Store. Added comprehensive **update tracking** for your apps with automatic detection. Enhanced system monitoring with a brand new **Home** dashboard displaying real-time storage statistics and system health.
 

@@ -66,7 +66,7 @@ export const useAppStore = defineStore("AppStore", {
     },
     async initalInstallationPolling(csrfToken: string) {
       const installationStore = useInstallationStore();
-      installationStore.startTracking(csrfToken);
+      installationStore.startTracking();
     },
     setPage(page: number) {
       this.currentPage = page;

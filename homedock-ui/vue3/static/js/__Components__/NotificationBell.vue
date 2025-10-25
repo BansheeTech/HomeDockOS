@@ -67,8 +67,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, inject } from "vue";
+import { ref, onMounted, onBeforeUnmount, inject, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import { Badge } from "ant-design-vue";
 
@@ -112,6 +113,10 @@ if (!settingsData) {
 }
 
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "notification-bell";
+
 const showDropdown = ref(false);
 const dropdown = ref<HTMLElement | null>(null);
 
@@ -177,7 +182,13 @@ const saveDismissedNotifications = (): void => {
 };
 
 const toggleDropdown = (): void => {
-  showDropdown.value = !showDropdown.value;
+  if (!showDropdown.value) {
+    trayManager.openTray(TRAY_ID);
+    showDropdown.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    showDropdown.value = false;
+  }
 };
 
 const removeNotification = (notification: Notification): void => {
@@ -191,9 +202,19 @@ const removeNotification = (notification: Notification): void => {
 
 const handleClickOutside = (event: MouseEvent): void => {
   if (dropdown.value && !dropdown.value.contains(event.target as Node)) {
+    trayManager.closeTray(TRAY_ID);
     showDropdown.value = false;
   }
 };
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && showDropdown.value) {
+      showDropdown.value = false;
+    }
+  }
+);
 
 const formatDate = (date: string | null): string => {
   if (!date) return "";
@@ -216,7 +237,7 @@ onMounted(async () => {
   if (updateStore.updateAvailable) {
     notifications.value.push({
       title: `New version available!`,
-      message: `New HomeDock OS ${updateStore.latestVersion} just dropped! Click here to update now.`,
+      message: `New update available! HomeDock OS v${updateStore.latestVersion} is ready to install. Click here to update now.`,
       permanent: true,
       allowRemove: false,
       startDate: null,
@@ -225,13 +246,14 @@ onMounted(async () => {
       onClick: async function () {
         this.isUpdating = true;
         this.title = "Updating HomeDock OS...";
-        this.message = "The system may become unresponsive for a few minutes. Please wait...";
+        this.message = "Installing HomeDock OS update... Please wait until your HomeDock OS instance is back online...";
 
         try {
           await updateStore.triggerUpdate(csrfToken);
         } catch (error) {
+          this.isUpdating = false;
           this.title = "Update Failed";
-          this.message = "Something went wrong while updating HomeDock OS. Please contact our support team.";
+          this.message = "Something went wrong while updating HomeDock OS. Please reload and restart HomeDock OS.";
         }
       },
     });

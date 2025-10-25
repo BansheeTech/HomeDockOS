@@ -91,18 +91,28 @@
           </div>
         </div>
 
-        <div class="px-4 md:px-6 lg:px-8 py-5">
+        <div class="px-4 md:px-6 lg:px-8">
+          <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
+            {{ app?.description + "." || "No description available" }}
+          </p>
+
+          <!-- Screenshots -->
+          <div v-show="screenshots.length > 0" class="mb-0">
+            <div ref="screenshotsContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
+              <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
+                <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[160px] h-[100px] md:w-[200px] md:h-[125px] lg:w-[280px] lg:h-[175px] xl:w-[320px] xl:h-[200px] rounded-lg overflow-hidden border-2 border-transparent transition-all duration-200 hover:scale-[1.01] hover:shadow-lg active:translate-y-0 active:scale-[0.98]">
+                  <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none" />
+                </button>
+              </template>
+            </div>
+          </div>
+
           <div class="mb-6">
-            <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
-              {{ app?.description + "." || "No description available" }}
-            </p>
             <div v-if="app?.dependencies && app.dependencies.length >= 1" :class="[themeClasses.storeAboutTextDepsScope]" class="text-xs inline-flex items-center px-2.5 py-1.5 rounded-md">
               <Icon :icon="cubeIcon" class="h-3 w-3 mr-1.5" />
               <span>{{ app?.dependencies.concat().join(", ") }}</span>
             </div>
           </div>
-
-          <div :class="[themeClasses.storeSeparator]" class="h-px mb-6"></div>
 
           <Transition name="fade-slide" mode="out-in">
             <div v-if="!isAdvancedMode" key="simple">
@@ -220,13 +230,19 @@
         </div>
       </div>
     </AppDialog>
+
+    <AppDialog v-model:visible="showScreenshotModal" type="info" title="Screenshot Preview" ok-text="Close" :ok-cancel="false" :width="1200" @ok="closeScreenshotModal">
+      <div class="flex items-center justify-center min-h-[400px]">
+        <img v-if="screenshots[currentScreenshotModal]" :src="screenshots[currentScreenshotModal]" :alt="`${app?.name} screenshot ${currentScreenshotModal + 1}`" class="max-w-full max-h-[70vh] mx-auto rounded-lg object-contain" />
+      </div>
+    </AppDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import axios from "axios";
 
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useAppStore } from "../__Stores__/useAppStore";
@@ -282,6 +298,15 @@ const sslEnabled = ref(false);
 const hasLoadedConfig = ref(false);
 const showExternalWarning = ref(false);
 const pendingInstall = ref(false);
+const screenshots = ref<string[]>([]);
+const showScreenshotModal = ref(false);
+const currentScreenshotModal = ref(0);
+const screenshotsContainer = ref<HTMLElement | null>(null);
+const isDragging = ref(false);
+const startX = ref(0);
+const scrollLeft = ref(0);
+const clickThreshold = ref(5);
+const hasDragged = ref(false);
 
 const csrfToken = useCsrfToken();
 
@@ -394,11 +419,84 @@ function handleExternalWarningCancel() {
   pendingInstall.value = false;
 }
 
+function loadScreenshots() {
+  if (!app.value?.name || !app.value?.screenshot_count) {
+    screenshots.value = [];
+    return;
+  }
+
+  const appName = app.value.name.toLowerCase();
+  screenshots.value = Array.from({ length: app.value.screenshot_count }, (_, i) => `/images/app-store-screenshots/${appName}-${i + 1}.webp`);
+}
+
+function startDrag(e: MouseEvent) {
+  if (!screenshotsContainer.value) return;
+  isDragging.value = true;
+  hasDragged.value = false;
+  startX.value = e.pageX - screenshotsContainer.value.offsetLeft;
+  scrollLeft.value = screenshotsContainer.value.scrollLeft;
+}
+
+function onDrag(e: MouseEvent) {
+  if (!isDragging.value || !screenshotsContainer.value) return;
+  e.preventDefault();
+  const x = e.pageX - screenshotsContainer.value.offsetLeft;
+  const walk = (x - startX.value) * 2;
+
+  if (Math.abs(walk) > clickThreshold.value) {
+    hasDragged.value = true;
+  }
+
+  screenshotsContainer.value.scrollLeft = scrollLeft.value - walk;
+}
+
+function endDrag() {
+  isDragging.value = false;
+}
+
+function openScreenshotModal(index: number) {
+  if (hasDragged.value) {
+    hasDragged.value = false;
+    return;
+  }
+  currentScreenshotModal.value = index;
+  showScreenshotModal.value = true;
+}
+
+function closeScreenshotModal() {
+  showScreenshotModal.value = false;
+}
+
+function previousScreenshotModal() {
+  if (currentScreenshotModal.value > 0) {
+    currentScreenshotModal.value--;
+  }
+}
+
+function nextScreenshotModal() {
+  if (currentScreenshotModal.value < screenshots.value.length - 1) {
+    currentScreenshotModal.value++;
+  }
+}
+
+function handleKeyboardNavigation(event: KeyboardEvent) {
+  if (!showScreenshotModal.value || screenshots.value.length <= 1) return;
+
+  if (event.key === "ArrowLeft") {
+    previousScreenshotModal();
+  } else if (event.key === "ArrowRight") {
+    nextScreenshotModal();
+  } else if (event.key === "Escape") {
+    closeScreenshotModal();
+  }
+}
+
 watch(
   app,
   (newApp) => {
     if (newApp?.name) {
       fetchAppInfo();
+      loadScreenshots();
     }
   },
   { immediate: true }
@@ -407,7 +505,14 @@ watch(
 onMounted(() => {
   if (app.value?.name) {
     fetchAppInfo();
+    loadScreenshots();
   }
+
+  window.addEventListener("keydown", handleKeyboardNavigation);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeyboardNavigation);
 });
 </script>
 
@@ -472,5 +577,16 @@ textarea:focus {
 textarea:disabled {
   opacity: 0.6;
   user-select: none !important;
+}
+
+/* Hide Scrollbar */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 </style>

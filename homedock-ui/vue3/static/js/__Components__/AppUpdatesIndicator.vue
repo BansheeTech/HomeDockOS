@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 
 import { Badge } from "ant-design-vue";
 
@@ -69,6 +69,7 @@ import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 import { updateContainer as updateDockerContainer } from "../__Services__/DockerActions";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import BaseImage from "./BaseImage.vue";
 
@@ -76,6 +77,10 @@ const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 const desktopStore = useDesktopStore();
 const updateStore = useAppUpdateStore();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "app-updates-indicator";
+
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
 
@@ -124,10 +129,17 @@ function updateContainer(containerName: string) {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -136,6 +148,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

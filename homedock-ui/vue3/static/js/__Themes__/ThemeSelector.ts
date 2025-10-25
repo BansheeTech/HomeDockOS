@@ -197,6 +197,8 @@ export function useTheme() {
       storePopupSSLFlag: "text-green-500 bg-green-200 border-green-500",
       storeInputSSLFlag: "text-green-500",
 
+      screenshotThumb: "border-transparent opacity-95 hover:opacity-100",
+
       externalWarningTitle: "text-gray-900",
       externalWarningText: "text-gray-700",
       externalWarningAuthorBg: "bg-red-50",
@@ -396,6 +398,10 @@ export function useTheme() {
       trayUserBg: "bg-blue-500/20",
       trayUserText: "text-blue-500",
       trayUserBgHover: "hover:bg-blue-500/30",
+
+      showDesktopBg: "bg-transparent",
+      showDesktopBgHover: "bg-gray-200",
+      showDesktopLine: "bg-gray-700",
 
       statsWidgetCompactBg: "bg-transparent",
       statsWidgetCompactBgHover: "hover:bg-gray-200",
@@ -908,6 +914,8 @@ export function useTheme() {
       storePopupSSLFlag: "text-green-200 bg-green-600 border-green-200",
       storeInputSSLFlag: "text-green-200",
 
+      screenshotThumb: "border-transparent opacity-60 hover:opacity-85",
+
       externalWarningTitle: "text-zinc-200",
       externalWarningText: "text-zinc-300",
       externalWarningAuthorBg: "bg-red-900/30",
@@ -1107,6 +1115,10 @@ export function useTheme() {
       trayUserBg: "bg-blue-500/20",
       trayUserText: "text-blue-500",
       trayUserBgHover: "hover:bg-blue-500/30",
+
+      showDesktopBg: "bg-transparent",
+      showDesktopBgHover: "bg-white/10",
+      showDesktopLine: "bg-white/70",
 
       statsWidgetCompactBg: "bg-transparent",
       statsWidgetCompactBgHover: "hover:bg-white/10",
@@ -1619,6 +1631,8 @@ export function useTheme() {
       storePopupSSLFlag: "text-green-300 bg-green-600/80 border-green-300",
       storeInputSSLFlag: "text-green-300",
 
+      screenshotThumb: "border-transparent opacity-60 hover:opacity-85",
+
       externalWarningTitle: "text-zinc-200",
       externalWarningText: "text-zinc-300",
       externalWarningAuthorBg: "bg-red-900/20",
@@ -1818,6 +1832,10 @@ export function useTheme() {
       trayUserBg: "bg-blue-500/20",
       trayUserText: "text-blue-500",
       trayUserBgHover: "hover:bg-blue-500/30",
+
+      showDesktopBg: "bg-transparent",
+      showDesktopBgHover: "bg-white/10",
+      showDesktopLine: "bg-white/70",
 
       statsWidgetCompactBg: "bg-transparent",
       statsWidgetCompactBgHover: "hover:bg-white/10",

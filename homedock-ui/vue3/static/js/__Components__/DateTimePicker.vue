@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import dayjs from "dayjs";
 
 import { Icon } from "@iconify/vue";
@@ -48,6 +48,7 @@ import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
 
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 interface Props {
   placement?: "top" | "bottom";
@@ -59,6 +60,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { isMobile } = useResponsive();
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "date-time-picker";
 
 const pickerRef = ref<HTMLElement | null>(null);
 const isOpen = ref(false);
@@ -146,15 +150,29 @@ function selectDate(day: any) {
 }
 
 function toggleDropdown() {
-  isOpen.value = !isOpen.value;
-  if (isOpen.value) {
+  if (!isOpen.value) {
+    trayManager.openTray(TRAY_ID);
+    isOpen.value = true;
     viewDate.value = selectedDate.value;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isOpen.value = false;
   }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isOpen.value = false;
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isOpen.value) {
+      isOpen.value = false;
+    }
+  }
+);
 
 function updateClock() {
   const now = new Date();

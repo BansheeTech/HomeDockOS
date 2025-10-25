@@ -59,8 +59,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import { Icon } from "@iconify/vue";
 import connectionIcon from "@iconify-icons/mdi/connection";
@@ -68,6 +69,10 @@ import infoIcon from "@iconify-icons/mdi/information-outline";
 import clockIcon from "@iconify-icons/mdi/clock-outline";
 
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "network-offline-tray";
+
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
 const online = ref(navigator.onLine);
@@ -98,10 +103,17 @@ function formatTime(date: Date): string {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -110,6 +122,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   window.addEventListener("online", updateOnlineStatus);

@@ -66,9 +66,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import { Icon } from "@iconify/vue";
 import folderIcon from "@iconify-icons/mdi/folder";
@@ -85,6 +86,10 @@ import unknownFileIcon from "@iconify-icons/mdi/file";
 
 const uploadStore = useDropZoneUploadingStore();
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "upload-indicator";
+
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
 
@@ -169,10 +174,17 @@ function formatSize(size: number): string {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -181,6 +193,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

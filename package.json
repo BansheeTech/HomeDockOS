@@ -1,6 +1,6 @@
 {
   "name": "homedock_os",
-  "version": "2.0.2.148",
+  "version": "2.0.2.260",
   "description": "![HomeDock OS Banner](https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-banner-rhino.png)",
   "type": "module",
   "scripts": {

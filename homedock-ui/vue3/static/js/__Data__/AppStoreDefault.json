@@ -11,7 +11,8 @@
     "description": "The lightweight bridge emulator to integrate non-Hue devices with smart home ecosystems like Alexa and Google Assistant seamlessly",
     "is_new": false,
     "new_until": false,
-    "display_name": "HABridge"
+    "display_name": "HABridge",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -25,7 +26,8 @@
     "description": "The comprehensive and lightweight solution for network monitoring, analysis and management on your networks",
     "is_new": false,
     "new_until": false,
-    "display_name": "Watch Your LAN"
+    "display_name": "Watch Your LAN",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -39,7 +41,8 @@
     "description": "Secure messaging with control. Decentralized, encrypted, safe to save and also runs on the Raspberry Pi!",
     "is_new": false,
     "new_until": false,
-    "display_name": "Databag"
+    "display_name": "Databag",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -53,7 +56,8 @@
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
     "is_new": true,
     "new_until": "2025-10-30",
-    "display_name": "The Atlas"
+    "display_name": "The Atlas",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -67,7 +71,8 @@
     "description": "Modern music server and streamer that gives you freedom to listen to your music collection on any device",
     "is_new": false,
     "new_until": false,
-    "display_name": "Navidrome"
+    "display_name": "Navidrome",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -81,7 +86,8 @@
     "description": "Easy-to-use file manager for the web, making remote file management accessible from anywhere",
     "is_new": false,
     "new_until": false,
-    "display_name": "File Browser"
+    "display_name": "File Browser",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -95,7 +101,8 @@
     "description": "Versatile PDF editor offering a wide range of tools for modifying, creating, and annotating PDF documents",
     "is_new": false,
     "new_until": false,
-    "display_name": "Stirling PDF"
+    "display_name": "Stirling PDF",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -109,7 +116,8 @@
     "description": "Audiobookshelf is a free and open-source application for managing your whole audiobook library",
     "is_new": false,
     "new_until": false,
-    "display_name": "Audiobookshelf"
+    "display_name": "Audiobookshelf",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -123,7 +131,8 @@
     "description": "YouTube downloader that enables saving videos and music in mp3 format directly from YouTube in just a few clicks",
     "is_new": false,
     "new_until": false,
-    "display_name": "MeTube"
+    "display_name": "MeTube",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -137,7 +146,8 @@
     "description": "Autobrr grabs new torrents matching your defined criteria and sends them to your download client",
     "is_new": false,
     "new_until": false,
-    "display_name": "autobrr"
+    "display_name": "autobrr",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["zipline_postgres"],
@@ -151,7 +161,8 @@
     "description": "A ShareX/file upload server that is easy to use, packed with awesome features, and with an easy setup!",
     "is_new": false,
     "new_until": false,
-    "display_name": "Zipline"
+    "display_name": "Zipline",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["redis", "postgres15"],
@@ -165,7 +176,8 @@
     "description": "Photos and videos cloud storage solution, securing photos and videos for easy access anywhere",
     "is_new": false,
     "new_until": false,
-    "display_name": "Immich"
+    "display_name": "Immich",
+    "screenshot_count": 4
   },
   {
     "dependencies": ["ollama"],
@@ -179,7 +191,8 @@
     "description": "Elevate your privacy with Llama2 and Open WebUI, guaranteeing secure and data-protective prompts with AI",
     "is_new": false,
     "new_until": false,
-    "display_name": "Ollama GPT"
+    "display_name": "Ollama GPT",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -193,7 +206,8 @@
     "description": "Enables easily hosting of a Minecraft Bedrock edition server for multiplayer gaming with your friends",
     "is_new": false,
     "new_until": false,
-    "display_name": "MC Bedrock Server"
+    "display_name": "MC Bedrock Server",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -207,7 +221,8 @@
     "description": "Hosts a server for the popular game Minecraft, allowing players to join a central world for multiplayer gaming",
     "is_new": false,
     "new_until": false,
-    "display_name": "Minecraft Server"
+    "display_name": "Minecraft Server",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -221,7 +236,8 @@
     "description": "NPM is an easy way to manage and configure a NGINX server as a proxy for your favorite web services",
     "is_new": false,
     "new_until": false,
-    "display_name": "Nginx Proxy Manager"
+    "display_name": "Nginx Proxy Manager",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -235,7 +251,8 @@
     "description": "Diagram software for making flowcharts, process diagrams, org charts, UML, ER diagrams, etc...",
     "is_new": false,
     "new_until": false,
-    "display_name": "Draw.io"
+    "display_name": "Draw.io",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -249,7 +266,8 @@
     "description": "Optimize your downloads with a powerful tool designed for speed and ease, backed by a vast community",
     "is_new": false,
     "new_until": false,
-    "display_name": "JDownloader 2"
+    "display_name": "JDownloader 2",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -263,7 +281,8 @@
     "description": "A network-wide ad and tracker blocking application that enhances online privacy and security",
     "is_new": false,
     "new_until": false,
-    "display_name": "AdGuard Home Sync"
+    "display_name": "AdGuard Home Sync",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -277,7 +296,8 @@
     "description": "A versatile music streaming server that allows you to access and listen to your music library from anywhere",
     "is_new": false,
     "new_until": false,
-    "display_name": "Airsonic Advanced"
+    "display_name": "Airsonic Advanced",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -291,7 +311,8 @@
     "description": "Messaging client that improves communication by consolidating various WhatsApp messaging clients",
     "is_new": false,
     "new_until": false,
-    "display_name": "Altus"
+    "display_name": "Altus",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -305,7 +326,8 @@
     "description": "Tool for sending notifications across a wide range of services, simplifying alert management",
     "is_new": false,
     "new_until": false,
-    "display_name": "Apprise API"
+    "display_name": "Apprise API",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -319,7 +341,8 @@
     "description": "Ardour is a free and versatile digital audio workstation for recording, editing, and mixing audio and MIDI",
     "is_new": false,
     "new_until": false,
-    "display_name": "Ardour"
+    "display_name": "Ardour",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -333,7 +356,8 @@
     "description": "A comprehensive audio editor for recording, editing, and mixing sound files with a multitude of features",
     "is_new": false,
     "new_until": false,
-    "display_name": "Audacity"
+    "display_name": "Audacity",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -347,7 +371,8 @@
     "description": "An application for managing all aspects of childcare, from feeding schedules to diaper changes",
     "is_new": false,
     "new_until": false,
-    "display_name": "Baby Buddy"
+    "display_name": "Baby Buddy",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -361,7 +386,8 @@
     "description": "Specialized software for slicing 3D models in preparation for printing, enhancing 3D printing workflows",
     "is_new": false,
     "new_until": false,
-    "display_name": "Bambu Studio"
+    "display_name": "Bambu Studio",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -375,7 +401,8 @@
     "description": "A subtitle management tool that automatically finds and syncs subtitles for your media collection",
     "is_new": false,
     "new_until": false,
-    "display_name": "Bazarr"
+    "display_name": "Bazarr",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -389,7 +416,8 @@
     "description": "A music library manager designed for organizing, tagging, and searching music collections efficiently",
     "is_new": false,
     "new_until": false,
-    "display_name": "Beets"
+    "display_name": "Beets",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -403,7 +431,8 @@
     "description": "Professional-grade 3D modeling software for creating animated films, visual effects, art, and more",
     "is_new": false,
     "new_until": false,
-    "display_name": "Blender"
+    "display_name": "Blender",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -417,7 +446,8 @@
     "description": "Distributed computing platform that supports scientific research by utilizing idle computing resources",
     "is_new": false,
     "new_until": false,
-    "display_name": "BOINC"
+    "display_name": "BOINC",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -431,7 +461,8 @@
     "description": "Task management application that helps organize and prioritize tasks to enhance productivity",
     "is_new": false,
     "new_until": false,
-    "display_name": "Budge"
+    "display_name": "Budge",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -445,7 +476,8 @@
     "description": "An e-book management system with extensive features for e-book conversion and syncing locally",
     "is_new": false,
     "new_until": false,
-    "display_name": "Calibre"
+    "display_name": "Calibre",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -459,7 +491,8 @@
     "description": "A comprehensive office suite offering word processing, excel spreadsheets, project planning and much more",
     "is_new": false,
     "new_until": false,
-    "display_name": "Calligra"
+    "display_name": "Calligra",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -473,7 +506,8 @@
     "description": "Tool for monitoring changes on web pages, useful for tracking updates without manual checking",
     "is_new": false,
     "new_until": false,
-    "display_name": "Change Detection"
+    "display_name": "Change Detection",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -487,7 +521,8 @@
     "description": "Experience the world wide web safely and swiftly with this web browser designed for stability and speed",
     "is_new": false,
     "new_until": false,
-    "display_name": "Chromium"
+    "display_name": "Chromium",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -501,7 +536,8 @@
     "description": "Develop anywhere just using a web browser, it makes development more accessible and convenient",
     "is_new": false,
     "new_until": false,
-    "display_name": "Code Server"
+    "display_name": "Code Server",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -515,7 +551,8 @@
     "description": "User-friendly 3D printing software for preparing models for printing and managing the printing process",
     "is_new": false,
     "new_until": false,
-    "display_name": "Cura"
+    "display_name": "Cura",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -529,7 +566,8 @@
     "description": "Photo processing app designed for photographers to manage digital negatives and develop raw docker_images",
     "is_new": false,
     "new_until": false,
-    "display_name": "Darktable"
+    "display_name": "Darktable",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -543,7 +581,8 @@
     "description": "FTP automation tool that streamlines the process of syncing folders by downloading and uploading files",
     "is_new": false,
     "new_until": false,
-    "display_name": "Davos"
+    "display_name": "Davos",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -557,7 +596,8 @@
     "description": "Tool for updating dynamic DNS records, ensuring your domain name points to your current IP address",
     "is_new": false,
     "new_until": false,
-    "display_name": "DDClient"
+    "display_name": "DDClient",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -571,7 +611,8 @@
     "description": "Lightweight, free software and cross-platform BitTorrent client with a focus on being fully-featured yet slim",
     "is_new": false,
     "new_until": false,
-    "display_name": "Deluge"
+    "display_name": "Deluge",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -585,7 +626,8 @@
     "description": "Photo management app that provides a set of tools for importing, managing, and sharing photos",
     "is_new": false,
     "new_until": false,
-    "display_name": "DigiKam"
+    "display_name": "DigiKam",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -599,7 +641,8 @@
     "description": "Online markdown editor that provides a convenient interface for writing and exporting documents",
     "is_new": false,
     "new_until": false,
-    "display_name": "Dillinger"
+    "display_name": "Dillinger",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -613,7 +656,8 @@
     "description": "Simple to use and highly versatile Open Source wiki software that doesn't require a database to run",
     "is_new": false,
     "new_until": false,
-    "display_name": "DokuWiki"
+    "display_name": "DokuWiki",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -627,7 +671,8 @@
     "description": "Lightweight Home Automation System that allows you to monitor and manage various IOT devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Domoticz"
+    "display_name": "Domoticz",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -641,7 +686,8 @@
     "description": "Media request tool that allows users to easily request new content for their favorite media servers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Doplarr"
+    "display_name": "Doplarr",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -655,7 +701,8 @@
     "description": "Cross-platform open-source file manager with two panels side by side, inspired by Total Commander",
     "is_new": false,
     "new_until": false,
-    "display_name": "Double Commander"
+    "display_name": "Double Commander",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -669,7 +716,8 @@
     "description": "Free dynamic DNS service that provides you with a domain name for your device for easy remote access",
     "is_new": false,
     "new_until": false,
-    "display_name": "DuckDNS"
+    "display_name": "DuckDNS",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -683,7 +731,8 @@
     "description": "Backup tool that securely saves data to different cloud storage providers or any other remote file servers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Duplicati"
+    "display_name": "Duplicati",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -697,7 +746,8 @@
     "description": "Media server designed to organize, play, and stream video and audio to a wide variety of devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Emby"
+    "display_name": "Emby",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -711,7 +761,8 @@
     "description": "Provides detailed analytics and statistics about your Emby media server, helping understand viewership",
     "is_new": false,
     "new_until": false,
-    "display_name": "EmbyStat"
+    "display_name": "EmbyStat",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -725,7 +776,8 @@
     "description": "Browser-based emulator for playing retro games, bringing classic games to modern devices without installation",
     "is_new": false,
     "new_until": false,
-    "display_name": "EmulatorJS"
+    "display_name": "EmulatorJS",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -739,7 +791,8 @@
     "description": "SSH tarpit that slows down brute-force attacks by trapping attackers in slow interactions, wasting their time",
     "is_new": false,
     "new_until": false,
-    "display_name": "Endlessh"
+    "display_name": "Endlessh",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -753,7 +806,8 @@
     "description": "Intrusion prevention software framework that protects computer servers from brute-force attacks",
     "is_new": false,
     "new_until": false,
-    "display_name": "Fail2ban"
+    "display_name": "Fail2ban",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -767,7 +821,8 @@
     "description": "Messaging aggregator that unifies multiple messaging services into a single application for convenience",
     "is_new": false,
     "new_until": false,
-    "display_name": "Ferdium"
+    "display_name": "Ferdium",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -781,7 +836,8 @@
     "description": "Fast and reliable cross-platform FTP, FTPS, and SFTP client with lots of useful features and an intuitive GUI",
     "is_new": false,
     "new_until": false,
-    "display_name": "FileZilla"
+    "display_name": "FileZilla",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -795,7 +851,8 @@
     "description": "Popular and fast web browser with strong privacy features and a commitment to open web standards",
     "is_new": false,
     "new_until": false,
-    "display_name": "Firefox"
+    "display_name": "Firefox",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -809,7 +866,8 @@
     "description": "Automated downloader for torrents, podcasts, and more, capable of being configured to suit any needs",
     "is_new": false,
     "new_until": false,
-    "display_name": "FlexGet"
+    "display_name": "FlexGet",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -823,7 +881,8 @@
     "description": "Project focused on disease research simulating different proteins folding and computational drug design",
     "is_new": false,
     "new_until": false,
-    "display_name": "Folding@Home"
+    "display_name": "Folding@Home",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -837,7 +896,8 @@
     "description": "Parametric 3D CAD modeler suitable for designing real-life objects of any size, with robust modeling tools",
     "is_new": false,
     "new_until": false,
-    "display_name": "FreeCAD"
+    "display_name": "FreeCAD",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -851,7 +911,8 @@
     "description": "Ditch the bored ads and data-tracking and embrace a privacy-focused YouTube with FreeTube",
     "is_new": false,
     "new_until": false,
-    "display_name": "FreeTube"
+    "display_name": "FreeTube",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -865,7 +926,8 @@
     "description": "Stay updated with your favorite websites through an RSS feed aggregator enjoying offline reading",
     "is_new": false,
     "new_until": false,
-    "display_name": "FreshRSS"
+    "display_name": "FreshRSS",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -879,7 +941,8 @@
     "description": "Open-source image editor for tasks such as photo retouching, image composition, and image authoring",
     "is_new": false,
     "new_until": false,
-    "display_name": "GIMP"
+    "display_name": "GIMP",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -893,7 +956,8 @@
     "description": "A seamless way to contribute to projects on GitHub, simplifying the process of cloning and developing",
     "is_new": false,
     "new_until": false,
-    "display_name": "GitHub Desktop"
+    "display_name": "GitHub Desktop",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -907,7 +971,8 @@
     "description": "Multi-platform Git client with a focus on simplicity and efficiency for managing git repositories",
     "is_new": false,
     "new_until": false,
-    "display_name": "GitQlient"
+    "display_name": "GitQlient",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -921,7 +986,8 @@
     "description": "Modern open-source flat-file CMS focused on speed and simplicity, without the need for a database",
     "is_new": false,
     "new_until": false,
-    "display_name": "Grav"
+    "display_name": "Grav",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -935,7 +1001,8 @@
     "description": "Optimize groceries and household management to reduce waste and save money with this home solution",
     "is_new": false,
     "new_until": false,
-    "display_name": "Grocy"
+    "display_name": "Grocy",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -949,7 +1016,8 @@
     "description": "Automated music downloader and Torrent, designed for music, allowing downloads from various sources",
     "is_new": false,
     "new_until": false,
-    "display_name": "Headphones"
+    "display_name": "Headphones",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -963,7 +1031,8 @@
     "description": "Monitoring service for cron jobs and background services, sending alerts if something goes wrong",
     "is_new": false,
     "new_until": false,
-    "display_name": "Healthchecks"
+    "display_name": "Healthchecks",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -977,7 +1046,8 @@
     "description": "Collaborative markdown editor that lets you write notes with others in real-time, focusing on collaboration",
     "is_new": false,
     "new_until": false,
-    "display_name": "HedgeDoc"
+    "display_name": "HedgeDoc",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -991,7 +1061,8 @@
     "description": "Docker containers dashboard that consolidates links to your applications in a convenient single place",
     "is_new": false,
     "new_until": false,
-    "display_name": "Heimdall"
+    "display_name": "Heimdall",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1005,7 +1076,8 @@
     "description": "Tool for tracking and sharing shell command history, enhancing collaboration and record-keeping",
     "is_new": false,
     "new_until": false,
-    "display_name": "Hishtory Server"
+    "display_name": "Hishtory Server",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1019,7 +1091,8 @@
     "description": "Python based home automation platform which integrates a multitude of smart home devices compatibility",
     "is_new": false,
     "new_until": false,
-    "display_name": "Home Assistant"
+    "display_name": "Home Assistant",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -1033,7 +1106,8 @@
     "description": "Application for managing various media servers and software at once, providing a unified interface",
     "is_new": false,
     "new_until": false,
-    "display_name": "HTPC Manager"
+    "display_name": "HTPC Manager",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1047,7 +1121,8 @@
     "description": "Professional vector graphics editor for creating illustrations, icons, logos, diagrams, maps, and web graphics",
     "is_new": false,
     "new_until": false,
-    "display_name": "Inkscape"
+    "display_name": "Inkscape",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1061,7 +1136,8 @@
     "description": "Proxy server that integrates with your favorite torrent clients and makes it easier to find torrent files",
     "is_new": false,
     "new_until": false,
-    "display_name": "Jackett"
+    "display_name": "Jackett",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["jellystat_postgres"],
@@ -1075,7 +1151,8 @@
     "description": "Monitoring tool for Jellyfin Server, providing user insights, analytics, play counts and server activity insights",
     "is_new": false,
     "new_until": false,
-    "display_name": "Jellystat"
+    "display_name": "Jellystat",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1089,7 +1166,8 @@
     "description": "Turn your media into a personal streaming hub, easily shared and managed across all your devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Jellyfin"
+    "display_name": "Jellyfin",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -1103,7 +1181,8 @@
     "description": "Virtual desktop that provides a secure and disposable browsing experience and desktop streaming",
     "is_new": false,
     "new_until": false,
-    "display_name": "Kasm"
+    "display_name": "Kasm",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1117,7 +1196,8 @@
     "description": "Digital library server for comics, novels, manga, providing an easy way to read and share digital books",
     "is_new": false,
     "new_until": false,
-    "display_name": "Kavita"
+    "display_name": "Kavita",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1131,7 +1211,8 @@
     "description": "Non-linear video editor, providing an intuitive and powerful interface for creating professional-quality videos",
     "is_new": false,
     "new_until": false,
-    "display_name": "Kdenlive"
+    "display_name": "Kdenlive",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1145,7 +1226,8 @@
     "description": "Take control of your passwords and safeguard your online presence with this free and reliable tool",
     "is_new": false,
     "new_until": false,
-    "display_name": "KeePassXC"
+    "display_name": "KeePassXC",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1159,7 +1241,8 @@
     "description": "EDA software suite for creating professional schematics and printed circuit boards up to 16 layers",
     "is_new": false,
     "new_until": false,
-    "display_name": "KiCad"
+    "display_name": "KiCad",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["kimai_mariadb"],
@@ -1173,7 +1256,8 @@
     "description": "Time tracker that provides clear and focused insight into your project time spent for freelancers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Kimai"
+    "display_name": "Kimai",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1187,7 +1271,8 @@
     "description": "Professional painting program, made by artists that want to see affordable art tools for everyone",
     "is_new": false,
     "new_until": false,
-    "display_name": "Krita"
+    "display_name": "Krita",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1201,7 +1286,8 @@
     "description": "Automated downloader for ebooks and audiobooks, which grabs new books based on your preferences",
     "is_new": false,
     "new_until": false,
-    "display_name": "LazyLibrarian"
+    "display_name": "LazyLibrarian",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1215,7 +1301,8 @@
     "description": "Lightweight LDAP authentication server which provides a safe bridge for authentication services",
     "is_new": false,
     "new_until": false,
-    "display_name": "LDAP Auth"
+    "display_name": "LDAP Auth",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1229,7 +1316,8 @@
     "description": "Powerful office suite with a clean interface and feature-rich tools that help you unleash your creativity",
     "is_new": false,
     "new_until": false,
-    "display_name": "LibreOffice"
+    "display_name": "LibreOffice",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1243,7 +1331,8 @@
     "description": "Private speed tests to measure your internet bandwidth, keeping your data secure from third-party sharing",
     "is_new": false,
     "new_until": false,
-    "display_name": "LibreSpeed"
+    "display_name": "LibreSpeed",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1257,7 +1346,8 @@
     "description": "The privacy-focused web browser that empowers you to take control of your online experience",
     "is_new": false,
     "new_until": false,
-    "display_name": "LibreWolf"
+    "display_name": "LibreWolf",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1271,7 +1361,8 @@
     "description": "Music collection manager designed to automate the finding, downloading, and cataloging of music tracks",
     "is_new": false,
     "new_until": false,
-    "display_name": "Lidarr"
+    "display_name": "Lidarr",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1285,7 +1376,8 @@
     "description": "Modern music player, focusing on simplicity and an intuitive interface to make music listening a pleasure",
     "is_new": false,
     "new_until": false,
-    "display_name": "Lollypop"
+    "display_name": "Lollypop",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["lychee_mariadb"],
@@ -1299,7 +1391,8 @@
     "description": "Elevate your photo collection with an intuitive platform for uploading, organizing, and sharing images",
     "is_new": false,
     "new_until": false,
-    "display_name": "Lychee"
+    "display_name": "Lychee",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1313,7 +1406,8 @@
     "description": "A relational database enhancing MySQL compatibility with superior performance for data management",
     "is_new": false,
     "new_until": false,
-    "display_name": "MariaDB"
+    "display_name": "MariaDB",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1327,7 +1421,8 @@
     "description": "Discover a world of social freedom, decentralized, private, and controlled by no one. Your space, your rules",
     "is_new": false,
     "new_until": false,
-    "display_name": "Mastodon"
+    "display_name": "Mastodon",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1341,7 +1436,8 @@
     "description": "Media organizer for movies, TV shows, concerts, and music, compatible with Kodi, Emby, and Plex",
     "is_new": false,
     "new_until": false,
-    "display_name": "MediaElch"
+    "display_name": "MediaElch",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1355,7 +1451,8 @@
     "description": "Streamline your TV show collection with an automated manager that tracks and downloads new episodes",
     "is_new": false,
     "new_until": false,
-    "display_name": "Medusa"
+    "display_name": "Medusa",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1369,7 +1466,8 @@
     "description": "A Minecraft inspire voxel game engine server for creative modding and game creation in a sandbox",
     "is_new": false,
     "new_until": false,
-    "display_name": "Minetest"
+    "display_name": "Minetest",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1383,7 +1481,8 @@
     "description": "Multi-stream DVB to IP that allows streaming of TV content over a network to different and various devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Minisatip"
+    "display_name": "Minisatip",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1397,7 +1496,8 @@
     "description": "Elevate your web browsing with a fast, secure, and feature-packed Chromium-powered browser",
     "is_new": false,
     "new_until": false,
-    "display_name": "Microsoft Edge"
+    "display_name": "Microsoft Edge",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1411,7 +1511,8 @@
     "description": "Enjoy your music collection anywhere with the ultimate platform that streams to multiple devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "mStream"
+    "display_name": "mStream",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1425,7 +1526,8 @@
     "description": "Isolated browser focused on privacy and security, integrating Mullvad VPN to protect user data",
     "is_new": false,
     "new_until": false,
-    "display_name": "Mullvad Browser"
+    "display_name": "Mullvad Browser",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1439,7 +1541,8 @@
     "description": "Comic and manga book management tool that automates downloading and organizing comic books",
     "is_new": false,
     "new_until": false,
-    "display_name": "Mylar3"
+    "display_name": "Mylar3",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1453,7 +1556,8 @@
     "description": "Unified visual tool for database architects, developers, and DBAs to manage MySQL databases",
     "is_new": false,
     "new_until": false,
-    "display_name": "MySQL Workbench"
+    "display_name": "MySQL Workbench",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1467,7 +1571,8 @@
     "description": "Workflow automation tool that enables you to connect your favorite apps, services, and devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "n8n"
+    "display_name": "n8n",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1481,7 +1586,8 @@
     "description": "Network boot loader that provides a friendly interface for remotely installing an OS over the network",
     "is_new": false,
     "new_until": false,
-    "display_name": "NetbootXYZ"
+    "display_name": "NetbootXYZ",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1495,7 +1601,8 @@
     "description": "Manage all your computer networks safe and efficiently, ensuring they stay organized and up-to-date",
     "is_new": false,
     "new_until": false,
-    "display_name": "NetBox"
+    "display_name": "NetBox",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1509,7 +1616,8 @@
     "description": "Suite of client-server software for creating and using file hosting services, including file sharing and hosting",
     "is_new": false,
     "new_until": false,
-    "display_name": "Nextcloud"
+    "display_name": "Nextcloud",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1523,7 +1631,8 @@
     "description": "Enhance web serving with a fast, stable, safe and easily configured HTTP/reverse proxy server",
     "is_new": false,
     "new_until": false,
-    "display_name": "NGINX"
+    "display_name": "NGINX",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1537,7 +1646,8 @@
     "description": "Lightweight and easy to configure IRC server software, designed for small or private networks",
     "is_new": false,
     "new_until": false,
-    "display_name": "ngIRCd"
+    "display_name": "ngIRCd",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1551,7 +1661,8 @@
     "description": "Write everything and unleash your inner genius with a powerful, customizable note-taking app on the cloud",
     "is_new": false,
     "new_until": false,
-    "display_name": "Obsidian"
+    "display_name": "Obsidian",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1565,7 +1676,8 @@
     "description": "Content request system for Plex, allowing friends and users to request movies, TV shows, and more",
     "is_new": false,
     "new_until": false,
-    "display_name": "Ombi"
+    "display_name": "Ombi",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1579,7 +1691,8 @@
     "description": "Provides secure shell access to a server, allowing for secure remote logins over the internet",
     "is_new": false,
     "new_until": false,
-    "display_name": "OpenSSH Server"
+    "display_name": "OpenSSH Server",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1593,7 +1706,8 @@
     "description": "Offers the capabilities of Visual Studio Code as a web-based service, enabling code editing from anywhere",
     "is_new": false,
     "new_until": false,
-    "display_name": "OpenVSCode Server"
+    "display_name": "OpenVSCode Server",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1607,7 +1721,8 @@
     "description": "Fast and secure web browser with built-in ad blocker, free secure VPN, and personalized news",
     "is_new": false,
     "new_until": false,
-    "display_name": "Opera"
+    "display_name": "Opera",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1621,7 +1736,8 @@
     "description": "3D printing software that prepares 3D models for printing and slicing, optimizing the printing process",
     "is_new": false,
     "new_until": false,
-    "display_name": "OrcaSlicer"
+    "display_name": "OrcaSlicer",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1635,7 +1751,8 @@
     "description": "Software used for unlocking locked content on a receiver by emulating a conditional access module card",
     "is_new": false,
     "new_until": false,
-    "display_name": "OSCam"
+    "display_name": "OSCam",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1649,7 +1766,8 @@
     "description": "Request management and media discovery tool for Plex, allowing users to find and request new content easily",
     "is_new": false,
     "new_until": false,
-    "display_name": "Overseerr"
+    "display_name": "Overseerr",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1663,7 +1781,8 @@
     "description": "Simple and secure file sharing tool, making it easy to send files between devices without complex setups",
     "is_new": false,
     "new_until": false,
-    "display_name": "PairDrop"
+    "display_name": "PairDrop",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1677,7 +1796,8 @@
     "description": "Free software tool written in PHP, intended to handle the administration of MySQL over the Web",
     "is_new": false,
     "new_until": false,
-    "display_name": "phpMyAdmin"
+    "display_name": "phpMyAdmin",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1691,7 +1811,8 @@
     "description": "Universal chat client, allowing you to consolidate multiple chat protocols into a single interface",
     "is_new": false,
     "new_until": false,
-    "display_name": "Pidgin"
+    "display_name": "Pidgin",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1705,7 +1826,8 @@
     "description": "Photo gallery software for the web, built by an active community of users and awesome developers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Piwigo"
+    "display_name": "Piwigo",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1719,7 +1841,8 @@
     "description": "Streaming software that organizes video and more from online services enabling access from any device",
     "is_new": false,
     "new_until": false,
-    "display_name": "Plex"
+    "display_name": "Plex",
+    "screenshot_count": 6
   },
   {
     "dependencies": [],
@@ -1733,7 +1856,8 @@
     "description": "Enhance your workflow and customer relations with a platform designed for secure file and project sharing",
     "is_new": false,
     "new_until": false,
-    "display_name": "ProjectSend"
+    "display_name": "ProjectSend",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1747,7 +1871,8 @@
     "description": "Indexer manager for Usenet and torrents, integrating with popular download clients for automation",
     "is_new": false,
     "new_until": false,
-    "display_name": "Prowlarr"
+    "display_name": "Prowlarr",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1761,7 +1886,8 @@
     "description": "Self-deployable file hosting service for sending files anonymously, prioritizing privacy and ease of use",
     "is_new": false,
     "new_until": false,
-    "display_name": "pwndrop"
+    "display_name": "pwndrop",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1775,7 +1901,8 @@
     "description": "Offers a scalable file sharing solution that meets the collaboration needs of teams and enterprises",
     "is_new": false,
     "new_until": false,
-    "display_name": "Pydio Cells"
+    "display_name": "Pydio Cells",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1789,7 +1916,8 @@
     "description": "Download manager for fetching and managing downloads from different services, optimizing the downloads",
     "is_new": false,
     "new_until": false,
-    "display_name": "PyLoad NG"
+    "display_name": "PyLoad NG",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1803,7 +1931,8 @@
     "description": "Streamline coding with a sleek editor that supports a wide number of languages and frameworks",
     "is_new": false,
     "new_until": false,
-    "display_name": "Pylon"
+    "display_name": "Pylon",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1817,7 +1946,8 @@
     "description": "An awesome BitTorrent client with a legendary user interface and an integrated search engine to find torrents",
     "is_new": false,
     "new_until": false,
-    "display_name": "qBittorrent"
+    "display_name": "qBittorrent",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1831,7 +1961,8 @@
     "description": "Graphical disk usage utility that makes you able to visualizes the disk space usage of all your storage systems",
     "is_new": false,
     "new_until": false,
-    "display_name": "QDirStat"
+    "display_name": "QDirStat",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1845,7 +1976,8 @@
     "description": "Automatically manage and download movies via Usenet and BitTorrent, following the user’s defined criteria",
     "is_new": false,
     "new_until": false,
-    "display_name": "Radarr"
+    "display_name": "Radarr",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -1859,7 +1991,8 @@
     "description": "A platform for creating detailed knowledge bases with static Markdown files powering the content",
     "is_new": false,
     "new_until": false,
-    "display_name": "Raneto"
+    "display_name": "Raneto",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1873,7 +2006,8 @@
     "description": "eBook download manager that automates the downloading of your digital book collection automatically",
     "is_new": false,
     "new_until": false,
-    "display_name": "Readarr"
+    "display_name": "Readarr",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1887,7 +2021,8 @@
     "description": "Remote desktop client written in GTK, supporting multiple protocols in a consistent user interface",
     "is_new": false,
     "new_until": false,
-    "display_name": "Remmina"
+    "display_name": "Remmina",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1901,7 +2036,8 @@
     "description": "Fast, reliable, and simple file sync and share solution, powered by P2P technology between devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Resilio Sync"
+    "display_name": "Resilio Sync",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1915,7 +2051,8 @@
     "description": "Snapshot utility for backups of local and remote systems, using rsync and hard links to minimize storage",
     "is_new": false,
     "new_until": false,
-    "display_name": "rsnapshot"
+    "display_name": "rsnapshot",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1929,7 +2066,8 @@
     "description": "Automate Usenet downloads with a binary newsreader for better and effortless file retrieval",
     "is_new": false,
     "new_until": false,
-    "display_name": "SABnzbd"
+    "display_name": "SABnzbd",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1943,7 +2081,8 @@
     "description": "TV series manager that tracks TV show episodes, ensuring you’re up-to-date with your favorite series",
     "is_new": false,
     "new_until": false,
-    "display_name": "Series Troxide"
+    "display_name": "Series Troxide",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1957,7 +2096,8 @@
     "description": "Unleash your creativity with a versatile video editor, built for everyone from beginners to professionals",
     "is_new": false,
     "new_until": false,
-    "display_name": "Shotcut"
+    "display_name": "Shotcut",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1971,7 +2111,8 @@
     "description": "Automatic Video Library Manager for TV shows. Grabs, sorts, and renames new episodes automatically",
     "is_new": false,
     "new_until": false,
-    "display_name": "SickChill"
+    "display_name": "SickChill",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -1985,7 +2126,8 @@
     "description": "Provides management of TV shows and automatically processes them as they become available",
     "is_new": false,
     "new_until": false,
-    "display_name": "SickGear"
+    "display_name": "SickGear",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -1999,7 +2141,8 @@
     "description": "Keeps track of your network latency, providing a detailed visualization of your network performance insights",
     "is_new": false,
     "new_until": false,
-    "display_name": "SmokePing"
+    "display_name": "SmokePing",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2013,7 +2156,8 @@
     "description": "File-sharing tool inspired by Apple's AirDrop, facilitating quick and easy file transfers between devices",
     "is_new": false,
     "new_until": false,
-    "display_name": "Snapdrop"
+    "display_name": "Snapdrop",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2027,7 +2171,8 @@
     "description": "Asset management system that helps you manage assets, licenses, accessories and components",
     "is_new": false,
     "new_until": false,
-    "display_name": "Snipe-IT"
+    "display_name": "Snipe-IT",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2041,7 +2186,8 @@
     "description": "Sonarr is a BitTorrent PVR, auto-manages and download TV show episodes from different RSS feeds",
     "is_new": false,
     "new_until": false,
-    "display_name": "Sonarr"
+    "display_name": "Sonarr",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2055,7 +2201,8 @@
     "description": "It's time to effortlessly start tracking and analyzing the performance of your internet provider",
     "is_new": false,
     "new_until": false,
-    "display_name": "Speedtest Tracker"
+    "display_name": "Speedtest Tracker",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2069,7 +2216,8 @@
     "description": "Craft your perfect playlist and listen to everything with diverse audio sources beyond Spotify Premium",
     "is_new": false,
     "new_until": false,
-    "display_name": "Spotube"
+    "display_name": "Spotube",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2083,7 +2231,8 @@
     "description": "A high-quality, visual tool to create, modify, design, and edit database files compatible with SQLite",
     "is_new": false,
     "new_until": false,
-    "display_name": "SQLite Browser"
+    "display_name": "SQLite Browser",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2097,7 +2246,8 @@
     "description": "Linux-based OS designed for the Steam Machine gaming console platform, optimizing gaming",
     "is_new": false,
     "new_until": false,
-    "display_name": "SteamOS"
+    "display_name": "SteamOS",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2111,7 +2261,8 @@
     "description": "Simplifies the process of setting up an NGINX web server with Let's Encrypt certificate management",
     "is_new": false,
     "new_until": false,
-    "display_name": "SWAG"
+    "display_name": "SWAG",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2125,7 +2276,8 @@
     "description": "Tool for watching Plex content with friends together online, syncing playback across multiple users",
     "is_new": false,
     "new_until": false,
-    "display_name": "SyncLounge"
+    "display_name": "SyncLounge",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2139,7 +2291,8 @@
     "description": "Continuous file synchronization program that synchronizes files between computers in real-time",
     "is_new": false,
     "new_until": false,
-    "display_name": "Syncthing"
+    "display_name": "Syncthing",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2153,7 +2306,8 @@
     "description": "Flexible log management solution that captures, classifies, and stores log messages from your infrastructure",
     "is_new": false,
     "new_until": false,
-    "display_name": "Syslog-NG"
+    "display_name": "Syslog-NG",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2167,7 +2321,8 @@
     "description": "Monitoring tool for Plex Media Server, providing user insights, analytics, play counts and server activity insights",
     "is_new": false,
     "new_until": false,
-    "display_name": "Tautulli"
+    "display_name": "Tautulli",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2181,7 +2336,8 @@
     "description": "IRC client focused on simplicity and privacy, providing an easy and secure way to connect to IRC networks",
     "is_new": false,
     "new_until": false,
-    "display_name": "The Lounge"
+    "display_name": "The Lounge",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2195,7 +2351,8 @@
     "description": "BitTorrent client with a simple and almost-magical interface, focusing on low resource usage and simplicity",
     "is_new": false,
     "new_until": false,
-    "display_name": "Transmission"
+    "display_name": "Transmission",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2209,7 +2366,8 @@
     "description": "TV streaming server and recorder for Linux, supporting DVB-S, DVB-S2, DVB-C, DVB-T, ATSC, IPTV...",
     "is_new": false,
     "new_until": false,
-    "display_name": "TVHeadend"
+    "display_name": "TVHeadend",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2223,7 +2381,8 @@
     "description": "Access your comics and ebooks easily creating an awesome server that centralizes your digital library",
     "is_new": false,
     "new_until": false,
-    "display_name": "Ubooquity"
+    "display_name": "Ubooquity",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2237,7 +2396,8 @@
     "description": "Experience a privacy-focused code editor, offering all the power you expect without compromising you",
     "is_new": false,
     "new_until": false,
-    "display_name": "VSCodium"
+    "display_name": "VSCodium",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2251,7 +2411,8 @@
     "description": "Discord client offering an alternative to the official client with a focus on privacy and efficiency",
     "is_new": false,
     "new_until": false,
-    "display_name": "WebCord"
+    "display_name": "WebCord",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2265,7 +2426,8 @@
     "description": "Multi-site incremental XMLTV EPG grabber, which grabs internet TV guides in multiple languages",
     "is_new": false,
     "new_until": false,
-    "display_name": "WebGrab+Plus"
+    "display_name": "WebGrab+Plus",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2279,7 +2441,8 @@
     "description": "Virtual desktop environment designed to deliver desktop-as-a-service for remote work scenarios",
     "is_new": false,
     "new_until": false,
-    "display_name": "Webtop"
+    "display_name": "Webtop",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2293,7 +2456,8 @@
     "description": "Powerful wiki app built on Node.js, featuring a beautiful and intuitive UI, built for speed and performance",
     "is_new": false,
     "new_until": false,
-    "display_name": "Wiki.js"
+    "display_name": "Wiki.js",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2307,7 +2471,8 @@
     "description": "Modern VPN that utilizes state-of-the-art cryptography, aiming to be faster, simpler, and leaner than IPSec",
     "is_new": false,
     "new_until": false,
-    "display_name": "WireGuard"
+    "display_name": "WireGuard",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2321,7 +2486,8 @@
     "description": "Network protocol analyzer used for network troubleshooting, analysis and communications development",
     "is_new": false,
     "new_until": false,
-    "display_name": "Wireshark"
+    "display_name": "Wireshark",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2335,7 +2501,8 @@
     "description": "Microsoft Office compatible office suite that provides a complete solution for office productivity",
     "is_new": false,
     "new_until": false,
-    "display_name": "WPS Office"
+    "display_name": "WPS Office",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2349,7 +2516,8 @@
     "description": "File hosting software with support for file sharing, allowing you to upload via web interface and WebDAV",
     "is_new": false,
     "new_until": false,
-    "display_name": "XBackbone"
+    "display_name": "XBackbone",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2363,7 +2531,8 @@
     "description": "IRC bouncer that allows you to stay connected to your IRC channels, maintaining your presence",
     "is_new": false,
     "new_until": false,
-    "display_name": "ZNC"
+    "display_name": "ZNC",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2377,7 +2546,8 @@
     "description": "A minimalist and privacy-focused file sharing tool, enabling quick and easy file transfers without tracking",
     "is_new": false,
     "new_until": false,
-    "display_name": "PicoShare"
+    "display_name": "PicoShare",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2391,7 +2561,8 @@
     "description": "Offers real-time health monitoring and performance analytics for systems and applications",
     "is_new": false,
     "new_until": false,
-    "display_name": "Netdata"
+    "display_name": "Netdata",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["owncloud_mariadb", "owncloud_redis"],
@@ -2405,7 +2576,8 @@
     "description": "File sync sharing software designed to let you store your data providing a flexible cloud storage solution",
     "is_new": false,
     "new_until": false,
-    "display_name": "ownCloud"
+    "display_name": "ownCloud",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -2419,7 +2591,8 @@
     "description": "Advertisement and internet tracker blocking application that acts as a DNS sinkhole, improving privacy",
     "is_new": false,
     "new_until": false,
-    "display_name": "Pi-hole"
+    "display_name": "Pi-hole",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -2433,7 +2606,8 @@
     "description": "Simplifies container management in Docker, Swarm and more by providing a detailed overview",
     "is_new": false,
     "new_until": false,
-    "display_name": "Portainer"
+    "display_name": "Portainer",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -2447,7 +2621,8 @@
     "description": "Track your investments, analyze performance, all while keeping your financial data secure and private",
     "is_new": false,
     "new_until": false,
-    "display_name": "Rotki"
+    "display_name": "Rotki",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2461,7 +2636,8 @@
     "description": "Alternative implementation of the Bitwarden server API written in Rust, focusing on ease of use and privacy",
     "is_new": false,
     "new_until": false,
-    "display_name": "Vaultwarden"
+    "display_name": "Vaultwarden",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["wordpress_mariadb"],
@@ -2475,7 +2651,8 @@
     "description": "The most popular open-source CMS, used for creating websites and blogs with a vast ecosystem of plugins",
     "is_new": false,
     "new_until": false,
-    "display_name": "WordPress"
+    "display_name": "WordPress",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -2489,7 +2666,8 @@
     "description": "A tool to monitor your services, websites, and servers in real time with alerts, history, and a self-hosted visual dashboard",
     "is_new": false,
     "new_until": false,
-    "display_name": "Uptime Kuma"
+    "display_name": "Uptime Kuma",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2503,7 +2681,8 @@
     "description": "An all-in-one collection of web tools for developers, engineers, and IT enthusiasts, accessible from a single place",
     "is_new": false,
     "new_until": false,
-    "display_name": "IT Tools"
+    "display_name": "IT Tools",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2517,7 +2696,8 @@
     "description": "A modern web interface to request, manage, and track movie and TV show requests on Jellyfin, Plex or Emby servers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Jellyseerr"
+    "display_name": "Jellyseerr",
+    "screenshot_count": 4
   },
   {
     "dependencies": [],
@@ -2531,7 +2711,8 @@
     "description": "Storage and inventory tool to organize items with tags, photos, locations, and printable QR codes for easy tracking and access",
     "is_new": false,
     "new_until": false,
-    "display_name": "Homebox"
+    "display_name": "Homebox",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2545,7 +2726,8 @@
     "description": "A self-hosted file conversion tool that transforms documents between formats via a simple web interface",
     "is_new": false,
     "new_until": false,
-    "display_name": "MorphOS"
+    "display_name": "MorphOS",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2559,7 +2741,8 @@
     "description": "Analyzes websites in depth, extracting detailed information like technologies used, meta tags, headers, links, DNS records, and other technical data",
     "is_new": false,
     "new_until": false,
-    "display_name": "Web Check"
+    "display_name": "Web Check",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2573,7 +2756,8 @@
     "description": "Self-hosted app to visually create, edit, and manage Docker Compose YAML files easily, perfect for organizing and deploying containers",
     "is_new": false,
     "new_until": false,
-    "display_name": "Compose Toolbox"
+    "display_name": "Compose Toolbox",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2587,7 +2771,8 @@
     "description": "Simple self-hosted WireGuard VPN manager with a web UI for easy configuration, user management, and QR code access",
     "is_new": false,
     "new_until": false,
-    "display_name": "WireGuard Easy"
+    "display_name": "WireGuard Easy",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],
@@ -2601,7 +2786,8 @@
     "description": "Downtify is a self-hosted tool to download Spotify songs and playlists, converting them to MP3 with metadata and cover art",
     "is_new": false,
     "new_until": false,
-    "display_name": "Downtify"
+    "display_name": "Downtify",
+    "screenshot_count": 2
   },
   {
     "dependencies": [],
@@ -2615,7 +2801,8 @@
     "description": "Homebridge enables non-HomeKit smart devices to work with Apple HomeKit, allowing Siri and Home app control via plugins",
     "is_new": false,
     "new_until": false,
-    "display_name": "Homebridge"
+    "display_name": "Homebridge",
+    "screenshot_count": 3
   },
   {
     "dependencies": ["booklore_mariadb"],
@@ -2629,6 +2816,7 @@
     "description": "App for managing, reading, and organizing books, supporting PDFs, eBooks, metadata, and reading progress",
     "is_new": false,
     "new_until": false,
-    "display_name": "Booklore"
+    "display_name": "Booklore",
+    "screenshot_count": 3
   }
 ]

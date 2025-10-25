@@ -62,17 +62,22 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useInstallationStore } from "../__Stores__/useInstallationStore";
 import { useAppStore } from "../__Stores__/useAppStore";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import BaseImage from "./BaseImage.vue";
 
 const installationStore = useInstallationStore();
 const appStore = useAppStore();
 const { themeClasses } = useTheme();
+const trayManager = useTrayManager();
+
+const TRAY_ID = "installation-indicator";
+
 const indicatorRef = ref<HTMLElement | null>(null);
 const isExpanded = ref(false);
 
@@ -110,10 +115,17 @@ function getAppDisplayName(appName: string): string {
 
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  if (!isExpanded.value) {
+    trayManager.openTray(TRAY_ID);
+    isExpanded.value = true;
+  } else {
+    trayManager.closeTray(TRAY_ID);
+    isExpanded.value = false;
+  }
 }
 
 function closeDropdown() {
+  trayManager.closeTray(TRAY_ID);
   isExpanded.value = false;
 }
 
@@ -122,6 +134,15 @@ function handleClickOutside(event: MouseEvent) {
     closeDropdown();
   }
 }
+
+watch(
+  () => trayManager.activeTrayId.value,
+  (newTrayId) => {
+    if (newTrayId !== TRAY_ID && isExpanded.value) {
+      isExpanded.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);

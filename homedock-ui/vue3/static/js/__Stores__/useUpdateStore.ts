@@ -1,5 +1,6 @@
 // homedock-ui/vue3/static/js/__Stores__/useUpdateStore.ts
-// Copyright © 2023-2025 Banshee
+// Copyright © 2023-2026 Banshee, All Rights Reserved
+// See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
 import { defineStore } from "pinia";
@@ -86,14 +87,49 @@ export const useUpdateStore = defineStore("updateStore", {
       try {
         axios.post("/api/update_now", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
         localStorage.removeItem("updateCheckData");
-        axios.post("/logout", {}, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
-
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2500);
+        await this.waitForServerRestart(120000);
+        window.location.reload();
       } catch (error) {
         console.error("Error updating HomeDock OS:", error);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
+    },
+
+    async waitForServerRestart(timeout: number = 120000): Promise<void> {
+      const startTime = Date.now();
+      const pollInterval = 2000;
+      let serverWasDown = false;
+
+      return new Promise((resolve) => {
+        const checkServer = async () => {
+          if (Date.now() - startTime >= timeout) {
+            resolve();
+            return;
+          }
+
+          try {
+            const response = await axios.get("/", {
+              timeout: 5000,
+              validateStatus: (status) => status === 200 || status === 404,
+            });
+
+            if (response.status === 404 || response.status >= 500) {
+              serverWasDown = true;
+            } else if (response.status === 200 && serverWasDown) {
+              resolve();
+              return;
+            }
+          } catch (error) {
+            serverWasDown = true;
+          }
+
+          setTimeout(checkServer, pollInterval);
+        };
+
+        checkServer();
+      });
     },
   },
 });
