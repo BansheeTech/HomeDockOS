@@ -92,7 +92,6 @@ def get_devhooks_from_map(devhook_map: Dict[str, bool]) -> List[str]:
 
 
 def get_error_message(error_key: str, **kwargs) -> str:
-    """Get a formatted error message."""
     message_template = ERROR_MESSAGES.get(error_key, f"Unknown error: {error_key}")
     return message_template.format(**kwargs)
 
@@ -155,17 +154,29 @@ def ensure_external_dir():
 
 def cleanup_partial_installation(app_slug: str, apps_folder: str) -> None:
     try:
+        # HDOS00013
+        if "/" in app_slug or "\\" in app_slug or ".." in app_slug:
+            return
+
         compose_path = os.path.join(apps_folder, f"{app_slug}.yml")
-        if os.path.exists(compose_path):
+        real_compose_path = os.path.realpath(compose_path)
+        real_apps_folder = os.path.realpath(apps_folder)
+
+        if real_compose_path.startswith(real_apps_folder) and os.path.exists(compose_path):
             os.remove(compose_path)
 
         metadata_path = os.path.join(apps_folder, f"{app_slug}.yml.metadata")
-        if os.path.exists(metadata_path):
+        real_metadata_path = os.path.realpath(metadata_path)
+
+        if real_metadata_path.startswith(real_apps_folder) and os.path.exists(metadata_path):
             os.remove(metadata_path)
 
+        real_images_folder = os.path.realpath(user_packages_images_folder)
         for ext in ALLOWED_ICON_EXTENSIONS:
             icon_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
-            if os.path.exists(icon_path):
+            real_icon_path = os.path.realpath(icon_path)
+
+            if real_icon_path.startswith(real_images_folder) and os.path.exists(icon_path):
                 os.remove(icon_path)
                 break
 
@@ -242,7 +253,7 @@ def create_hds_package(app_slug: str, display_name: str, output_path: str, app_m
         with open(compose_path, "r") as f:
             compose_content = f.read()
 
-        manifest = {"name": app_slug, "display_name": display_name, "category": app_metadata.get("category", "Other"), "type": app_metadata.get("type", "Application"), "description": app_metadata.get("description", ""), "docker_image": app_metadata.get("docker_image", ""), "icon": icon_filename, "author": app_metadata.get("author", "Unknown"), "version": app_metadata.get("version", "1.0.0"), "hds_version": HDS_VERSION, "dependencies": app_metadata.get("dependencies", []), "is_group": app_metadata.get("is_group", False), "is_new": app_metadata.get("is_new", False), "new_until": app_metadata.get("new_until", False)}  # Slug for internal identification  # Human-readable name for UI
+        manifest = {"name": app_slug, "display_name": display_name, "category": app_metadata.get("category", "Other"), "type": app_metadata.get("type", "Application"), "description": app_metadata.get("description", ""), "docker_image": app_metadata.get("docker_image", ""), "icon": icon_filename, "author": app_metadata.get("author", "Unknown"), "version": app_metadata.get("version", "1.0.0"), "hds_version": HDS_VERSION, "dependencies": app_metadata.get("dependencies", []), "is_group": app_metadata.get("is_group", False), "is_new": app_metadata.get("is_new", False), "new_until": app_metadata.get("new_until", False)}
 
         manifest_content = json.dumps(manifest, indent=2)
 
@@ -560,7 +571,7 @@ def get_external_apps_for_store():
 
                     icon_filename = metadata.get("icon_filename", f'{app_slug}{os.path.splitext(metadata.get("icon", ".jpg"))[1]}')
 
-                    app_data = {"name": app_slug, "display_name": display_name, "category": metadata.get("category", "Other"), "type": metadata.get("type", "Application"), "description": metadata.get("description", ""), "docker_image": metadata.get("docker_image", ""), "picture_path": f"user-images/{icon_filename}", "icon": metadata.get("icon", "mdi:package-variant"), "is_group": metadata.get("is_group", False), "dependencies": metadata.get("dependencies", []), "is_new": False, "new_until": False, "is_external": True, "author": metadata.get("author", "Unknown"), "version": metadata.get("version", "1.0.0")}  # Use slug for identification and file lookups  # Original name for display  # Mark as external app
+                    app_data = {"name": app_slug, "display_name": display_name, "category": metadata.get("category", "Other"), "type": metadata.get("type", "Application"), "description": metadata.get("description", ""), "docker_image": metadata.get("docker_image", ""), "picture_path": f"user-images/{icon_filename}", "icon": metadata.get("icon", "mdi:package-variant"), "is_group": metadata.get("is_group", False), "dependencies": metadata.get("dependencies", []), "is_new": False, "new_until": False, "is_external": True, "author": metadata.get("author", "Unknown"), "version": metadata.get("version", "1.0.0")}
 
                     apps.append(app_data)
 
@@ -624,8 +635,19 @@ def export_imported_app():
         if not app_slug:
             return jsonify({"success": False, "message": "Missing app_name"}), 400
 
+        # HDOS00014
+        if "/" in app_slug or "\\" in app_slug or ".." in app_slug:
+            return jsonify({"success": False, "message": "Invalid app name"}), 400
+
         metadata_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml.metadata")
         compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
+
+        real_metadata_path = os.path.realpath(metadata_path)
+        real_compose_path = os.path.realpath(compose_path)
+        real_available_folder = os.path.realpath(user_packages_available_folder)
+
+        if not real_metadata_path.startswith(real_available_folder) or not real_compose_path.startswith(real_available_folder):
+            return jsonify({"success": False, "message": "Invalid app name"}), 400
 
         if not os.path.exists(metadata_path):
             return jsonify({"success": False, "message": "This app was not imported and cannot be exported"}), 403
@@ -639,9 +661,15 @@ def export_imported_app():
         display_name = metadata.get("display_name", metadata.get("name", app_slug))
 
         icon_path = None
+        real_images_folder = os.path.realpath(user_packages_images_folder)
 
         for ext in [".jpg", ".jpeg", ".png"]:
             test_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
+            real_test_path = os.path.realpath(test_path)
+
+            if not real_test_path.startswith(real_images_folder):
+                continue
+
             if os.path.exists(test_path):
                 icon_path = test_path
                 break
@@ -723,17 +751,30 @@ def delete_external_app():
         os.remove(hds_path)
 
         if app_slug:
+            # HDOS00014
+            if "/" in app_slug or "\\" in app_slug or ".." in app_slug:
+                invalidate_external_apps_cache()
+                return jsonify({"success": True, "message": "Package deleted (cleanup skipped due to invalid app name)"})
+
             compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
-            if os.path.exists(compose_path):
+            real_compose_path = os.path.realpath(compose_path)
+            real_available_folder = os.path.realpath(user_packages_available_folder)
+
+            if real_compose_path.startswith(real_available_folder) and os.path.exists(compose_path):
                 os.remove(compose_path)
 
             metadata_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml.metadata")
-            if os.path.exists(metadata_path):
+            real_metadata_path = os.path.realpath(metadata_path)
+
+            if real_metadata_path.startswith(real_available_folder) and os.path.exists(metadata_path):
                 os.remove(metadata_path)
 
+            real_images_folder = os.path.realpath(user_packages_images_folder)
             for ext in [".jpg", ".jpeg", ".png"]:
                 icon_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
-                if os.path.exists(icon_path):
+                real_icon_path = os.path.realpath(icon_path)
+
+                if real_icon_path.startswith(real_images_folder) and os.path.exists(icon_path):
                     os.remove(icon_path)
                     break
 

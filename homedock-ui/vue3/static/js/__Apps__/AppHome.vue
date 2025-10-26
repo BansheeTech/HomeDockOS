@@ -198,11 +198,11 @@
       </div>
     </div>
 
-    <StatusBar :icon="homeIcon" message="My Home" :info="`CPU ${cpuValue}% • RAM ${ramValue}% • ${activeContainers}/${totalContainers} apps`" :showHelp="true">
+    <StatusBar :icon="cloudIcon" message="My Home" :info="`CPU ${cpuValue}% • RAM ${ramValue}% • ${activeContainers}/${totalContainers} apps`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="homeIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <Icon :icon="cloudIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">My Home</h4>
           </div>
 

@@ -9,7 +9,7 @@
       <SettingsSeparator :class="[themeClasses.formInputSet]" text="External Storage" :mdi_icon="harddiskIcon" />
     </label>
 
-    <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="externalDriveValue" class="w-full z-0" name="FormInputExternalDrive" id="FormInputExternalDrive" :popup-class-name="`${themeClasses.scopeSelector} z-0`" :show-search="false">
+    <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="externalDriveValue" class="w-full" name="FormInputExternalDrive" id="FormInputExternalDrive" :popup-class-name="themeClasses.scopeSelector" :show-search="false" :get-popup-container="(trigger: any) => trigger.parentNode">
       <SelectOptGroup label="External / USB">
         <SelectOption :class="[themeClasses.scopeSelector]" v-for="drive in validDrives" :key="drive" :value="drive">
           <div class="flex items-center">

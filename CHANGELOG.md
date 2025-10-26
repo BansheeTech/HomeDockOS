@@ -1,6 +1,27 @@
 # CHANGELOG
 
-- **2.0.2.260** (Latest): Enhanced App Store experience with screenshot previews, overall experience and more improvements.
+- **2.0.2.266** (Latest): Added custom wallpaper support for Aero+ theme and improved Settings reactivity with better state management.
+
+  - Introduced **custom wallpaper upload feature** allowing users to personalize their Aero+ theme with custom background images.
+  - Added new **wallpaper upload endpoint** (`/api/upload_wallpaper`) with comprehensive security validation including magic byte verification for JPEG and PNG formats.
+  - Enhanced **Settings Theme tab** with conditional rendering, showing wallpaper options only when Aero+ theme is selected for cleaner interface.
+  - Improved **Settings form validation** ensuring wallpaper uploads complete before saving other settings to maintain data consistency.
+  - Enhanced **reactivity in Settings app** by adding `update-settings` injection to properly propagate configuration changes across the application.
+  - Removed obsolete **default custom wallpaper file** (`back_custom_default.jpg`) as custom wallpapers now use dynamic naming with timestamps.
+  - Enhanced **CSRF token handling** in wallpaper upload requests ensuring secure file transfer operations.
+  - Updated **upload limits configuration** adding wallpaper endpoint to size-controlled endpoints for consistent security policy.
+  - Improved **Settings component communication** between parent and child components using refs for better state synchronization.
+  - Added **fade-slide transitions** for wallpaper sections providing smooth visual feedback when switching themes.
+  - Enhanced **warning notifications** in Settings to inform users about wallpaper upload failures with actionable error messages.
+  - Refined **file delivery system** to support serving custom wallpaper files with proper MIME type detection.
+  - Updated **theme selector** to handle dynamic custom wallpaper paths ensuring proper wallpaper loading across sessions.
+  - Improved **desktop wallpaper rendering** in AeroPlusWallpaper component to support both default and custom wallpaper sources.
+  - Enhanced **mobile desktop wallpaper** support ensuring custom wallpapers render correctly on touch devices and smaller screens.
+  - Updated **SECURITY.md** documentation with latest security considerations and best practices.
+
+---
+
+- **2.0.2.260**: Enhanced App Store experience with screenshot previews, overall experience and more improvements.
 
   - Added **screenshot preview galleries** to the App Installation dialog, allowing you to view app screenshots before installing with smooth drag-to-scroll navigation.
   - Implemented **fullscreen screenshot viewer** with keyboard navigation support (arrow keys and ESC) for better preview experience.

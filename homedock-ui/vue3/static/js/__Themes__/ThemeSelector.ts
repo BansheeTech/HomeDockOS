@@ -52,7 +52,7 @@ export function useTheme() {
       loginSocialsCont: "bg-gray-100 border border-gray-200/50",
       loginSocials: "text-gray-300 hover:text-blue-600",
 
-      iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-200 via-white to-gray-1000",
+      iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-300 via-gray-200 to-gray-300",
       appHolder: "hover:bg-gray-50 border-gray-200",
       appName: "text-gray-800",
       appRepo: "text-gray-400",
@@ -769,7 +769,7 @@ export function useTheme() {
       loginSocialsCont: "bg-zinc-800 border border-zinc-700/50",
       loginSocials: "text-zinc-600 hover:text-blue-600",
 
-      iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
+      iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
       appHolder: "border-zinc-800 hover:bg-zinc-800",
       appName: "text-white",
       appRepo: "text-zinc-500",
@@ -1486,7 +1486,7 @@ export function useTheme() {
       loginSocialsCont: "bg-zinc-800/25 border border-zinc-800/25",
       loginSocials: "text-zinc-500 hover:text-blue-500",
 
-      iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-800 via-zinc-600 to-zinc-800",
+      iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
       appHolder: "border-zinc-800/50 hover:bg-zinc-800/25",
       appName: "text-white",
       appRepo: "text-zinc-500",

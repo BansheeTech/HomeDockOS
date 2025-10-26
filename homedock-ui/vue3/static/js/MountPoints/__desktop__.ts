@@ -92,12 +92,21 @@ if (themeData && commonData && settingsData && dashboardData) {
     });
     app.provide("data-theme", reactiveTheme);
 
+    const wallpaperTimestamp = reactive({
+      value: Date.now(),
+    });
+    app.provide("wallpaper-timestamp", wallpaperTimestamp);
+
     const updateTheme = (newTheme: { selectedTheme?: string; selectedBack?: string }) => {
       if (newTheme.selectedTheme !== undefined) {
         reactiveTheme.selectedTheme = newTheme.selectedTheme;
       }
       if (newTheme.selectedBack !== undefined) {
         reactiveTheme.selectedBack = newTheme.selectedBack;
+        // Update timestamp when custom wallpaper changes
+        if (newTheme.selectedBack.startsWith("_back_custom")) {
+          wallpaperTimestamp.value = Date.now();
+        }
       }
     };
     app.provide("update-theme", updateTheme);
@@ -106,7 +115,7 @@ if (themeData && commonData && settingsData && dashboardData) {
       version: commonData.version,
     });
 
-    app.provide("data-settings", {
+    const reactiveSettings = reactive({
       userName: settingsData.user_name,
       runPort: settingsData.run_port,
       dynamicDNS: settingsData.dynamic_dns,
@@ -119,6 +128,12 @@ if (themeData && commonData && settingsData && dashboardData) {
       defaultExternalDrive: settingsData.default_external_drive,
       validDrives: [],
     });
+    app.provide("data-settings", reactiveSettings);
+
+    const updateSettings = (newSettings: Partial<typeof reactiveSettings>) => {
+      Object.assign(reactiveSettings, newSettings);
+    };
+    app.provide("update-settings", updateSettings);
 
     app.provide("data-dashboard", {
       cpuTemp: dashboardData.cpu_temp,
@@ -156,7 +171,7 @@ if (themeData && commonData && settingsData && dashboardData) {
 
     app.mount("#app-desktop-root");
 
-    console.log("▫️ HomeDock OS Prism Window Manager Loaded");
+    console.log("▫️▫️▫️ HomeDock OS Prism Window Manager Loaded");
   } catch (error) {
     console.error("❌ Error initializing HomeDock OS Prism Window Manager:", error);
   }

@@ -33,7 +33,14 @@ def CSRF_Protect(f):
             session["homedock_csrf_token"] = generate_csrf_token()
 
         if request.method == "POST":
-            client_token = request.form.get("homedock_csrf_token") or request.headers.get("X-HomeDock-CSRF-Token") or request.json.get("homedock_csrf_token")
+            client_token = request.form.get("homedock_csrf_token") or request.headers.get("X-HomeDock-CSRF-Token") or request.headers.get("X-CSRF-Token")
+
+            if not client_token and request.is_json:
+                try:
+                    client_token = request.json.get("homedock_csrf_token")
+                except Exception:
+                    pass
+
             escaped_client_token = escape(client_token) if client_token else None
             if escaped_client_token is None or escaped_client_token != session.get("homedock_csrf_token"):
                 abort(403, description="Missing or invalid CSRF Token, please reload your window. If the problem persists contact service support.")

@@ -63,7 +63,7 @@
             </template>
             <Transition name="fade-slide" appear>
               <div v-if="activeKey === '4'" class="tab-content">
-                <SettingsTabTheme v-model="formData.theme" />
+                <SettingsTabTheme ref="themeTabRef" v-model="formData.theme" />
               </div>
             </Transition>
           </TabPane>
@@ -132,13 +132,14 @@ import SettingsTabStorage from "../__Components__/SettingsTabStorage.vue";
 import SettingsTabTheme from "../__Components__/SettingsTabTheme.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 
-import { notifyError, notifySuccess } from "../__Components__/Notifications.vue";
+import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
 import { useWindowStore } from "../__Stores__/windowStore";
 
 const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
 const updateTheme = inject<(newTheme: { selectedTheme?: string; selectedBack?: string }) => void>("update-theme");
 const updateCsrfToken = inject<(newToken: string) => void>("update-csrf-token");
+const updateSettings = inject<(newSettings: any) => void>("update-settings");
 const settingsData = inject<{
   userName: string;
   runPort: number;
@@ -165,6 +166,7 @@ const windowStore = useWindowStore();
 const activeKey = ref("1");
 const publicKey = ref<string>("");
 const savingLoading = ref<boolean>(false);
+const themeTabRef = ref<any>(null);
 
 const validDrives = computed(() => {
   const drives = dashboardData?.external_default_disk || settingsData?.validDrives || [];
@@ -284,6 +286,22 @@ const handleSubmit = async () => {
   if (savingLoading.value) return;
   savingLoading.value = true;
 
+  if (themeTabRef.value?.hasPendingWallpaper()) {
+    try {
+      const uploaded = await themeTabRef.value.uploadPendingWallpaper();
+      if (!uploaded) {
+        notifyWarning("Failed to upload wallpaper", themeClasses.value.scopeSelector);
+        savingLoading.value = false;
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } catch (error: any) {
+      notifyWarning("Failed to upload wallpaper: " + (error.message || "Unknown error"), themeClasses.value.scopeSelector);
+      savingLoading.value = false;
+      return;
+    }
+  }
+
   if (!publicKey.value) await fetchPublicKey();
 
   const usernameChanged = formData.user.username !== settingsData.userName;
@@ -323,6 +341,21 @@ const handleSubmit = async () => {
       originalTheme.selectedTheme = formData.theme.selectedTheme || "";
       originalTheme.selectedBack = formData.theme.selectedBack || "";
 
+      if (updateSettings) {
+        updateSettings({
+          userName: formData.user.username,
+          runPort: formData.system.runPort,
+          dynamicDNS: formData.system.hostname,
+          localDNS: formData.system.localDNS,
+          runOnDev: formData.system.developmentMode,
+          disableUsageData: formData.system.disableUsageData,
+          deleteImageOnUpdate: formData.system.deleteOldImages,
+          deleteImageOnUninstall: formData.system.deleteOldImagesUninstall,
+          deleteInternalDataVolumes: formData.system.deleteVolumesUninstall,
+          defaultExternalDrive: formData.storage.externalDrive,
+        });
+      }
+
       savingLoading.value = false;
     }
   } catch (error: any) {
@@ -332,6 +365,10 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
+  if (themeTabRef.value?.hasPendingWallpaper()) {
+    themeTabRef.value.clearPendingWallpaper();
+  }
+
   const settingsWindow = windowStore.windows.find((w) => w.appId === "settings");
   if (settingsWindow) {
     windowStore.closeWindow(settingsWindow.id);

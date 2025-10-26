@@ -14,6 +14,7 @@ endpoint_limits = {
     "/login": 64 * 1024,  # 64KB
     "/api/pcrypt": 64 * 1024,  # 64KB
     "/api/upload_file": 1 * 1024 * 1024 * 1024,  # 1GB
+    "/api/upload_wallpaper": 10 * 1024 * 1024,  # 10MB
 }
 
 

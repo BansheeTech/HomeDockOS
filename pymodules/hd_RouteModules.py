@@ -38,6 +38,10 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/save_settings", "save_settings", CSRF_Protect(api_save_settings), methods=["POST"])
 
+    from pymodules.hd_UIWallpaperUpload import api_upload_wallpaper
+
+    homedock_www.add_url_rule("/api/upload_wallpaper", "upload_wallpaper", CSRF_Protect(api_upload_wallpaper), methods=["POST"])
+
     from pymodules.hd_HMRUpdate import check_update, update_now
 
     homedock_www.add_url_rule("/api/check_update", "check_update", CSRF_Protect(check_update), methods=["GET"])
@@ -57,9 +61,10 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/shieldmode", "shieldmode", shieldmode)
 
-    from pymodules.hd_UIFileDelivery import send_static_images, send_static_favicon, send_static_audio, send_user_images, send_src_static, send_src_dist
+    from pymodules.hd_UIFileDelivery import send_static_images, send_static_favicon, send_static_audio, send_user_images, send_user_wallpaper, send_src_static, send_src_dist
 
     homedock_www.add_url_rule("/images/user-images/<path:path>", "send_user_images", send_user_images)
+    homedock_www.add_url_rule("/images/user-wallpaper/<path:path>", "send_user_wallpaper", send_user_wallpaper)
     homedock_www.add_url_rule("/images/<path:path>", "send_static_images", send_static_images)
     homedock_www.add_url_rule("/favicon/<path:path>", "send_static_favicon", send_static_favicon)
     homedock_www.add_url_rule("/audio/<path:path>", "send_static_audio", send_static_audio)

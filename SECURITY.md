@@ -11,6 +11,10 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
+- `✦ Path Traversal in Package Manager Export & Delete Operation`
+
+  - **Internally Discovered** – Fixed in v2.0.2.266
+
 - `✦ RegEx Injection in AppExplorer Search`
 
   - **Internally Discovered** – Fixed in v2.0.1.102
