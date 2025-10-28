@@ -94,6 +94,7 @@ const emit = defineEmits<{
   (e: "folderClick", folder: DesktopFolder, event?: MouseEvent): void;
   (e: "folderDblclick", folder: DesktopFolder): void;
   (e: "folderContextmenu", event: MouseEvent, folder: DesktopFolder): void;
+  (e: "systemiconContextmenu", event: MouseEvent, systemIcon: SystemDesktopIcon): void;
 }>();
 
 const desktopStore = useDesktopStore();
@@ -686,6 +687,8 @@ function handleTouchStart(e: TouchEvent, item: any) {
 
       if (currentTouchItem.value.type === "folder") {
         emit("folderContextmenu", contextMenuEvent, currentTouchItem.value);
+      } else if (currentTouchItem.value.type === "systemicon") {
+        emit("systemiconContextmenu", contextMenuEvent, currentTouchItem.value);
       } else {
         emit("contextmenu", contextMenuEvent, currentTouchItem.value);
       }

@@ -1,6 +1,14 @@
 # CHANGELOG
 
-- **2.0.2.268** (Latest): Redesigned Settings interface with new grouped layout system and improved mobile experience.
+- **2.0.2.280** (Latest): Fixed context menu behavior for system icons on mobile devices.
+
+  - Fixed **system icon context menu on mobile**, long press on system icons like "My Home" now correctly shows the system icon menu (Refresh) instead of incorrectly displaying the regular app menu (Properties, System Logs, etc.).
+  - Implemented **dedicated event handling** for system icons in mobile touch interactions by adding `systemiconContextmenu` event to properly distinguish between apps, folders, and system icons.
+  - Enhanced **Mobile Desktop component** to emit the correct context menu event based on item type, ensuring consistent behavior across all desktop icon types.
+
+---
+
+- **2.0.2.268**: Redesigned Settings interface with new grouped layout system and improved mobile experience.
 
   - Introduced **new Settings layout components** for a cleaner, more modern interface.
   - Implemented **grouped settings sections** with headers and footer descriptions for better organization and user guidance.
@@ -14,8 +22,6 @@
   - Improved **Settings readability** with better typography, consistent spacing, and clearer descriptions for each configuration option.
   - Fixed **inconsistent Context Menu behavior on mobile** when interacting with system icons - now properly detects touch events and shows appropriate options.
   - Also updated vite and axios dependencies to latest versions available.
-
----
 
 - **2.0.2.266**: Added custom wallpaper support for Aero+ theme and improved Settings reactivity with better state management.
 
