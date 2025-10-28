@@ -160,7 +160,7 @@
 
               <div class="mb-6">
                 <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider mb-3">Restart Policy</h3>
-                <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="restartPolicy" class="w-full" :get-popup-container="(trigger: any) => trigger.parentNode">
+                <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="restartPolicy" class="w-full">
                   <SelectOption :class="[themeClasses.scopeSelector]" value="always">Always</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="unless-stopped">Unless Stopped</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="no">No</SelectOption>

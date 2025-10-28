@@ -4,63 +4,68 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsBoxFold>
-    <label class="block text-gray-700 font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="Theme" :mdi_icon="bright4Icon" />
-    </label>
-
-    <RadioGroup v-model:value="themeValue" :class="[themeClasses.scopeSelector]">
-      <RadioButton value="default" name="themeMode" :class="[themeClasses.radioGroupSelector, themeClasses.scopeSelector]" id="defaultMode">
-        <div class="flex items-center"><Icon :icon="bright4Icon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" /> Default</div>
-      </RadioButton>
-      <RadioButton value="noir" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="noirMode">
-        <div class="flex items-center"><Icon :icon="sunAngleOutlineIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" /> Noir</div>
-      </RadioButton>
-      <RadioButton value="aeroplus" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="aeroPlusMode">
-        <div class="flex items-center"><Icon :icon="squareOpacityIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" /> Aero+</div>
-      </RadioButton>
-    </RadioGroup>
-  </SettingsBoxFold>
+  <SettingsGroup header="APPEARANCE" footer="Choose a visual theme for HomeDock OS interface.">
+    <SettingsItem :icon="bright4Icon" icon-color="blue" title="Interface Theme" description="Select your preferred color scheme" is-last control-type="stack">
+      <RadioGroup v-model:value="themeValue" :class="[themeClasses.scopeSelector]" style="width: auto">
+        <RadioButton value="default" name="themeMode" :class="[themeClasses.radioGroupSelector, themeClasses.scopeSelector]" id="defaultMode">
+          <div class="flex items-center">
+            <Icon :icon="bright4Icon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
+            <span>Default</span>
+          </div>
+        </RadioButton>
+        <RadioButton value="noir" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="noirMode">
+          <div class="flex items-center">
+            <Icon :icon="sunAngleOutlineIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
+            <span>Noir</span>
+          </div>
+        </RadioButton>
+        <RadioButton value="aeroplus" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="aeroPlusMode">
+          <div class="flex items-center">
+            <Icon :icon="squareOpacityIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
+            <span>Aero+</span>
+          </div>
+        </RadioButton>
+      </RadioGroup>
+    </SettingsItem>
+  </SettingsGroup>
 
   <Transition name="fade-slide">
-    <SettingsBoxFold v-if="themeValue === 'aeroplus'">
-      <legend class="switch-texter font-medium text-gray-700 mb-2">
-        <SettingsSeparator :class="[themeClasses.formInputSet]" text="Aero+ Wallpaper" :mdi_icon="imageAreaIcon" />
-      </legend>
-
-      <Segmented :class="[themeClasses.scopeSelector, themeClasses.selectedCompScope]" v-model:value="wallValue" :options="wallpaperOptions" :block="false" size="small">
-        <template #label="{ value, payload }">
-          <div class="py-1 sm:py-2">
-            <img :src="payload.src" :alt="payload.alt" class="aero-background-thumbnail rounded-md h-4 sm:h-8 md:h-12 lg:h-16" />
+    <SettingsGroup v-if="themeValue === 'aeroplus'" header="WALLPAPER" footer="Select from preset wallpapers or upload your own custom image.">
+      <SettingsItem :icon="imageAreaIcon" icon-color="green" title="Preset Wallpapers" description="Choose from built-in wallpaper collection" is-last control-type="always-stack">
+        <div class="wallpaper-grid-wrapper">
+          <div class="wallpaper-grid">
+            <button v-for="option in wallpaperOptions" :key="option.value" @click="wallValue = option.value" :class="['wallpaper-option', { 'wallpaper-selected': wallValue === option.value }, themeClasses.scopeSelector]" type="button">
+              <img :src="option.payload.src" :alt="option.payload.alt" class="wallpaper-thumbnail" />
+            </button>
           </div>
-        </template>
-      </Segmented>
-    </SettingsBoxFold>
+        </div>
+      </SettingsItem>
+    </SettingsGroup>
   </Transition>
 
   <Transition name="fade-slide">
-    <SettingsBoxFold v-if="themeValue === 'aeroplus'">
-      <legend class="switch-texter font-medium text-gray-700 mb-2">
-        <SettingsSeparator :class="[themeClasses.formInputSet]" text="Custom Wallpaper" :mdi_icon="uploadIcon" />
-      </legend>
+    <SettingsGroup v-if="themeValue === 'aeroplus'" header="CUSTOM WALLPAPER">
+      <SettingsItem :icon="uploadIcon" icon-color="orange" title="Upload Your Own" description="Upload a custom wallpaper (JPG/PNG, min 800x600px, max 10MB)" is-last control-type="stack">
+        <div class="w-full">
+          <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="wallpaperFileList" name="wallpaper" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleWallpaperUpload" @change="handleWallpaperChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeWallpaperUpload" class="compact-dragger h-[140px]">
+            <div class="flex items-center align-center justify-center flex-col h-full">
+              <p class="ant-upload-drag-icon">
+                <Icon v-if="!wallpaperPreview" :icon="imageAreaIcon" :class="['text-4xl', themeClasses.dropZoneDragIcon]" />
+                <img v-else :src="wallpaperPreview" class="w-32 h-20 rounded object-cover" />
+              </p>
+              <p :class="[themeClasses.dropZoneDragUpText, 'px-4 text-balance text-sm']">
+                {{ wallpaperFile ? wallpaperFile.name : "Click or drag wallpaper here" }}
+              </p>
+              <p :class="[themeClasses.dropZoneDragDownText, 'px-4 text-balance text-xs']">.jpg or .png (min 800x600px)</p>
+            </div>
+          </UploadDragger>
 
-      <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="wallpaperFileList" name="wallpaper" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleWallpaperUpload" @change="handleWallpaperChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeWallpaperUpload" class="compact-dragger h-[140px]">
-        <div class="flex items-center align-center justify-center flex-col h-full">
-          <p class="ant-upload-drag-icon">
-            <Icon v-if="!wallpaperPreview" :icon="imageAreaIcon" :class="['text-4xl', themeClasses.dropZoneDragIcon]" />
-            <img v-else :src="wallpaperPreview" class="w-32 h-20 rounded object-cover" />
+          <p v-if="uploadStatus" :class="['text-sm mt-2', uploadStatus.type === 'success' ? 'text-green-600' : 'text-red-600']">
+            {{ uploadStatus.message }}
           </p>
-          <p :class="[themeClasses.dropZoneDragUpText, 'px-4 text-balance text-sm']">
-            {{ wallpaperFile ? wallpaperFile.name : "Click or drag wallpaper here" }}
-          </p>
-          <p :class="[themeClasses.dropZoneDragDownText, 'px-4 text-balance text-xs']">.jpg or .png (min 800x600px)</p>
         </div>
-      </UploadDragger>
-
-      <p v-if="uploadStatus" :class="['text-sm mt-2', uploadStatus.type === 'success' ? 'text-green-600' : 'text-red-600']">
-        {{ uploadStatus.message }}
-      </p>
-    </SettingsBoxFold>
+      </SettingsItem>
+    </SettingsGroup>
   </Transition>
 </template>
 
@@ -70,7 +75,7 @@ import { ref, watch, inject, onMounted, nextTick } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
-import { RadioGroup, RadioButton, Segmented, Upload, message } from "ant-design-vue";
+import { RadioGroup, RadioButton, Upload, message } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import bright4Icon from "@iconify-icons/mdi/brightness-4";
@@ -79,8 +84,8 @@ import squareOpacityIcon from "@iconify-icons/mdi/square-opacity";
 import imageAreaIcon from "@iconify-icons/mdi/image-area";
 import uploadIcon from "@iconify-icons/mdi/upload";
 
-import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
-import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
+import SettingsGroup from "../__Components__/SettingsGroup.vue";
+import SettingsItem from "../__Components__/SettingsItem.vue";
 
 const UploadDragger = Upload.Dragger;
 const { themeClasses } = useTheme();
@@ -321,7 +326,7 @@ defineExpose({
 /* Animation Styles */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.5s, transform 0.5s, max-height 0.5s ease-in-out;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
   overflow: hidden;
   min-height: 0;
 }
@@ -329,7 +334,7 @@ defineExpose({
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(-8px);
   max-height: 0;
 }
 
@@ -363,49 +368,77 @@ defineExpose({
   color: white !important;
 }
 
-/* Segmented Styling */
-::v-deep(.ant-segmented-item-selected) {
-  border-radius: 10px !important;
+/* Wallpaper Grid Styling */
+.wallpaper-grid-wrapper {
+  width: 100%;
+  max-width: 100%;
 }
 
-::v-deep(.ant-segmented) {
-  padding-left: 0px !important;
-  padding-right: 0px !important;
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
 }
 
-::v-deep(.ant-segmented) {
-  padding-left: 0px !important;
-  padding-right: 0px !important;
+@media (min-width: 640px) {
+  .wallpaper-grid {
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    gap: 0.625rem;
+  }
 }
 
-::v-deep(.ant-segmented-thumb) {
-  background-color: transparent !important;
+@media (min-width: 900px) {
+  .wallpaper-grid {
+    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+    gap: 0.75rem;
+  }
 }
 
-::v-deep(.white-mode-theme .ant-segmented-item-selected) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
+.wallpaper-option {
+  position: relative;
+  padding: 0.25rem;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  overflow: hidden;
 }
 
-::v-deep(.white-mode-theme .ant-segmented-thumb-motion-appear-active) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
-  border-radius: 10px !important;
+.wallpaper-option:hover {
+  border-color: rgba(125, 125, 125, 0.3);
+  transform: scale(1.05);
 }
 
-::v-deep(.dark-mode-theme .ant-segmented-item-selected) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
+.wallpaper-option:focus {
+  outline: none;
+  border-color: rgba(125, 125, 125, 0.5);
 }
 
-::v-deep(.aero-mode-theme .ant-segmented-item-selected) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
+.wallpaper-selected {
+  border-color: rgba(125, 125, 125, 0.7) !important;
+  background-color: rgba(125, 125, 125, 0.2);
 }
 
-::v-deep(.dark-mode-theme .ant-segmented-thumb-motion-appear-active) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
-  border-radius: 10px !important;
+.wallpaper-thumbnail {
+  width: 100%;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  display: block;
 }
 
-::v-deep(.aero-mode-theme .ant-segmented-thumb-motion-appear-active) {
-  background-color: rgba(125, 125, 125, 0.5) !important;
-  border-radius: 10px !important;
+@media (min-width: 640px) {
+  .wallpaper-thumbnail {
+    height: 55px;
+  }
+}
+
+@media (min-width: 900px) {
+  .wallpaper-thumbnail {
+    height: 60px;
+  }
 }
 </style>

@@ -4,71 +4,60 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsBoxFold>
-    <label for="FormInputUsername" class="block font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="Username" :mdi_icon="accountIcon" />
-    </label>
-
-    <FormItem :validate-status="isUsernameValid ? 'success' : 'error'">
-      <template #help>
-        <div v-if="!isUsernameValid" class="flex items-center">
-          <Icon :icon="alertIcon" size="18px" color="#FF4D4F" class="mr-1" />
-          <span>{{ usernameErrorMessage }}</span>
-        </div>
-      </template>
-
-      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="usernameValue" placeholder="Username..." :maxlength="30" autocomplete="username" name="FormInputUsername" id="FormInputUsername">
-        <template #prefix>
-          <Icon :icon="accountIcon" :class="[themeClasses.formIcon]" size="18px" class="mr-1" />
+  <SettingsGroup header="USER ACCOUNT" footer="Your account identifier for logging into HomeDock OS.">
+    <SettingsItem :icon="accountIcon" icon-color="blue" title="Username" description="Must be alphanumeric only (a-z, A-Z, 0-9)">
+      <FormItem :validate-status="isUsernameValid ? 'success' : 'error'" class="mb-0">
+        <template #help>
+          <div v-if="!isUsernameValid" class="flex items-center text-xs mt-1">
+            <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+            <span>{{ usernameErrorMessage }}</span>
+          </div>
         </template>
-      </Input>
-    </FormItem>
-  </SettingsBoxFold>
 
-  <Checkbox :class="[themeClasses.scopeSelector]" class="mb-2" v-model:checked="passwordCheckbox">
-    <div :class="[themeClasses.userCheckboxScope]">Change password?</div>
-  </Checkbox>
+        <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="usernameValue" placeholder="Username..." :maxlength="30" autocomplete="username" name="FormInputUsername" id="FormInputUsername" style="width: 240px" />
+      </FormItem>
+    </SettingsItem>
+  </SettingsGroup>
+
+  <SettingsGroup header="SECURITY" footer="Change your account password. Minimum 6 characters required.">
+    <div class="px-4 py-3">
+      <Checkbox :class="[themeClasses.scopeSelector, themeClasses.userCheckboxScope]" v-model:checked="passwordCheckbox">
+        <div class="flex items-center gap-2">
+          <Icon :icon="passIcon" class="text-red-500" size="18px" />
+          <span :class="[themeClasses.settingsItemTitle]">Change Password</span>
+        </div>
+      </Checkbox>
+    </div>
+  </SettingsGroup>
 
   <Transition name="fade-slide">
-    <SettingsBoxFold v-if="passwordCheckbox">
-      <FormItem :validate-status="isPasswordValid ? 'success' : 'error'">
-        <label for="FormInputPassword" class="block font-medium mb-2">
-          <SettingsSeparator :class="[themeClasses.formInputSet]" text="Password" :mdi_icon="passIcon" />
-        </label>
-
-        <template #help>
-          <div v-if="!isPasswordValid" class="flex items-center">
-            <Icon :icon="alertIcon" size="18px" color="#FF4D4F" class="mr-1" />
-            <span>{{ passwordErrorMessage }}</span>
-          </div>
-        </template>
-
-        <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="passwordValue" placeholder="Password..." :maxlength="30" autocomplete="password" name="FormInputPassword" id="FormInputPassword">
-          <template #prefix>
-            <Icon :icon="passIcon" :class="[themeClasses.formIcon]" size="18px" class="mr-1" />
+    <SettingsGroup v-if="passwordCheckbox" header="NEW PASSWORD">
+      <SettingsItem :icon="lockOpenIcon" icon-color="orange" title="New Password" description="Minimum 6 characters">
+        <FormItem :validate-status="isPasswordValid ? 'success' : 'error'" class="mb-0">
+          <template #help>
+            <div v-if="!isPasswordValid" class="flex items-center text-xs mt-1">
+              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+              <span>{{ passwordErrorMessage }}</span>
+            </div>
           </template>
-        </InputPassword>
-      </FormItem>
 
-      <FormItem :validate-status="isConfirmPasswordValid ? 'success' : 'error'">
-        <label for="FormConfirmPassword" class="block font-medium mb-2 mt-4">
-          <SettingsSeparator :class="[themeClasses.formInputSet]" text="Confirm Password" :mdi_icon="passIcon" />
-        </label>
+          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="passwordValue" placeholder="Password..." :maxlength="30" autocomplete="new-password" name="FormInputPassword" id="FormInputPassword" style="width: 240px" />
+        </FormItem>
+      </SettingsItem>
 
-        <template #help>
-          <div v-if="!isConfirmPasswordValid" class="flex items-center">
-            <Icon :icon="alertIcon" size="18px" color="#FF4D4F" class="mr-1" />
-            <span>{{ confirmPasswordErrorMessage }}</span>
-          </div>
-        </template>
-
-        <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="confirmPassword" placeholder="Confirm password..." :maxlength="30" autocomplete="password" name="FormConfirmPassword" id="FormConfirmPassword">
-          <template #prefix>
-            <Icon :icon="passIcon" :class="[themeClasses.formIcon]" size="18px" class="mr-1" />
+      <SettingsItem :icon="lockCheckIcon" icon-color="green" title="Confirm Password" description="Must match new password" is-last>
+        <FormItem :validate-status="isConfirmPasswordValid ? 'success' : 'error'" class="mb-0">
+          <template #help>
+            <div v-if="!isConfirmPasswordValid" class="flex items-center text-xs mt-1">
+              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+              <span>{{ confirmPasswordErrorMessage }}</span>
+            </div>
           </template>
-        </InputPassword>
-      </FormItem>
-    </SettingsBoxFold>
+
+          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="confirmPassword" placeholder="Confirm password..." :maxlength="30" autocomplete="new-password" name="FormConfirmPassword" id="FormConfirmPassword" style="width: 240px" />
+        </FormItem>
+      </SettingsItem>
+    </SettingsGroup>
   </Transition>
 </template>
 
@@ -82,10 +71,12 @@ import { Checkbox, Input, InputPassword, FormItem } from "ant-design-vue";
 import { Icon } from "@iconify/vue";
 import accountIcon from "@iconify-icons/mdi/account";
 import passIcon from "@iconify-icons/mdi/lock";
+import lockOpenIcon from "@iconify-icons/mdi/lock-open";
+import lockCheckIcon from "@iconify-icons/mdi/lock-check";
 import alertIcon from "@iconify-icons/mdi/alert";
 
-import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
-import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
+import SettingsGroup from "../__Components__/SettingsGroup.vue";
+import SettingsItem from "../__Components__/SettingsItem.vue";
 
 const { themeClasses } = useTheme();
 
@@ -168,5 +159,20 @@ watch(
   opacity: 1;
   transform: translateY(0);
   max-height: 1000px;
+}
+
+/* Fix checkbox visibility in default (white) theme */
+.white-mode-theme :deep(.ant-checkbox-checked .ant-checkbox-inner) {
+  background-color: #1677ff !important;
+  border-color: #1677ff !important;
+}
+
+.white-mode-theme :deep(.ant-checkbox-wrapper:hover .ant-checkbox-inner),
+.white-mode-theme :deep(.ant-checkbox:hover .ant-checkbox-inner) {
+  border-color: #1677ff !important;
+}
+
+.white-mode-theme :deep(.ant-checkbox-inner) {
+  border-color: #d9d9d9 !important;
 }
 </style>

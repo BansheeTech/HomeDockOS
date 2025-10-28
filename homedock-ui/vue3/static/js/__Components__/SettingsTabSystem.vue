@@ -4,105 +4,54 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsBoxFold>
-    <label for="FormInputRunPort" class="block font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="HomeDock Port Access" :mdi_icon="counterIcon" />
-    </label>
-
-    <FormItem :validate-status="isPortValid ? 'success' : 'error'">
-      <template #help>
-        <div v-if="!isPortValid" class="flex items-center">
-          <Icon :icon="alertIcon" size="18px" color="#FF4D4F" class="mr-1" />
-          <span>{{ portErrorMessage }}</span>
-        </div>
-      </template>
-
-      <InputNumber :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" @keypress="validateInput" v-model:value="portNumber" :min="80" :max="65535" placeholder="85..." class="w-full" name="FormInputRunPort" id="FormInputRunPort" pattern="\d*">
-        <template #prefix>
-          <Icon :icon="counterIcon" :class="[themeClasses.formIcon]" class="mr-1" />
+  <SettingsGroup header="NETWORK" footer="Configure network access ports and more for HomeDock OS.">
+    <SettingsItem :icon="counterIcon" icon-color="blue" title="HomeDock OS Port" description="Port for accessing HomeDock (80-65535)">
+      <FormItem :validate-status="isPortValid ? 'success' : 'error'" class="mb-0">
+        <template #help>
+          <div v-if="!isPortValid" class="flex items-center text-xs mt-1">
+            <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+            <span>{{ portErrorMessage }}</span>
+          </div>
         </template>
-      </InputNumber>
-    </FormItem>
-  </SettingsBoxFold>
 
-  <SettingsBoxFold>
-    <label for="FormInputDynamicDNS" class="block font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="Hostname" :mdi_icon="webRefreshIcon" />
-    </label>
+        <InputNumber :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" @keypress="validateInput" v-model:value="portNumber" :min="80" :max="65535" placeholder="85..." name="FormInputRunPort" id="FormInputRunPort" pattern="\d*" style="width: 150px" />
+      </FormItem>
+    </SettingsItem>
 
-    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="hostnameValue" name="FormInputDynamicDNS" id="FormInputDynamicDNS" placeholder="get.homedock.cloud">
-      <template #prefix>
-        <Icon :icon="globeIcon" :class="[themeClasses.formIcon]" class="mr-1" />
-      </template>
-    </Input>
-  </SettingsBoxFold>
+    <SettingsItem :icon="globeIcon" icon-color="cyan" title="Hostname" description="Dynamic DNS hostname for remote access" is-last>
+      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="hostnameValue" name="FormInputDynamicDNS" id="FormInputDynamicDNS" placeholder="get.homedock.cloud" style="width: 280px" />
+    </SettingsItem>
+  </SettingsGroup>
 
-  <SettingsBoxFold>
-    <label class="block font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="HomeDock OS Behavior" :mdi_icon="wrenchIcon" />
-    </label>
+  <SettingsGroup header="SYSTEM BEHAVIOR" footer="Configure how HomeDock OS behaves and manages applications.">
+    <SettingsItem :icon="lanIcon" icon-color="purple" title="Local DNS Access" description="Enable homedock.local access (requires restart)">
+      <Switch v-model:checked="homedockLocalValue" name="FormInputHomeDockLocal" id="FormInputHomeDockLocal" />
+    </SettingsItem>
 
-    <div class="form-switch mb-1">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="homedockLocalValue" size="small" name="FormInputHomeDockLOcal" id="FormInputHomeDockLOcal" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="lanIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Enable access on homedock.local (Requires restart)</span>
-        </span>
-      </label>
-    </div>
+    <SettingsItem :icon="chartBellCurveIcon" icon-color="gray" title="Anonymous Usage Data" description="Disable sending anonymous analytics">
+      <Switch v-model:checked="disableUsageDataValue" name="FormInputDisableUsageData" id="FormInputDisableUsageData" />
+    </SettingsItem>
 
-    <div class="form-switch mb-1 hidden">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="developmentValue" size="small" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="hazardLightsIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Run on development mode (Requires restart)</span>
-        </span>
-      </label>
-    </div>
+    <SettingsItem :icon="deleteClockIcon" icon-color="orange" title="Auto-Clean on Update" description="Delete old images when updating apps">
+      <Switch v-model:checked="delOldDataUpdateValue" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" />
+    </SettingsItem>
 
-    <div class="form-switch mb-1">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="disableUsageDataValue" size="small" name="FormInputDisableUsageData" id="FormInputDisableUsageData" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="chartBellCurveIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Disable sending anonymous usage data</span>
-        </span>
-      </label>
-    </div>
+    <SettingsItem :icon="deleteIcon" icon-color="red" title="Delete Images on Uninstall" description="Remove old images when uninstalling apps">
+      <Switch v-model:checked="delOldDataUninstallValue" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" />
+    </SettingsItem>
 
-    <div class="form-switch mb-1">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="delOldDataUpdateValue" size="small" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="deleteClockIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Delete old installed image on app update</span>
-        </span>
-      </label>
-    </div>
+    <SettingsItem :icon="cubeOffIcon" icon-color="red" title="Delete Volumes on Uninstall" description="Remove app and user data when uninstalling" is-last>
+      <Switch v-model:checked="deleteOldVolumesUninstall" name="FormInputDeleteVolumes" id="FormInputDeleteVolumes" />
+    </SettingsItem>
+  </SettingsGroup>
 
-    <div class="form-switch mb-1">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="delOldDataUninstallValue" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="deleteIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Delete old installed image on app uninstall</span>
-        </span>
-      </label>
-    </div>
-
-    <div class="form-switch">
-      <label class="inline-flex items-start">
-        <Switch v-model:checked="deleteOldVolumesUninstall" size="small" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" class="mt-0.5" />
-        <span :class="[themeClasses.optionSelector]" class="ml-2 flex items-start">
-          <Icon :icon="cubeOffIcon" :class="[themeClasses.optionSelector]" class="mt-0.5 h-4 min-h-4 min-w-4 min-h-4" />
-          <span class="ml-1">Delete app and user data volumes on uninstall</span>
-        </span>
-      </label>
-    </div>
-  </SettingsBoxFold>
+  <div v-if="false">
+    <SettingsItem :icon="hazardLightsIcon" icon-color="yellow" title="Development Mode" description="Run in development mode (requires restart)" is-last>
+      <Switch v-model:checked="developmentValue" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" />
+    </SettingsItem>
+  </div>
 </template>
+
 <script lang="ts" setup>
 import { ref, watch, computed } from "vue";
 
@@ -111,7 +60,6 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { InputNumber, Input, FormItem, Switch } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
-import wrenchIcon from "@iconify-icons/mdi/wrench";
 import globeIcon from "@iconify-icons/mdi/globe";
 import counterIcon from "@iconify-icons/mdi/counter";
 import deleteIcon from "@iconify-icons/mdi/delete-alert";
@@ -119,12 +67,11 @@ import deleteClockIcon from "@iconify-icons/mdi/delete-clock";
 import hazardLightsIcon from "@iconify-icons/mdi/hazard-lights";
 import lanIcon from "@iconify-icons/mdi/lan";
 import alertIcon from "@iconify-icons/mdi/alert";
-import webRefreshIcon from "@iconify-icons/mdi/web-refresh";
 import chartBellCurveIcon from "@iconify-icons/mdi/chart-bell-curve-cumulative";
 import cubeOffIcon from "@iconify-icons/mdi/cube-off";
 
-import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
-import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
+import SettingsGroup from "../__Components__/SettingsGroup.vue";
+import SettingsItem from "../__Components__/SettingsItem.vue";
 
 const { themeClasses } = useTheme();
 

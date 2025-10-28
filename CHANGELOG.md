@@ -1,6 +1,23 @@
 # CHANGELOG
 
-- **2.0.2.266** (Latest): Added custom wallpaper support for Aero+ theme and improved Settings reactivity with better state management.
+- **2.0.2.268** (Latest): Redesigned Settings interface with new grouped layout system and improved mobile experience.
+
+  - Introduced **new Settings layout components** for a cleaner, more modern interface.
+  - Implemented **grouped settings sections** with headers and footer descriptions for better organization and user guidance.
+  - Added **colored icon indicators** for each setting option (blue, green, red, orange, purple, gray, cyan, pink, yellow) making it easier to identify different types of settings at a glance.
+  - Enhanced **mobile responsiveness** with automatic layout stacking on smaller screens, controls move below their labels when space is limited for better usability on phones and tablets.
+  - Improved **Settings visual hierarchy** with better spacing, borders, and hover effects providing clearer visual feedback when interacting with options.
+  - Added **animated transitions** for settings groups with smooth slide-in effects when opening the Settings window.
+  - Implemented **smart control detection** that automatically adjusts layout based on control type. Small controls like switches stay inline while larger inputs stack on mobile.
+  - Enhanced **form control styling** ensuring inputs, selects, and other controls take full width when stacked on mobile devices.
+  - Added **comprehensive theme support** for all new Settings components across Default, Noir, and Aero+ themes with proper colors and backgrounds.
+  - Improved **Settings readability** with better typography, consistent spacing, and clearer descriptions for each configuration option.
+  - Fixed **inconsistent Context Menu behavior on mobile** when interacting with system icons - now properly detects touch events and shows appropriate options.
+  - Also updated vite and axios dependencies to latest versions available.
+
+---
+
+- **2.0.2.266**: Added custom wallpaper support for Aero+ theme and improved Settings reactivity with better state management.
 
   - Introduced **custom wallpaper upload feature** allowing users to personalize their Aero+ theme with custom background images.
   - Added new **wallpaper upload endpoint** (`/api/upload_wallpaper`) with comprehensive security validation including magic byte verification for JPEG and PNG formats.
@@ -18,8 +35,6 @@
   - Improved **desktop wallpaper rendering** in AeroPlusWallpaper component to support both default and custom wallpaper sources.
   - Enhanced **mobile desktop wallpaper** support ensuring custom wallpapers render correctly on touch devices and smaller screens.
   - Updated **SECURITY.md** documentation with latest security considerations and best practices.
-
----
 
 - **2.0.2.260**: Enhanced App Store experience with screenshot previews, overall experience and more improvements.
 

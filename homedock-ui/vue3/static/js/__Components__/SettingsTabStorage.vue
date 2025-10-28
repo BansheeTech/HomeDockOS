@@ -4,30 +4,28 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsBoxFold>
-    <label for="FormInputExternalDrive" class="block text-gray-700 font-medium mb-2">
-      <SettingsSeparator :class="[themeClasses.formInputSet]" text="External Storage" :mdi_icon="harddiskIcon" />
-    </label>
-
-    <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="externalDriveValue" class="w-full" name="FormInputExternalDrive" id="FormInputExternalDrive" :popup-class-name="themeClasses.scopeSelector" :show-search="false" :get-popup-container="(trigger: any) => trigger.parentNode">
-      <SelectOptGroup label="External / USB">
-        <SelectOption :class="[themeClasses.scopeSelector]" v-for="drive in validDrives" :key="drive" :value="drive">
-          <div class="flex items-center">
-            <Icon :icon="harddiskIcon" :class="[themeClasses.formIcon]" class="mr-1" />
-            {{ drive }}
-          </div>
-        </SelectOption>
-      </SelectOptGroup>
-      <SelectOptGroup label="Other">
-        <SelectOption value="disabled" :suffixIcon="disabledIcon">
-          <div class="flex items-center">
-            <Icon :icon="disabledIcon" :class="[themeClasses.formIcon]" class="mr-1" />
-            Disabled
-          </div>
-        </SelectOption>
-      </SelectOptGroup>
-    </Select>
-  </SettingsBoxFold>
+  <SettingsGroup header="EXTERNAL STORAGE" footer="Select an external drive or disable to disable mapping.">
+    <SettingsItem :icon="harddiskIcon" icon-color="purple" title="Default External Drive" description="USB or external storage device" is-last>
+      <Select class="rounded-xl" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="externalDriveValue" name="FormInputExternalDrive" id="FormInputExternalDrive" :popup-class-name="themeClasses.scopeSelector" :show-search="false" style="width: 280px">
+        <SelectOptGroup label="External / USB">
+          <SelectOption :class="[themeClasses.scopeSelector]" v-for="drive in validDrives" :key="drive" :value="drive">
+            <div class="flex items-center">
+              <Icon :icon="harddiskIcon" :class="[themeClasses.formIcon]" class="mr-2" size="16px" />
+              {{ drive }}
+            </div>
+          </SelectOption>
+        </SelectOptGroup>
+        <SelectOptGroup label="Other">
+          <SelectOption :class="[themeClasses.scopeSelector]" value="disabled">
+            <div class="flex items-center">
+              <Icon :icon="disabledIcon" :class="[themeClasses.formIcon]" class="mr-2" size="16px" />
+              Disabled
+            </div>
+          </SelectOption>
+        </SelectOptGroup>
+      </Select>
+    </SettingsItem>
+  </SettingsGroup>
 </template>
 
 <script lang="ts" setup>
@@ -37,8 +35,8 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { Select, SelectOption, SelectOptGroup } from "ant-design-vue";
 
-import SettingsBoxFold from "../__Components__/SettingsBoxFold.vue";
-import SettingsSeparator from "../__Components__/SettingsSeparator.vue";
+import SettingsGroup from "../__Components__/SettingsGroup.vue";
+import SettingsItem from "../__Components__/SettingsItem.vue";
 
 import { Icon } from "@iconify/vue";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
