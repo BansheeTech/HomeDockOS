@@ -1,12 +1,19 @@
 # CHANGELOG
 
-- **2.0.2.280** (Latest): Fixed context menu behavior for system icons on mobile devices.
+- **2.0.2.282** (Latest): Fixed SSL certificate verification for self-signed certificates in application endpoint detection.
+
+  - Fixed issue where **self-signed SSL certificates** were incorrectly reported as unavailable in the `/app/` endpoint despite ports being open and certificates configured correctly.
+  - Implemented **smart certificate verification** that first attempts full validation (secure for Let's Encrypt and CA-signed certificates), then falls back to accepting self-signed certificates if validation fails (standard for development/internal environments).
+  - Thanks to **@Flippy** for reporting this issue and helping make HomeDock OS better! Our community is incredible!
+    > **TLDR - Why this happens:** Self-signed certificates can't be verified because they're user-signed, not CA-signed. We always attempt full certificate validation first (ensuring Let's Encrypt and production certificates maintain strict security), and only falling back to accept self-signed certs when verification fails (standard practice for local/dev environments). This way, legitimate certificates stay fully protected while self-signed ones remain functional.
+
+---
+
+- **2.0.2.280**: Fixed context menu behavior for system icons on mobile devices.
 
   - Fixed **system icon context menu on mobile**, long press on system icons like "My Home" now correctly shows the system icon menu (Refresh) instead of incorrectly displaying the regular app menu (Properties, System Logs, etc.).
   - Implemented **dedicated event handling** for system icons in mobile touch interactions by adding `systemiconContextmenu` event to properly distinguish between apps, folders, and system icons.
   - Enhanced **Mobile Desktop component** to emit the correct context menu event based on item type, ensuring consistent behavior across all desktop icon types.
-
----
 
 - **2.0.2.268**: Redesigned Settings interface with new grouped layout system and improved mobile experience.
 

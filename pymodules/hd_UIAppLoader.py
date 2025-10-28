@@ -102,8 +102,11 @@ def check_port():
 
     for url in urls:
         try:
-
-            response = requests.head(url, timeout=5, allow_redirects=True, headers=headers)
+            # HDOS000015
+            try:
+                response = requests.head(url, timeout=5, allow_redirects=True, headers=headers, verify=True)
+            except requests.exceptions.SSLError:
+                response = requests.head(url, timeout=5, allow_redirects=True, headers=headers, verify=False)
 
             if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
                 protocol = url.split("://")[0]
@@ -111,8 +114,10 @@ def check_port():
                 return jsonify({"available": True, "url": base_url})
 
             if response.status_code in [404, 405]:
-
-                response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers)
+                try:
+                    response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers, verify=True)
+                except requests.exceptions.SSLError:
+                    response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers, verify=False)
 
                 if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
                     protocol = url.split("://")[0]
