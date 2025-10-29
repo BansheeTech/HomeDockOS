@@ -317,6 +317,7 @@ export function useTheme() {
       windowCloseButtonBgHover: "hover:!bg-red-600",
       windowCloseButtonTextHover: "hover:!text-white",
       windowPlaceholderText: "text-gray-500",
+      windowLoadingIcon: "text-gray-300",
 
       taskbarBg: "bg-white/95 backdrop-blur-[20px] saturate-150",
       taskbarBorder: "border-t border-gray-200",
@@ -1056,6 +1057,7 @@ export function useTheme() {
       windowCloseButtonBgHover: "hover:!bg-red-600",
       windowCloseButtonTextHover: "hover:!text-white",
       windowPlaceholderText: "text-white/50",
+      windowLoadingIcon: "text-zinc-700",
 
       taskbarBg: "bg-black/80 backdrop-blur-[20px] saturate-150",
       taskbarBorder: "border-t border-white/10",
@@ -1795,6 +1797,7 @@ export function useTheme() {
       windowCloseButtonBgHover: "hover:!bg-red-600",
       windowCloseButtonTextHover: "hover:!text-white",
       windowPlaceholderText: "text-white/50",
+      windowLoadingIcon: "text-zinc-600 opacity-50",
 
       taskbarBg: "bg-black/80 backdrop-blur-xl saturate-200",
       taskbarBorder: "border-t border-white/10",

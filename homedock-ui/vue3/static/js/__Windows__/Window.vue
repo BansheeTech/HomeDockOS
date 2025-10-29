@@ -48,10 +48,7 @@
 
       <div class="window-body window-container">
         <component :is="appComponent" v-if="appComponent" v-bind="window.data" />
-        <div v-else class="window-placeholder" :class="themeClasses.windowPlaceholderText">
-          <p>App component not loaded</p>
-          <p class="text-sm opacity-50">appId: {{ window.appId }}</p>
-        </div>
+        <WindowLoading v-else />
       </div>
 
       <template v-if="!window.isMaximized && !isMobile && appConfig?.resizable !== false">
@@ -80,6 +77,7 @@ import { useWindowStore, WindowState } from "../__Stores__/windowStore";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import WindowLoading from "../__Components__/WindowLoading.vue";
 
 interface Props {
   window: WindowState;

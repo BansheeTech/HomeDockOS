@@ -96,7 +96,7 @@
                   <div class="flex flex-col items-stretch gap-1.5 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Ports</span>
                     <div class="w-full text-left">
-                      <PortRouter :key="app.ports.join(':')" :containerId="app.name" :initialPorts="app.ports.join(':')" @update="handlePortsUpdate" />
+                      <PortRouter :key="app.ports.join(':')" :containerId="app.name" :initialPorts="app.ports.join(':')" :containerStatus="app.status" @update="handlePortsUpdate" />
                     </div>
                   </div>
                   <div v-if="app.service_url" class="flex items-center gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">

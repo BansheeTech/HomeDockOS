@@ -1,6 +1,23 @@
 # CHANGELOG
 
-- **2.0.2.282** (Latest): Fixed SSL certificate verification for self-signed certificates in application endpoint detection.
+- **2.0.2.284** (Latest): Enhanced port routing system with intelligent port availability detection and improved window loading experience.
+
+  - Implemented **smart port sorting** in auto port routing thread that automatically detects which ports are actively responding and prioritizes them in the port list display, ensuring the most accessible endpoints appear first.
+  - Added **real-time port availability checking** during container startup using HEAD and GET request validation with SSL fallback support for both HTTP and HTTPS endpoints as same as in the `/app/` endpoint.
+  - Introduced **port rescan functionality** in Application Properties window, allowing users to manually trigger port detection when container services become available, with automatic UI updates.
+  - Added a **Loading animation** with an animated icon displaying during async component loading, providing visual feedback while applications are being initialized.
+  - Improved **error handling** in auto port routing thread with malformed configuration line detection, automatic config rebuilding on corruption, and graceful recovery from file I/O errors.
+  - Enhanced **configuration file validation** ensuring proper parsing of port routing data with defensive checks against IndexError and ValueError exceptions.
+  - Added **User-Agent spoofing** in port availability checks mimicking Chrome/Windows to ensure compatibility with web applications that validate request headers.
+  - Implemented **SSL verification fallback** in port checks attempting secure connections first, then falling back to insecure verification for self-signed certificates.
+  - Enhanced **container state validation** ensuring port routing only processes running containers, skipping stopped or paused instances to reduce unnecessary checks.
+  - Enhanced **HTTP status code handling** in port checks recognizing 401, 301, 302, 308 as valid responses indicating active services, and performing secondary GET requests for 404/405 responses.
+  - Implemented **request timeout management** with 2-second timeouts for port availability checks ensuring responsive UI and preventing long blocking operations.
+  - Improved **thread safety** in port routing configuration updates with proper exception handling and atomic file write operations.
+
+---
+
+- **2.0.2.282**: Fixed SSL certificate verification for self-signed certificates in application endpoint detection.
 
   - Fixed issue where **self-signed SSL certificates** were incorrectly reported as unavailable in the `/app/` endpoint despite ports being open and certificates configured correctly.
   - Implemented **smart certificate verification** that first attempts full validation (secure for Let's Encrypt and CA-signed certificates), then falls back to accepting self-signed certificates if validation fails (standard for development/internal environments).

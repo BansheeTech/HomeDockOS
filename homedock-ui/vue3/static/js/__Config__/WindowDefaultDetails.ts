@@ -4,6 +4,7 @@
 // https://www.banshee.pro
 
 import { Component, defineAsyncComponent } from "vue";
+import WindowLoading from "../__Components__/WindowLoading.vue";
 
 export interface SystemApp {
   id: string;
@@ -27,20 +28,76 @@ export interface SystemApp {
   showInMyHomeApp?: boolean;
 }
 
-const AppAppStore = defineAsyncComponent(() => import("../__Apps__/AppAppStore.vue"));
-const AppControlHub = defineAsyncComponent(() => import("../__Apps__/AppControlHub.vue"));
-const AppSettings = defineAsyncComponent(() => import("../__Apps__/AppSettings.vue"));
-const AppDropzone = defineAsyncComponent(() => import("../__Apps__/AppDropzone.vue"));
-const AppExplorer = defineAsyncComponent(() => import("../__Apps__/AppExplorer.vue"));
-const AppSystemLogs = defineAsyncComponent(() => import("../__Apps__/AppSystemLogs.vue"));
-const AppProperties = defineAsyncComponent(() => import("../__Apps__/AppProperties.vue"));
-const AppLogs = defineAsyncComponent(() => import("../__Apps__/AppLogs.vue"));
-const AppEdit = defineAsyncComponent(() => import("../__Apps__/AppEdit.vue"));
-const AppInstallConfig = defineAsyncComponent(() => import("../__Apps__/AppInstallConfig.vue"));
-const AppFolder = defineAsyncComponent(() => import("../__Apps__/AppFolder.vue"));
-const AppAbout = defineAsyncComponent(() => import("../__Apps__/AppAbout.vue"));
-const AppPackager = defineAsyncComponent(() => import("../__Apps__/AppPackager.vue"));
-const AppHome = defineAsyncComponent(() => import("../__Apps__/AppHome.vue"));
+const AppAppStore = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppAppStore.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppControlHub = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppControlHub.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppSettings = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppSettings.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppDropzone = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppDropzone.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppExplorer = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppExplorer.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppSystemLogs = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppSystemLogs.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppProperties = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppProperties.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppLogs = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppLogs.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppEdit = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppEdit.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppInstallConfig = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppInstallConfig.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppFolder = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppFolder.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppAbout = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppAbout.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppPackager = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppPackager.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppHome = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppHome.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline"; // App Store
 import nutIcon from "@iconify-icons/mdi/nut"; // Control Hub

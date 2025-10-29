@@ -11,8 +11,11 @@
         <div class="port-display" :class="[themeClasses.appPropsInfoValue, displayClass]">
           <Icon :class="[iconClass, { 'animate-spin': isDisabled }]" :icon="currentIcon" width="16" height="16" />
           <Transition mode="out-in" name="fade-in">
-            <span :key="portsDisplay" class="port-text">{{ portsDisplay }}</span>
+            <span :key="portsDisplay" class="port-text truncate" :title="portsDisplay">{{ portsDisplay }}</span>
           </Transition>
+          <button @click="startRescan" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, { 'cursor-not-allowed opacity-50': !canRescan }]" :disabled="!canRescan" :title="canRescan ? 'Rescan ports' : isDisabled ? 'Already rescanning...' : 'Container must be running to rescan'">
+            <Icon :icon="isRescanning ? loadingIcon : rescanIcon" width="14" height="14" :class="{ 'animate-spin': isRescanning }" />
+          </button>
           <button @click="startEditing" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :title="'Edit ports'">
             <Icon :icon="editIcon" width="14" height="14" />
           </button>
@@ -44,6 +47,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { useDesktopStore } from "../__Stores__/desktopStore";
 
 import { Input } from "ant-design-vue";
 
@@ -55,18 +59,21 @@ import hostmodeIcon from "@iconify-icons/mdi/network-strength-4-cog";
 import editIcon from "@iconify-icons/mdi/pencil-outline";
 import closeIcon from "@iconify-icons/mdi/close";
 import loadingIcon from "@iconify-icons/mdi/loading";
+import rescanIcon from "@iconify-icons/mdi/refresh";
 
 import { notifyWarning, notifySuccess } from "../__Components__/Notifications.vue";
 
 const props = defineProps({
   containerId: String,
   initialPorts: String,
+  containerStatus: String,
 });
 
 const emit = defineEmits(["update"]);
 
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
+const desktopStore = useDesktopStore();
 
 const rootElement = ref(null);
 const inputElement = ref(null);
@@ -75,6 +82,7 @@ const isEditing = ref(false);
 const portsValue = ref(props.initialPorts);
 const originalPorts = ref(props.initialPorts);
 const isLoading = ref(false);
+const isRescanning = ref(false);
 
 const portsArray = computed(() => props.initialPorts.split(":"));
 const isHostMode = computed(() => props.initialPorts === "hostmode");
@@ -82,6 +90,15 @@ const isDisabled = computed(() => props.initialPorts === "disabled");
 const hasMultiplePorts = computed(() => portsArray.value.length > 1);
 
 const portsDisplay = computed(() => (isHostMode.value ? "hostmode" : props.initialPorts));
+
+const containerDisplayName = computed(() => {
+  const app = desktopStore.dockerApps.find((a) => a.id === props.containerId || a.name === props.containerId);
+  return app?.display_name || app?.name || props.containerId;
+});
+
+const canRescan = computed(() => {
+  return props.containerStatus === "running" && !isDisabled.value && !isRescanning.value;
+});
 
 const currentIcon = computed(() => {
   if (isDisabled.value) return loadingIcon;
@@ -169,6 +186,31 @@ function handleClickOutside(event) {
   }
 }
 
+async function startRescan() {
+  if (isLoading.value || isRescanning.value) return;
+
+  isRescanning.value = true;
+
+  try {
+    const response = await axios.post("/api/port_route", {
+      container_id: props.containerId,
+      ports_list: "disabled",
+      homedock_csrf_token: csrfToken.value,
+    });
+
+    const data = response.data;
+    if (data.status === "success") {
+      notifySuccess("Port Rescan", `Rescanning ports for ${containerDisplayName.value}. It will update automatically in a few seconds, please wait...`, themeClasses.value.scopeSelector);
+    }
+  } catch (error) {
+    const responseData = error.response?.data || {};
+    const errorMessage = responseData.error_message || "Failed to initiate rescan.";
+    notifyWarning(errorMessage, themeClasses.value.scopeSelector);
+  } finally {
+    isRescanning.value = false;
+  }
+}
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });
@@ -215,7 +257,6 @@ onBeforeUnmount(() => {
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
-  cursor: pointer;
   transition: all 0.2s ease;
   opacity: 0.7;
   flex-shrink: 0;
