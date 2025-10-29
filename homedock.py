@@ -109,7 +109,7 @@ if __name__ == "__main__":
     print("  @@@@  #@@@   @@@                    ")
     print(" @@@@   @@@   @@@                     ")
     print()
-    print(" Copyright © 2023-2025 Banshee, All Rights Reserved ")
+    print(" Copyright © 2023-2026 Banshee, All Rights Reserved ")
     print()
 
     print(" ⌂ \033[1;32;40mHomeDock OS Version\033[0m:", version)

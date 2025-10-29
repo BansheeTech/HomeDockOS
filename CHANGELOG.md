@@ -1,6 +1,18 @@
 # CHANGELOG
 
-- **2.0.2.284** (Latest): Enhanced port routing system with intelligent port availability detection and improved window loading experience.
+- **2.0.2.286** (Latest): Fixed external drive detection and reactive storage display across Settings, My Home, and System Monitor.
+
+  - Fixed **external drive detection** that was missing in version 2.0, external USB drives and storage devices now properly appear in Storage Settings dropdown selector. (Thanks **@ExcuseMe300** for the hint).
+  - Implemented **cross-platform drive detection** using `get_valid_external_drives()` function that automatically detects external drives on macOS (`/Volumes/`), Linux (`sd*` devices), and Windows (non-C:\ drives).
+  - Added **reactive storage display** ensuring external drive selection in Settings immediately reflects in AppHome dashboard and System Monitor without requiring page refresh.
+  - Enhanced **Settings storage data flow** by properly passing valid drives, populating data with all available external drives.
+  - Implemented **automatic UI synchronization** where selecting or deselecting external drives in Storage Settings instantly shows/hides the external storage card in My Home system app dashboard and System Monitor taskbar widget.
+  - Enhanced **TypeScript interfaces** to properly type `valid_drives` as string array in DashboardData interface ensuring type safety across the application.
+  - Improved **external drive filtering** to exclude invalid values like "disabled" and "null" from the available drives list, ensuring only genuine storage devices appear in the selector.
+
+---
+
+- **2.0.2.284**: Enhanced port routing system with intelligent port availability detection and improved window loading experience.
 
   - Implemented **smart port sorting** in auto port routing thread that automatically detects which ports are actively responding and prioritizes them in the port list display, ensuring the most accessible endpoints appear first.
   - Added **real-time port availability checking** during container startup using HEAD and GET request validation with SSL fallback support for both HTTP and HTTPS endpoints as same as in the `/app/` endpoint.
@@ -15,16 +27,12 @@
   - Implemented **request timeout management** with 2-second timeouts for port availability checks ensuring responsive UI and preventing long blocking operations.
   - Improved **thread safety** in port routing configuration updates with proper exception handling and atomic file write operations.
 
----
-
 - **2.0.2.282**: Fixed SSL certificate verification for self-signed certificates in application endpoint detection.
 
   - Fixed issue where **self-signed SSL certificates** were incorrectly reported as unavailable in the `/app/` endpoint despite ports being open and certificates configured correctly.
   - Implemented **smart certificate verification** that first attempts full validation (secure for Let's Encrypt and CA-signed certificates), then falls back to accepting self-signed certificates if validation fails (standard for development/internal environments).
   - Thanks to **@Flippy** for reporting this issue and helping make HomeDock OS better! Our community is incredible!
     > **TLDR - Why this happens:** Self-signed certificates can't be verified because they're user-signed, not CA-signed. We always attempt full certificate validation first (ensuring Let's Encrypt and production certificates maintain strict security), and only falling back to accept self-signed certs when verification fails (standard practice for local/dev environments). This way, legitimate certificates stay fully protected while self-signed ones remain functional.
-
----
 
 - **2.0.2.280**: Fixed context menu behavior for system icons on mobile devices.
 

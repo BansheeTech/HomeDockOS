@@ -45,6 +45,7 @@ interface DashboardData {
   external_default_disk: string;
   external_disk_usage: string;
   external_disk_total: string;
+  valid_drives: string[];
   interface_name: string;
   vdownload: string;
   vupload: string;
@@ -126,7 +127,7 @@ if (themeData && commonData && settingsData && dashboardData) {
       deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
       deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
       defaultExternalDrive: settingsData.default_external_drive,
-      validDrives: [],
+      validDrives: Array.isArray(dashboardData.valid_drives) ? dashboardData.valid_drives : [],
     });
     app.provide("data-settings", reactiveSettings);
 
@@ -147,6 +148,7 @@ if (themeData && commonData && settingsData && dashboardData) {
       externalDefaultDisk: dashboardData.external_default_disk,
       externalDiskUsage: dashboardData.external_disk_usage,
       externalDiskTotal: dashboardData.external_disk_total,
+      validDrives: dashboardData.valid_drives,
       interfaceName: dashboardData.interface_name,
       downloadData: dashboardData.vdownload,
       uploadData: dashboardData.vupload,

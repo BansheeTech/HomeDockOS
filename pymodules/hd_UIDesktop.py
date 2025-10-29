@@ -18,6 +18,7 @@ from pymodules.hd_FunctionsMain import actual_uptime, get_server_uptime
 from pymodules.hd_FunctionsMain import get_cpu_max_speed, get_cpu_cores, get_total_ram
 from pymodules.hd_FunctionsMain import get_active_network_interface
 from pymodules.hd_FunctionsMain import get_total_disk, get_configured_external_drives, get_total_external_disk
+from pymodules.hd_ExternalDriveManager import get_valid_external_drives
 
 from pymodules.hd_LogCPUTemp import get_cpu_temp
 from pymodules.hd_LogCPUUsage import get_cpu_usage
@@ -51,6 +52,8 @@ def desktop():
     upload_gb = get_upload_data(interface_name)["sent"]
     vdownload_formatted = f"{download_gb} GB" if download_gb is not None else "0 GB"
     vupload_formatted = f"{upload_gb} GB" if upload_gb is not None else "0 GB"
+
+    valid_drives = get_valid_external_drives()
 
     return render_template(
         "desktop.html",
@@ -90,5 +93,6 @@ def desktop():
         external_disk_total=get_total_external_disk(),
         external_default_disk=get_configured_external_drives(),
         external_path=external_path,
+        valid_drives=valid_drives,
         nonce=g.get("nonce", ""),
     )

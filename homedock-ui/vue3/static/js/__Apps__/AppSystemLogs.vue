@@ -62,9 +62,10 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, computed } from "vue";
+import { computed } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
 import SectionHeader from "../__Components__/SectionHeader.vue";
 import LoginAttempts from "../__Components__/LoginAttempts.vue";
@@ -82,21 +83,19 @@ import accountAlertIcon from "@iconify-icons/mdi/account-alert";
 import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
 
 const csrfToken = useCsrfToken();
-const dashboardData = inject<any>("data-dashboard");
+const systemStatsStore = useSystemStatsStore();
 
 const { themeClasses } = useTheme();
 
 const externalDiskDisabled = computed(() => {
-  if (!dashboardData) return true;
+  const externalDisk = systemStatsStore.externalDefaultDisk;
+  const externalTotal = systemStatsStore.externalDiskTotal;
 
-  const externalDisk = dashboardData.external_default_disk;
-  const externalTotal = dashboardData.external_disk_total;
-
-  if (!externalDisk || (Array.isArray(externalDisk) && externalDisk.length === 0)) {
+  if (!externalDisk || externalDisk === "disabled") {
     return true;
   }
 
-  if (!externalTotal || externalTotal === 0) {
+  if (!externalTotal || externalTotal === "0") {
     return true;
   }
 

@@ -135,6 +135,7 @@ import StatusBar from "../__Components__/StatusBar.vue";
 import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
 const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
 const updateTheme = inject<(newTheme: { selectedTheme?: string; selectedBack?: string }) => void>("update-theme");
@@ -162,6 +163,7 @@ if (!settingsData) throw new Error("Settings data is missing!");
 
 const { themeClasses } = useTheme();
 const windowStore = useWindowStore();
+const systemStatsStore = useSystemStatsStore();
 
 const activeKey = ref("1");
 const publicKey = ref<string>("");
@@ -169,8 +171,7 @@ const savingLoading = ref<boolean>(false);
 const themeTabRef = ref<any>(null);
 
 const validDrives = computed(() => {
-  const drives = dashboardData?.external_default_disk || settingsData?.validDrives || [];
-  return Array.isArray(drives) ? drives : [drives].filter(Boolean);
+  return settingsData?.validDrives || [];
 });
 
 const themeDisplayName = computed(() => {
@@ -355,6 +356,8 @@ const handleSubmit = async () => {
           defaultExternalDrive: formData.storage.externalDrive,
         });
       }
+
+      systemStatsStore.externalDefaultDisk = formData.storage.externalDrive || "disabled";
 
       savingLoading.value = false;
     }
