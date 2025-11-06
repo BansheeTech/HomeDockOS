@@ -27,39 +27,41 @@
       </div>
 
       <Transition name="dropdown">
-        <div v-if="isExpanded" class="upload-dropdown border" :class="[themeClasses.uploadDropdownBg, themeClasses.uploadDropdownBorder, themeClasses.uploadDropdownShadow]">
-          <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-            <span class="dropdown-title" :class="themeClasses.notTextUp">Uploading Files</span>
-          </div>
+        <Teleport to="body">
+          <div v-if="isExpanded" class="upload-dropdown border" :class="[themeClasses.uploadDropdownBg, themeClasses.uploadDropdownBorder, themeClasses.uploadDropdownShadow]">
+            <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
+              <span class="dropdown-title" :class="themeClasses.notTextUp">Uploading Files</span>
+            </div>
 
-          <div v-if="uploadStore.currentlyUploading.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
-            <div class="section-label" :class="themeClasses.uploadSectionLabel">Currently Uploading ({{ uploadStore.currentlyUploading.length }})</div>
-            <div class="file-list">
-              <div v-for="file in uploadStore.currentlyUploading" class="file-item" :class="themeClasses.uploadFileItemUploading" :key="`uploading-${file.uid}`">
-                <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
-                <div class="file-info">
-                  <span class="file-name" :class="themeClasses.uploadFileName">{{ file.name }}</span>
-                  <div class="progress-bar" :class="themeClasses.uploadProgressBg">
-                    <div class="progress-fill" :class="themeClasses.uploadProgressFill" :style="{ width: `${uploadStore.uploadProgress[file.uid] || 0}%` }"></div>
+            <div v-if="uploadStore.currentlyUploading.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
+              <div class="section-label" :class="themeClasses.uploadSectionLabel">Currently Uploading ({{ uploadStore.currentlyUploading.length }})</div>
+              <div class="file-list">
+                <div v-for="file in uploadStore.currentlyUploading" class="file-item" :class="themeClasses.uploadFileItemUploading" :key="`uploading-${file.uid}`">
+                  <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
+                  <div class="file-info">
+                    <span class="file-name" :class="themeClasses.uploadFileName">{{ file.name }}</span>
+                    <div class="progress-bar" :class="themeClasses.uploadProgressBg">
+                      <div class="progress-fill" :class="themeClasses.uploadProgressFill" :style="{ width: `${uploadStore.uploadProgress[file.uid] || 0}%` }"></div>
+                    </div>
                   </div>
+                  <span class="progress-text" :class="themeClasses.uploadProgressText">{{ uploadStore.uploadProgress[file.uid] || 0 }}%</span>
                 </div>
-                <span class="progress-text" :class="themeClasses.uploadProgressText">{{ uploadStore.uploadProgress[file.uid] || 0 }}%</span>
               </div>
             </div>
-          </div>
 
-          <div v-if="uploadStore.queue.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
-            <div class="section-label" :class="themeClasses.uploadSectionLabel">In Queue ({{ uploadStore.queue.length }})</div>
-            <div class="file-list">
-              <div v-for="(file, index) in visibleQueue" :key="`queue-${index}-${file.uid}`" class="file-item" :class="[themeClasses.uploadFileItemBg, themeClasses.uploadFileItemBgHover]">
-                <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
-                <span class="file-name" :class="themeClasses.uploadFileName">{{ file.name }}</span>
-                <span class="file-size" :class="themeClasses.uploadFileSize">{{ formatSize(file.size) }}</span>
+            <div v-if="uploadStore.queue.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
+              <div class="section-label" :class="themeClasses.uploadSectionLabel">In Queue ({{ uploadStore.queue.length }})</div>
+              <div class="file-list">
+                <div v-for="(file, index) in visibleQueue" :key="`queue-${index}-${file.uid}`" class="file-item" :class="[themeClasses.uploadFileItemBg, themeClasses.uploadFileItemBgHover]">
+                  <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
+                  <span class="file-name" :class="themeClasses.uploadFileName">{{ file.name }}</span>
+                  <span class="file-size" :class="themeClasses.uploadFileSize">{{ formatSize(file.size) }}</span>
+                </div>
+                <div v-if="remainingCount > 0" class="more-files" :class="themeClasses.uploadMoreFiles">And {{ remainingCount }} more...</div>
               </div>
-              <div v-if="remainingCount > 0" class="more-files" :class="themeClasses.uploadMoreFiles">And {{ remainingCount }} more...</div>
             </div>
           </div>
-        </div>
+        </Teleport>
       </Transition>
     </div>
   </Transition>

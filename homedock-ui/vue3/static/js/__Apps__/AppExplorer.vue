@@ -62,14 +62,16 @@
           </h3>
 
           <div class="flex flex-col gap-2">
-            <div v-for="(item, itemIndex) in group.items" :key="item.id" @click="handleItemClick(item)" @mouseenter="selectedIndex = getGlobalIndex(groupIndex, itemIndex)" class="flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover, selectedIndex === getGlobalIndex(groupIndex, itemIndex) ? themeClasses.explorerResultItemSelected : '']">
-              <div class="flex-shrink-0 w-12 h-12 md:w-10 md:h-10 flex items-center justify-center rounded-lg overflow-hidden" :class="item.type === 'docker' ? 'bg-transparent p-0' : ''">
+            <div v-for="(item, itemIndex) in group.items" :key="item.id" @click="handleItemClick(item)" @mouseenter="selectedIndex = getGlobalIndex(groupIndex, itemIndex)" class="relative flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150 overflow-hidden" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover, selectedIndex === getGlobalIndex(groupIndex, itemIndex) ? themeClasses.explorerResultItemSelected : '']">
+              <div v-if="item.type === 'file' && downloadProgresses[item.name] !== undefined && downloadProgresses[item.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[item.name]}%` }" />
+
+              <div class="flex-shrink-0 w-12 h-12 md:w-10 md:h-10 flex items-center justify-center rounded-lg overflow-hidden z-[1]" :class="item.type === 'docker' ? 'bg-transparent p-0' : ''">
                 <BaseImage v-if="item.image_path" :src="item.image_path" alt="" class="w-full h-full object-cover" draggable="false" />
                 <Icon v-else-if="item.icon" :icon="item.icon" :class="themeClasses.explorerItemIcon" class="w-8 h-8" />
                 <Icon v-else :icon="defaultIcon" :class="themeClasses.explorerItemIcon" class="w-8 h-8" />
               </div>
 
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-0 z-[1]">
                 <div class="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap" :class="themeClasses.explorerItemName">
                   {{ item.name }}
                 </div>
@@ -80,13 +82,14 @@
                   {{ formatSize(item.size) }}
                   <span v-if="item.modified"> • {{ getRelativeTime(item.modified) }}</span>
                 </div>
+                <div v-if="item.type === 'file' && downloadProgresses[item.name] !== undefined && downloadProgresses[item.name] < 100" class="text-xs mt-0.5 font-medium" :class="themeClasses.explorerItemMeta">Downloading... {{ downloadProgresses[item.name] }}%</div>
               </div>
 
-              <div class="flex-shrink-0 px-2 py-1 rounded text-[0.625rem] font-semibold uppercase" :class="getBadgeClass(item.type)">
+              <div class="flex-shrink-0 px-2 py-1 rounded text-[0.625rem] font-semibold uppercase z-[1]" :class="getBadgeClass(item.type)">
                 {{ getTypeBadge(item.type) }}
               </div>
 
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0 z-[1]">
                 <button @click.stop="handleItemClick(item)" class="p-2 rounded-md border-none cursor-pointer transition-all duration-150" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" :title="getActionLabel(item.type)">
                   <Icon :icon="getActionIcon(item.type)" class="w-4 h-4" />
                 </button>
@@ -129,7 +132,7 @@ import { getExplorerApps, SystemApp } from "../__Config__/WindowDefaultDetails";
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
-import { message } from "ant-design-vue";
+import { message, Progress } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import searchIcon from "@iconify-icons/mdi/magnify";
@@ -141,6 +144,7 @@ import appsIcon from "@iconify-icons/mdi/apps";
 import fileIcon from "@iconify-icons/mdi/file-document";
 import storeIcon from "@iconify-icons/mdi/shopping";
 import folderIcon from "@iconify-icons/mdi/folder";
+import folderOpenOutlineIcon from "@iconify-icons/mdi/folder-open-outline";
 import defaultIcon from "@iconify-icons/mdi/application";
 import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 import downloadIcon from "@iconify-icons/mdi/download";
@@ -166,6 +170,7 @@ const selectedIndex = ref(0);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const dropzoneFiles = ref<any[]>([]);
 const isLoadingApps = ref(true);
+const downloadProgresses = ref<Record<string, number>>({});
 
 const csrfToken = useCsrfToken();
 
@@ -210,7 +215,7 @@ const tabs = computed(() => {
 
 interface SearchResult {
   id: string;
-  type: "system" | "docker" | "file" | "available";
+  type: "system" | "docker" | "file" | "folder" | "available";
   name: string;
   description?: string;
   icon?: any;
@@ -338,17 +343,18 @@ const allResults = computed<SearchResult[]>(() => {
   });
 
   dropzoneFiles.value.forEach((file) => {
+    const isFolder = file.is_directory === true;
     results.push({
-      id: `file-${file.name}`,
-      type: "file",
+      id: `${isFolder ? "folder" : "file"}-${file.name}`,
+      type: isFolder ? "folder" : "file",
       name: file.name,
-      description: "Encrypted file",
-      icon: getFileIcon(file.name),
+      description: isFolder ? "Folder" : "Encrypted file",
+      icon: isFolder ? folderIcon : getFileIcon(file.name),
       category: "Files",
       size: file.size,
       modified: file.modified,
       score: 0,
-      action: () => downloadFile(file.name),
+      action: () => (isFolder ? openDropZoneFolder(file.name) : downloadFile(file.name)),
     });
   });
 
@@ -381,7 +387,7 @@ const filteredResults = computed<SearchResult[]>(() => {
   if (activeTab.value !== "all") {
     const typeMap: Record<string, string[]> = {
       apps: ["system", "docker"],
-      files: ["file"],
+      files: ["file", "folder"],
       available: ["available"],
     };
     const allowedTypes = typeMap[activeTab.value] || [];
@@ -408,11 +414,21 @@ const filteredResults = computed<SearchResult[]>(() => {
       .sort((a, b) => b.score - a.score);
   } else {
     results = results.sort((a, b) => {
-      if (a.type === "system" && b.type === "system") {
-        return 0;
+      const typePriority: Record<string, number> = {
+        system: 0,
+        folder: 1,
+        file: 2,
+        docker: 3,
+        available: 4,
+      };
+
+      const aPriority = typePriority[a.type] ?? 999;
+      const bPriority = typePriority[b.type] ?? 999;
+
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
       }
-      if (a.type === "system") return -1;
-      if (b.type === "system") return 1;
+
       return a.name.localeCompare(b.name);
     });
   }
@@ -500,6 +516,7 @@ function getTypeBadge(type: string): string {
     system: "System",
     docker: "Running",
     file: "File",
+    folder: "Folder",
     available: "Available",
   };
   return labels[type] || type;
@@ -510,6 +527,7 @@ function getBadgeClass(type: string): string {
     system: themeClasses.value.explorerBadgeSystem,
     docker: themeClasses.value.explorerBadgeDocker,
     file: themeClasses.value.explorerBadgeFile,
+    folder: themeClasses.value.explorerBadgeFile,
     available: themeClasses.value.explorerBadgeAvailable,
   };
   return classes[type] || "";
@@ -520,6 +538,7 @@ function getActionIcon(type: string): any {
     system: openInNewIcon,
     docker: playIcon,
     file: downloadIcon,
+    folder: folderOpenOutlineIcon,
     available: installIcon,
   };
   return icons[type] || openInNewIcon;
@@ -530,6 +549,7 @@ function getActionLabel(type: string): string {
     system: "Open",
     docker: "Open",
     file: "Download",
+    folder: "Open",
     available: "View in Store",
   };
   return labels[type] || "Open";
@@ -540,25 +560,53 @@ function handleItemClick(item: SearchResult) {
 }
 
 async function downloadFile(fileName: string) {
+  if (downloadProgresses.value[fileName] !== undefined && downloadProgresses.value[fileName] < 100 && downloadProgresses.value[fileName] > 0) {
+    message.info(`Download for ${fileName} is already in progress.`);
+    return;
+  }
+
   try {
+    downloadProgresses.value[fileName] = 0;
+
     const response = await axios.get(`/api/download_file?file=${encodeURIComponent(fileName)}`, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          downloadProgresses.value[fileName] = percentCompleted;
+        }
+      },
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", fileName);
+    const downloadName = fileName.split("/").pop() || fileName;
+    link.setAttribute("download", downloadName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    message.success(`Downloading ${fileName}`);
+    message.success(`Downloaded ${fileName}`);
+
+    setTimeout(() => {
+      delete downloadProgresses.value[fileName];
+    }, 1000);
   } catch (error) {
-    message.error("Failed to download file");
+    console.error("Failed to download file:", fileName, error);
+    delete downloadProgresses.value[fileName];
+    if (axios.isAxiosError(error)) {
+      message.error(error.response?.data?.error_message || "Failed to download file. Please try again.");
+    } else {
+      message.error("Failed to download file. Please try again.");
+    }
   }
+}
+
+function openDropZoneFolder(folderPath: string) {
+  desktopStore.openSystemApp("dropzone");
 }
 
 function openAppStore(appName: string) {

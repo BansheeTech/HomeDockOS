@@ -39,7 +39,7 @@
                 <Icon :icon="lockIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
                 <span class="text-xs font-medium" :class="themeClasses.statInnerText">Encrypted: {{ encryptedStorageInfo.usedFormatted }}</span>
               </div>
-              <span class="text-xs" :class="themeClasses.statSubtleText">{{ encryptedStorageInfo.fileCount }} files</span>
+              <span class="text-xs" :class="themeClasses.statSubtleText">{{ encryptedStorageInfo.fileCount }} {{ encryptedStorageInfo.fileCount === 1 ? "file" : "files" }} • {{ encryptedStorageInfo.folderCount }} {{ encryptedStorageInfo.folderCount === 1 ? "folder" : "folders" }}</span>
             </div>
           </div>
 
@@ -264,6 +264,7 @@ interface EncryptedStorageInfo {
   used: number;
   usedFormatted: string;
   fileCount: number;
+  folderCount: number;
 }
 
 const systemDiskInfo = ref<DiskInfo>({
@@ -286,6 +287,7 @@ const encryptedStorageInfo = ref<EncryptedStorageInfo>({
   used: 0,
   usedFormatted: "0 B",
   fileCount: 0,
+  folderCount: 0,
 });
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -421,10 +423,14 @@ async function fetchEncryptedStorageInfo() {
     if (response.data.files && Array.isArray(response.data.files)) {
       const totalUsed = response.data.files.reduce((sum: number, file: any) => sum + (file.size || 0), 0);
 
+      const files = response.data.files.filter((item: any) => !item.is_directory);
+      const folders = response.data.files.filter((item: any) => item.is_directory);
+
       encryptedStorageInfo.value = {
         used: totalUsed,
         usedFormatted: formatBytes(totalUsed),
-        fileCount: response.data.files.length,
+        fileCount: files.length,
+        folderCount: folders.length,
       };
     }
   } catch (error) {

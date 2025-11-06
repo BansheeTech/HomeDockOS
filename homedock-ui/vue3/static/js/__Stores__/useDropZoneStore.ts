@@ -7,8 +7,10 @@ import { defineStore } from "pinia";
 
 export interface DropZoneFile {
   name: string;
+  display_name?: string;
   size: number;
-  modified: string;
+  modified: string | number;
+  is_directory?: boolean;
 }
 
 export const useDropZoneStore = defineStore("DropZoneStore", {

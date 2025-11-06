@@ -22,6 +22,14 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       clientPort: 5173,
     },
+    watch: {
+      ignored: [
+        "**/dropzone/**",
+        "**/compose-link/**",
+        "**/app-store/**",
+        "**/_user_packages/**",
+      ],
+    },
   },
   build: {
     outDir: "homedock-ui/vue3/dist",

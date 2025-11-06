@@ -53,42 +53,44 @@
       </div>
 
       <Transition name="dropdown">
-        <div v-if="isExpanded" class="session-dropdown border" :class="[themeClasses.networkDropdownBg, themeClasses.networkDropdownBorder, themeClasses.networkDropdownShadow]">
-          <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-            <span class="dropdown-title" :class="themeClasses.notTextUp">Session Status</span>
-          </div>
+        <Teleport to="body">
+          <div v-if="isExpanded" class="session-dropdown border" :class="[themeClasses.networkDropdownBg, themeClasses.networkDropdownBorder, themeClasses.networkDropdownShadow]">
+            <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
+              <span class="dropdown-title" :class="themeClasses.notTextUp">Session Status</span>
+            </div>
 
-          <div class="session-section" :class="themeClasses.networkSectionBorder">
-            <div class="status-item" :class="themeClasses.networkStatusItem">
-              <Icon :icon="shieldIcon" class="status-icon" :class="themeClasses.networkStatusIconOffline" width="20" height="20" />
-              <div class="status-info">
-                <span class="status-label" :class="themeClasses.networkStatusLabel">Authentication</span>
-                <span class="status-value offline" :class="themeClasses.networkStatusOffline">Session Expired</span>
+            <div class="session-section" :class="themeClasses.networkSectionBorder">
+              <div class="status-item" :class="themeClasses.networkStatusItem">
+                <Icon :icon="shieldIcon" class="status-icon" :class="themeClasses.networkStatusIconOffline" width="20" height="20" />
+                <div class="status-info">
+                  <span class="status-label" :class="themeClasses.networkStatusLabel">Authentication</span>
+                  <span class="status-value offline" :class="themeClasses.networkStatusOffline">Session Expired</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="session-section" :class="themeClasses.networkSectionBorder">
+              <div class="help-text" :class="themeClasses.networkHelpText">
+                <Icon :icon="infoIcon" class="help-icon" width="16" height="16" />
+                <span>For security purposes, your session has expired. Please log in again to continue.</span>
+              </div>
+            </div>
+
+            <div class="session-section">
+              <button class="login-button" :class="[themeClasses.startButtonBg, themeClasses.startButtonText, themeClasses.startButtonBgHover]" @click="redirectToLogin">
+                <Icon :icon="loginIcon" width="16" height="16" />
+                <span>Log in again</span>
+              </button>
+            </div>
+
+            <div v-if="expiredTime" class="session-section">
+              <div class="time-info" :class="themeClasses.networkTimeInfo">
+                <Icon :icon="clockIcon" class="time-icon" width="14" height="14" />
+                <span class="time-text">Expired: {{ formatTime(expiredTime) }}</span>
               </div>
             </div>
           </div>
-
-          <div class="session-section" :class="themeClasses.networkSectionBorder">
-            <div class="help-text" :class="themeClasses.networkHelpText">
-              <Icon :icon="infoIcon" class="help-icon" width="16" height="16" />
-              <span>For security purposes, your session has expired. Please log in again to continue.</span>
-            </div>
-          </div>
-
-          <div class="session-section">
-            <button class="login-button" :class="[themeClasses.startButtonBg, themeClasses.startButtonText, themeClasses.startButtonBgHover]" @click="redirectToLogin">
-              <Icon :icon="loginIcon" width="16" height="16" />
-              <span>Log in again</span>
-            </button>
-          </div>
-
-          <div v-if="expiredTime" class="session-section">
-            <div class="time-info" :class="themeClasses.networkTimeInfo">
-              <Icon :icon="clockIcon" class="time-icon" width="14" height="14" />
-              <span class="time-text">Expired: {{ formatTime(expiredTime) }}</span>
-            </div>
-          </div>
-        </div>
+        </Teleport>
       </Transition>
     </div>
   </Transition>

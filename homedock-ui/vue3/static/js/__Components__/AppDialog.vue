@@ -27,14 +27,27 @@
             </div>
 
             <div class="dialog-footer flex items-center justify-end gap-3 px-6 py-4 border-t" :class="[themeClasses.windowTitleBarBorder]">
-              <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
-                {{ cancelText }}
-              </button>
+              <template v-if="!reverseButtons">
+                <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
+                  {{ cancelText }}
+                </button>
 
-              <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading">
-                <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
-                <span v-else>{{ okText }}</span>
-              </button>
+                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading">
+                  <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
+                  <span v-else>{{ okText }}</span>
+                </button>
+              </template>
+
+              <template v-else>
+                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading">
+                  <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
+                  <span v-else>{{ okText }}</span>
+                </button>
+
+                <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
+                  {{ cancelText }}
+                </button>
+              </template>
             </div>
           </div>
         </Transition>
@@ -70,6 +83,8 @@ interface Props {
   width?: number;
   maskClosable?: boolean;
   loading?: boolean;
+  icon?: any;
+  reverseButtons?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -83,6 +98,7 @@ const props = withDefaults(defineProps<Props>(), {
   width: 420,
   maskClosable: true,
   loading: false,
+  reverseButtons: false,
 });
 
 const emit = defineEmits<{

@@ -83,7 +83,7 @@ def process_container_update(name, client, updated_containers, containers_data, 
     if not os.path.exists(new_dir):
         os.makedirs(new_dir)
 
-    os.rename(docker_compose_yml, new_file)
+    os.replace(docker_compose_yml, new_file)
 
     time.sleep(0.2)
     updated_containers.append(name)
@@ -102,7 +102,7 @@ def process_container_update(name, client, updated_containers, containers_data, 
 
     containers_data.append({"name": name, "composeLink": "exists"})
 
-    os.rename(new_file, docker_compose_yml)
+    os.replace(new_file, docker_compose_yml)
     time.sleep(0.2)
 
     if not os.listdir(new_dir):

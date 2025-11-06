@@ -5,6 +5,8 @@
 
 export interface FileEntry {
   name: string;
+  display_name?: string;
   size: number;
-  modified: string;
+  modified: string | number;
+  is_directory?: boolean;
 }

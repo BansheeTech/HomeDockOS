@@ -27,12 +27,15 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/dashboard", "dashboard", desktop)
 
-    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, delete_file
+    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, delete_file, create_folder, rename_item, search_files
 
     homedock_www.add_url_rule("/api/get_files", "list_files", CSRF_Protect(list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/search_files", "search_files", CSRF_Protect(search_files), methods=["GET"])
     homedock_www.add_url_rule("/api/upload_file", "upload_file", CSRF_Protect(upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/delete_file", "delete_file", CSRF_Protect(delete_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/create_folder", "create_folder", CSRF_Protect(create_folder), methods=["POST"])
+    homedock_www.add_url_rule("/api/rename_item", "rename_item", CSRF_Protect(rename_item), methods=["POST"])
 
     from pymodules.hd_UISettings import api_save_settings
 

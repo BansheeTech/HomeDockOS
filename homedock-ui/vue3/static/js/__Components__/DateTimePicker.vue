@@ -11,29 +11,31 @@
     </div>
 
     <Transition name="dropdown">
-      <div v-if="isOpen" class="calendar-dropdown border" :class="[themeClasses.calendarDropdownBg, themeClasses.calendarDropdownBorder, themeClasses.calendarDropdownShadow]" :style="dropdownStyle">
-        <div class="calendar-header" :class="themeClasses.topBack">
-          <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="previousMonth">
-            <Icon :icon="chevronLeftIcon" width="18" height="18" />
-          </button>
-          <span class="calendar-title" :class="themeClasses.notTextUp">{{ currentMonthYear }}</span>
-          <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="nextMonth">
-            <Icon :icon="chevronRightIcon" width="18" height="18" />
-          </button>
-        </div>
-
-        <div class="calendar-body">
-          <div class="calendar-weekdays">
-            <div v-for="day in weekDays" :key="day" class="weekday" :class="themeClasses.calendarWeekday">{{ day }}</div>
-          </div>
-
-          <div class="calendar-days">
-            <button v-for="day in calendarDays" :key="day.date" class="calendar-day" :class="[themeClasses.calendarDayBg, day.isSelected ? themeClasses.calendarDaySelected : day.isToday ? themeClasses.calendarDayToday : !day.isCurrentMonth ? themeClasses.calendarDayOtherMonth : [themeClasses.calendarDay, themeClasses.calendarDayBgHover]]" @click="selectDate(day)">
-              {{ day.day }}
+      <Teleport to="body">
+        <div v-if="isOpen" class="calendar-dropdown border" :class="[themeClasses.calendarDropdownBg, themeClasses.calendarDropdownBorder, themeClasses.calendarDropdownShadow]" :style="dropdownStyle">
+          <div class="calendar-header" :class="themeClasses.topBack">
+            <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="previousMonth">
+              <Icon :icon="chevronLeftIcon" width="18" height="18" />
+            </button>
+            <span class="calendar-title" :class="themeClasses.notTextUp">{{ currentMonthYear }}</span>
+            <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="nextMonth">
+              <Icon :icon="chevronRightIcon" width="18" height="18" />
             </button>
           </div>
+
+          <div class="calendar-body">
+            <div class="calendar-weekdays">
+              <div v-for="day in weekDays" :key="day" class="weekday" :class="themeClasses.calendarWeekday">{{ day }}</div>
+            </div>
+
+            <div class="calendar-days">
+              <button v-for="day in calendarDays" :key="day.date" class="calendar-day" :class="[themeClasses.calendarDayBg, day.isSelected ? themeClasses.calendarDaySelected : day.isToday ? themeClasses.calendarDayToday : !day.isCurrentMonth ? themeClasses.calendarDayOtherMonth : [themeClasses.calendarDay, themeClasses.calendarDayBgHover]]" @click="selectDate(day)">
+                {{ day.day }}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </Teleport>
     </Transition>
   </div>
 </template>

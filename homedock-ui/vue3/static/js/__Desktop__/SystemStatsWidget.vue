@@ -15,146 +15,148 @@
     </div>
 
     <Transition name="dropdown">
-      <div v-if="isExpanded" class="stats-dropdown border" :class="[themeClasses.statsWidgetDropdownBg, themeClasses.statsWidgetDropdownBorder, themeClasses.statsWidgetDropdownShadow]">
-        <div class="stats-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-          <span class="stats-title" :class="themeClasses.notTextUp">System Monitor</span>
-        </div>
-
-        <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-          <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Performance</div>
-
-          <div v-if="tempValue > 0" class="stat-card">
-            <div class="stat-header">
-              <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temp</span>
-              <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
-            </div>
-            <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
+      <Teleport to="body">
+        <div v-if="isExpanded" class="stats-dropdown border" :class="[themeClasses.statsWidgetDropdownBg, themeClasses.statsWidgetDropdownBorder, themeClasses.statsWidgetDropdownShadow]">
+          <div class="stats-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
+            <span class="stats-title" :class="themeClasses.notTextUp">System Monitor</span>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="icon-wrapper">
-                <Transition name="icon-fade">
-                  <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                </Transition>
+          <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
+            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Performance</div>
+
+            <div v-if="tempValue > 0" class="stat-card">
+              <div class="stat-header">
+                <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temp</span>
+                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
               </div>
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Usage</span>
-              <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
+              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
             </div>
-            <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-              <div class="progress-fill" :class="[cpuValue > 95 ? themeClasses.statsWidgetProgressFillDanger : cpuValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: cpuValue + '%' }"></div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="icon-wrapper">
+                  <Transition name="icon-fade">
+                    <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                  </Transition>
+                </div>
+                <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Usage</span>
+                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
+              </div>
+              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                <div class="progress-fill" :class="[cpuValue > 95 ? themeClasses.statsWidgetProgressFillDanger : cpuValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: cpuValue + '%' }"></div>
+              </div>
+              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuCores }} cores</div>
             </div>
-            <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuCores }} cores</div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <Icon :icon="ramIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                <span class="stat-name" :class="themeClasses.statsWidgetStatName">Memory</span>
+                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, ramValue > 95 ? themeClasses.statsWidgetStatValueDanger : ramValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ ramValue }}% </span>
+              </div>
+              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                <div class="progress-fill" :class="[ramValue > 95 ? themeClasses.statsWidgetProgressFillDanger : ramValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: ramValue + '%' }"></div>
+              </div>
+              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ totalRam }} GB total</div>
+            </div>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-header">
-              <Icon :icon="ramIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">Memory</span>
-              <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, ramValue > 95 ? themeClasses.statsWidgetStatValueDanger : ramValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ ramValue }}% </span>
+          <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
+            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Storage</div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <Icon :icon="diskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                <span class="stat-name" :class="themeClasses.statsWidgetStatName">System</span>
+                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, diskValue > 95 ? themeClasses.statsWidgetStatValueDanger : diskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ diskValue }}% </span>
+              </div>
+              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                <div class="progress-fill" :class="[diskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : diskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: diskValue + '%' }"></div>
+              </div>
+              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ hardDiskTotal }} GB</div>
             </div>
-            <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-              <div class="progress-fill" :class="[ramValue > 95 ? themeClasses.statsWidgetProgressFillDanger : ramValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: ramValue + '%' }"></div>
+
+            <div v-if="externalDefaultDisk !== 'disabled' && externalDiskValue > 0" class="stat-card">
+              <div class="stat-header">
+                <Icon :icon="externalDiskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                <span class="stat-name" :class="themeClasses.statsWidgetStatName">External</span>
+                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, externalDiskValue > 95 ? themeClasses.statsWidgetStatValueDanger : externalDiskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ externalDiskValue }}% </span>
+              </div>
+              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                <div class="progress-fill" :class="[externalDiskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : externalDiskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: externalDiskValue + '%' }"></div>
+              </div>
+              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ formattedExternalDiskTotal }} {{ diskUnit }}</div>
             </div>
-            <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ totalRam }} GB total</div>
           </div>
-        </div>
 
-        <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-          <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Storage</div>
-
-          <div class="stat-card">
-            <div class="stat-header">
-              <Icon :icon="diskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">System</span>
-              <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, diskValue > 95 ? themeClasses.statsWidgetStatValueDanger : diskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ diskValue }}% </span>
-            </div>
-            <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-              <div class="progress-fill" :class="[diskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : diskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: diskValue + '%' }"></div>
-            </div>
-            <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ hardDiskTotal }} GB</div>
-          </div>
-
-          <div v-if="externalDefaultDisk !== 'disabled' && externalDiskValue > 0" class="stat-card">
-            <div class="stat-header">
-              <Icon :icon="externalDiskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-              <span class="stat-name" :class="themeClasses.statsWidgetStatName">External</span>
-              <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, externalDiskValue > 95 ? themeClasses.statsWidgetStatValueDanger : externalDiskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ externalDiskValue }}% </span>
-            </div>
-            <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-              <div class="progress-fill" :class="[externalDiskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : externalDiskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: externalDiskValue + '%' }"></div>
-            </div>
-            <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ formattedExternalDiskTotal }} {{ diskUnit }}</div>
-          </div>
-        </div>
-
-        <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-          <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Network</div>
-          <div class="stat-grid">
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="downloadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Download</div>
-                <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                  {{ networkDownValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkDownUnit }}</span>
+          <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
+            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Network</div>
+            <div class="stat-grid">
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="downloadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Download</div>
+                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                    {{ networkDownValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkDownUnit }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="uploadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Upload</div>
-                <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                  {{ networkUpValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkUpUnit }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-          <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Apps</div>
-          <div class="stat-grid">
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="appsIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Installed</div>
-                <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">{{ totalApps }}</div>
-              </div>
-            </div>
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="containerIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Active</div>
-                <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                  {{ activeContainers }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">/ {{ totalContainers }}</span>
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="uploadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Upload</div>
+                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                    {{ networkUpValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkUpUnit }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-          <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Uptime</div>
-          <div class="stat-grid">
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="serverIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">System</div>
-                <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ systemUptime }}</div>
+          <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
+            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Apps</div>
+            <div class="stat-grid">
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="appsIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Installed</div>
+                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">{{ totalApps }}</div>
+                </div>
+              </div>
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="containerIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Active</div>
+                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                    {{ activeContainers }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">/ {{ totalContainers }}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-              <Icon :icon="uptimeIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-              <div class="stat-mini-content">
-                <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">HomeDock OS</div>
-                <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ homeDockUptime }}</div>
+          </div>
+
+          <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
+            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Uptime</div>
+            <div class="stat-grid">
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="serverIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">System</div>
+                  <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ systemUptime }}</div>
+                </div>
+              </div>
+              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                <Icon :icon="uptimeIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                <div class="stat-mini-content">
+                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">HomeDock OS</div>
+                  <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ homeDockUptime }}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Teleport>
     </Transition>
   </div>
 </template>

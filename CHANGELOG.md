@@ -1,6 +1,38 @@
 # CHANGELOG
 
-- **2.0.2.286** (Latest): Fixed external drive detection and reactive storage display across Settings, My Home, and System Monitor.
+- **2.0.3.106** (Latest): Completely redesigned Drop Zone with folder support, hierarchical navigation, and enhanced user experience.
+
+  - Introduced **folder support** allowing you to organize encrypted files in custom folder structures with drag-and-drop uploads maintaining directory hierarchy.
+  - Implemented **hierarchical navigation** enabling browsing through folders with breadcrumb path navigation and seamless folder management.
+  - Added **global search functionality** with folder-aware results displaying files grouped by their parent directories for easy location.
+  - Implemented **fullscreen drag-and-drop overlay** with visual feedback showing upload zones and automatically filtering hidden files (.\*) during folder uploads.
+  - Enhanced **file display system** with two view modes - grid view with positioned icons in a desktop-like layout and list view with grouped folder sections.
+  - Added **context menu support** for files and folders with right-click actions including download, delete, and folder-specific operations.
+  - Implemented **multi-selection support** allowing selection of multiple files/folders for batch operations using Ctrl+Click and drag-to-select area selection.
+  - Enhanced **file metadata display** showing folder sizes calculated recursively, relative timestamps with "NEW" indicators, and compact size badges.
+  - Improved **status bubble system** using Vue Teleport to properly render notifications and status messages outside component hierarchy, fixing z-index stacking issues.
+  - Created **dedicated folder creation API** with validation, permission checks, and proper error handling for creating nested folder structures.
+  - Added **folder deletion support** with recursive removal of folder contents ensuring clean deletion of entire directory trees.
+  - Implemented **path validation and security** preventing directory traversal attacks with symlink detection and safe path validation on all file operations.
+  - Enhanced **search API endpoint** with recursive folder scanning, filtering hidden files, and returning folder-grouped results for better organization.
+  - Improved **upload handling** supporting target path specification for uploading files directly into specific folders with automatic directory creation.
+  - Enhanced **file listing API** supporting path navigation, directory detection, and recursive size calculation for folders displaying accurate storage usage.
+  - Added **visual file type indicators** with dynamic icons based on file extensions and folder indicators for improved visual hierarchy.
+  - Implemented **touch-optimized interactions** with long-press detection, touch-friendly selection, and mobile-optimized context menus for tablets and phones.
+  - Enhanced **download progress tracking** with visual progress bars overlaid on files during download operations showing real-time transfer status.
+  - Improved **sorting system** supporting name, size, and date sorting with ascending/descending order preserved across view mode changes.
+  - Added **empty state handling** displaying contextual messages when no files exist or search returns no results with helpful user guidance.
+  - Enhanced **file icons system** automatically detecting file types and displaying appropriate icons for documents, images, videos, archives, and code files.
+  - Implemented **grid view positioning** with automatic layout calculation ensuring optimal icon placement and responsive grid adjustments.
+  - Improved **error handling** with detailed error messages, security violation detection, and user-friendly feedback for all operations.
+  - Enhanced **encryption system integration** maintaining AES-256-GCM encryption for all files while supporting folder structures with encrypted paths.
+  - Fixed **backdrop-blur-xl rendering issue** in taskbar widgets by using Vue Teleport to body, ensuring proper backdrop filter effects work correctly across Aero+ theme.
+  - Updated **all JavaScript dependencies** to their latest stable versions including axios 1.13.2, vue 3.5.23, vite 7.2.1, pinia 3.0.4, dayjs 1.11.19, and @types/node 24.10.0.
+  - Updated **all Python dependencies** to their latest stable versions including Flask 3.1.2, Flask-Compress 1.23, python-on-whales 0.79.0, requests 2.32.5, PyYAML 6.0.3, cython 3.2.0, and psutil 7.1.3.
+
+---
+
+- **2.0.2.286**: Fixed external drive detection and reactive storage display across Settings, My Home, and System Monitor.
 
   - Fixed **external drive detection** that was missing in version 2.0, external USB drives and storage devices now properly appear in Storage Settings dropdown selector. (Thanks **@ExcuseMe300** for the hint).
   - Implemented **cross-platform drive detection** using `get_valid_external_drives()` function that automatically detects external drives on macOS (`/Volumes/`), Linux (`sd*` devices), and Windows (non-C:\ drives).
@@ -9,8 +41,6 @@
   - Implemented **automatic UI synchronization** where selecting or deselecting external drives in Storage Settings instantly shows/hides the external storage card in My Home system app dashboard and System Monitor taskbar widget.
   - Enhanced **TypeScript interfaces** to properly type `valid_drives` as string array in DashboardData interface ensuring type safety across the application.
   - Improved **external drive filtering** to exclude invalid values like "disabled" and "null" from the available drives list, ensuring only genuine storage devices appear in the selector.
-
----
 
 - **2.0.2.284**: Enhanced port routing system with intelligent port availability detection and improved window loading experience.
 
