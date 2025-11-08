@@ -1,0 +1,16 @@
+---
+version: '3.8'
+
+services:
+  app:
+    image: bansheetech/robipet:latest
+    container_name: robipet
+    ports:
+      - "29724:8081"
+    volumes:
+      - [[INSTALL_PATH]]/robipet:/var/www/html/db
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - JWT_SECRET=[[HD_SYSTEM_PASSWORD]]
+    restart: unless-stopped

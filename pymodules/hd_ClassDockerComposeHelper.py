@@ -125,7 +125,7 @@ class DockerComposeHelper:
                 if service_names:
                     cmd.extend(service_names)
 
-                result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=300)
+                result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=1800)
 
                 if result.returncode == 0:
                     return True, result.stdout

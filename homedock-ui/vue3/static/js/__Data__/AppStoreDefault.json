@@ -54,8 +54,8 @@
     "type": "Universe Simulation",
     "icon": "mdi:space-invaders",
     "description": "The Atlas is a procedural generation engine designed to create vast, complex galaxies and universes",
-    "is_new": true,
-    "new_until": "2025-10-30",
+    "is_new": false,
+    "new_until": false,
     "display_name": "The Atlas",
     "screenshot_count": 6
   },
@@ -2608,6 +2608,21 @@
     "new_until": false,
     "display_name": "Portainer",
     "screenshot_count": 4
+  },
+  {
+    "dependencies": [],
+    "docker_image": "bansheetech/robipet:latest",
+    "picture_path": "docker-icons/robipet.jpg",
+    "is_group": false,
+    "name": "robipet",
+    "category": "Home & Automation",
+    "type": "Pet Tracking & Management",
+    "icon": "mdi:dots-grid",
+    "description": "RobiPet transforms the way you track your pet medical history, vaccinations, and vital information",
+    "is_new": true,
+    "new_until": "2025-12-01",
+    "display_name": "RobiPet",
+    "screenshot_count": 3
   },
   {
     "dependencies": [],

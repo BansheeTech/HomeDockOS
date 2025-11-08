@@ -2,7 +2,7 @@
 
 ## How to Report Security Issues and Vulnerabilities
 
-At HomeDock OS, your security is our top priority. If you discover any vulnerabilities or security issues, please report them directly to our security team at:
+At HomeDock OS, your security is our **top priority**. If you discover any vulnerabilities or security issues, please report them directly to our security team at:
 📧 **support@homedock.cloud**
 
 We deeply value the contributions of our community in making HomeDock OS a secure and reliable platform. Thank you for helping us improve!
@@ -10,6 +10,10 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 ---
 
 ## Security Update History
+
+- `✦ MIME Type Validation Possible Bypass in Package Import`
+
+  - **Internally Discovered** – Fixed in v2.0.3.108
 
 - `✦ Path Traversal in Package Manager Export & Delete Operation`
 

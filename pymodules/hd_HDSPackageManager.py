@@ -28,6 +28,7 @@ from pymodules.hd_FunctionsGlobals import (
 from pymodules.hd_ComposeDevHooks import extract_devhook_placeholders, DEVHOOK_PLACEHOLDERS
 from pymodules.hd_DockerAPIContainerData import invalidate_external_apps_cache
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_MIMETypeValidation import validate_file_mime
 
 
 MAX_HDS_PACKAGE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -298,6 +299,12 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
                 raise ValueError(get_error_message("INVALID_FILE_EXTENSION", extensions=", ".join(ALLOWED_ICON_EXTENSIONS)))
 
             compose_content = zip_ref.read("docker-compose.yml").decode("utf-8")
+
+            try:
+                validate_file_mime(compose_content.encode("utf-8"), "docker-compose.yml", allowed_types=["text/yaml"])
+            except ValueError as e:
+                raise ValueError(f"Invalid docker-compose.yml inside package: {str(e)}")
+
             compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
 
             compose_path_real = os.path.realpath(compose_path)
@@ -309,6 +316,12 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
                 f.write(compose_content)
 
             icon_bytes = zip_ref.read(icon_filename_safe)
+
+            try:
+                validate_file_mime(icon_bytes, icon_filename_safe, allowed_types=["image/jpeg", "image/png"])
+            except ValueError as e:
+                raise ValueError(f"Invalid icon file inside package: {str(e)}")
+
             icon_dest = os.path.join(user_packages_images_folder, f"{app_slug}{icon_ext}")
 
             icon_dest_real = os.path.realpath(icon_dest)
@@ -400,6 +413,15 @@ def upload_hds_package():
         if file_size > MAX_HDS_PACKAGE_SIZE:
             os.remove(temp_path)
             return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_HDS_PACKAGE_SIZE // (1024 * 1024))}), 400
+
+        with open(temp_path, "rb") as f:
+            file_content = f.read(1024)
+
+        try:
+            validate_file_mime(file_content, filename, allowed_types=["application/zip"])
+        except ValueError as e:
+            os.remove(temp_path)
+            return jsonify({"success": False, "message": f"Invalid file type: {str(e)}"}), 400
 
         is_valid, msg, manifest = validate_hds_package(temp_path)
 
@@ -524,6 +546,18 @@ def create_hds_from_files():
 
         if len(icon_bytes) > MAX_ICON_FILE_SIZE:
             return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_ICON_FILE_SIZE // (1024 * 1024))}), 400
+
+        # Validar tipo MIME del compose file (debe ser YAML/texto)
+        try:
+            validate_file_mime(compose_content.encode("utf-8"), compose_file.filename, allowed_types=["text/yaml"])
+        except ValueError as e:
+            return jsonify({"success": False, "message": f"Invalid compose file type: {str(e)}"}), 400
+
+        # Validar tipo MIME del icono (debe ser imagen: JPG o PNG)
+        try:
+            validate_file_mime(icon_bytes, icon_file.filename, allowed_types=["image/jpeg", "image/png"])
+        except ValueError as e:
+            return jsonify({"success": False, "message": f"Invalid icon file type: {str(e)}"}), 400
 
         if not validate_slug_format(app_slug):
             return jsonify({"success": False, "message": get_error_message("INVALID_SLUG_FORMAT")}), 400

@@ -663,10 +663,46 @@ const handleComposeChange = async (info: any) => {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-      composeContent.value = e.target?.result as string;
+      const content = e.target?.result as string;
+
+      if (!content || content.trim().length === 0) {
+        message.error("File is empty. Please upload a valid Docker Compose file.");
+        composeFileList.value = [];
+        composeFile.value = null;
+        return;
+      }
+
+      if (/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/.test(content.slice(0, 1024))) {
+        message.error("Binary file detected. Docker Compose must be a plain text YML file.");
+        composeFileList.value = [];
+        composeFile.value = null;
+        composeContent.value = "";
+        return;
+      }
+
+      if (!/:\s*\S/.test(content)) {
+        message.error("Invalid YML format. File must contain YML key-value pairs (key: value).");
+        composeFileList.value = [];
+        composeFile.value = null;
+        composeContent.value = "";
+        return;
+      }
+
+      const dangerousPatterns = ["<?php", "<script", "eval(", "exec(", "__import__"];
+      for (const pattern of dangerousPatterns) {
+        if (content.includes(pattern)) {
+          message.error(`Dangerous content detected: ${pattern}`);
+          composeFileList.value = [];
+          composeFile.value = null;
+          composeContent.value = "";
+          return;
+        }
+      }
+
+      composeContent.value = content;
       await parseComposeFromContent();
     };
-    reader.readAsText(file);
+    reader.readAsText(file, "UTF-8");
   } else {
     composeFile.value = null;
     composeContent.value = "";
@@ -753,13 +789,32 @@ const handleIconChange = (info: any) => {
   const { fileList } = info;
   if (fileList.length > 0) {
     const file = fileList[0].originFileObj;
-    iconFile.value = file;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      iconPreview.value = e.target?.result as string;
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      const bytes = new Uint8Array(arrayBuffer);
+
+      const isJPEG = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+      const isPNG = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+
+      if (!isJPEG && !isPNG) {
+        message.error("Invalid image format. Only JPG and PNG images are allowed.");
+        iconFileList.value = [];
+        iconFile.value = null;
+        iconPreview.value = null;
+        return;
+      }
+
+      iconFile.value = file;
+
+      const previewReader = new FileReader();
+      previewReader.onload = (e) => {
+        iconPreview.value = e.target?.result as string;
+      };
+      previewReader.readAsDataURL(file);
     };
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
   } else {
     iconFile.value = null;
     iconPreview.value = null;
@@ -896,7 +951,23 @@ const handlePackageChange = (info: any) => {
       return;
     }
 
-    selectedPackage.value = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      const bytes = new Uint8Array(arrayBuffer);
+
+      const isZIP = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+
+      if (!isZIP) {
+        message.error("Invalid .hds file. Package must be a valid HDS file.");
+        packageFileList.value = [];
+        selectedPackage.value = null;
+        return;
+      }
+
+      selectedPackage.value = file;
+    };
+    reader.readAsArrayBuffer(file.slice(0, 4));
   } else {
     selectedPackage.value = null;
   }

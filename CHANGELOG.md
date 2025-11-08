@@ -1,6 +1,19 @@
 # CHANGELOG
 
-- **2.0.3.106** (Latest): Completely redesigned Drop Zone with folder support, hierarchical navigation, and enhanced user experience.
+- **2.0.3.108** (Latest): Enhanced AppPackager security with file type validation preventing malicious file uploads.
+
+  - Added **file type validation module** verifying uploaded files match their actual content, not just their extension.
+  - Implemented **whitelist-based validation** only allowing HDS files for .hds packages, YAML for docker-compose files, and JPG/PNG for icons.
+  - Added **dangerous pattern detection** blocking files containing potentially harmful code like PHP, scripts, or executable commands.
+  - Enhanced **frontend validation** providing immediate feedback when invalid files are selected before uploading.
+  - Enhanced **backend validation** ensuring all uploaded files are verified server-side, preventing security bypasses.
+  - Fixed an internally discovered security issue where malicious files could be smuggled inside imported .hds packages. While the 256-bit `.hds_signature` should prevent tampering, an attacker could recalculate it, so content validation adds an extra security layer. Overkill? Maybe. Safer? Yessir. We back at it.
+  - Increased multifallback (`whales > compose > oldpose`) **Docker Compose timeout** from 5 minutes to 30 minutes preventing installation failures for large apps on slower networks.
+  - Added RobiPet app by @Anghios.
+
+---
+
+- **2.0.3.106**: Completely redesigned Drop Zone with folder support, hierarchical navigation, and enhanced user experience.
 
   - Introduced **folder support** allowing you to organize encrypted files in custom folder structures with drag-and-drop uploads maintaining directory hierarchy.
   - Implemented **hierarchical navigation** enabling browsing through folders with breadcrumb path navigation and seamless folder management.
@@ -29,8 +42,6 @@
   - Fixed **backdrop-blur-xl rendering issue** in taskbar widgets by using Vue Teleport to body, ensuring proper backdrop filter effects work correctly across Aero+ theme.
   - Updated **all JavaScript dependencies** to their latest stable versions including axios 1.13.2, vue 3.5.23, vite 7.2.1, pinia 3.0.4, dayjs 1.11.19, and @types/node 24.10.0.
   - Updated **all Python dependencies** to their latest stable versions including Flask 3.1.2, Flask-Compress 1.23, python-on-whales 0.79.0, requests 2.32.5, PyYAML 6.0.3, cython 3.2.0, and psutil 7.1.3.
-
----
 
 - **2.0.2.286**: Fixed external drive detection and reactive storage display across Settings, My Home, and System Monitor.
 
