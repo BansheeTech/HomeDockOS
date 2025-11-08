@@ -56,13 +56,6 @@
     "file": "hdos_BbS_vWe5DNlDDYAPlKxdN.js",
     "name": "loading"
   },
-  "_hdos_BdsDxGT6hmNb2AYtlUtRY.js": {
-    "file": "hdos_BdsDxGT6hmNb2AYtlUtRY.js",
-    "name": "useDropZoneStore",
-    "imports": [
-      "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"
-    ]
-  },
   "_hdos_BfgjWOgtXakTbwTKEuGW0.js": {
     "file": "hdos_BfgjWOgtXakTbwTKEuGW0.js",
     "name": "alert"
@@ -137,6 +130,13 @@
   "_hdos_CE1G-McAXm7G2-tH-xmrF.js": {
     "file": "hdos_CE1G-McAXm7G2-tH-xmrF.js",
     "name": "_commonjsHelpers"
+  },
+  "_hdos_CGUUMTIu04_Lm19QZhpRF.js": {
+    "file": "hdos_CGUUMTIu04_Lm19QZhpRF.js",
+    "name": "useDropZoneStore",
+    "imports": [
+      "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"
+    ]
   },
   "_hdos_CJ7jPgrZQEK5mH-RPNTZX.js": {
     "file": "hdos_CJ7jPgrZQEK5mH-RPNTZX.js",
@@ -394,7 +394,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts": {
-    "file": "hdos_CbpHlCJ4DVHC1sl0uangr.js",
+    "file": "hdos_BxVh8fKXIQu43emPQDCc4.js",
     "name": "__desktop__",
     "src": "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
     "isEntry": true,
@@ -522,7 +522,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppAbout.vue": {
-    "file": "hdos_lqj6wQ2Xqjj8vNJhsE92C.js",
+    "file": "hdos_CnNyFFByupjTksakAp0yw.js",
     "name": "AppAbout",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppAbout.vue",
     "isDynamicEntry": true,
@@ -544,7 +544,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppAppStore.vue": {
-    "file": "hdos_CR7w2O10q-fs4dFFOdWV4.js",
+    "file": "hdos_DNcUU2xgK2ufUD3XQzjcP.js",
     "name": "AppAppStore",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppAppStore.vue",
     "isDynamicEntry": true,
@@ -586,7 +586,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppControlHub.vue": {
-    "file": "hdos_BRnmSq0-_zVU3492DgL8A.js",
+    "file": "hdos_DvgQcsJtU76Xz2hoJwbEa.js",
     "name": "AppControlHub",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppControlHub.vue",
     "isDynamicEntry": true,
@@ -619,7 +619,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppDropzone.vue": {
-    "file": "hdos_BkZWdJL-0SuPmGs48FpA1.js",
+    "file": "hdos_C0a2t0ggJp0O56XSLJ55F.js",
     "name": "AppDropzone",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppDropzone.vue",
     "isDynamicEntry": true,
@@ -627,7 +627,7 @@
       "_hdos_CpXRdjpwckCKqFz2sx4Fw.js",
       "_hdos_BbS_vWe5DNlDDYAPlKxdN.js",
       "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
-      "_hdos_BdsDxGT6hmNb2AYtlUtRY.js",
+      "_hdos_CGUUMTIu04_Lm19QZhpRF.js",
       "_hdos_D7NRCijMj_Q9fS__axrEk.js",
       "_hdos_DPhlMBAcwmj4N6C-RIU0v.js",
       "_hdos_CvPrm34SGjwAav8ECB8VW.js",
@@ -662,7 +662,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppEdit.vue": {
-    "file": "hdos_WePRBMScaAql6Ss1xu0GB.js",
+    "file": "hdos_BfH-_U81BqmDuu6W54elL.js",
     "name": "AppEdit",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppEdit.vue",
     "isDynamicEntry": true,
@@ -689,7 +689,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppExplorer.vue": {
-    "file": "hdos_DhidMYaYp2Ims9uD-ISha.js",
+    "file": "hdos_BaUNTnNTdwM7gQMMlX4kf.js",
     "name": "AppExplorer",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppExplorer.vue",
     "isDynamicEntry": true,
@@ -714,7 +714,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppFolder.vue": {
-    "file": "hdos_DsZs7kOWcvOoSh-Rdv0EA.js",
+    "file": "hdos_Cjaa23Dx0gpZUUpwgvQZV.js",
     "name": "AppFolder",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppFolder.vue",
     "isDynamicEntry": true,
@@ -740,7 +740,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppHome.vue": {
-    "file": "hdos_BRo_fkOFxwa3nxWzZZXaA.js",
+    "file": "hdos_BKYjTwtrZ6nX6w2NHOgTo.js",
     "name": "AppHome",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppHome.vue",
     "isDynamicEntry": true,
@@ -748,7 +748,7 @@
       "_hdos_CpXRdjpwckCKqFz2sx4Fw.js",
       "_hdos_BbS_vWe5DNlDDYAPlKxdN.js",
       "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts",
-      "_hdos_BdsDxGT6hmNb2AYtlUtRY.js",
+      "_hdos_CGUUMTIu04_Lm19QZhpRF.js",
       "_hdos_DWBmRYU5uDfta2m551bbX.js",
       "_hdos_CM5Exe9vjkbjoFeNPeraT.js",
       "_hdos_DPhlMBAcwmj4N6C-RIU0v.js",
@@ -763,7 +763,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppInstallConfig.vue": {
-    "file": "hdos_mIAqeHt8RfygWeDHIhG7-.js",
+    "file": "hdos_CAowjVku-j9RNNba10Y5Q.js",
     "name": "AppInstallConfig",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppInstallConfig.vue",
     "isDynamicEntry": true,
@@ -805,7 +805,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppLogs.vue": {
-    "file": "hdos_C2qxsdfiQ7k7dACHXwS6U.js",
+    "file": "hdos_C1rq5dzITAp5fhpnipxZg.js",
     "name": "AppLogs",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppLogs.vue",
     "isDynamicEntry": true,
@@ -833,7 +833,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppPackager.vue": {
-    "file": "hdos_BeEj3FIMUoZHS3gkdlswr.js",
+    "file": "hdos_CcXwPKdMHa1ixZmBFuRGM.js",
     "name": "AppPackager",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppPackager.vue",
     "isDynamicEntry": true,
@@ -877,7 +877,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppProperties.vue": {
-    "file": "hdos_BZMn6u2ZjyakLdmWT4Axw.js",
+    "file": "hdos_DqbK4yf3gjCPq3j-PRSLX.js",
     "name": "AppProperties",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppProperties.vue",
     "isDynamicEntry": true,
@@ -911,7 +911,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppSettings.vue": {
-    "file": "hdos_DL6fFt-kzFwtj3xuiOCC2.js",
+    "file": "hdos_C9qsz_QSigPi5T3SUqvOH.js",
     "name": "AppSettings",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppSettings.vue",
     "isDynamicEntry": true,
@@ -955,7 +955,7 @@
     ]
   },
   "homedock-ui/vue3/static/js/__Apps__/AppSystemLogs.vue": {
-    "file": "hdos_D_3o_6OoEjbiTapfaf6r-.js",
+    "file": "hdos_DWSz9lq1XOlRBRI5ZCqUB.js",
     "name": "AppSystemLogs",
     "src": "homedock-ui/vue3/static/js/__Apps__/AppSystemLogs.vue",
     "isDynamicEntry": true,

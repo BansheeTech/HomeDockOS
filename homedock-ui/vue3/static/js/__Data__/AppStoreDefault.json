@@ -2611,21 +2611,6 @@
   },
   {
     "dependencies": [],
-    "docker_image": "bansheetech/robipet:latest",
-    "picture_path": "docker-icons/robipet.jpg",
-    "is_group": false,
-    "name": "robipet",
-    "category": "Home & Automation",
-    "type": "Pet Tracking & Management",
-    "icon": "mdi:dots-grid",
-    "description": "RobiPet transforms the way you track your pet medical history, vaccinations, and vital information",
-    "is_new": true,
-    "new_until": "2025-12-01",
-    "display_name": "RobiPet",
-    "screenshot_count": 3
-  },
-  {
-    "dependencies": [],
     "docker_image": "rotki/rotki:latest",
     "picture_path": "docker-icons/rotki.jpg",
     "is_group": false,
