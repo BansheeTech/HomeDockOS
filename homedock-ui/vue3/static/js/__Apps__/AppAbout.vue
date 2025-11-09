@@ -5,7 +5,7 @@
 
 <template>
   <div class="app-about flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-auto px-8 py-12">
+    <div class="flex-1 overflow-auto px-4 py-12">
       <div class="max-w-2xl mx-auto space-y-6">
         <div class="text-center mb-8">
           <div class="flex justify-center mb-4">

@@ -5,7 +5,7 @@
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
-    <div ref="containerRef" class="flex-1 overflow-y-auto px-6 py-6">
+    <div ref="containerRef" class="flex-1 overflow-y-auto px-4 py-4">
       <div class="mb-8">
         <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="harddiskIcon" class="w-4 h-4" />

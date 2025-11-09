@@ -1,6 +1,25 @@
 # CHANGELOG
 
-- **2.0.3.108** (Latest): Enhanced AppPackager security with file type validation preventing malicious file uploads.
+- **2.0.3.110** (Latest): Redesigned Control Hub with comprehensive system monitoring and enhanced user experience.
+
+  - Completely **redesigned Control Hub interface** with a modern card-based layout displaying real-time system information at a glance.
+  - Added **CPU usage monitoring** showing current processor utilization with visual percentage indicators.
+  - Implemented **RAM usage display** with total/used memory statistics and percentage-based progress visualization.
+  - Added **disk usage monitoring** displaying storage consumption across system volumes with capacity indicators.
+  - Introduced **network activity tracking** showing real-time upload and download speeds for system monitoring.
+  - Added **active containers counter** displaying the number of running Docker containers for quick system overview.
+  - Implemented **system uptime display** showing how long the system has been running since last restart.
+  - Enhanced **container management cards** with improved visual hierarchy and status indicators for better container oversight.
+  - Added **quick action buttons** for common container operations directly accessible from the main interface.
+  - Improved **responsive design** ensuring Control Hub adapts seamlessly across desktop, tablet, and mobile devices.
+  - Enhanced **theme integration** with proper styling across Default, Noir, and Aero+ themes for consistent visual experience.
+  - Refactored **component structure** to support future additions and extensibility for new system monitoring features.
+  - The Control Hub is now **ready for new implementations** and additional system management capabilities.
+  - Added back RobiPet!
+
+---
+
+- **2.0.3.108**: Enhanced AppPackager security with file type validation preventing malicious file uploads.
 
   - Added **file type validation module** verifying uploaded files match their actual content, not just their extension.
   - Implemented **whitelist-based validation** only allowing HDS files for .hds packages, YAML for docker-compose files, and JPG/PNG for icons.
@@ -10,8 +29,6 @@
   - Fixed an internally discovered security issue where malicious files could be smuggled inside imported .hds packages. While the 256-bit `.hds_signature` should prevent tampering, an attacker could recalculate it, so content validation adds an extra security layer. Overkill? Maybe. Safer? Yessir. We back at it.
   - Increased multifallback (`whales > compose > oldpose`) **Docker Compose timeout** from 5 minutes to 30 minutes preventing installation failures for large apps on slower networks.
   - Added RobiPet app by @Anghios.
-
----
 
 - **2.0.3.106**: Completely redesigned Drop Zone with folder support, hierarchical navigation, and enhanced user experience.
 

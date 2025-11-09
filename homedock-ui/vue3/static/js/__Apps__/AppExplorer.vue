@@ -5,7 +5,7 @@
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
-    <div class="px-6 md:px-4 py-5 border-b" :class="themeClasses.explorerHeaderBorder">
+    <div class="px-4 md:px-4 py-5 border-b" :class="themeClasses.explorerHeaderBorder">
       <div class="relative flex items-center gap-3">
         <Icon :icon="searchIcon" :class="themeClasses.explorerSearchIcon" class="absolute left-4 w-5 h-5 pointer-events-none" />
         <input ref="searchInputRef" v-model="searchQuery" type="text" placeholder="Search apps, files, and more..." class="flex-1 py-3 pr-4 pl-12 rounded-lg border text-sm outline-none transition-all duration-200" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" @keydown="handleKeyDown" />
@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class="flex gap-2 px-6 md:px-4 py-4 border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" :class="themeClasses.explorerHeaderBorder">
+    <div class="flex gap-2 px-4 md:px-4 py-4 border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" :class="themeClasses.explorerHeaderBorder">
       <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" class="flex items-center gap-2 md:gap-1.5 px-4 md:px-3 py-2 rounded-lg border-none text-sm md:text-[0.8125rem] font-medium cursor-pointer transition-all duration-150 whitespace-nowrap max-[480px]:min-w-12 max-[480px]:px-2" :class="activeTab === tab.id ? themeClasses.explorerTabActive : [themeClasses.explorerTabInactive, themeClasses.explorerTabHover]">
         <Icon :icon="tab.icon" class="w-4 h-4 md:w-4 md:h-4" />
         <span class="max-[480px]:hidden">{{ tab.label }}</span>
@@ -53,7 +53,7 @@
         </template>
       </div>
 
-      <div v-else class="px-6 md:px-4 py-4">
+      <div v-else class="px-4 md:px-4 py-4">
         <div v-for="(group, groupIndex) in groupedResults" :key="group.category" class="mb-8 last:mb-0">
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
             <Icon :icon="group.icon" class="w-4 h-4" />

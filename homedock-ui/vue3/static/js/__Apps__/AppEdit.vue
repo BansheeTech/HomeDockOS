@@ -5,7 +5,7 @@
 
 <template>
   <div class="app-edit flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-hidden p-5 flex flex-col">
+    <div class="flex-1 overflow-hidden p-4 flex flex-col">
       <div class="app-details flex items-center space-x-4 mb-4">
         <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
         <div class="flex flex-col justify-center">

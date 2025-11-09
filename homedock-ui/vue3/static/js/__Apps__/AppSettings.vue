@@ -5,9 +5,9 @@
 
 <template>
   <div class="app-settings flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-auto p-5">
+    <div class="flex-1 overflow-auto px-4 pb-4">
       <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
-        <Tabs v-model:activeKey="activeKey" :animated="false" :destroyInactiveTabPane="false">
+        <Tabs v-model:activeKey="activeKey" :animated="false" :destroyInactiveTabPane="false" :tabBarGutter="32">
           <template #moreIcon>
             <Icon :class="[themeClasses.upperTabText]" :icon="viewMoreIcon" size="18px" />
           </template>

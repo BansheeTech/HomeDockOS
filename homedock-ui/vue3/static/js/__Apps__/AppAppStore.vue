@@ -5,7 +5,7 @@
 
 <template>
   <div class="app-appstore flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-auto p-5">
+    <div class="flex-1 overflow-auto p-4">
       <div class="mb-6">
         <SectionHeader title="Featured Apps" description="You better check these out!" :icon="licenseIcon" />
         <Banners />

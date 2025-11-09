@@ -9,7 +9,7 @@
       <div v-if="app" class="flex flex-col">
         <div class="hero-section" :class="[themeClasses.aeroExtraScope, themeClasses.appPropsHeroBorder]">
           <div class="hero-gradient"></div>
-          <div class="relative flex items-center gap-5 px-6 py-6">
+          <div class="relative flex items-center gap-5 px-4 py-3">
             <div class="app-icon-container" :class="getContainerClasses(app)">
               <BaseImage :src="app.image_path" alt="App Icon" class="app-icon rounded-xl" draggable="false" />
             </div>
@@ -35,7 +35,7 @@
           </button>
         </div>
 
-        <div class="p-6">
+        <div class="p-4">
           <Transition name="tab-fade" mode="out-in">
             <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
               <div class="grid md:grid-cols-2 grid-cols-1 gap-3">

@@ -5,7 +5,7 @@
 
 <template>
   <div class="app-systemlogs flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-auto p-5">
+    <div class="flex-1 overflow-auto p-4">
       <div class="mb-6">
         <SectionHeader title="Login Attempts" description="In-depth recent login attempts" :icon="accountAlertIcon" />
         <LoginAttempts />

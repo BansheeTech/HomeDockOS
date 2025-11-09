@@ -333,7 +333,7 @@ export function useTheme() {
       taskbarAppIndicator: "bg-blue-500",
       taskbarAppIndicatorInactive: "bg-gray-300",
       taskbarDivider: "bg-gray-300",
-      taskbarContextMenuBg: "bg-white/98 backdrop-blur-[40px] saturate-180",
+      taskbarContextMenuBg: "bg-white/90 backdrop-blur-[40px] saturate-180",
       taskbarContextMenuBorder: "border border-gray-200",
       taskbarContextMenuShadow: "shadow-2xl shadow-black/30",
       taskbarContextMenuItem: "text-gray-900",
@@ -341,7 +341,7 @@ export function useTheme() {
       taskbarContextMenuItemDisabled: "opacity-50 cursor-not-allowed",
       taskbarContextMenuDivider: "border-t border-gray-200",
 
-      contextMenuBg: "bg-white/98",
+      contextMenuBg: "bg-white/95 backdrop-blur-xl",
       contextMenuBorder: "border border-gray-200",
       contextMenuShadow: "shadow-2xl shadow-black/30",
       contextMenuItem: "text-gray-900",
@@ -687,6 +687,11 @@ export function useTheme() {
       appPropsDotDanger: "bg-red-500",
       appPropsDotInfo: "bg-blue-500",
       appPropsDotDark: "bg-gray-500",
+
+      appPropsUpdateBadgeBg: "bg-blue-500/20",
+      appPropsUpdateBadgeBorder: "border-blue-500/30",
+      appPropsUpdateBadgeText: "text-blue-600",
+      appPropsUpdateBadgeIcon: "text-blue-500",
 
       statusBarContainer: "bg-gray-50/95",
       statusBarBorder: "border-gray-200",
@@ -1076,7 +1081,7 @@ export function useTheme() {
       taskbarAppIndicator: "bg-blue-500",
       taskbarAppIndicatorInactive: "bg-white/30",
       taskbarDivider: "bg-white/10",
-      taskbarContextMenuBg: "bg-zinc-900/98 backdrop-blur-[40px] saturate-180",
+      taskbarContextMenuBg: "bg-zinc-900/90 backdrop-blur-[40px] saturate-180",
       taskbarContextMenuBorder: "border border-white/10",
       taskbarContextMenuShadow: "shadow-2xl shadow-black/50",
       taskbarContextMenuItem: "text-white/90",
@@ -1084,7 +1089,7 @@ export function useTheme() {
       taskbarContextMenuItemDisabled: "opacity-50 cursor-not-allowed",
       taskbarContextMenuDivider: "border-t border-white/10",
 
-      contextMenuBg: "bg-zinc-900/98",
+      contextMenuBg: "bg-zinc-900/95 backdrop-blur-xl",
       contextMenuBorder: "border border-white/10",
       contextMenuShadow: "shadow-2xl shadow-black/50",
       contextMenuItem: "text-white/90",
@@ -1430,6 +1435,11 @@ export function useTheme() {
       appPropsDotDanger: "bg-red-500",
       appPropsDotInfo: "bg-blue-500",
       appPropsDotDark: "bg-gray-500",
+
+      appPropsUpdateBadgeBg: "bg-blue-500/20",
+      appPropsUpdateBadgeBorder: "border-blue-500/30",
+      appPropsUpdateBadgeText: "text-blue-400",
+      appPropsUpdateBadgeIcon: "text-blue-400",
 
       statusBarContainer: "bg-zinc-900/95",
       statusBarBorder: "border-zinc-700",

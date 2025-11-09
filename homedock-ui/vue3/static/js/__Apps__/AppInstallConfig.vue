@@ -14,7 +14,7 @@
 
     <div v-else class="flex flex-col h-full overflow-hidden">
       <div class="flex-1 overflow-y-auto">
-        <div :class="[themeClasses.storeContMainer, themeClasses.aeroExtraScope]" class="px-4 md:px-6 lg:px-8 py-5">
+        <div :class="[themeClasses.storeContMainer, themeClasses.aeroExtraScope]" class="px-4 py-4">
           <div class="flex items-center gap-4 mb-4">
             <div class="relative flex-shrink-0 group">
               <BaseImage draggable="false" :src="app?.picture_path || 'docker-icons/notfound.jpg'" :alt="app?.name" :class="[themeClasses.storeModalImageBack]" class="w-16 h-16 rounded-xl shadow-md transition ring-[1px] duration-200 group-hover:scale-105" />
@@ -91,12 +91,11 @@
           </div>
         </div>
 
-        <div class="px-4 md:px-6 lg:px-8">
+        <div class="px-4">
           <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
             {{ app?.description + "." || "No description available" }}
           </p>
 
-          <!-- Screenshots -->
           <div v-show="screenshots.length > 0" class="mb-0">
             <div ref="screenshotsContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
               <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
@@ -168,7 +167,7 @@
               </div>
             </div>
 
-            <div v-else key="advanced">
+            <div v-else key="advanced" class="mb-2">
               <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider mb-3">Advanced Configuration</h3>
               <textarea :disabled="app?.is_installed" v-model="advancedCompose" :class="[themeClasses.hubTextArea]" class="flex-1 rounded-lg w-full font-mono text-xs resize-none p-3" style="height: 500px"></textarea>
             </div>

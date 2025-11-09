@@ -590,7 +590,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
   border-bottom: 1px solid transparent;
 }
 
@@ -660,7 +660,7 @@ onUnmounted(() => {
   user-select: none;
 }
 
-/* Desktop Icon (auto-layout, no dragging) */
+/* Desktop Icon */
 .desktop-icon {
   transition: all 0.3s ease;
 }
