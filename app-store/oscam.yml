@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   oscam:
     image: lscr.io/linuxserver/oscam:latest

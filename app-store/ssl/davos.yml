@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   davos:
     image: lscr.io/linuxserver/davos:latest

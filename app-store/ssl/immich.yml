@@ -1,0 +1,93 @@
+---
+services:
+  immich:
+    image: ghcr.io/imagegenius/immich:latest
+    container_name: immich
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DB_HOSTNAME=[[HD_LOCAL_IP]]
+      - DB_USERNAME=[[HD_USER_NAME]]
+      - DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=[[HD_LOCAL_IP]]
+      - DISABLE_MACHINE_LEARNING=false #optional
+      - DISABLE_TYPESENSE=false #optional
+      - DB_PORT=5432 #optional
+      - REDIS_PORT=6379 #optional
+      - REDIS_PASSWORD= #optional
+      - MACHINE_LEARNING_WORKERS=1 #optional
+      - MACHINE_LEARNING_WORKER_TIMEOUT=120 #optional
+      - SERVER_PORT=8443
+    labels:
+      HDGroup: "immich"
+      HDRole: "main"
+    volumes:
+      - [[INSTALL_PATH]]/immich/immich:/config
+      - [[INSTALL_PATH]]/immich/immich/machine-learning:/config/machine-learning #optional
+      - [[INSTALL_PATH]]/immich/immich/imports:/import #optional
+      - [[APP_MOUNT_POINT]]/immich/photos:/photos
+      - /DATA/SSLCerts:/certs:ro
+    ports:
+      - 17487:8443
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres15
+    entrypoint: |
+      sh -c '
+      echo ""
+      echo "─────────────────────────────────────────────────────────────"
+      echo ""
+      echo "   Running official image from ghcr.io/imagegenius/immich"
+      echo "   Visit: https://github.com/imagegenius/docker-immich"
+      echo ""
+      echo "   Modified at runtime for SSL support by HomeDock OS team"
+      echo "   Visit too: https://www.homedock.cloud/"
+      echo ""
+      echo "─────────────────────────────────────────────────────────────"
+      echo ""
+      mkdir -p /tmp/certs
+      cp /certs/fullchain.pem /tmp/certs/fullchain.pem
+      cp /certs/privkey.pem /tmp/certs/privkey.pem
+      chmod 644 /tmp/certs/*.pem
+      chown abc:abc /tmp/certs/*.pem
+      if [ ! -f /app/immich/server/dist/workers/api.js.bak ]; then
+        cp /app/immich/server/dist/workers/api.js /app/immich/server/dist/workers/api.js.bak
+      else
+        cp /app/immich/server/dist/workers/api.js.bak /app/immich/server/dist/workers/api.js
+      fi
+      sed -i "/const app = await core_1.NestFactory.create/c\\
+      const httpsOptions = {\\
+        key: require(\"node:fs\").readFileSync(\"/tmp/certs/privkey.pem\"),\\
+        cert: require(\"node:fs\").readFileSync(\"/tmp/certs/fullchain.pem\")\\
+      };\\
+      const app = await core_1.NestFactory.create(app_module_1.ApiModule, { bufferLogs: true, httpsOptions });" /app/immich/server/dist/workers/api.js
+      exec /init
+      '
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    container_name: immich_redis
+    labels:
+      HDGroup: "immich"
+      HDRole: "dependency"
+    restart: unless-stopped
+  postgres15:
+    image: tensorchord/pgvecto-rs:pg15-v0.2.0
+    ports:
+      - 5432:5432
+    container_name: immich_postgres15
+    environment:
+      - POSTGRES_USER=[[HD_USER_NAME]]
+      - POSTGRES_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - POSTGRES_DB=immich
+    labels:
+      HDGroup: "immich"
+      HDRole: "dependency"
+    volumes:
+      - [[INSTALL_PATH]]/immich/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+

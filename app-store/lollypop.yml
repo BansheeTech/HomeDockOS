@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   lollypop:
     image: lscr.io/linuxserver/lollypop:latest

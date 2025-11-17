@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   wikijs:
     image: lscr.io/linuxserver/wikijs:latest

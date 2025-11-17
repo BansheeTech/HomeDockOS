@@ -14,8 +14,9 @@ from flask import jsonify, request
 
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled
-from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders, DEVHOOK_USER_NAME_KEY, DEVHOOK_PASSWORD_KEY, DEVHOOK_RANDOM_STRING_KEY
+from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders, DEVHOOK_USER_NAME_KEY, DEVHOOK_PASSWORD_KEY, DEVHOOK_SYSTEM_PASSWORD_KEY, DEVHOOK_RANDOM_STRING_KEY
 from pymodules.hd_HDSPackageManager import normalize_app_slug
+from pymodules.hd_PortValidator import validate_ports
 
 
 @login_required
@@ -57,6 +58,7 @@ def get_appstore_info():
         placeholders = extract_devhook_placeholders(yml_str)
         user_placeholder_present = placeholders[DEVHOOK_USER_NAME_KEY]
         password_placeholder_present = placeholders[DEVHOOK_PASSWORD_KEY]
+        sys_password_placeholder_present = placeholders[DEVHOOK_SYSTEM_PASSWORD_KEY]
         random_string_placeholder_present = placeholders[DEVHOOK_RANDOM_STRING_KEY]
 
         yml_str, devhook_values = process_devhooks(yml_str)
@@ -99,12 +101,37 @@ def get_appstore_info():
         ports = main_service_data.get("ports", [])
         volumes = main_service_data.get("volumes", [])
 
+        environment_raw = main_service_data.get("environment", {})
+        environment = {}
+        if isinstance(environment_raw, dict):
+            for key, value in environment_raw.items():
+                value_str = str(value)
+                if value_str not in ["[[HD_USER_NAME]]", "[[HD_PASSWORD]]", "[[HD_SYSTEM_PASSWORD]]", "[[HD_RND_STR]]"] and not (user_placeholder_present and value_str == devhook_values.get("user_name")) and not (password_placeholder_present and value_str == devhook_values.get("password")) and not (sys_password_placeholder_present and value_str == devhook_values.get("sys_password")) and not (random_string_placeholder_present and value_str == devhook_values.get("random_string")):
+                    environment[key] = value
+        elif isinstance(environment_raw, list):
+            for env_item in environment_raw:
+                if "=" in env_item:
+                    key, value = env_item.split("=", 1)
+                    if value not in ["[[HD_USER_NAME]]", "[[HD_PASSWORD]]", "[[HD_SYSTEM_PASSWORD]]", "[[HD_RND_STR]]"] and not (user_placeholder_present and value == devhook_values.get("user_name")) and not (password_placeholder_present and value == devhook_values.get("password")) and not (sys_password_placeholder_present and value == devhook_values.get("sys_password")) and not (random_string_placeholder_present and value == devhook_values.get("random_string")):
+                        environment[key] = value
+
+        networks = []
+        network_mode = main_service_data.get("network_mode")
+        if network_mode:
+            networks = [network_mode]
+        else:
+            networks_dict = main_service_data.get("networks", {})
+            networks = list(networks_dict.keys()) if isinstance(networks_dict, dict) else (networks_dict if isinstance(networks_dict, list) else [])
+
+        cap_add = main_service_data.get("cap_add", [])
+        privileged = main_service_data.get("privileged", False)
+
         yml_data_copy = yml_data.copy()
         yml_str = yaml.dump(yml_data_copy)
 
         yml_str, _ = process_devhooks(yml_str)
 
-        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None, "random_string": devhook_values["random_string"] if random_string_placeholder_present else None, "ssl_enabled": use_ssl}})
+        return jsonify({"success": True, "data": {"ports": ports, "volumes": volumes, "environment": environment, "networks": networks, "capabilities": cap_add, "privileged": privileged, "ymlContent": yml_str, "dependencies": dependencies, "hd_group": hd_group, "hd_role": hd_role, "user_name": devhook_values["user_name"] if user_placeholder_present else None, "password": devhook_values["password"] if password_placeholder_present else None, "random_string": devhook_values["random_string"] if random_string_placeholder_present else None, "ssl_enabled": use_ssl}})
 
 
 @login_required
@@ -156,6 +183,11 @@ def process_config():
             return jsonify({"success": False, "message": f"Invalid YML content provided: {str(e)}"}), 400
 
         yml_str, _ = process_devhooks(yaml.dump(ymlContent_dict))
+
+        is_valid, error_message, problematic_ports = validate_ports(yml_str, allow_container_name=None)
+        if not is_valid:
+            return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
+
         os.makedirs(os.path.dirname(new_yml_file_path), exist_ok=True)
         with open(new_yml_file_path, "w") as file:
             file.write(yml_str)
@@ -165,6 +197,10 @@ def process_config():
     elif configType == "simple":
         volumes = request_data.get("volumes", [])
         ports = request_data.get("ports", [])
+        networks = request_data.get("networks", [])
+        environment = request_data.get("environment", {})
+        capabilities = request_data.get("capabilities", [])
+        privileged = request_data.get("privileged", False)
         restartPolicy = request_data.get("restartPolicy", "unless-stopped")
         user_name = request_data.get("userName", None)
         user_password = request_data.get("userPassword", None)
@@ -198,11 +234,79 @@ def process_config():
         if not first_service_name:
             return jsonify({"success": False, "message": "No services found in the original YML"}), 500
 
-        first_service_data["ports"] = ports
+        is_group = any("HDGroup" in service_data.get("labels", {}) for service_data in yml_data.get("services", {}).values())
+
+        services_to_update = []
+        if is_group:
+            hd_group = first_service_data.get("labels", {}).get("HDGroup")
+            for svc_name, svc_data in yml_data.get("services", {}).items():
+                if svc_data.get("labels", {}).get("HDGroup") == hd_group:
+                    services_to_update.append((svc_name, svc_data))
+        else:
+            services_to_update = [(first_service_name, first_service_data)]
+
+        for svc_name, svc_data in services_to_update:
+            if "network_mode" in svc_data:
+                del svc_data["network_mode"]
+            if "networks" in svc_data:
+                del svc_data["networks"]
+
+            if networks:
+                if len(networks) == 1 and networks[0] in ["host", "bridge", "none"]:
+                    svc_data["network_mode"] = networks[0]
+
+                    if networks[0] == "host" and svc_name == first_service_name:
+                        svc_data["ports"] = []
+                else:
+                    svc_data["networks"] = {net: {} for net in networks}
+
+        if networks:
+            if len(networks) == 1 and networks[0] in ["host", "bridge", "none"]:
+                if networks[0] != "host":
+                    first_service_data["ports"] = ports
+            else:
+                first_service_data["ports"] = ports
+        else:
+            first_service_data["ports"] = ports
+
         first_service_data["volumes"] = volumes
         first_service_data["restart"] = restartPolicy
 
+        existing_env = first_service_data.get("environment", {})
+        merged_env = {}
+
+        if isinstance(existing_env, dict):
+            merged_env = {key: str(value) for key, value in existing_env.items()}
+        elif isinstance(existing_env, list):
+            for env_item in existing_env:
+                if "=" in env_item:
+                    key, value = env_item.split("=", 1)
+                    merged_env[key] = value
+
+        if environment:
+            merged_env.update(environment)
+
+        first_service_data["environment"] = merged_env
+
+        if capabilities:
+            first_service_data["cap_add"] = capabilities
+
+        if privileged:
+            first_service_data["privileged"] = privileged
+
+        if networks and not (len(networks) == 1 and networks[0] in ["host", "bridge", "none"]):
+            if "networks" not in yml_data:
+                yml_data["networks"] = {}
+
+            for network in networks:
+                if network not in yml_data["networks"]:
+                    yml_data["networks"][network] = {"name": network}
+
         yml_str, _ = process_devhooks(yaml.dump(yml_data))
+
+        is_valid, error_message, problematic_ports = validate_ports(yml_str, allow_container_name=None)
+        if not is_valid:
+            return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
 
         os.makedirs(os.path.dirname(new_yml_file_path), exist_ok=True)
         with open(new_yml_file_path, "w") as file:
@@ -215,5 +319,6 @@ def process_config():
 
 
 def is_valid_container_name(name):
-
-    return re.match("^[a-zA-Z0-9-_ ]+$", name) is not None
+    if not name or not isinstance(name, str):
+        return False
+    return re.match(r"^[a-zA-Z0-9-_ ]+\Z", name) is not None

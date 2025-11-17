@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   sickgear:
     image: lscr.io/linuxserver/sickgear:latest

@@ -1,5 +1,4 @@
 ---
-version: '3.9'
 services:
   it-tools:
     container_name: it-tools

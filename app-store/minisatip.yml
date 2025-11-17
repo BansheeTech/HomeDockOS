@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   minisatip:
     image: lscr.io/linuxserver/minisatip:latest

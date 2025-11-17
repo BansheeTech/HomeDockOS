@@ -51,7 +51,7 @@
 import axios from "axios";
 
 import { ref, onMounted, computed } from "vue";
-import { Button, message } from "ant-design-vue";
+import { Button } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import contentSaveIcon from "@iconify-icons/mdi/content-save";
@@ -64,6 +64,8 @@ import { useDesktopStore } from "../__Stores__/desktopStore";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+
+import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
 interface Props {
   appName?: string;
@@ -123,13 +125,16 @@ const saveCompose = async () => {
     });
 
     if (response.data.success) {
-      message.success("Configuration saved successfully!");
+      notifySuccess("Configuration saved successfully!", undefined, themeClasses.value.scopeSelector);
     } else {
-      message.error("Failed to save the configuration. Please check the YML format.");
+      notifyWarning("Failed to save the configuration. Please check the YML format.", themeClasses.value.scopeSelector);
     }
-  } catch (error) {
-    const errorMessage = (error as any).response?.data?.message || "Unknown error";
-    message.error(`Error: ${errorMessage}`);
+  } catch (error: any) {
+    if (error.response) {
+      notifyError(error, themeClasses.value.scopeSelector);
+    } else {
+      notifyWarning("Unknown error occurred while saving configuration", themeClasses.value.scopeSelector);
+    }
   }
 };
 
@@ -158,25 +163,41 @@ const recreateContainer = async () => {
 
     if (updateResponse.data.success) {
       buttonText.value = "Recreating...";
-      const recreateResponse = await axios.post("/api/recreate-container", {
-        container_name: appName.value,
-        yml_content: composeInfo.value,
-        homedock_csrf_token: csrfToken.value,
-      });
 
-      if (recreateResponse.data.message) {
-        message.success("Application recreated successfully!");
-        buttonText.value = "Save and Recreate";
-      } else {
-        message.error("Failed to recreate the application.");
+      try {
+        const recreateResponse = await axios.post("/api/recreate-container", {
+          container_name: appName.value,
+          yml_content: composeInfo.value,
+          homedock_csrf_token: csrfToken.value,
+        });
+
+        if (recreateResponse.data.message) {
+          notifySuccess("Application recreated successfully!", undefined, themeClasses.value.scopeSelector);
+          buttonText.value = "Save and Recreate";
+        } else {
+          notifyWarning("Failed to recreate the application.", themeClasses.value.scopeSelector);
+          buttonText.value = "Save and Recreate";
+        }
+      } catch (recreateError: any) {
+        if (recreateError.response?.status === 400 && recreateError.response?.data?.message) {
+          notifyWarning(recreateError.response.data.message, themeClasses.value.scopeSelector, 10);
+        } else if (recreateError.response) {
+          notifyError(recreateError, themeClasses.value.scopeSelector);
+        } else {
+          notifyWarning("Failed to recreate the application.", themeClasses.value.scopeSelector);
+        }
         buttonText.value = "Save and Recreate";
       }
     } else {
-      message.error("Failed to update the configuration file.");
+      notifyWarning("Failed to update the configuration file.", themeClasses.value.scopeSelector);
       buttonText.value = "Save and Recreate";
     }
-  } catch (error) {
-    message.error("An error occurred. Please check the logs.");
+  } catch (error: any) {
+    if (error.response) {
+      notifyError(error, themeClasses.value.scopeSelector);
+    } else {
+      notifyWarning("An error occurred. Please check the logs.", themeClasses.value.scopeSelector);
+    }
     buttonText.value = "Save and Recreate";
   } finally {
     isRecreating.value = false;

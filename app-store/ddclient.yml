@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   ddclient:
     image: lscr.io/linuxserver/ddclient:latest

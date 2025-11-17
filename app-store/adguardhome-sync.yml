@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   adguardhome-sync:
     image: lscr.io/linuxserver/adguardhome-sync:latest

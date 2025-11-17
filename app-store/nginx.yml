@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   nginx:
     image: lscr.io/linuxserver/nginx:latest
@@ -11,6 +10,6 @@ services:
     volumes:
       - [[INSTALL_PATH]]/nginx:/config
     ports:
-      - 80:80
-      - 443:443
+      - 9980:80
+      - 9981:443
     restart: unless-stopped

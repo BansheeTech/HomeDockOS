@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   mastodon:
     image: lscr.io/linuxserver/mastodon:latest

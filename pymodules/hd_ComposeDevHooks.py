@@ -30,6 +30,7 @@ DEVHOOK_PLACEHOLDERS = {
 
 DEVHOOK_USER_NAME_KEY = hashlib.sha256("[[HD_USER_NAME]]".encode()).hexdigest()[:16]
 DEVHOOK_PASSWORD_KEY = hashlib.sha256("[[HD_PASSWORD]]".encode()).hexdigest()[:16]
+DEVHOOK_SYSTEM_PASSWORD_KEY = hashlib.sha256("[[HD_SYSTEM_PASSWORD]]".encode()).hexdigest()[:16]
 DEVHOOK_RANDOM_STRING_KEY = hashlib.sha256("[[HD_RND_STR]]".encode()).hexdigest()[:16]
 
 

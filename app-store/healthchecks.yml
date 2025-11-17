@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   healthchecks:
     image: lscr.io/linuxserver/healthchecks:latest

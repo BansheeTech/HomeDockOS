@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   phpmyadmin:
     image: lscr.io/linuxserver/phpmyadmin:latest

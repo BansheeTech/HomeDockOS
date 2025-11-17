@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest

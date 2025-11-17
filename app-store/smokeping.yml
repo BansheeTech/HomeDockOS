@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   smokeping:
     image: lscr.io/linuxserver/smokeping:latest

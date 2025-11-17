@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   habridge:
     image: lscr.io/linuxserver/habridge:latest

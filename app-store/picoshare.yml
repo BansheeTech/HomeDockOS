@@ -1,5 +1,4 @@
 ---
-version: "3.2"
 services:
   picoshare:
     image: mtlynch/picoshare:latest

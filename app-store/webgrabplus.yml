@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   webgrabplus:
     image: lscr.io/linuxserver/webgrabplus:latest

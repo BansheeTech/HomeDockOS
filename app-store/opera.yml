@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   opera:
     image: lscr.io/linuxserver/opera:latest

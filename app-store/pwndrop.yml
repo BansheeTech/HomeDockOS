@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   pwndrop:
     image: lscr.io/linuxserver/pwndrop:latest

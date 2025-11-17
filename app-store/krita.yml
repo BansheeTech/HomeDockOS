@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   krita:
     image: lscr.io/linuxserver/krita:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   thelounge:
     image: lscr.io/linuxserver/thelounge:latest

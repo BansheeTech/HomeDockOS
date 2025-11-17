@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   pyload-ng:
     image: lscr.io/linuxserver/pyload-ng:latest

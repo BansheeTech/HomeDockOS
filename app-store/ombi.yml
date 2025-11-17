@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   ombi:
     image: lscr.io/linuxserver/ombi:latest

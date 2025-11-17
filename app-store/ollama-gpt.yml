@@ -1,5 +1,4 @@
 ---
-version: '3.8'
 services:
   ollama-gpt:
     image: ghcr.io/open-webui/open-webui:main

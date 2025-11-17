@@ -1,5 +1,4 @@
 ---
-version: "3.4"
 services:
   mc-bedrock-server:
     image: itzg/minecraft-bedrock-server

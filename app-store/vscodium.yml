@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   vscodium:
     image: lscr.io/linuxserver/vscodium:latest

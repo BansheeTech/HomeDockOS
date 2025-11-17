@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   webtop:
     image: lscr.io/linuxserver/webtop:latest

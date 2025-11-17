@@ -154,6 +154,9 @@ def uninstall_containers():
 
                 for net_name in network_names:
                     try:
+                        if net_name in ["bridge", "host", "none", "homedock_network"]:
+                            continue
+
                         net = client.networks.get(net_name)
                         if not net.attrs["Containers"]:
                             net.remove()

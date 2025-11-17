@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   librespeed:
     image: lscr.io/linuxserver/librespeed:latest

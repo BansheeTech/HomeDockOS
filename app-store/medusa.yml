@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   medusa:
     image: lscr.io/linuxserver/medusa:latest

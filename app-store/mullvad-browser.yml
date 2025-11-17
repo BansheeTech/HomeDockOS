@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   mullvad-browser:
     image: lscr.io/linuxserver/mullvad-browser:latest

@@ -1,0 +1,20 @@
+---
+services:
+  brave:
+    image: lscr.io/linuxserver/brave:latest
+    container_name: brave-browser
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - SELKIES_UI_TITLE="Brave Browser"
+      - SELKIES_UI_SHOW_LOGO=false
+
+    volumes:
+      - [[INSTALL_PATH]]/brave-browser:/config
+    ports:
+      - 5546:3000
+    shm_size: "1gb"
+    restart: unless-stopped

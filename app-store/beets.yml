@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   beets:
     image: lscr.io/linuxserver/beets:latest

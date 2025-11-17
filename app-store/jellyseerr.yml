@@ -1,5 +1,4 @@
 ---
-version: "3"
 services:
   jellyseerr:
     image: fallenbagel/jellyseerr:latest

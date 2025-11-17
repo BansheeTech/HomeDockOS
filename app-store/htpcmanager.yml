@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   htpcmanager:
     image: lscr.io/linuxserver/htpcmanager:latest

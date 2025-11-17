@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   mstream:
     image: lscr.io/linuxserver/mstream:latest

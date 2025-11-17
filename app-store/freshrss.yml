@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   freshrss:
     image: lscr.io/linuxserver/freshrss:latest

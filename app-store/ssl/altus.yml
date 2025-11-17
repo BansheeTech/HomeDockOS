@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   altus:
     image: lscr.io/linuxserver/altus:latest

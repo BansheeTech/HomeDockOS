@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   calligra:
     image: lscr.io/linuxserver/calligra:latest

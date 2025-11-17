@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   changedetection:
     image: lscr.io/linuxserver/changedetection.io:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   fail2ban:
     image: lscr.io/linuxserver/fail2ban:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   lazylibrarian:
     image: lscr.io/linuxserver/lazylibrarian:latest

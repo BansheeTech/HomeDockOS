@@ -217,6 +217,10 @@ export function useTheme() {
       installConfigLoadingText: "text-gray-400",
       installConfigSSLVolumeIcon: "text-green-500",
       installConfigTextareaFocusBorder: "border-blue-500",
+      installConfigPortCard: "bg-gray-50 border-gray-200",
+      installConfigVolumeCard: "bg-gray-50 border-gray-200",
+      installConfigEnvCard: "bg-gray-50 border-gray-200",
+      installConfigLabel: "text-gray-600",
 
       hubContMainer: "border-gray-200 bg-gradient-to-b from-gray-100 to-transparent",
       hubCardTextAppName: "text-gray-700",
@@ -965,6 +969,10 @@ export function useTheme() {
       installConfigLoadingText: "text-zinc-500",
       installConfigSSLVolumeIcon: "text-green-400",
       installConfigTextareaFocusBorder: "border-blue-500",
+      installConfigPortCard: "bg-zinc-900 border-zinc-700",
+      installConfigVolumeCard: "bg-zinc-900 border-zinc-700",
+      installConfigEnvCard: "bg-zinc-900 border-zinc-700",
+      installConfigLabel: "text-zinc-400",
 
       hubContMainer: "border-zinc-800 bg-gradient-to-b from-zinc-800 to-transparent",
       hubCardTextAppName: "text-zinc-200",
@@ -1713,6 +1721,10 @@ export function useTheme() {
       installConfigLoadingText: "text-zinc-400",
       installConfigSSLVolumeIcon: "text-green-400",
       installConfigTextareaFocusBorder: "border-blue-500",
+      installConfigPortCard: "bg-zinc-900/50 border-zinc-700/50",
+      installConfigVolumeCard: "bg-zinc-900/50 border-zinc-700/50",
+      installConfigEnvCard: "bg-zinc-900/50 border-zinc-700/50",
+      installConfigLabel: "text-zinc-400",
 
       hubContMainer: "border-zinc-700/50 bg-gradient-to-b from-zinc-800/50 to-transparent",
       hubCardTextAppName: "text-zinc-200",

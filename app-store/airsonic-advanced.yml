@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   airsonic-advanced:
     image: lscr.io/linuxserver/airsonic-advanced:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   ldap-auth:
     image: lscr.io/linuxserver/ldap-auth:latest

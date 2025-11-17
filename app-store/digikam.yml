@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   digikam:
     image: lscr.io/linuxserver/digikam:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   kasm:
     image: lscr.io/linuxserver/kasm:latest

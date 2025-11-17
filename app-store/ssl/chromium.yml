@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   chromium:
     image: lscr.io/linuxserver/chromium:latest

@@ -1,4 +1,4 @@
-version: "3"
+---
 services:
   lychee:
     image: lscr.io/linuxserver/lychee:latest

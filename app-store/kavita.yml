@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   kavita:
     image: lscr.io/linuxserver/kavita:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   mylar3:
     image: lscr.io/linuxserver/mylar3:latest

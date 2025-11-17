@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   kimai:
     image: lscr.io/linuxserver/kimai:latest

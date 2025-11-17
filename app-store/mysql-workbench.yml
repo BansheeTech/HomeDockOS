@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   mysql-workbench:
     image: lscr.io/linuxserver/mysql-workbench:latest

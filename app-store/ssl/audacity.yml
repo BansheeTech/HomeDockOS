@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   audacity:
     image: lscr.io/linuxserver/audacity:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   qdirstat:
     image: lscr.io/linuxserver/qdirstat:latest

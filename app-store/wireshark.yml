@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   wireshark:
     image: lscr.io/linuxserver/wireshark:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   resilio-sync:
     image: lscr.io/linuxserver/resilio-sync:latest

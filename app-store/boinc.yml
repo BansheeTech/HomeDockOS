@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   boinc:
     image: lscr.io/linuxserver/boinc:latest

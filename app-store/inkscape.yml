@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   inkscape:
     image: lscr.io/linuxserver/inkscape:latest

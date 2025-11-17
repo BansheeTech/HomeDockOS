@@ -1,0 +1,19 @@
+---
+services:
+  retroarch:
+    image: lscr.io/linuxserver/retroarch:latest
+    container_name: retroarch
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=[[HD_USER_NAME]]
+      - PASSWORD=[[HD_PASSWORD]]
+      - SELKIES_UI_TITLE="RetroArch"
+      - SELKIES_UI_SHOW_LOGO=false
+    volumes:
+      - [[INSTALL_PATH]]/retroarch:/config
+    ports:
+      - 30300:3000
+    shm_size: "1gb"
+    restart: unless-stopped

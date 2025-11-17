@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   tautulli:
     image: lscr.io/linuxserver/tautulli:latest

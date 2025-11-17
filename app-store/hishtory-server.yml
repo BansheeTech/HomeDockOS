@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   hishtory-server:
     image: lscr.io/linuxserver/hishtory-server:latest

@@ -1,6 +1,23 @@
 # CHANGELOG
 
-- **2.0.3.110** (Latest): Redesigned Control Hub with comprehensive system monitoring and enhanced user experience.
+- **2.0.3.142** (Latest): Major improvements to application installation workflow with enhanced configuration UI and streamlined Docker Compose handling.
+
+  - Completely **redesigned App Installation interface** with an intuitive grid-based layout for configuring ports, volumes, environment variables, network settings, and capabilities before installation.
+  - Added **port validation system** that checks for conflicts before installation, showing which application is using a conflicting port with clear error messages, you will not be able to deploy NGINX on port 80 if HomeDock OS or any other app from the App Store is running on that same port.
+  - Implemented **network configuration selector** allowing users to choose between Host, Bridge, HomeDock OS Network, None, or custom network modes with proper handling of host networking and group-aware configuration for multi-service apps. `Default is now HomeDock OS Network`, it's like Bridge, but better just because of the name, lol.
+  - Introduced **environment variable editor** and **capabilities management** enabling users to configure container environment, capabilities (CAP_ADD), and privileged mode directly from the installation dialog.
+  - Enhanced **notification system** replacing Ant Design message components with custom themed notifications that properly integrate with all three themes (Default, Noir, Aero+).
+  - Enhanced **network cleanup on uninstall** to properly remove custom networks while preserving system networks (bridge, host, none, homedock_network).
+  - Removed **deprecated version field** from all Docker Compose application files (209 apps updated), following Docker Compose v2+ best practices for improved compatibility (thanks @Labarta for the hint!).
+  - Added **SSL certificate inheritance support for Immich**, enabling secure HTTPS connections with automatic certificate mounting from `/DATA/SSLCerts`.
+  - Introduced **Brave Browser** and **RetroArch** to the App Store with full SSL support configurations.
+  - Removed **deprecated applications** from the App Store that are no longer maintained by LinuxServer: Dillinger, Domoticz, EmbyStat, EmulatorJS, Endlessh, FreeТube, Headphones, Minetest, Netbootxyz, Readarr, SickChill, and Snipe-IT.
+  - Improved **input validation robustness** in container name handling to prevent TypeError exceptions when invalid or missing parameters are provided, ensuring proper 400 Bad Request responses instead of 500 Internal Server Errors.
+  - Enhanced **regex validation pattern** to block trailing newlines in container names using `\Z` anchor instead of `$`, improving input sanitization and preventing edge case validation bypasses.
+
+---
+
+- **2.0.3.110**: Redesigned Control Hub with comprehensive system monitoring and enhanced user experience.
 
   - Completely **redesigned Control Hub interface** with a modern card-based layout displaying real-time system information at a glance.
   - Added **CPU usage monitoring** showing current processor utilization with visual percentage indicators.
@@ -16,8 +33,6 @@
   - Refactored **component structure** to support future additions and extensibility for new system monitoring features.
   - The Control Hub is now **ready for new implementations** and additional system management capabilities.
   - Added back RobiPet!
-
----
 
 - **2.0.3.108**: Enhanced AppPackager security with file type validation preventing malicious file uploads.
 

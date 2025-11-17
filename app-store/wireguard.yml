@@ -1,5 +1,4 @@
 ---
-version: "3.3"
 services:
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest

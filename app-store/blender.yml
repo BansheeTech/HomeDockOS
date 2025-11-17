@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   blender:
     image: lscr.io/linuxserver/blender:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   snapdrop:
     image: lscr.io/linuxserver/snapdrop:latest

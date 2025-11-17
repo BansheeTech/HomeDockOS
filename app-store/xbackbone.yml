@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   xbackbone:
     image: lscr.io/linuxserver/xbackbone:latest

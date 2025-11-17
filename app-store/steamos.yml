@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   steamos:
     image: lscr.io/linuxserver/steamos:latest

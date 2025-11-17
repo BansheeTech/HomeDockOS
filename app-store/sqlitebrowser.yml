@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   sqlitebrowser:
     image: lscr.io/linuxserver/sqlitebrowser:latest

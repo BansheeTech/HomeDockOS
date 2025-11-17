@@ -18,6 +18,10 @@ from pymodules.hd_FunctionsGlobals import current_directory
 def get_compose_info():
 
     containerName = request.args.get("containerName")
+
+    if not containerName or not isinstance(containerName, str):
+        return jsonify({"success": False, "message": "Invalid container name"}), 400
+
     path_to_yml_files = os.path.join(current_directory, "compose-link")
     yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
 
@@ -70,6 +74,13 @@ def get_compose_info():
 def update_yml_config():
     containerName = request.json.get("containerName")
     ymlContent = request.json.get("ymlContent")
+
+    if not containerName or not isinstance(containerName, str):
+        return jsonify({"success": False, "message": "Invalid container name"}), 400
+
+    if not ymlContent:
+        return jsonify({"success": False, "message": "Missing YML content"}), 400
+
     path_to_yml_files = os.path.join(current_directory, "compose-link")
     yml_file_path = os.path.join(path_to_yml_files, f"{containerName}.yml")
 

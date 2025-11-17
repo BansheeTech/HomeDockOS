@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   openssh-server:
     image: lscr.io/linuxserver/openssh-server:latest

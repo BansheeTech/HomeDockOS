@@ -1,5 +1,4 @@
 ---
-version: "3.8"
 services:
   minecraft-server:
     container_name: minecraft-server

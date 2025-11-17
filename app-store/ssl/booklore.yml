@@ -1,7 +1,4 @@
 ---
-version: '3.9'
-services:
-version: '3.9'
 services:
   booklore:
     container_name: booklore

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   openvscode-server:
     image: lscr.io/linuxserver/openvscode-server:latest

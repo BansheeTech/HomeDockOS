@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   pydio-cells:
     image: lscr.io/linuxserver/pydio-cells:latest

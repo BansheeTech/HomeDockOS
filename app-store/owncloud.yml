@@ -1,5 +1,4 @@
-version: "3"
-
+---
 services:
   owncloud:
     image: owncloud/server:latest

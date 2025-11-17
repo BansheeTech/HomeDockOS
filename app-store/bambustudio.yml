@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   bambustudio:
     image: lscr.io/linuxserver/bambustudio:latest

@@ -1,5 +1,4 @@
 ---
-version: "3"
 services:
     wordpress:
         image: wordpress:latest

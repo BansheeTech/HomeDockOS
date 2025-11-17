@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   kicad:
     image: lscr.io/linuxserver/kicad:latest

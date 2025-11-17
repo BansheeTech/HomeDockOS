@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   wps-office:
     image: lscr.io/linuxserver/wps-office:latest

@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   pylon:
     image: lscr.io/linuxserver/pylon:latest

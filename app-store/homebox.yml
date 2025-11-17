@@ -1,5 +1,4 @@
 ---
-version: "3.4"
 services:
   homebox:
     container_name: homebox

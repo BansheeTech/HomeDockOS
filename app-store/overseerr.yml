@@ -1,5 +1,4 @@
 ---
-version: "2.1"
 services:
   overseerr:
     image: lscr.io/linuxserver/overseerr:latest

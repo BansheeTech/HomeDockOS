@@ -107,16 +107,19 @@
           </div>
 
           <div class="mb-6">
-            <div v-if="app?.dependencies && app.dependencies.length >= 1" :class="[themeClasses.storeAboutTextDepsScope]" class="text-xs inline-flex items-center px-2.5 py-1.5 rounded-md">
-              <Icon :icon="cubeIcon" class="h-3 w-3 mr-1.5" />
-              <span>{{ app?.dependencies.concat().join(", ") }}</span>
+            <div v-if="dependenciesText" :class="[themeClasses.storeAboutTextDepsScope]" class="text-xs inline-flex items-start px-2.5 py-1.5 rounded-md">
+              <Icon :icon="cubeIcon" class="h-3 w-3 min-h-3 min-w-3 mt-[1px] mr-1.5" />
+              <span>{{ dependenciesText }}</span>
             </div>
           </div>
 
           <Transition name="fade-slide" mode="out-in">
             <div v-if="!isAdvancedMode" key="simple">
               <div v-if="userName !== undefined || userPassword !== undefined" class="mb-6">
-                <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider mb-3">Access Credentials</h3>
+                <div class="flex items-center gap-2 mb-3">
+                  <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Access Credentials</h3>
+                </div>
                 <div class="space-y-3">
                   <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" placeholder="Username" class="w-full" />
                   <InputPassword v-if="userPassword !== undefined" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" placeholder="Password" class="w-full" />
@@ -125,14 +128,23 @@
 
               <div class="mb-6">
                 <div class="flex items-center justify-between mb-3">
-                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Port Mappings</h3>
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="portIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Port Mappings</h3>
+                  </div>
                   <Button :disabled="app?.is_installed" type="link" @click="addPort" size="small"> + Add </Button>
                 </div>
-                <div class="space-y-2">
-                  <div v-for="(port, index) in ports" :key="'port-' + index" class="flex items-center gap-2">
-                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="ports[index]" placeholder="8080:80" class="flex-1" />
-                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="dashed" @click="removePort(index)">
-                      <Icon :icon="deleteIcon" />
+                <div v-if="portMappings.length > 0" class="space-y-2">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Host</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Container</span>
+                    <span class="w-8"></span>
+                  </div>
+                  <div v-for="(port, index) in portMappings" :key="'port-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].host" placeholder="8080" />
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].container" placeholder="80" />
+                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removePort(index)">
+                      <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -140,18 +152,68 @@
 
               <div class="mb-6">
                 <div class="flex items-center justify-between mb-3">
-                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Volume Mounts</h3>
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="folderIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Volume Mounts</h3>
+                  </div>
                   <Button :disabled="app?.is_installed" type="link" @click="addVolume" size="small"> + Add </Button>
                 </div>
-                <div class="space-y-2">
-                  <div v-for="(volume, index) in volumes" :key="'volume-' + index" class="flex items-center gap-2">
-                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumes[index]" placeholder="/host:/container" class="flex-1">
-                      <template #prefix v-if="volume.includes('/DATA/SSLCerts')">
+                <div v-if="volumeMappings.length > 0" class="space-y-2">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Host Path</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Container Path</span>
+                    <span class="w-8"></span>
+                  </div>
+                  <div v-for="(volume, index) in volumeMappings" :key="'volume-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].host" placeholder="/host/path">
+                      <template #prefix v-if="volume.host.includes('/DATA/SSLCerts')">
                         <Icon :icon="lockIcon" :class="[themeClasses.installConfigSSLVolumeIcon]" class="h-3.5 w-3.5 -translate-x-0.5" />
                       </template>
                     </Input>
-                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="dashed" @click="removeVolume(index)">
-                      <Icon :icon="deleteIcon" />
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].container" placeholder="/container/path" />
+                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removeVolume(index)">
+                      <Icon :icon="deleteIcon" class="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <Icon :icon="networkIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Network</h3>
+                </div>
+                <div v-if="networkMappings.length > 0" class="flex items-center gap-2">
+                  <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="networkMappings[0].type" class="w-full" @change="handleNetworkTypeChange(0)">
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="host">Host</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="bridge">Bridge</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="homedock_network">HomeDock OS Network</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="none">None</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="other">Other</SelectOption>
+                  </Select>
+                </div>
+                <Input v-if="networkMappings.length > 0 && networkMappings[0].type === 'other'" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="networkMappings[0].customName" placeholder="custom-network-name" class="w-full mt-2" />
+              </div>
+
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="envIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Environment Variables</h3>
+                  </div>
+                  <Button :disabled="app?.is_installed" type="link" @click="addEnvVar" size="small"> + Add </Button>
+                </div>
+                <div v-if="envVars.length > 0" class="space-y-2">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Key</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Value</span>
+                    <span class="w-8"></span>
+                  </div>
+                  <div v-for="(envVar, index) in envVars" :key="'env-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].key" placeholder="VARIABLE_NAME" />
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].value" placeholder="value" />
+                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removeEnvVar(index)">
+                      <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -164,6 +226,49 @@
                   <SelectOption :class="[themeClasses.scopeSelector]" value="unless-stopped">Unless Stopped</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="no">No</SelectOption>
                 </Select>
+              </div>
+
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <Icon :icon="capabilityIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Capabilities</h3>
+                </div>
+                <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="capabilities" mode="multiple" placeholder="Select capabilities" class="w-full">
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="NET_ADMIN">NET_ADMIN (Network administration)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="NET_RAW">NET_RAW (Raw sockets)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_ADMIN">SYS_ADMIN (System administration)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_MODULE">SYS_MODULE (Load kernel modules)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_PTRACE">SYS_PTRACE (Trace processes)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="IPC_LOCK">IPC_LOCK (Lock memory)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_TIME">SYS_TIME (Modify system time)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_NICE">SYS_NICE (Modify process priorities)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="DAC_OVERRIDE">DAC_OVERRIDE (Bypass file permissions)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="CHOWN">CHOWN (Change file ownership)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="FOWNER">FOWNER (Bypass permission checks)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SETUID">SETUID (Manipulate process UIDs)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SETGID">SETGID (Manipulate process GIDs)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="NET_BIND_SERVICE">NET_BIND_SERVICE (Bind ports &lt; 1024)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_RESOURCE">SYS_RESOURCE (Override resource limits)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="MKNOD">MKNOD (Create special files)</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="AUDIT_WRITE">AUDIT_WRITE (Write to audit log)</SelectOption>
+                </Select>
+              </div>
+
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <Icon :icon="privilegedIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
+                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Privileged Mode</h3>
+                  </div>
+                </div>
+                <Switch :disabled="app?.is_installed" :checked="privilegedMode" @change="handlePrivilegedModeChange">
+                  <template #checkedChildren>
+                    <span>On</span>
+                  </template>
+                  <template #unCheckedChildren>
+                    <span>Off</span>
+                  </template>
+                </Switch>
               </div>
             </div>
 
@@ -235,6 +340,28 @@
         <img v-if="screenshots[currentScreenshotModal]" :src="screenshots[currentScreenshotModal]" :alt="`${app?.name} screenshot ${currentScreenshotModal + 1}`" class="max-w-full max-h-[70vh] mx-auto rounded-lg object-contain" />
       </div>
     </AppDialog>
+
+    <AppDialog v-model:visible="showPrivilegedWarning" type="warning" title="Privileged Mode Warning" ok-text="I Understand, Enable" cancel-text="Cancel" @ok="handlePrivilegedWarningConfirm" @cancel="handlePrivilegedWarningCancel" :icon="alertIcon" :width="480" :reverse-buttons="true">
+      <div class="space-y-3">
+        <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">Enabling <strong>Privileged Mode</strong> grants the container <strong>unrestricted access</strong> to all host system resources and devices. This removes all security isolation provided by Docker.</p>
+
+        <div :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-lg p-3.5 space-y-2.5">
+          <p class="text-sm font-bold flex items-center gap-2">
+            <Icon :icon="privilegedIcon" class="w-5 h-5" />
+            <span>Security Risks</span>
+          </p>
+          <p class="text-xs leading-relaxed">With Privileged Mode enabled, the container can:</p>
+          <ul class="text-xs space-y-1.5 ml-4 list-disc">
+            <li>Access <strong>all host devices</strong> and hardware</li>
+            <li>Modify <strong>kernel parameters</strong> and load modules</li>
+            <li>Potentially <strong>compromise the entire host</strong> system</li>
+            <li>Bypass <strong>all container security</strong> mechanisms</li>
+          </ul>
+        </div>
+
+        <p :class="[themeClasses.notTextDown]" class="text-xs leading-relaxed font-semibold">Only enable if absolutely necessary and you trust this application completely.</p>
+      </div>
+    </AppDialog>
   </div>
 </template>
 
@@ -250,6 +377,8 @@ import { App } from "../__Types__/AppStoreApp";
 
 import { Button, Select, SelectOption, Input, InputPassword, Switch } from "ant-design-vue";
 
+import { notifyError, notifyWarning } from "../__Components__/Notifications.vue";
+
 import { Icon } from "@iconify/vue";
 import downloadIcon from "@iconify-icons/mdi/download";
 import checkBoldIcon from "@iconify-icons/mdi/check-bold";
@@ -263,6 +392,13 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import lockIcon from "@iconify-icons/mdi/lock";
 import packageIcon from "@iconify-icons/mdi/package-variant-closed";
 import alertIcon from "@iconify-icons/mdi/alert-circle";
+import portIcon from "@iconify-icons/mdi/ethernet";
+import folderIcon from "@iconify-icons/mdi/folder-open";
+import networkIcon from "@iconify-icons/mdi/lan";
+import envIcon from "@iconify-icons/mdi/code-braces";
+import capabilityIcon from "@iconify-icons/mdi/shield-check";
+import privilegedIcon from "@iconify-icons/mdi/shield-crown";
+import accountKeyIcon from "@iconify-icons/mdi/account-key";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
@@ -286,9 +422,53 @@ const app = computed(() => {
   return updatedApp || props.app;
 });
 
+const dependenciesText = computed(() => {
+  if (!app.value?.dependencies || app.value.dependencies.length === 0) {
+    return "";
+  }
+
+  const deps = app.value.dependencies;
+
+  if (deps.length === 1) {
+    return `This application will also install ${deps[0]}`;
+  } else if (deps.length === 2) {
+    return `This application will also install ${deps[0]} and ${deps[1]}`;
+  } else if (deps.length === 3) {
+    return `This application will also install ${deps[0]}, ${deps[1]} and ${deps[2]}`;
+  } else {
+    const first3 = deps.slice(0, 3).join(", ");
+    const remaining = deps.length - 3;
+    return `This application will also install ${first3} and ${remaining} more`;
+  }
+});
+
+interface PortMapping {
+  host: string;
+  container: string;
+}
+
+interface VolumeMapping {
+  host: string;
+  container: string;
+}
+
+interface EnvVar {
+  key: string;
+  value: string;
+}
+
+interface NetworkMapping {
+  type: string;
+  customName: string;
+}
+
 const isAdvancedMode = ref(false);
-const ports = ref<string[]>([]);
-const volumes = ref<string[]>([]);
+const portMappings = ref<PortMapping[]>([]);
+const volumeMappings = ref<VolumeMapping[]>([]);
+const networkMappings = ref<NetworkMapping[]>([]);
+const envVars = ref<EnvVar[]>([]);
+const capabilities = ref<string[]>([]);
+const privilegedMode = ref(false);
 const restartPolicy = ref("unless-stopped");
 const advancedCompose = ref("");
 const userName = ref<string | undefined>(undefined);
@@ -297,6 +477,8 @@ const sslEnabled = ref(false);
 const hasLoadedConfig = ref(false);
 const showExternalWarning = ref(false);
 const pendingInstall = ref(false);
+const showPrivilegedWarning = ref(false);
+const pendingPrivilegedChange = ref(false);
 const screenshots = ref<string[]>([]);
 const showScreenshotModal = ref(false);
 const currentScreenshotModal = ref(0);
@@ -308,6 +490,22 @@ const clickThreshold = ref(5);
 const hasDragged = ref(false);
 
 const csrfToken = useCsrfToken();
+
+function parsePortString(portStr: string): PortMapping {
+  const parts = portStr.split(":");
+  if (parts.length === 2) {
+    return { host: parts[0].trim(), container: parts[1].trim() };
+  }
+  return { host: "", container: "" };
+}
+
+function parseVolumeString(volumeStr: string): VolumeMapping {
+  const parts = volumeStr.split(":");
+  if (parts.length >= 2) {
+    return { host: parts[0].trim(), container: parts.slice(1).join(":").trim() };
+  }
+  return { host: "", container: "" };
+}
 
 async function fetchAppInfo() {
   if (!app.value?.name || hasLoadedConfig.value) return;
@@ -321,8 +519,37 @@ async function fetchAppInfo() {
     });
 
     if (response.data?.success) {
-      ports.value = response.data.data.ports || [];
-      volumes.value = response.data.data.volumes || [];
+      const ports = response.data.data.ports || [];
+      const volumes = response.data.data.volumes || [];
+      const environment = response.data.data.environment || {};
+      const networksData = response.data.data.networks || [];
+      const capabilitiesData = response.data.data.capabilities || [];
+      const privilegedData = response.data.data.privileged || false;
+
+      portMappings.value = ports.map((p: string) => parsePortString(p));
+      volumeMappings.value = volumes.map((v: string) => parseVolumeString(v));
+
+      const networkList = Array.isArray(networksData) ? networksData : [];
+      if (networkList.length === 0) {
+        networkMappings.value = [{ type: "homedock_network", customName: "" }];
+      } else {
+        networkMappings.value = networkList.map((net: string) => {
+          if (["host", "bridge", "homedock_network", "none"].includes(net)) {
+            return { type: net, customName: "" };
+          } else {
+            return { type: "other", customName: net };
+          }
+        });
+      }
+
+      envVars.value = Object.entries(environment).map(([key, value]) => ({
+        key,
+        value: String(value),
+      }));
+
+      capabilities.value = Array.isArray(capabilitiesData) ? capabilitiesData : [];
+      privilegedMode.value = Boolean(privilegedData);
+
       advancedCompose.value = response.data.data.ymlContent || "";
       restartPolicy.value = "unless-stopped";
       userName.value = response.data.data.user_name || undefined;
@@ -339,23 +566,67 @@ async function fetchAppInfo() {
 }
 
 function addPort() {
-  ports.value.push("");
+  portMappings.value.push({ host: "", container: "" });
 }
 
 function removePort(index: number) {
-  ports.value.splice(index, 1);
+  portMappings.value.splice(index, 1);
 }
 
 function addVolume() {
-  volumes.value.push("");
+  volumeMappings.value.push({ host: "", container: "" });
 }
 
 function removeVolume(index: number) {
-  volumes.value.splice(index, 1);
+  volumeMappings.value.splice(index, 1);
+}
+
+function handleNetworkTypeChange(index: number) {
+  if (networkMappings.value[index].type !== "other") {
+    networkMappings.value[index].customName = "";
+  }
+}
+
+function addEnvVar() {
+  envVars.value.push({ key: "", value: "" });
+}
+
+function removeEnvVar(index: number) {
+  envVars.value.splice(index, 1);
 }
 
 function handleAdvancedModeToggle(checked: unknown, _e: Event) {
   isAdvancedMode.value = Boolean(checked);
+}
+
+function convertPortMappingsToStrings(): string[] {
+  return portMappings.value.map((pm) => `${pm.host}:${pm.container}`).filter((p) => p !== ":");
+}
+
+function convertVolumeMappingsToStrings(): string[] {
+  return volumeMappings.value.map((vm) => `${vm.host}:${vm.container}`).filter((v) => v !== ":");
+}
+
+function convertEnvVarsToObject(): Record<string, string> {
+  const envObj: Record<string, string> = {};
+  envVars.value.forEach((env) => {
+    if (env.key && env.value) {
+      envObj[env.key] = env.value;
+    }
+  });
+  return envObj;
+}
+
+function convertNetworkMappingsToArray(): string[] {
+  return networkMappings.value
+    .map((nm) => {
+      if (nm.type === "other") {
+        return nm.customName.trim();
+      } else {
+        return nm.type;
+      }
+    })
+    .filter((n) => n !== "");
 }
 
 async function handleInstall() {
@@ -381,18 +652,35 @@ async function handleInstall() {
           configType: "simple",
           userName: userName.value,
           userPassword: userPassword.value,
-          ports: ports.value,
-          volumes: volumes.value,
+          ports: convertPortMappingsToStrings(),
+          volumes: convertVolumeMappingsToStrings(),
+          networks: convertNetworkMappingsToArray(),
+          environment: convertEnvVarsToObject(),
+          capabilities: capabilities.value,
+          privileged: privilegedMode.value,
           restartPolicy: restartPolicy.value,
           homedock_csrf_token: currentToken,
         };
 
-    const response = await axios.post("/api/process-config", configData, {
-      headers: { "X-HomeDock-CSRF-Token": currentToken },
-    });
+    try {
+      const response = await axios.post("/api/process-config", configData, {
+        headers: { "X-HomeDock-CSRF-Token": currentToken },
+      });
 
-    if (!response.data.success) {
-      console.error(`Failed to process configuration: ${response.data.message}`);
+      if (!response.data.success) {
+        console.error(`Failed to process configuration: ${response.data.message}`);
+        notifyWarning(response.data.message || "Failed to process configuration", themeClasses.value.scopeSelector, 10);
+        return;
+      }
+    } catch (configError: any) {
+      if (configError.response?.status === 400 && configError.response?.data?.message) {
+        notifyWarning(configError.response.data.message, themeClasses.value.scopeSelector, 10);
+      } else if (configError.response) {
+        notifyError(configError, themeClasses.value.scopeSelector);
+      } else {
+        notifyWarning("Failed to process configuration", themeClasses.value.scopeSelector);
+      }
+
       return;
     }
 
@@ -402,8 +690,13 @@ async function handleInstall() {
       containerName: app.value.name,
       homedock_csrf_token: currentToken,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error during installation process:", error);
+    if (error.response) {
+      notifyError(error, themeClasses.value.scopeSelector);
+    } else {
+      notifyWarning("An unexpected error occurred during installation", themeClasses.value.scopeSelector);
+    }
   }
 }
 
@@ -416,6 +709,28 @@ function handleExternalWarningOk() {
 function handleExternalWarningCancel() {
   showExternalWarning.value = false;
   pendingInstall.value = false;
+}
+
+function handlePrivilegedModeChange(checked: boolean | string | number, e: Event) {
+  const isChecked = Boolean(checked);
+  if (isChecked && !privilegedMode.value) {
+    pendingPrivilegedChange.value = true;
+    showPrivilegedWarning.value = true;
+  } else {
+    privilegedMode.value = isChecked;
+  }
+}
+
+function handlePrivilegedWarningConfirm() {
+  showPrivilegedWarning.value = false;
+  privilegedMode.value = true;
+  pendingPrivilegedChange.value = false;
+}
+
+function handlePrivilegedWarningCancel() {
+  showPrivilegedWarning.value = false;
+  privilegedMode.value = false;
+  pendingPrivilegedChange.value = false;
 }
 
 function loadScreenshots() {
