@@ -1,6 +1,16 @@
 # CHANGELOG
 
-- **2.0.3.142** (Latest): Major improvements to application installation workflow with enhanced configuration UI and streamlined Docker Compose handling.
+- **2.0.3.144** (Latest): Updated npm dependencies to their latest versions for improved security and performance.
+
+  - Updated **Vite** from 7.2.1 to 7.2.4 for enhanced build performance and bug fixes.
+  - Updated **Vue** from 3.5.23 to 3.5.24 with latest framework improvements.
+  - Updated **@types/node** from 24.10.0 to 24.10.1 for improved TypeScript definitions.
+  - Updated **Autoprefixer** from 10.4.20 to 10.4.22 for better CSS vendor prefix handling.
+  - Resolved **CVE-2025-64756** (glob) by updating Tailwind CSS to 3.4.18 (opened 12 hours ago), which removed the vulnerable `glob` package and migrated to `fast-glob` instead. The project no longer includes the affected dependency.
+
+---
+
+- **2.0.3.142**: Major improvements to application installation workflow with enhanced configuration UI and streamlined Docker Compose handling.
 
   - Completely **redesigned App Installation interface** with an intuitive grid-based layout for configuring ports, volumes, environment variables, network settings, and capabilities before installation.
   - Added **port validation system** that checks for conflicts before installation, showing which application is using a conflicting port with clear error messages, you will not be able to deploy NGINX on port 80 if HomeDock OS or any other app from the App Store is running on that same port.
@@ -14,8 +24,6 @@
   - Removed **deprecated applications** from the App Store that are no longer maintained by LinuxServer: Dillinger, Domoticz, EmbyStat, EmulatorJS, Endlessh, FreeТube, Headphones, Minetest, Netbootxyz, Readarr, SickChill, and Snipe-IT.
   - Improved **input validation robustness** in container name handling to prevent TypeError exceptions when invalid or missing parameters are provided, ensuring proper 400 Bad Request responses instead of 500 Internal Server Errors.
   - Enhanced **regex validation pattern** to block trailing newlines in container names using `\Z` anchor instead of `$`, improving input sanitization and preventing edge case validation bypasses.
-
----
 
 - **2.0.3.110**: Redesigned Control Hub with comprehensive system monitoring and enhanced user experience.
 
