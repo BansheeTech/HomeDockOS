@@ -2,7 +2,7 @@
 services:
   booklore:
     container_name: booklore
-    image: ghcr.io/adityachandelgit/booklore-app:latest
+    image: ghcr.io/booklore-app/booklore:latest
     environment:
       - PUID=1000
       - PGID=1000
@@ -27,18 +27,27 @@ services:
     restart: unless-stopped
     entrypoint: |
       sh -c '
+      echo ""
       echo "─────────────────────────────────────────────────────────────"
       echo ""
-      echo "   Running official image from ghcr.io/adityachandelgit/booklore-app"
-      echo "   Visit: https://github.com/booklore-app/BookLore"
+      echo "   Running official image from ghcr.io/booklore-app/booklore"
+      echo "   Visit: https://github.com/booklore-app/booklore"
       echo ""
       echo "   Modified at runtime for SSL support by HomeDock OS team"
       echo "   Visit too: https://www.homedock.cloud/"
       echo ""
       echo "─────────────────────────────────────────────────────────────"
-      sed -i "s/listen 6060;/listen 6060 ssl;/" /etc/nginx/nginx.conf
-      sed -i "/listen 6060 ssl;/a\\        ssl_certificate \/cert.pem;\\n        ssl_certificate_key \/privkey.pem;" /etc/nginx/nginx.conf
-      exec /__cacert_entrypoint.sh /bin/sh -c "/usr/sbin/nginx -g \"daemon off;\" & java -jar /app/app.jar"
+      echo ""
+      : "$${BOOKLORE_PORT:=6060}"
+      export BOOKLORE_PORT
+      TMP_CONF="/tmp/nginx.conf.tmp"
+      envsubst '"'"'$${BOOKLORE_PORT}'"'"' < /etc/nginx/nginx.conf > "$$TMP_CONF"
+      mv "$$TMP_CONF" /etc/nginx/nginx.conf
+      sed -i "s#listen 6060;#listen 6060 ssl;#" /etc/nginx/nginx.conf
+      sed -i "s#listen \[::\]:6060;#listen [::]:6060 ssl;#" /etc/nginx/nginx.conf
+      sed -i "/listen \[::\]:6060 ssl;/a\        ssl_certificate /cert.pem;\n        ssl_certificate_key /privkey.pem;" /etc/nginx/nginx.conf
+      nginx -g '"'"'daemon off;'"'"' &
+      exec /__cacert_entrypoint.sh su-exec $${USER_ID:-0}:$${GROUP_ID:-0} java -jar /app/app.jar
       '
             
   booklore_mariadb:

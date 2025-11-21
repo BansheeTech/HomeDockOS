@@ -1,14 +1,20 @@
 # CHANGELOG
 
-- **2.0.3.144** (Latest): Updated npm dependencies to their latest versions for improved security and performance.
+- **2.0.3.146** (Latest): Updated Booklore to the latest version with corrected Docker image path.
+
+  - Updated **Booklore** (both SSL injection support and non-SSL for self-hosted) to the latest version following the official Docker image path change by the developers.
+  - Fixed Docker Compose configuration to use the correct image repository after upstream changes.
+  - Thanks to **@cringe0287** for reporting the issue!
+
+---
+
+- **2.0.3.144**: Updated npm dependencies to their latest versions for improved security and performance.
 
   - Updated **Vite** from 7.2.1 to 7.2.4 for enhanced build performance and bug fixes.
   - Updated **Vue** from 3.5.23 to 3.5.24 with latest framework improvements.
   - Updated **@types/node** from 24.10.0 to 24.10.1 for improved TypeScript definitions.
   - Updated **Autoprefixer** from 10.4.20 to 10.4.22 for better CSS vendor prefix handling.
   - Resolved **CVE-2025-64756** (glob) by updating Tailwind CSS to 3.4.18 (opened 12 hours ago), which removed the vulnerable `glob` package and migrated to `fast-glob` instead. The project no longer includes the affected dependency.
-
----
 
 - **2.0.3.142**: Major improvements to application installation workflow with enhanced configuration UI and streamlined Docker Compose handling.
 

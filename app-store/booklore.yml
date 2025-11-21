@@ -2,7 +2,7 @@
 services:
   booklore:
     container_name: booklore
-    image: ghcr.io/adityachandelgit/booklore-app:latest
+    image: ghcr.io/booklore-app/booklore:latest
     environment:
       - PUID=1000
       - PGID=1000
