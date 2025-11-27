@@ -1,12 +1,19 @@
 # CHANGELOG
 
-- **2.0.3.146** (Latest): Updated Booklore to the latest version with corrected Docker image path.
+- **2.0.3.148** (Latest): Security update for node-forge dependency fixing 3 critical CVEs.
+
+  - Updated **node-forge** from 1.3.1 to 1.3.2 (CVEs opened 6 hours ago) to address critical ASN.1 vulnerabilities.
+  - Fixed **CVE-2025-12816** (High): ASN.1 Validator Desynchronization vulnerability that could bypass cryptographic verifications.
+  - Fixed **CVE-2025-66031** (High): ASN.1 Unbounded Recursion vulnerability enabling DoS via stack exhaustion.
+  - Fixed **CVE-2025-66030** (Moderate): ASN.1 OID Integer Truncation vulnerability allowing OID spoofing.
+
+---
+
+- **2.0.3.146**: Updated Booklore to the latest version with corrected Docker image path.
 
   - Updated **Booklore** (both SSL injection support and non-SSL for self-hosted) to the latest version following the official Docker image path change by the developers.
   - Fixed Docker Compose configuration to use the correct image repository after upstream changes.
   - Thanks to **@cringe0287** for reporting the issue!
-
----
 
 - **2.0.3.144**: Updated npm dependencies to their latest versions for improved security and performance.
 
