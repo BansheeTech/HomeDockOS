@@ -21,5 +21,7 @@ node_modules/
 .DS_Store
 .is_updating
 .is_desktop
+.is_enterprise
 *.backup_*
 *.hds
+

@@ -51,16 +51,24 @@ def check_port_availability(port):
     return False
 
 
-def sort_ports_by_availability(ports_list):
-    available_ports = []
-    unavailable_ports = []
+def sort_ports_by_availability(ports_list, max_retries=3, retry_delay=5):
+    for attempt in range(max_retries):
+        available_ports = []
+        unavailable_ports = []
 
-    for port in ports_list:
-        if check_port_availability(port):
-            available_ports.append(port)
-            print(f" + THREAD: Port {port} is ACTIVE and responding")
-        else:
-            unavailable_ports.append(port)
+        for port in ports_list:
+            if check_port_availability(port):
+                available_ports.append(port)
+                print(f" + THREAD: Port {port} is ACTIVE and responding")
+            else:
+                unavailable_ports.append(port)
+
+        if available_ports:
+            return available_ports + unavailable_ports
+
+        if attempt < max_retries - 1:
+            print(f" + THREAD: No active ports found, retrying in {retry_delay}s... (attempt {attempt + 1}/{max_retries})")
+            time.sleep(retry_delay)
 
     return available_ports + unavailable_ports
 

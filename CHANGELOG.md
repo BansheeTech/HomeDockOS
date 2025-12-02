@@ -1,13 +1,20 @@
 # CHANGELOG
 
-- **2.0.3.148** (Latest): Security update for node-forge dependency fixing 3 critical CVEs.
+- **2.0.3.162** (Latest): Security update and dependency upgrades.
+
+  - Updated **Werkzeug** from 3.1.3 to 3.1.4 to address **CVE-2025-66221**. (Opened 14 hours ago).
+  - Updated **Vite** from 7.2.4 to 7.2.6 with latest build improvements.
+  - Updated **Vue** from 3.5.24 to 3.5.25 with framework enhancements.
+  - Enhanced **auto port routing** with retry mechanism for port availability detection. The system now retries up to 3 times with 5-second delays when no active ports are found, improving reliability for containers that take longer to initialize their services.
+
+---
+
+- **2.0.3.148**: Security update for node-forge dependency fixing 3 critical CVEs.
 
   - Updated **node-forge** from 1.3.1 to 1.3.2 (CVEs opened 6 hours ago) to address critical ASN.1 vulnerabilities.
   - Fixed **CVE-2025-12816** (High): ASN.1 Validator Desynchronization vulnerability that could bypass cryptographic verifications.
   - Fixed **CVE-2025-66031** (High): ASN.1 Unbounded Recursion vulnerability enabling DoS via stack exhaustion.
   - Fixed **CVE-2025-66030** (Moderate): ASN.1 OID Integer Truncation vulnerability allowing OID spoofing.
-
----
 
 - **2.0.3.146**: Updated Booklore to the latest version with corrected Docker image path.
 
