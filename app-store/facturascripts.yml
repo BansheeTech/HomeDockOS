@@ -1,0 +1,69 @@
+---
+services:
+  facturascripts:
+    image: facturascripts/facturascripts:latest
+    container_name: facturascripts
+    depends_on:
+      - facturascripts_mariadb
+    environment:
+      - TZ=Etc/UTC
+      - FS_DB_HOST=facturascripts_mariadb
+      - FS_DB_PORT=3306
+      - FS_DB_NAME=facturascripts
+      - FS_DB_USER=[[HD_USER_NAME]]_FacturaScripts
+      - FS_DB_PASS=[[HD_SYSTEM_PASSWORD]]
+      - FS_ADMIN_USER=[[HD_USER_NAME]]
+      - FS_ADMIN_PASS=[[HD_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/facturascripts/facturascripts:/var/www/html
+    ports:
+      - 15080:80
+    labels:
+      HDGroup: "facturascripts"
+      HDRole: "main"
+    restart: unless-stopped
+    command:
+      - bash
+      - -c
+      - |
+        if [ ! -f /var/www/html/.htaccess ]; then
+          cp -r /usr/src/facturascripts/* /var/www/html/
+          chmod -R o+w /var/www/html
+        fi
+        apache2-foreground &
+        APACHE_PID=$$!
+        if [ ! -f /var/www/html/config.php ]; then
+          while ! php -r "new mysqli('$${FS_DB_HOST}', '$${FS_DB_USER}', '$${FS_DB_PASS}', '$${FS_DB_NAME}', $${FS_DB_PORT});" 2>/dev/null; do
+            sleep 2
+          done
+          curl -X POST "http://localhost/" \
+            -d "fs_db_type=mysql" \
+            -d "fs_db_host=$${FS_DB_HOST}" \
+            -d "fs_db_port=$${FS_DB_PORT}" \
+            -d "fs_db_name=$${FS_DB_NAME}" \
+            -d "fs_db_user=$${FS_DB_USER}" \
+            -d "fs_db_pass=$${FS_DB_PASS}" \
+            -d "fs_initial_user=$${FS_ADMIN_USER}" \
+            -d "fs_initial_pass=$${FS_ADMIN_PASS}" \
+            -d "fs_lang=en_EN" \
+            -d "fs_timezone=Europe/Madrid" \
+            -d "unattended=1"
+        fi
+        wait $$APACHE_PID
+
+  facturascripts_mariadb:
+    image: mariadb:latest
+    container_name: facturascripts_mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+      - MYSQL_DATABASE=facturascripts
+      - MYSQL_USER=[[HD_USER_NAME]]_FacturaScripts
+      - MYSQL_PASSWORD=[[HD_SYSTEM_PASSWORD]]
+    volumes:
+      - [[INSTALL_PATH]]/facturascripts/mariadb:/var/lib/mysql
+    ports:
+      - 15306:3306
+    labels:
+      HDGroup: "facturascripts"
+      HDRole: "dependency"
+    restart: unless-stopped

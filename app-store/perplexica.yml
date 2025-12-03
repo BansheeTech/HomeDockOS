@@ -1,0 +1,11 @@
+---
+services:
+  perplexica:
+    image: itzcrazykns1337/perplexica:latest
+    container_name: perplexica
+    volumes:
+      - [[INSTALL_PATH]]/perplexica/data:/home/perplexica/data
+      - [[INSTALL_PATH]]/perplexica/uploads:/home/perplexica/uploads
+    ports:
+      - 9118:3000
+    restart: unless-stopped

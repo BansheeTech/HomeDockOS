@@ -1,13 +1,18 @@
 # CHANGELOG
 
-- **2.0.3.162** (Latest): Security update and dependency upgrades.
+- **2.0.3.164** (Latest): New applications with SSL support and enhanced security configurations.
+
+  - Added **Perplexica** to the App Store with SSL support via runtime Node.js HTTPS proxy injection.
+  - Added **FacturaScripts** to the App Store with SSL support, unattended installation, and on-the-fly MariaDB credential injection.
+
+---
+
+- **2.0.3.162**: Security update and dependency upgrades.
 
   - Updated **Werkzeug** from 3.1.3 to 3.1.4 to address **CVE-2025-66221**. (Opened 14 hours ago).
   - Updated **Vite** from 7.2.4 to 7.2.6 with latest build improvements.
   - Updated **Vue** from 3.5.24 to 3.5.25 with framework enhancements.
   - Enhanced **auto port routing** with retry mechanism for port availability detection. The system now retries up to 3 times with 5-second delays when no active ports are found, improving reliability for containers that take longer to initialize their services.
-
----
 
 - **2.0.3.148**: Security update for node-forge dependency fixing 3 critical CVEs.
 

@@ -11,7 +11,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "2.0.3.162"
+version = "2.0.3.164"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()

@@ -414,8 +414,8 @@
     "type": "Web Browser",
     "icon": "mdi:cube-outline",
     "description": "Privacy first web browser that blocks ads and trackers, providing a faster and safer browsing experience",
-    "is_new": true,
-    "new_until": "2025-12-01",
+    "is_new": false,
+    "new_until": false,
     "display_name": "Brave Browser",
     "screenshot_count": 2
   },
@@ -702,6 +702,21 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Emby",
+    "screenshot_count": 3
+  },
+  {
+    "dependencies": ["facturascripts_mariadb"],
+    "docker_image": "facturascripts/facturascripts:latest",
+    "picture_path": "docker-icons/facturascripts.jpg",
+    "is_group": true,
+    "name": "facturascripts",
+    "category": "Files & Productivity",
+    "type": "Accounting Software",
+    "icon": "mdi:security",
+    "description": "Invoicing system designed to help small and medium-sized businesses manage their finances effectively",
+    "is_new": true,
+    "new_until": "2025-12-31",
+    "display_name": "FacturaScripts",
     "screenshot_count": 3
   },
   {
@@ -1651,6 +1666,21 @@
   },
   {
     "dependencies": [],
+    "docker_image": "itzcrazykns1337/perplexica:latest",
+    "picture_path": "docker-icons/perplexica.jpg",
+    "is_group": false,
+    "name": "perplexica",
+    "category": "AI",
+    "type": "AI Search Engine",
+    "icon": "mdi:share-variant",
+    "description": "AI-powered search engine that provides intelligent and relevant search results using advanced algorithms",
+    "is_new": true,
+    "new_until": "2025-12-31",
+    "display_name": "Perplexica",
+    "screenshot_count": 4
+  },
+  {
+    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/phpmyadmin:latest",
     "picture_path": "docker-icons/phpmyadmin.jpg",
     "is_group": false,
@@ -1899,8 +1929,8 @@
     "type": "Game Emulator",
     "icon": "mdi:sync",
     "description": "All-in-one emulator that brings classic games to life, supporting a wide range of platforms and controllers",
-    "is_new": true,
-    "new_until": "2025-12-01",
+    "is_new": false,
+    "new_until": false,
     "display_name": "RetroArch",
     "screenshot_count": 3
   },
@@ -2469,8 +2499,8 @@
     "type": "Pet Tracking & Management",
     "icon": "mdi:dots-grid",
     "description": "RobiPet transforms the way you track your pet medical history, vaccinations, and vital information",
-    "is_new": true,
-    "new_until": "2025-12-01",
+    "is_new": false,
+    "new_until": false,
     "display_name": "RobiPet",
     "screenshot_count": 3
   },
