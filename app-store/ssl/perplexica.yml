@@ -60,6 +60,6 @@ services:
         });
         EOFPROXY
         export HOSTNAME=0.0.0.0
-        node /home/perplexica/server.js &
-        sleep 3
+        /home/perplexica/entrypoint.sh &
+        sleep 5
         exec node /home/perplexica/ssl-proxy.js
