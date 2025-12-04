@@ -1,11 +1,20 @@
 # CHANGELOG
 
-- **2.0.3.164** (Latest): New applications with SSL support and enhanced security configurations.
+- **2.0.3.168** (Latest): Added uninstallation script.
+
+  - Added **uninstall.sh** script for clean removal of HomeDock OS, including service cleanup and installation directory removal.
+
+---
+
+- **2.0.3.166**: New applications with SSL support and enhanced security configurations.
 
   - Added **Perplexica** to the App Store with SSL support via runtime Node.js HTTPS proxy injection.
   - Added **FacturaScripts** to the App Store with SSL support, unattended installation, and on-the-fly MariaDB credential injection.
 
----
+- **2.0.3.164** (Latest): New applications with SSL support and enhanced security configurations.
+
+  - Added **Perplexica** to the App Store with SSL support via runtime Node.js HTTPS proxy injection.
+  - Added **FacturaScripts** to the App Store with SSL support, unattended installation, and on-the-fly MariaDB credential injection.
 
 - **2.0.3.162**: Security update and dependency upgrades.
 
