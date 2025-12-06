@@ -14,6 +14,8 @@ services:
       - ./_DATA/dropzone:/homedock/dropzone
       - ./_DATA/logs:/homedock/logs
       - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "HDDockerInDocker=true"
     environment:
