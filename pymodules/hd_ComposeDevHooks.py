@@ -14,6 +14,7 @@ import hashlib
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsGlobals import running_OS
+from pymodules.hd_FunctionsHostSelector import is_docker
 
 
 DEVHOOK_PLACEHOLDERS = {
@@ -35,13 +36,18 @@ DEVHOOK_RANDOM_STRING_KEY = hashlib.sha256("[[HD_RND_STR]]".encode()).hexdigest(
 
 
 def get_config_path():
+    if is_docker:
+        data_root = os.environ.get('DATA_ROOT')
+        if data_root:
+            return f"{data_root}/HomeDock/AppData"
+        return "/DATA/HomeDock/AppData"
+
     system = running_OS
-    user_home = os.path.expanduser("~")
 
     if system == "Linux":
         return "/DATA/HomeDock/AppData"
     elif system == "Darwin":
-        return f"{user_home}/HomeDock/AppData"
+        return f"{os.path.expanduser('~')}/HomeDock/AppData"
     elif system == "Windows":
         return "/mnt/c/HomeDock/AppData"
     else:
@@ -49,13 +55,18 @@ def get_config_path():
 
 
 def get_internal_storage_path():
+    if is_docker:
+        data_root = os.environ.get('DATA_ROOT')
+        if data_root:
+            return f"{data_root}/HomeDock/AppFolders"
+        return "/DATA/HomeDock/AppFolders"
+
     system = running_OS
-    user_home = os.path.expanduser("~")
 
     if system == "Linux":
         return "/DATA/HomeDock/AppFolders"
     elif system == "Darwin":
-        return f"{user_home}/HomeDock/AppFolders"
+        return f"{os.path.expanduser('~')}/HomeDock/AppFolders"
     elif system == "Windows":
         return "/mnt/c/HomeDock/AppFolders"
     else:

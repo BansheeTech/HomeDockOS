@@ -4,18 +4,47 @@
 
 Take control of the cloud like never before. **Simplify, enhance, and secure your digital environment with HomeDock OS**.
 
+---
+
+<p align="center">Deploy HomeDock OS Everywhere, availaible for ALL platforms</p>
+
 <p align="center">
-  <a href="https://www.homedock.cloud">Website</a> | 
-  <a href="https://docs.homedock.cloud">Documentation</a> | 
-  <a href="https://github.com/BansheeTech/HomeDockOS">GitHub</a> |
-  <a href="https://discord.gg/Zj3JCYsRWw">Discord</a>
+  <a href="https://www.homedock.cloud/install/">
+    <img alt="Install on Linux" src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black">
+  </a>
+  <a href="https://www.homedock.cloud/install/">
+    <img alt="Install on macOS" src="https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white">
+  </a>
+  <a href="https://www.homedock.cloud/install/">
+    <img alt="Install on Windows" src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+V2luZG93czwvdGl0bGU+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTAsMEgxMS4zNzdWMTEuMzcySDBaTTEyLjYyMywwSDI0VjExLjM3MkgxMi42MjNaTTAsMTIuNjIzSDExLjM3N1YyNEgwWm0xMi42MjMsMEgyNFYyNEgxMi42MjNaIi8+PC9zdmc+&logoColor=white">
+  </a>
+  <a href="https://github.com/BansheeTech/HomeDockOS/blob/main/docker-compose.yml">
+    <img alt="Docker Compose" src="https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  </a>
+  <a href="https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/statickidz/homedock-oci-free/archive/refs/heads/main.zip">
+    <img alt="Oracle Cloud" src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzMzLjMxIDg0My4xNiI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTQyMS42NSA4NDMuMTZDMTg4Ljg5IDg0My4xNiAwIDY1NC43NCAwIDQyMS45MSAwIDE4OS4wOSAxODguODkgMCA0MjEuNjUgMGg0OTAuMDhjMjMyLjgzIDAgNDIxLjU4IDE4OS4wOSA0MjEuNTggNDIxLjkxIDAgMjMyLjgzLTE4OC43NSA0MjEuMjUtNDIxLjU4IDQyMS4yNUg0MjEuNjV6bTQ3OS4xOC0xNDguNzJjMTUwLjggMCAyNzIuOTQtMTIxLjc5IDI3Mi45NC0yNzIuNTMgMC0xNTAuNzMtMTIyLjE0LTI3My4yLTI3Mi45NC0yNzMuMkg0MzIuNDhjLTE1MC43MyAwLTI3Mi45NCAxMjIuNDctMjcyLjk0IDI3My4yIDAgMTUwLjc0IDEyMi4yIDI3Mi41MyAyNzIuOTQgMjcyLjUzaDQ2OC4zNXoiLz48L3N2Zz4=&logoColor=white">
+  </a>
 </p>
 
 <p align="center">
-  <a href="https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/statickidz/homedock-oci-free/archive/refs/heads/main.zip">
-  <img alt="Deploy to Oracle Cloud" src="https://camo.githubusercontent.com/c727d41bca2c71a90844a36f981f17d55fb44a08a9f3f98cd2e9e4c9f157cadc/68747470733a2f2f6f63692d7265736f757263656d616e616765722d706c7567696e2e706c7567696e732e6f63692e6f7261636c65636c6f75642e636f6d2f6c61746573742f6465706c6f792d746f2d6f7261636c652d636c6f75642e737667" style="max-width:100%;">
+  <a href="https://www.homedock.cloud">
+    <img alt="Website" src="https://img.shields.io/badge/Website-00A4EF?style=plastic&logo=googlechrome&logoColor=white">
+  </a>
+  <a href="https://docs.homedock.cloud">
+    <img alt="Documentation" src="https://img.shields.io/badge/Documentation-4EBCDA?style=plastic&logo=readthedocs&logoColor=white">
+  </a>
+  <a href="https://github.com/BansheeTech/HomeDockOS/blob/main/CHANGELOG.md">
+    <img alt="Changelog" src="https://img.shields.io/badge/Changelog-22863A?style=plastic&logo=git&logoColor=white">
+  </a>
+  <a href="https://github.com/BansheeTech/HomeDockOS">
+    <img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=plastic&logo=github&logoColor=white">
+  </a>
+  <a href="https://discord.gg/Zj3JCYsRWw">
+    <img alt="Discord" src="https://img.shields.io/badge/Discord-5865F2?style=plastic&logo=discord&logoColor=white">
   </a>
 </p>
+
+---
 
 <kbd>
   <a href="https://github.com/BansheeTech/HomeDock-OS-Desktop-Releases">

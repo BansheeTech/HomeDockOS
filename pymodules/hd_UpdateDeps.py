@@ -10,6 +10,7 @@ import hashlib
 import subprocess
 
 from pymodules.hd_FunctionsGlobals import running_OS, current_directory
+from pymodules.hd_FunctionsHostSelector import is_docker
 
 VENV_PATH = os.path.abspath(os.path.join(current_directory, "venv"))
 REQUIREMENTS_FILE = os.path.join(current_directory, "requirements.txt")
@@ -69,6 +70,9 @@ def install_requirements():
 
 
 def check_and_update_dependencies():
+    if is_docker:
+        return
+
     if not os.path.exists(REQUIREMENTS_FILE):
         print(" * Can't check dependencies, requirements.txt doesn't exist!")
         return

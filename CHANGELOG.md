@@ -1,10 +1,23 @@
 # CHANGELOG
 
-- **2.0.3.168** (Latest): Added uninstallation script.
+- **2.0.3.180** (Latest): Docker-in-Docker support, security updates and stability fixes.
 
-  - Added **uninstall.sh** script for clean removal of HomeDock OS, including service cleanup and installation directory removal.
+  - Updated **urllib3** from 2.5.0 to 2.6.0 to address two high-severity vulnerabilities (both opened 8 hours ago).
+  - Fixed **CVE-2025-66471** (High): urllib3 streaming API improperly handles highly compressed data, preventing excessive resource consumption (high CPU usage and massive memory allocation) when processing malicious compressed responses.
+  - Fixed **CVE-2025-66418** (High): urllib3 allows an unbounded number of links in the decompression chain, preventing DoS attacks via unlimited compression steps that could lead to massive memory allocation and high CPU usage.
+  - Added **Docker-in-Docker support** allowing HomeDock OS to run inside a Docker container for easy testing.
+  - Added **Dockerfile** and **docker-compose.yml** for containerized deployment with optimized image size.
+  - Added **hd_FunctionsHostSelector.py** module for automatic host detection (`localhost` vs `host.docker.internal`).
+  - Added **HDDockerInDocker** label to filter the master container from the container list when running HomeDock OS in Docker mode.
+  - Added **.is_docker** flag detection to disable in-app updates (users update via `docker pull` instead).
+  - Added **welcome message** in Docker mode encouraging users to install natively for the best experience.
+  - Improved off-thread initial port routing in `hd_DockerAPIContainerData.py` for non-standard ports, making it fully compatible with reverse proxies, Docker-in-Docker, or any custom deployment, designed to run... Everywhere, hehe, haha.
 
 ---
+
+- **2.0.3.168**: Added uninstallation script.
+
+  - Added **uninstall.sh** script for clean removal of HomeDock OS, including service cleanup and installation directory removal.
 
 - **2.0.3.166**: New applications with SSL support and enhanced security configurations.
 

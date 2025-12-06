@@ -45,4 +45,7 @@ __pycache__/
 otherfiles/
 unstaged_test.py
 HomeDockOS_Update.*.zip
-homedock-ui/static/images/wallpapers/back_custom.jpg
+Dockerfile
+docker-compose.yml
+.dockerignore
+

@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import version, running_OS
+from pymodules.hd_FunctionsHostSelector import is_docker
 from pymodules.hd_ConfigEventManager import register_listener
 
 CloudFlareWorker = "https://homedock-os-user.banshee-devs.workers.dev/"
@@ -56,7 +57,7 @@ def service_heartbeat_loop():
             uid = generate_uuid()
             payload = {
                 "uuid": uid,
-                "underlying_os": running_OS,
+                "underlying_os": "Docker" if is_docker else running_OS,
                 "homedock_version": version,
             }
             headers = {"Content-Type": "application/json"}

@@ -14,6 +14,7 @@ import urllib3
 from threading import Thread, Event
 
 from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsHostSelector import docker_host
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -24,7 +25,7 @@ update_event = Event()
 def check_port_availability(port):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
 
-    urls = [f"https://localhost:{port}", f"http://localhost:{port}"]
+    urls = [f"https://{docker_host}:{port}", f"http://{docker_host}:{port}"]
 
     for url in urls:
         try:

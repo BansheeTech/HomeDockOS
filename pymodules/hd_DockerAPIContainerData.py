@@ -70,6 +70,9 @@ def get_display_name_for_container(container_name: str) -> str:
 
     sanitized = sanitize_container_name(container_name)
 
+    if sanitized == "homedock-os":
+        return "HomeDock OS"
+
     if sanitized in app_store:
         return app_store[sanitized]
     if sanitized in external_apps:
@@ -159,6 +162,9 @@ def get_docker_containers():
         try:
             labels = container.labels
 
+            if labels.get("HDDockerInDocker") == "true":
+                continue
+
             compose_file_path = os.path.join(compose_upload_folder, f"{sanitize_container_name(container.name)}.yml")
             file_status = "exists" if os.path.exists(compose_file_path) else "not_exists"
 
@@ -205,6 +211,10 @@ def get_docker_containers():
             if not is_valid_hostname(base_url_without_scheme_or_www):
                 service_url = None
             else:
+                host_header = request.headers.get("Host", base_url_without_scheme_or_www)
+                parsed_host = urlparse(f"//{host_header}")
+                final_host = parsed_host.netloc
+
                 if container.name in ports_config:
                     ports_list = ports_config[container.name]
                     if "" in ports_list or "hostmode" in ports_list:
@@ -212,10 +222,6 @@ def get_docker_containers():
                     else:
                         sanitized_port = sanitize_port(ports_list[0])
                         if sanitized_port:
-                            host_header = request.headers.get("Host", base_url_without_scheme_or_www)
-                            parsed_host = urlparse(f"//{host_header}")
-                            final_host = parsed_host.netloc
-
                             service_url = f"//{final_host}/app/{sanitized_port}"
                         else:
                             service_url = None
@@ -232,7 +238,7 @@ def get_docker_containers():
                     if ports_list and ports_list[0] not in ["hostmode", ""]:
                         sanitized_port = sanitize_port(ports_list[0])
                         if sanitized_port:
-                            service_url = f"//{base_url_without_scheme_or_www}/app/{sanitized_port}"
+                            service_url = f"//{final_host}/app/{sanitized_port}"
                         else:
                             service_url = None
                     else:

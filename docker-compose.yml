@@ -1,0 +1,21 @@
+---
+services:
+  homedock:
+    image: bansheetech/homedock-os:latest
+    container_name: homedock-os
+    restart: unless-stopped
+    ports:
+      - "13370:80"
+    volumes:
+      - ./_DATA/DATA:/DATA
+      - ./_DATA/config:/homedock/config
+      - ./_DATA/compose:/homedock/compose-link
+      - ./_DATA/packages:/homedock/_user_packages
+      - ./_DATA/dropzone:/homedock/dropzone
+      - ./_DATA/logs:/homedock/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "HDDockerInDocker=true"
+    environment:
+      - TZ=Europe/Madrid
+      - PYTHONUNBUFFERED=1

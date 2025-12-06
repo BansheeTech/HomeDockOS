@@ -48,7 +48,7 @@ def is_version_greater(v1: str, v2: str) -> bool:
 @login_required
 def check_update():
     try:
-        if os.path.exists(os.path.join(current_directory, ".is_desktop")):
+        if os.path.exists(os.path.join(current_directory, ".is_desktop")) or os.path.exists(os.path.join(current_directory, ".is_docker")):
             return jsonify({"current_version": version, "latest_version": version, "update_available": False})
         response = requests.get(UPDATE_URL, timeout=5)
         if response.status_code == 200:
@@ -62,7 +62,6 @@ def check_update():
 
 @login_required
 def update_now():
-
     set_updating_state(True)
 
     try:

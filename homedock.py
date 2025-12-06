@@ -47,6 +47,7 @@ from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
 from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
 
 from pymodules.hd_HDSPackageManager import ensure_external_dir
+from pymodules.hd_FunctionsHostSelector import is_docker
 
 os.chdir(current_directory)
 
@@ -165,6 +166,14 @@ if __name__ == "__main__":
             print(f"            > \x1b[4m{format_url(protocol, 'homedock.local', run_port)}\x1b[0m")
         else:
             print("            ! homedock.local unavailable")
+
+    if is_docker:
+        print()
+        print(" \033[1;33;40m» Running in Docker-in-Docker mode\033[0m")
+        print("   HomeDock OS is intended to run directly on your machine.")
+        print("   If you like it, install it natively for the best experience!")
+        print("   Available for Windows, macOS and Linux at:")
+        print("   \x1b[4mhttps://www.homedock.cloud/install\x1b[0m")
 
     print()
 
