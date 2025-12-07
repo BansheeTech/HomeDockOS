@@ -1,6 +1,14 @@
 # CHANGELOG
 
-- **2.0.3.180** (Latest): Docker-in-Docker support, security updates and stability fixes.
+- **2.0.3.182** (Latest): Fixed local network access in Docker deployments.
+
+  - Fixed hostname validation in `/app/` endpoint that was preventing access from local network IPs when running in Docker mode.
+  - Enhanced security logic to properly detect and allow private subnet access while maintaining strict validation controls.
+  - Improved entrypoint script to auto-detect host network configuration for accurate hostname validation.
+
+---
+
+- **2.0.3.180**: Docker-in-Docker support, security updates and stability fixes.
 
   - Updated **urllib3** from 2.5.0 to 2.6.0 to address two high-severity vulnerabilities (both opened 8 hours ago).
   - Fixed **CVE-2025-66471** (High): urllib3 streaming API improperly handles highly compressed data, preventing excessive resource consumption (high CPU usage and massive memory allocation) when processing malicious compressed responses.
@@ -12,8 +20,6 @@
   - Added **.is_docker** flag detection to disable in-app updates (users update via `docker pull` instead).
   - Added **welcome message** in Docker mode encouraging users to install natively for the best experience.
   - Improved off-thread initial port routing in `hd_DockerAPIContainerData.py` for non-standard ports, making it fully compatible with reverse proxies, Docker-in-Docker, or any custom deployment, designed to run... Everywhere, hehe, haha.
-
----
 
 - **2.0.3.168**: Added uninstallation script.
 
