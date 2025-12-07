@@ -1,12 +1,22 @@
 # CHANGELOG
 
-- **2.0.3.182** (Latest): Fixed local network access in Docker deployments.
+- **2.0.3.184** (Latest): Security hardening and simplified Docker-in-Docker networking validation.
+
+  - **Fixed Open Redirect vulnerability** in HTTP to HTTPS redirector that could allow attackers to redirect users to malicious sites via Host header manipulation.
+  - Added comprehensive host validation in `hd_HTTPRedirector.py` including IP validation, DNS resolution checks, and hostname/FQDN verification before redirecting.
+  - **Simplified IP validation logic** in Docker-in-Docker mode by allowing all RFC1918 private IPs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) instead of detecting specific subnets.
+  - This approach is secure because internal connections use `host.docker.internal` (constant), not the request hostname, preventing SSRF attacks by design.
+  - Removed `HOST_SUBNET_PREFIX` environment variable detection from entrypoint.sh (no longer needed).
+  - Removed `iproute2` dependency from Dockerfile (no longer required for subnet detection).
+  - Enhanced Docker-in-Docker compatibility by supporting any private network configuration without manual subnet specification.
+
+---
+
+- **2.0.3.182**: Fixed local network access in Docker deployments.
 
   - Fixed hostname validation in `/app/` endpoint that was preventing access from local network IPs when running in Docker mode.
   - Enhanced security logic to properly detect and allow private subnet access while maintaining strict validation controls.
   - Improved entrypoint script to auto-detect host network configuration for accurate hostname validation.
-
----
 
 - **2.0.3.180**: Docker-in-Docker support, security updates and stability fixes.
 

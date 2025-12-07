@@ -7,7 +7,7 @@ FROM python:3.12-slim
 
 LABEL maintainer="Banshee Technologies S.L."
 LABEL description="HomeDock OS - One Docker container to rule them all, a self-hosted Cloud OS for your Home Server."
-LABEL version="2.0.3.182"
+LABEL version="2.0.3.184"
 
 # Deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     ca-certificates \
     gnupg \
-    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Docker

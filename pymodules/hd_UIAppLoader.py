@@ -9,7 +9,6 @@ import ipaddress
 import requests
 import socket
 import re
-import os
 
 from flask import jsonify, render_template, g, request
 from flask_login import login_required
@@ -46,16 +45,7 @@ def get_safe_hostname():
 
         # HDOS00016
         if is_docker and ip_obj.is_private:
-            host_subnet_prefix = os.getenv('HOST_SUBNET_PREFIX')
-            if host_subnet_prefix:
-                try:
-                    test_ip = f"{host_subnet_prefix}.1"
-                    test_ip_obj = ipaddress.ip_address(test_ip)
-                    if test_ip_obj.is_private:
-                        if requested_host.startswith(f"{host_subnet_prefix}."):
-                            return requested_host
-                except:
-                    pass
+            return requested_host
     except:
         pass
 

@@ -139,13 +139,6 @@ if [ -f "/homedock/.is_docker" ]; then
     # Mkdirs
     mkdir -p /DATA/HomeDock/AppData
     mkdir -p /DATA/HomeDock/AppFolders
-
-    # Gateway Octets
-    GATEWAY_IP=$(ip route | grep default | awk '{print $3}' | head -1)
-    if [ -n "$GATEWAY_IP" ]; then
-        HOST_SUBNET=$(echo "$GATEWAY_IP" | cut -d. -f1-3)
-        export HOST_SUBNET_PREFIX="$HOST_SUBNET"
-    fi
 fi
 
 # Magic
