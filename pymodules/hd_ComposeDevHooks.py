@@ -15,6 +15,7 @@ from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsGlobals import running_OS
 from pymodules.hd_FunctionsHostSelector import is_docker
+from pymodules.hd_FunctionsNativeSSL import get_ssl_cert_directory_for_containers
 
 
 DEVHOOK_PLACEHOLDERS = {
@@ -27,6 +28,7 @@ DEVHOOK_PLACEHOLDERS = {
     hashlib.sha256("[[HD_DYN_DNS]]".encode()).hexdigest()[:16]: "[[HD_DYN_DNS]]",
     hashlib.sha256("[[INSTALL_PATH]]".encode()).hexdigest()[:16]: "[[INSTALL_PATH]]",
     hashlib.sha256("[[APP_MOUNT_POINT]]".encode()).hexdigest()[:16]: "[[APP_MOUNT_POINT]]",
+    hashlib.sha256("[[SSL_CERT_PATH]]".encode()).hexdigest()[:16]: "[[SSL_CERT_PATH]]",
 }
 
 DEVHOOK_USER_NAME_KEY = hashlib.sha256("[[HD_USER_NAME]]".encode()).hexdigest()[:16]
@@ -37,7 +39,7 @@ DEVHOOK_RANDOM_STRING_KEY = hashlib.sha256("[[HD_RND_STR]]".encode()).hexdigest(
 
 def get_config_path():
     if is_docker:
-        data_root = os.environ.get('DATA_ROOT')
+        data_root = os.environ.get("DATA_ROOT")
         if data_root:
             return f"{data_root}/HomeDock/AppData"
         return "/DATA/HomeDock/AppData"
@@ -56,7 +58,7 @@ def get_config_path():
 
 def get_internal_storage_path():
     if is_docker:
-        data_root = os.environ.get('DATA_ROOT')
+        data_root = os.environ.get("DATA_ROOT")
         if data_root:
             return f"{data_root}/HomeDock/AppFolders"
         return "/DATA/HomeDock/AppFolders"
@@ -123,8 +125,9 @@ def process_devhooks(yml_str, generate_passwords=True):
 
     yml_str = yml_str.replace("[[INSTALL_PATH]]", get_config_path())
     yml_str = yml_str.replace("[[APP_MOUNT_POINT]]", get_internal_storage_path())
+    yml_str = yml_str.replace("[[SSL_CERT_PATH]]", get_ssl_cert_directory_for_containers())
 
-    devhook_values = {"user_name": user_name, "password": password, "sys_password": sys_password, "random_string": random_string, "local_ip": local_ip, "internet_ip": internet_ip, "dynamic_dns": dynamic_dns, "install_path": get_config_path(), "app_mount_point": get_internal_storage_path()}
+    devhook_values = {"user_name": user_name, "password": password, "sys_password": sys_password, "random_string": random_string, "local_ip": local_ip, "internet_ip": internet_ip, "dynamic_dns": dynamic_dns, "install_path": get_config_path(), "app_mount_point": get_internal_storage_path(), "ssl_cert_path": get_ssl_cert_directory_for_containers()}
 
     return yml_str, devhook_values
 

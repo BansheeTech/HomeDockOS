@@ -6,8 +6,8 @@ services:
     volumes:
       - [[INSTALL_PATH]]/perplexica/data:/home/perplexica/data
       - [[INSTALL_PATH]]/perplexica/uploads:/home/perplexica/uploads
-      - /DATA/SSLCerts/fullchain.pem:/certs/fullchain.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/certs/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/certs/fullchain.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/certs/privkey.pem:ro
     ports:
       - 9118:3001
     restart: unless-stopped

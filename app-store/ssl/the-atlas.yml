@@ -10,5 +10,5 @@ services:
       - ENABLE_P2P=true
     volumes:
       - [[INSTALL_PATH]]/the-atlas:/app
-      - /DATA/SSLCerts:/app/ssl:ro
+      - [[SSL_CERT_PATH]]:/app/ssl:ro
     restart: unless-stopped

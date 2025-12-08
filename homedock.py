@@ -37,7 +37,7 @@ from pymodules.hd_ThreadAppUpdatesChecker import start_app_updates_checker_threa
 
 from pymodules.hd_RouteModules import RouteAllModules
 from pymodules.hd_UpdateDeps import check_and_update_dependencies
-from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info
+from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info, get_ssl_cert_directory
 from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 
 from pymodules.hd_HMRUpdate import set_updating_state
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     print()
 
     if ssl_enabled_var:
-        cert_path = "/DATA/SSLCerts/fullchain.pem"
+        cert_path = os.path.join(get_ssl_cert_directory(), "fullchain.pem")
         cert_info = get_ssl_cert_info(cert_path)
         print(" » SSL Certificate Information:")
         if "error" in cert_info:
@@ -205,9 +205,10 @@ if __name__ == "__main__":
 
             redirect_app = redirect_config = None
             if ssl_enabled_var:
-                hypercorn_config.certfile = "/DATA/SSLCerts/fullchain.pem"
-                hypercorn_config.keyfile = "/DATA/SSLCerts/privkey.pem"
-                hypercorn_config.ca_certs = "/DATA/SSLCerts/chain.pem"
+                ssl_cert_dir = get_ssl_cert_directory()
+                hypercorn_config.certfile = os.path.join(ssl_cert_dir, "fullchain.pem")
+                hypercorn_config.keyfile = os.path.join(ssl_cert_dir, "privkey.pem")
+                hypercorn_config.ca_certs = os.path.join(ssl_cert_dir, "chain.pem")
 
                 from pymodules.hd_HTTPRedirector import start_http_redirect_server
 

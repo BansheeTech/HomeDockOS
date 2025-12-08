@@ -9,8 +9,8 @@ services:
       - TZ=Etc/UTC
     volumes:
       - [[INSTALL_PATH]]/budge:/config
-      - /DATA/SSLCerts/fullchain.pem:/config/keys/cert.crt:ro
-      - /DATA/SSLCerts/privkey.pem:/config/keys/cert.key:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/config/keys/cert.crt:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/config/keys/cert.key:ro
     ports:
       - 11281:443
     restart: unless-stopped

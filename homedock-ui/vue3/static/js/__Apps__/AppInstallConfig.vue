@@ -166,7 +166,7 @@
                   </div>
                   <div v-for="(volume, index) in volumeMappings" :key="'volume-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].host" placeholder="/host/path">
-                      <template #prefix v-if="volume.host.includes('/DATA/SSLCerts')">
+                      <template #prefix v-if="isSSLCertPath(volume.host)">
                         <Icon :icon="lockIcon" :class="[themeClasses.installConfigSSLVolumeIcon]" class="h-3.5 w-3.5 -translate-x-0.5" />
                       </template>
                     </Input>
@@ -505,6 +505,14 @@ function parseVolumeString(volumeStr: string): VolumeMapping {
     return { host: parts[0].trim(), container: parts.slice(1).join(":").trim() };
   }
   return { host: "", container: "" };
+}
+
+function isSSLCertPath(path: string): boolean {
+  if (!path) return false;
+  if (path.startsWith("/DATA/SSLCerts")) return true;
+  if (/^\/Users\/[^/]+\/HomeDock\/SSLCerts/.test(path)) return true;
+  if (path.startsWith("/mnt/c/HomeDock/SSLCerts")) return true;
+  return false;
 }
 
 async function fetchAppInfo() {

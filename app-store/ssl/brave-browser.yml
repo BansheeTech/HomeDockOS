@@ -15,8 +15,8 @@ services:
       - SELKIES_UI_SHOW_LOGO=false
     volumes:
       - [[INSTALL_PATH]]/brave-browser:/config
-      - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/config/ssl/cert.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/config/ssl/cert.key:ro
     ports:
       - 5546:3001
     shm_size: "1gb"

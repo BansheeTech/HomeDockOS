@@ -10,8 +10,8 @@ services:
     volumes:
       - [[INSTALL_PATH]]/davos:/config
       - [[APP_MOUNT_POINT]]/davos/downloads:/download
-      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/etc/ssl/private/privkey.pem:ro
     ports:
       - 9090:8081
     entrypoint: ""

@@ -19,8 +19,8 @@ services:
     volumes:
       - [[INSTALL_PATH]]/booklore/booklore/data:/app/data
       - [[APP_MOUNT_POINT]]/booklore/booklore/books:/books
-      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/cert.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/privkey.pem:ro
     labels:
       HDGroup: "booklore"
       HDRole: "main"

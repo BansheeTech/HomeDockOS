@@ -11,8 +11,8 @@ services:
     volumes:
       - [[INSTALL_PATH]]/wg-easy:/etc/wireguard
       - /lib/modules:/lib/modules:ro
-      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/cert.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/privkey.pem:ro
     ports:
       - "51821:51821/tcp"
       - "51820:51820/udp"

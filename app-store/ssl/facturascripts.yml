@@ -16,8 +16,8 @@ services:
       - FS_ADMIN_PASS=[[HD_PASSWORD]]
     volumes:
       - [[INSTALL_PATH]]/facturascripts/facturascripts:/var/www/html
-      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/etc/ssl/private/privkey.pem:ro
     ports:
       - 15443:443
     labels:

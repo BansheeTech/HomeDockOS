@@ -11,9 +11,13 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
+- `✦ DNS Open Redirect in HTTP to HTTPS Redirector when SSL enabled`
+
+  - **Internally Discovered** – Fixed in v2.0.3.186
+
 - `✦ Open Redirect in HTTP to HTTPS Redirector when SSL enabled`
 
-  - **Internally Discovered** – Fixed in v2.0.3.184
+  - **Internally Discovered** – Fixed in v2.0.3.186
 
 - `✦ MIME Type Validation Possible Bypass in Package Import`
 

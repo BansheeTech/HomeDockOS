@@ -79,17 +79,15 @@
               <div>
                 <label :class="['block text-sm font-medium mb-2', themeClasses.packagerText]"> Category * </label>
                 <Select v-model:value="newPackage.category" placeholder="Select Category" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`">
-                  <SelectOption value="Media">Media</SelectOption>
+                  <SelectOption value="AI">AI</SelectOption>
+                  <SelectOption value="Developer Tools">Developer Tools</SelectOption>
                   <SelectOption value="Files & Productivity">Files & Productivity</SelectOption>
-                  <SelectOption value="Networking">Networking</SelectOption>
-                  <SelectOption value="Home & Automation">Home & Automation</SelectOption>
-                  <SelectOption value="Social">Social</SelectOption>
                   <SelectOption value="Gaming">Gaming</SelectOption>
-                  <SelectOption value="Security">Security</SelectOption>
-                  <SelectOption value="Development">Development</SelectOption>
-                  <SelectOption value="Databases">Databases</SelectOption>
-                  <SelectOption value="Monitoring">Monitoring</SelectOption>
-                  <SelectOption value="Other">Other</SelectOption>
+                  <SelectOption value="Home & Automation">Home & Automation</SelectOption>
+                  <SelectOption value="Media">Media</SelectOption>
+                  <SelectOption value="Networking">Networking</SelectOption>
+                  <SelectOption value="Social">Social</SelectOption>
+                  <SelectOption value="Web Development">Web Development</SelectOption>
                 </Select>
               </div>
 
@@ -511,6 +509,11 @@ const devHooks = [
     placeholder: "[[APP_MOUNT_POINT]]",
     description: "App data storage path",
     example: "Linux: /DATA/HomeDock/AppFolders/\nmacOS: /Users/{username}/HomeDock/AppFolders/\nWindows: /mnt/c/HomeDock/AppFolders/",
+  },
+  {
+    placeholder: "[[SSL_CERT_PATH]]",
+    description: "SSL certificates directory path",
+    example: "Linux: /DATA/SSLCerts\nmacOS: /Users/{username}/HomeDock/SSLCerts\nWindows: /mnt/c/HomeDock/SSLCerts\n\nMake sure to mount them as :ro (read-only) in your Docker Compose.",
   },
 ];
 

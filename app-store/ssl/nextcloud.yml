@@ -10,8 +10,8 @@ services:
     volumes:
       - [[INSTALL_PATH]]/nextcloud:/config
       - [[APP_MOUNT_POINT]]/nextcloud/data:/data
-      - /DATA/SSLCerts/fullchain.pem:/config/keys/cert.crt:ro
-      - /DATA/SSLCerts/privkey.pem:/config/keys/cert.key:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/config/keys/cert.crt:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/config/keys/cert.key:ro
     ports:
       - 23882:443
     restart: unless-stopped

@@ -28,7 +28,7 @@ services:
       - [[INSTALL_PATH]]/immich/immich/machine-learning:/config/machine-learning #optional
       - [[INSTALL_PATH]]/immich/immich/imports:/import #optional
       - [[APP_MOUNT_POINT]]/immich/photos:/photos
-      - /DATA/SSLCerts:/certs:ro
+      - [[SSL_CERT_PATH]]:/certs:ro
     ports:
       - 17487:8443
     restart: unless-stopped

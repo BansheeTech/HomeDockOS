@@ -9,8 +9,8 @@ services:
       - TZ=Europe/London
     volumes:
       - [[INSTALL_PATH]]/changedetection:/config
-      - /DATA/SSLCerts/fullchain.pem:/cert.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/cert.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/privkey.pem:ro
     ports:
       - 5000:5000
     restart: unless-stopped

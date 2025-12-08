@@ -16,7 +16,7 @@ services:
     volumes:
       - [[INSTALL_PATH]]/code-server:/config
       - [[APP_MOUNT_POINT]]/code-server/workspace:/config/workspace
-      - /DATA/SSLCerts:/certs:ro
+      - [[SSL_CERT_PATH]]:/certs:ro
     ports:
       - 8443:8443
     command: >

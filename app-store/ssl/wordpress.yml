@@ -7,8 +7,8 @@ services:
             - wordpress_mariadb
         volumes:
             - [[INSTALL_PATH]]/wordpress/wordpress:/var/www/html
-            - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-            - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+            - [[SSL_CERT_PATH]]/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+            - [[SSL_CERT_PATH]]/privkey.pem:/etc/ssl/private/privkey.pem:ro
         environment:
             - WORDPRESS_DB_USER=[[HD_USER_NAME]]
             - WORDPRESS_DB_PASSWORD=[[HD_SYSTEM_PASSWORD]]

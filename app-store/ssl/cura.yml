@@ -16,8 +16,8 @@ services:
       - TITLE=Cura
     volumes:
       - [[INSTALL_PATH]]/cura:/config
-      - /DATA/SSLCerts/fullchain.pem:/config/ssl/cert.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/config/ssl/cert.key:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/config/ssl/cert.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/config/ssl/cert.key:ro
     ports:
       - 6466:3001
     restart: unless-stopped

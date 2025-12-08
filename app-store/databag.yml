@@ -10,5 +10,5 @@ services:
       - ADMIN=[[HD_PASSWORD]]
     volumes:
       - [[INSTALL_PATH]]/databag:/var/lib/databag
-      - /DATA/SSLCerts/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      - /DATA/SSLCerts/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - [[SSL_CERT_PATH]]/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - [[SSL_CERT_PATH]]/privkey.pem:/etc/ssl/private/privkey.pem:ro

@@ -13,5 +13,5 @@ services:
     volumes:
       - [[INSTALL_PATH]]/navidrome:/data
       - [[APP_MOUNT_POINT]]/navidrome/music:/music:ro
-      - /DATA/SSLCerts:/etc/ssl/custom:ro
+      - [[SSL_CERT_PATH]]:/etc/ssl/custom:ro
     command: "--tlscert=/etc/ssl/custom/fullchain.pem --tlskey=/etc/ssl/custom/privkey.pem"

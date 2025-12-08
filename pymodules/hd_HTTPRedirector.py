@@ -12,8 +12,9 @@ from flask import Flask, request, redirect, abort
 from hypercorn.config import Config
 from hypercorn.middleware import AsyncioWSGIMiddleware
 
-from pymodules.hd_FunctionsNetwork import local_ip, internet_ip, get_local_ip, get_internet_ip
+from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsHostSelector import docker_host, is_docker
+from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_cert_domains_and_type
 
 
 def start_http_redirect_server():
@@ -24,9 +25,7 @@ def start_http_redirect_server():
     def redirect_to_https(path):
         requested_host = request.host.split(":")[0]
 
-        valid_hosts = {local_ip, internet_ip, "localhost", docker_host}
-
-        if requested_host in valid_hosts:
+        if requested_host in {local_ip, internet_ip, "localhost", "127.0.0.1", "::1", docker_host}:
             return redirect(f"https://{requested_host}/{path}", code=301)
 
         try:
@@ -40,31 +39,21 @@ def start_http_redirect_server():
             pass
 
         server_hostname = socket.gethostname()
-        server_fqdn = socket.getfqdn()
 
-        if requested_host in {server_hostname, server_fqdn}:
+        if requested_host == server_hostname:
             return redirect(f"https://{requested_host}/{path}", code=301)
 
-        try:
-            resolved_ip = socket.gethostbyname(requested_host)
+        if ssl_enabled():
+            cert_info = get_cert_domains_and_type()
+            if cert_info and cert_info.get("domains"):
+                if requested_host in cert_info["domains"]:
+                    return redirect(f"https://{requested_host}/{path}", code=301)
 
-            try:
-                resolved_ip_obj = ipaddress.ip_address(resolved_ip)
-                if resolved_ip_obj.is_loopback:
-                    abort(400)
-            except:
-                pass
-
-            if resolved_ip in {local_ip, internet_ip}:
-                return redirect(f"https://{requested_host}/{path}", code=301)
-
-            current_local_ip = get_local_ip()
-            current_internet_ip = get_internet_ip()
-
-            if resolved_ip in {current_local_ip, current_internet_ip}:
-                return redirect(f"https://{requested_host}/{path}", code=301)
-        except:
-            pass
+                for domain in cert_info["domains"]:
+                    if domain.startswith("*."):
+                        base_domain = domain[2:]
+                        if requested_host.endswith("." + base_domain):
+                            return redirect(f"https://{requested_host}/{path}", code=301)
 
         abort(400)
 

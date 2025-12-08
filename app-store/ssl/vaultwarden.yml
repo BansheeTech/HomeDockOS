@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - [[INSTALL_PATH]]/vaultwarden:/data/
-      - /DATA/SSLCerts:/ssl:ro
+      - [[SSL_CERT_PATH]]:/ssl:ro
     ports:
       - "4444:80"
     environment:
