@@ -34,6 +34,7 @@ from pymodules.hd_FunctionsMain import ensure_logs_directory
 from pymodules.hd_ThreadContainerResourceUsage import start_resource_usage_thread
 from pymodules.hd_ThreadAutoPortRouting import start_auto_port_routing_thread
 from pymodules.hd_ThreadAppUpdatesChecker import start_app_updates_checker_thread
+from pymodules.hd_ThreadNotificationsFetcher import start_notifications_fetcher_thread
 
 from pymodules.hd_RouteModules import RouteAllModules
 from pymodules.hd_UpdateDeps import check_and_update_dependencies
@@ -84,6 +85,7 @@ if __name__ == "__main__":
     start_auto_port_routing_thread()
     start_resource_usage_thread()
     start_app_updates_checker_thread()
+    start_notifications_fetcher_thread()
 
     user_name = globalConfig["user_name"]
     run_port = globalConfig["run_port"]

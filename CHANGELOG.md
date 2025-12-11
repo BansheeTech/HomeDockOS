@@ -1,6 +1,15 @@
 # CHANGELOG
 
-- **2.0.3.186** (Latest): Fixed DNS Open Redirect vulnerability, enhanced application packaging workflow and SSL enabled for Windows and macOS.
+- **2.0.3.188** (Latest): New notification system with external notifications and smart reminders.
+
+  - Added **external notifications support** allowing us to send important announcements directly to your HomeDock OS instance.
+  - Implemented **notification persistence** so dismissed notifications stay hidden across sessions and systems.
+  - Added **smart system reminders** including security tips, community invites, and helpful suggestions based on uptime.
+  - Enhanced **notification bell** with action buttons and smooth animations for a better user experience.
+
+---
+
+- **2.0.3.186**: Fixed DNS Open Redirect vulnerability, enhanced application packaging workflow and SSL enabled for Windows and macOS.
 
   - **Fixed DNS Open Redirect vulnerability** in HTTP to HTTPS redirector that was inadvertently introduced while mitigating the previous Open Redirect vulnerability patched in v2.0.3.184.
   - Removed unsafe `socket.getfqdn()` call from `hd_HTTPRedirector.py` that performed reverse DNS lookups of the server's own IP address for hostname validation. While unlikely, an attacker who controls the PTR (reverse DNS) (think compromised ISP, shared hosting environments, or malicious datacenter) could manipulate this lookup to return a domain they control, bypassing redirect protections to malicious sites.
@@ -11,8 +20,6 @@
   - Improved App Packager in `AppPackager.vue` with enhanced validation and error handling for custom package creation and management.
   - Updated multiple App Store applications (`databag.yml` and 30+ SSL-enabled apps) to use the `[[SSL_CERT_PATH]]` devhook and make them instantly inherit the root SSL certificate on Windows and macOS too while installing them.
     > **TLDR - Why this secondary vulnerability?** The DNS Open Redirect is a super edge-case where an attacker with control over reverse DNS (PTR records) could manipulate `socket.getfqdn()` to return a malicious domain that we'd then trust for redirects. The v2.0.3.184 fix added `getfqdn()` for hostname validation, which ironically _introduced_ this DNS-based attack vector. Since we're already hardening against Open Redirect attacks, why leave any vector open... Even super-edge ones? Suck that! This update closes that gap by removing DNS resolution from security checks and following NGINX's whitelist-only approach. If we don't explicitly know about it, it gets rejected. Simple and paranoid as that.
-
----
 
 - **2.0.3.184**: Security hardening and simplified Docker-in-Docker networking validation.
 

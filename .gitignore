@@ -28,7 +28,6 @@ homedock_dropzone.conf
 # Arts
 *.pyc
 __pycache__/
-.vite/
 .DS_Store
 
 # Flags

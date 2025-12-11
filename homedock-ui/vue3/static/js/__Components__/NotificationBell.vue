@@ -24,7 +24,7 @@
             </div>
           </div>
           <TransitionGroup name="list" tag="div" :class="[themeClasses.notMainContainer]" class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-thumb-opacity-20 scrollbar-track-transparent">
-            <div :class="['notification-item flex items-start px-4 py-3 cursor-pointer relative group transition-all duration-200 hover:bg-white hover:bg-opacity-5 border-b border-white border-opacity-5 last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="notification in notifications" :key="notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
+            <div :class="['notification-item flex items-start px-4 py-3 cursor-pointer relative group transition-all duration-200 hover:bg-white hover:bg-opacity-5 border-b border-white border-opacity-5 last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="notification in notifications" :key="notification.hash || notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
               <div class="relative flex-shrink-0">
                 <div :class="[themeClasses.notInnerIcon]" class="w-10 h-10 rounded-xl flex items-center justify-center">
                   <Icon
@@ -41,12 +41,16 @@
               <div class="flex-1 min-w-0 overflow-hidden px-3">
                 <h4 class="text-sm font-semibold leading-tight mb-0.5" :class="[themeClasses.notTextUp, { underline: notification.isUpdate }]">{{ notification.title }}</h4>
                 <p class="text-xs leading-relaxed opacity-80 break-words leading-tight" :class="[themeClasses.notTextDown]">{{ notification.message }}</p>
-                <div v-if="notification.startDate || notification.endDate" :class="[themeClasses.notTextDown]" class="flex items-center underline text-[10px] mt-1">
+                <div v-if="notification.showDate && (notification.startDate || notification.endDate)" :class="[themeClasses.notTextDown]" class="flex items-center underline text-[10px] mt-1">
                   <Icon :icon="calendarIcon" class="mr-1" size="12px" />
                   <span v-if="notification.startDate">{{ formatDate(notification.startDate) }}</span>
                   <span v-if="notification.startDate && notification.endDate" class="mx-1">></span>
                   <span v-if="notification.endDate">{{ formatDate(notification.endDate) }}</span>
                 </div>
+                <a v-if="notification.actionUrl" :href="notification.actionUrl" target="_blank" rel="noopener noreferrer" @click.stop class="inline-flex items-center mt-2 px-2.5 py-1 text-[10px] font-medium rounded-md transition-all duration-200 hover:scale-105" :class="[themeClasses.notInnerIcon, themeClasses.notTextUp]">
+                  {{ notification.actionText || "Ver más" }}
+                  <Icon :icon="openInNewIcon" class="ml-1" size="10px" />
+                </a>
               </div>
               <button v-if="notification.allowRemove" @click="removeNotification(notification)" class="transition-all duration-200 hover:scale-110 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" :class="[themeClasses.notCloseBtn]">
                 <Icon :icon="closeIcon" class="w-4 h-4" />
@@ -67,9 +71,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, inject, watch } from "vue";
+import axios from "axios";
+
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { useUpdateStore } from "../__Stores__/useUpdateStore";
+import { useNotificationsPolling, type Notification } from "../__Services__/NotificationsPolling";
 
 import { Badge } from "ant-design-vue";
 
@@ -81,104 +90,35 @@ import closeIcon from "@iconify-icons/mdi/close-thick";
 import checkIcon from "@iconify-icons/mdi/check-all";
 import updateIcon from "@iconify-icons/mdi/check-decagram";
 import loadingIcon from "@iconify-icons/mdi/loading";
-
-import { useUpdateStore } from "../__Stores__/useUpdateStore";
-
-interface Notification {
-  title: string;
-  message: string;
-  permanent: boolean;
-  startDate: string | null;
-  endDate: string | null;
-  allowRemove: boolean;
-  icon?: string;
-  removing?: boolean;
-  isUpdate?: boolean;
-  isUpdating?: boolean;
-  onClick?: () => void;
-}
-
-interface DismissedNotification {
-  title: string;
-  message: string;
-  date: Date;
-}
-
-const settingsData = inject<{
-  userName: string;
-}>("data-settings");
-
-if (!settingsData) {
-  throw new Error("Settings data is missing!");
-}
+import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 
 const { themeClasses } = useTheme();
 const trayManager = useTrayManager();
+const csrfToken = useCsrfToken();
 
 const TRAY_ID = "notification-bell";
 
 const showDropdown = ref(false);
 const dropdown = ref<HTMLElement | null>(null);
 
-const notifications = ref<Notification[]>([]);
-const dismissedNotifications = ref<DismissedNotification[]>([]);
+const { notifications } = useNotificationsPolling(csrfToken.value, 60000, 300000);
 const updateStore = useUpdateStore();
 
-const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
-
-if (settingsData.userName === "user") {
-  notifications.value.push({
-    title: "Default User Detected",
-    message: "You're using the default user! Please change it in settings.",
-    permanent: true,
-    startDate: null,
-    endDate: null,
-    allowRemove: false,
-  });
-}
-
-if (!settingsData.userName) {
-  notifications.value.push({
-    title: "No Username Set",
-    message: "Please set a username in your account settings.",
-    permanent: true,
-    startDate: null,
-    endDate: null,
-    allowRemove: false,
-  });
-}
-
-notifications.value.push({
-  title: "Change the default password!",
-  message: "It's dangerous to go alone! If you're using the default password make sure you change it as soon as possible!",
-  permanent: true,
-  startDate: null,
-  endDate: null,
-  allowRemove: true,
-});
-
-const loadNotifications = (): void => {
-  const storedDismissed = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]") as DismissedNotification[];
-  dismissedNotifications.value = storedDismissed;
-
-  const now = new Date();
-
-  notifications.value = notifications.value.filter((n) => {
-    const dismissed = dismissedNotifications.value.find((d) => d.title === n.title && d.message === n.message);
-    if (dismissed) {
-      return false;
-    }
-    if (n.permanent) {
-      return true;
-    }
-    const startDate = n.startDate ? new Date(n.startDate) : null;
-    const endDate = n.endDate ? new Date(n.endDate) : null;
-    return (!startDate || now >= startDate) && (!endDate || now <= endDate);
-  });
-};
-
-const saveDismissedNotifications = (): void => {
-  localStorage.setItem("dismissedNotifications", JSON.stringify(dismissedNotifications.value));
+const saveDismissedNotification = async (hash: string): Promise<void> => {
+  try {
+    await axios.post(
+      "/api/notifications/dismiss",
+      { hash },
+      {
+        headers: {
+          "X-HomeDock-CSRF-Token": csrfToken.value,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error saving dismissed notification:", error);
+  }
 };
 
 const toggleDropdown = (): void => {
@@ -191,12 +131,14 @@ const toggleDropdown = (): void => {
   }
 };
 
-const removeNotification = (notification: Notification): void => {
+const removeNotification = async (notification: Notification): Promise<void> => {
   notification.removing = true;
-  setTimeout(() => {
+  setTimeout(async () => {
     notifications.value = notifications.value.filter((n) => n !== notification);
-    dismissedNotifications.value.push({ title: notification.title, message: notification.message, date: new Date() });
-    saveDismissedNotifications();
+
+    if (notification.hash) {
+      await saveDismissedNotification(notification.hash);
+    }
   }, 300);
 };
 
@@ -222,20 +164,11 @@ const formatDate = (date: string | null): string => {
   return new Date(date).toLocaleDateString(undefined, options);
 };
 
-onMounted(() => {
-  loadNotifications();
-  document.addEventListener("click", handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
-
 onMounted(async () => {
-  await updateStore.checkForUpdate(csrfToken);
+  await updateStore.checkForUpdate(csrfToken.value);
 
   if (updateStore.updateAvailable) {
-    notifications.value.push({
+    const updateNotification: Notification = {
       title: `New version available!`,
       message: `New update available! HomeDock OS v${updateStore.latestVersion} is ready to install. Click here to update now.`,
       permanent: true,
@@ -249,15 +182,24 @@ onMounted(async () => {
         this.message = "Installing HomeDock OS update... Please wait until your HomeDock OS instance is back online...";
 
         try {
-          await updateStore.triggerUpdate(csrfToken);
+          await updateStore.triggerUpdate(csrfToken.value);
         } catch (error) {
           this.isUpdating = false;
           this.title = "Update Failed";
           this.message = "Something went wrong while updating HomeDock OS. Please reload and restart HomeDock OS.";
         }
       },
-    });
+    };
+
+    updateNotification.hash = "homedock-os-update-notification";
+    notifications.value.push(updateNotification);
   }
+
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 
 defineExpose({

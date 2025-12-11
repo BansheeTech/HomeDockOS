@@ -214,6 +214,14 @@ def get_server_uptime():
         return None
 
 
+def get_server_uptime_minutes():
+    try:
+        return (datetime.now() - start_time).total_seconds() / 60
+    except Exception as e:
+        print("Error getting HomeDock OS uptime in minutes:", e)
+        return 0
+
+
 def get_active_network_interface():
     net_io_counters = psutil.net_io_counters(pernic=True)
     max_data = 0

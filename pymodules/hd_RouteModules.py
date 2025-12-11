@@ -186,3 +186,8 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/pkg/export-imported", "export_imported_app", CSRF_Protect(export_imported_app), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/external-apps", "get_external_apps_for_store", CSRF_Protect(get_external_apps_for_store), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/parse-compose", "parse_compose", CSRF_Protect(parse_compose), methods=["POST"])
+
+    from pymodules.hd_NotificationHandler import dismiss_notification, get_notifications
+
+    homedock_www.add_url_rule("/api/notifications/dismiss", "dismiss_notification", CSRF_Protect(dismiss_notification), methods=["POST"])
+    homedock_www.add_url_rule("/api/notifications/list", "get_notifications", CSRF_Protect(get_notifications), methods=["GET"])
