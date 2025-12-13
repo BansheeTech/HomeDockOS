@@ -22,14 +22,14 @@ from vite_fusion import register_vite_assets
 
 from pymodules.hd_HDOSWebServerInit import homedock_www
 from pymodules.hd_AppFilters import b64encode_filter
-from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, running_OS, running_ARCH
+from pymodules.hd_FunctionsGlobals import current_directory, version, version_hash, running_OS, running_ARCH, logs_folder
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_PublicKeySender import send_public_key
 from pymodules.hd_FunctionsConfig import check_and_generate_config, read_config
 from pymodules.hd_FunctionsActiveInstance import active_instance
 
 from pymodules.hd_FunctionsMain import validate_docker_installation, validate_docker_compose_installation, init_color_if_windows
-from pymodules.hd_FunctionsMain import ensure_logs_directory
+from pymodules.hd_FunctionsInitUserFolders import init_all_directories
 
 from pymodules.hd_ThreadContainerResourceUsage import start_resource_usage_thread
 from pymodules.hd_ThreadAutoPortRouting import start_auto_port_routing_thread
@@ -47,7 +47,6 @@ from pymodules.hd_CSPMaxed import setup_security_headers
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
 from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
 
-from pymodules.hd_HDSPackageManager import ensure_external_dir
 from pymodules.hd_FunctionsHostSelector import is_docker
 
 os.chdir(current_directory)
@@ -57,8 +56,8 @@ set_updating_state(False)
 check_and_generate_config()
 globalConfig = read_config()
 
-ensure_logs_directory()
-logging.basicConfig(filename=os.path.join(current_directory, "logs", "error.log"), level=logging.ERROR)
+init_all_directories()
+logging.basicConfig(filename=os.path.join(logs_folder, "error.log"), level=logging.ERROR)
 
 homedock_www = homedock_www
 homedock_www.add_template_filter(b64encode_filter, name="b64encode")
@@ -78,7 +77,6 @@ register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], 
 if __name__ == "__main__":
 
     check_and_update_dependencies()
-    ensure_external_dir()
 
     RouteAllModules(homedock_www, send_public_key)
 
@@ -94,6 +92,11 @@ if __name__ == "__main__":
     run_on_development = globalConfig["run_on_development"]
 
     ssl_enabled_var = ssl_enabled()
+
+    if ssl_enabled_var and run_port == 80:
+        print()
+        print(" ! SSL enabled on port 80, hard switching to 443")
+        run_port = 443
 
     protocol = "https" if ssl_enabled_var else "http"
 
@@ -115,9 +118,15 @@ if __name__ == "__main__":
     print(" Copyright © 2023-2026 Banshee, All Rights Reserved ")
     print()
 
+    print(" ▸ Repo:     https://github.com/BansheeTech/HomeDockOS")
+    print(" ▸ Web:      https://www.homedock.cloud")
+    print(" ▸ Docs:     https://docs.homedock.cloud")
+    print(" ▸ Discord:  https://discord.gg/Zj3JCYsRWw")
+    print(" ▸ Support:  support@homedock.cloud")
+    print()
+
     print(" ⌂ \033[1;32;40mHomeDock OS Version\033[0m:", version)
     print(" ~ \033[1;30mVersion Hash: " + version_hash + "\033[0m")
-
     print()
 
     print(" * Run from:", current_directory)
@@ -126,17 +135,14 @@ if __name__ == "__main__":
     print(" * Run on public IP:", internet_ip)
     print(" * Run on Native SSL:", ssl_enabled_var)
     print(" * Run on development mode:", run_on_development)
-
     print()
 
     print(" * CPU Type:", running_ARCH)
     print(" * Underlying OS:", running_OS)
-
     print()
 
     print(" * User Login:", user_name)
     print(" * Default Password:", "passwd")
-
     print()
 
     if ssl_enabled_var:
@@ -212,9 +218,9 @@ if __name__ == "__main__":
                 hypercorn_config.keyfile = os.path.join(ssl_cert_dir, "privkey.pem")
                 hypercorn_config.ca_certs = os.path.join(ssl_cert_dir, "chain.pem")
 
-                from pymodules.hd_HTTPRedirector import start_http_redirect_server
-
-                redirect_app, redirect_config = start_http_redirect_server()
+                if run_port == 443:
+                    from pymodules.hd_HTTPRedirector import start_http_redirect_server
+                    redirect_app, redirect_config = start_http_redirect_server()
 
             async def homedock_www_asgi(scope, receive, send):
                 app = AsyncioWSGIMiddleware(homedock_www, max_body_size=1 * 1024 * 1024 * 1024)

@@ -91,19 +91,18 @@ class DockerComposeHelper:
             return False, f"Error checking Docker Compose version: {e}"
 
     @classmethod
-    def up(cls, cwd: str, detach: bool = True, service_names: Optional[List[str]] = None) -> Tuple[bool, str]:
+    def up(cls, compose_file: str, detach: bool = True, service_names: Optional[List[str]] = None) -> Tuple[bool, str]:
         try:
             method = cls._detect_compose_method()
-            compose_file = f"{cwd}/docker-compose.yml"
 
             if not os.path.exists(compose_file):
-                return False, f"docker-compose.yml not found at {compose_file}"
+                return False, f"Compose file not found: {compose_file}"
 
             # 1. Whales!
             if method == "whale":
                 from python_on_whales import DockerClient
 
-                docker = DockerClient(compose_files=[compose_file], compose_project_directory=cwd)
+                docker = DockerClient(compose_files=[compose_file])
 
                 if service_names:
                     docker.compose.up(services=service_names, detach=detach)
@@ -121,11 +120,12 @@ class DockerComposeHelper:
                 else:
                     cmd = ["docker-compose"]
 
+                cmd.extend(["-f", compose_file])
                 cmd.extend(["up", "-d"] if detach else ["up"])
                 if service_names:
                     cmd.extend(service_names)
 
-                result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=1800)
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
 
                 if result.returncode == 0:
                     return True, result.stdout

@@ -7,7 +7,7 @@ FROM python:3.12-slim
 
 LABEL maintainer="Banshee Technologies S.L."
 LABEL description="HomeDock OS - One Docker container to rule them all, a self-hosted Cloud OS for your Home Server."
-LABEL version="2.0.3.188"
+LABEL version="2.0.3.190"
 
 # Deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -54,7 +54,7 @@ RUN ln -sf /homedock/config/homedock_server.conf /homedock/homedock_server.conf 
 RUN chmod +x /homedock/entrypoint.sh
 
 # Port
-EXPOSE 80
+EXPOSE 80 443
 
 # Magic
 CMD ["/homedock/entrypoint.sh"]

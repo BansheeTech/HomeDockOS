@@ -8,11 +8,12 @@ https://www.banshee.pro
 import os
 import re
 import yaml
+import hashlib
 
-from flask_login import login_required
+from flask_login import login_required, current_user
 from flask import jsonify, request
 
-from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsGlobals import current_directory, user_packages_install_folder
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled
 from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders, DEVHOOK_USER_NAME_KEY, DEVHOOK_PASSWORD_KEY, DEVHOOK_SYSTEM_PASSWORD_KEY, DEVHOOK_RANDOM_STRING_KEY
 from pymodules.hd_HDSPackageManager import normalize_app_slug
@@ -170,8 +171,6 @@ def process_config():
     else:
         return jsonify({"success": False, "message": "Container not found"}), 404
 
-    new_yml_file_path = os.path.join(path_to_yml_files, containerName, "docker-compose.yml")
-
     if configType == "advanced":
         ymlContent = request_data.get("ymlContent")
         if not ymlContent:
@@ -188,9 +187,16 @@ def process_config():
         if not is_valid:
             return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
 
-        os.makedirs(os.path.dirname(new_yml_file_path), exist_ok=True)
-        with open(new_yml_file_path, "w") as file:
-            file.write(yml_str)
+        yml_bytes = yml_str.encode("utf-8")
+        content_hash = hashlib.sha256(yml_bytes).hexdigest()[:16]
+        user_name = current_user.id.lower()
+        container_name_safe = containerName.lower()
+        hash_folder = os.path.join(user_packages_install_folder, content_hash)
+        new_yml_file_path = os.path.join(hash_folder, f"{user_name}_{container_name_safe}.yml")
+
+        os.makedirs(hash_folder, exist_ok=True)
+        with open(new_yml_file_path, "wb") as file:
+            file.write(yml_bytes)
 
         return jsonify({"success": True, "message": "YML updated successfully"})
 
@@ -308,9 +314,16 @@ def process_config():
         if not is_valid:
             return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
 
-        os.makedirs(os.path.dirname(new_yml_file_path), exist_ok=True)
-        with open(new_yml_file_path, "w") as file:
-            file.write(yml_str)
+        yml_bytes = yml_str.encode("utf-8")
+        content_hash = hashlib.sha256(yml_bytes).hexdigest()[:16]
+        user_name = current_user.id.lower()
+        container_name_safe = containerName.lower()
+        hash_folder = os.path.join(user_packages_install_folder, content_hash)
+        new_yml_file_path = os.path.join(hash_folder, f"{user_name}_{container_name_safe}.yml")
+
+        os.makedirs(hash_folder, exist_ok=True)
+        with open(new_yml_file_path, "wb") as file:
+            file.write(yml_bytes)
 
         return jsonify({"success": True, "message": "YML updated successfully with simple configuration"})
 

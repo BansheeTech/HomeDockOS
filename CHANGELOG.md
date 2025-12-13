@@ -1,13 +1,25 @@
 # CHANGELOG
 
-- **2.0.3.188** (Latest): New notification system with external notifications and smart reminders.
+- **2.0.3.190** (Latest): Secure in-app installation workflow and centralized directory management.
+
+  - Implemented **secure installation verification** using SHA256 hash validation to ensure compose file integrity before deploying containers, preventing tampering during the installation process.
+  - Added **centralized directory initialization** that ensures all required system folders (logs, compose-link, dropzone, user packages) are properly created at startup.
+  - Simplified **Docker Compose deployment** by passing compose files directly instead of working directories, making container operations more reliable and straightforward.
+  - Streamlined **container update process** by removing unnecessary temporary file operations during updates.
+  - Updated **npm dependencies** including Vite 7.2.7, Vue Router 4.6.4, node-forge 1.3.3, and @types/node 25.0.1.
+  - Minor **UI improvements** to the server startup banner with website, docs and email links.
+  - Fixed **HTTP > HTTPS redirector** to only start when SSL is running on port 443, avoiding useless redirects on non-standard ports.
+  - Added **automatic port switching** from 80 to 443 when SSL is enabled, preventing invalid SSL-on-HTTP configurations.
+  - Updated **Dockerfile** to expose both ports 80 and 443 for Docker deployments with SSL support.
+
+---
+
+- **2.0.3.188**: New notification system with external notifications and smart reminders.
 
   - Added **external notifications support** allowing us to send important announcements directly to your HomeDock OS instance.
   - Implemented **notification persistence** so dismissed notifications stay hidden across sessions and systems.
   - Added **smart system reminders** including security tips, community invites, and helpful suggestions based on uptime.
   - Enhanced **notification bell** with action buttons and smooth animations for a better user experience.
-
----
 
 - **2.0.3.186**: Fixed DNS Open Redirect vulnerability, enhanced application packaging workflow and SSL enabled for Windows and macOS.
 

@@ -77,15 +77,6 @@ def process_container_update(name, client, updated_containers, containers_data, 
         containers_data.append({"name": name, "composeLink": "pull_failed"})
         return
 
-    new_dir = os.path.join(os.path.dirname(docker_compose_yml), name)
-    new_file = os.path.join(new_dir, "docker-compose.yml")
-
-    if not os.path.exists(new_dir):
-        os.makedirs(new_dir)
-
-    os.replace(docker_compose_yml, new_file)
-
-    time.sleep(0.2)
     updated_containers.append(name)
 
     group_name = container.labels.get("HDGroup", None)
@@ -95,23 +86,16 @@ def process_container_update(name, client, updated_containers, containers_data, 
         print(group_containers)
         old_image_ids = [c.image.id for c in group_containers]
         print(old_image_ids)
-        stop_and_update_group(group_name, old_image_ids, delete_old_image_flag)
+        stop_and_update_group(group_name, docker_compose_yml, old_image_ids, delete_old_image_flag)
     else:
         old_image_id = container.image.id
-        stop_and_update_container(name, old_image_id, delete_old_image_flag)
+        stop_and_update_container(name, docker_compose_yml, old_image_id, delete_old_image_flag)
 
     containers_data.append({"name": name, "composeLink": "exists"})
 
-    os.replace(new_file, docker_compose_yml)
-    time.sleep(0.2)
-
-    if not os.listdir(new_dir):
-        os.rmdir(new_dir)
-        time.sleep(0.2)
-
 
 # Single-image
-def stop_and_update_container(name, old_image_id, delete_old_image_flag):
+def stop_and_update_container(name, compose_file, old_image_id, delete_old_image_flag):
 
     try:
         container = client.containers.get(name)
@@ -119,7 +103,7 @@ def stop_and_update_container(name, old_image_id, delete_old_image_flag):
         container.remove()
 
         compose_helper = DockerComposeHelper.get_instance()
-        success, message = compose_helper.up(cwd=os.path.join(compose_upload_folder, name), detach=True, service_names=[name])
+        success, message = compose_helper.up(compose_file=compose_file, detach=True, service_names=[name])
 
         if not success:
             print(f"Error starting container {name}: {message}")
@@ -136,7 +120,7 @@ def stop_and_update_container(name, old_image_id, delete_old_image_flag):
 
 
 # Multi-image
-def stop_and_update_group(group_name, old_image_ids, delete_old_image_flag):
+def stop_and_update_group(group_name, compose_file, old_image_ids, delete_old_image_flag):
     all_containers = client.containers.list(filters={"label": f"HDGroup={group_name}"}, all=True)
     main_container_name = None
     new_image_ids = []
@@ -170,7 +154,7 @@ def stop_and_update_group(group_name, old_image_ids, delete_old_image_flag):
         print(f"An error occurred while stopping the main container {main_container_name}: {e}")
 
     compose_helper = DockerComposeHelper.get_instance()
-    success, message = compose_helper.up(cwd=os.path.join(compose_upload_folder, main_container_name), detach=True)
+    success, message = compose_helper.up(compose_file=compose_file, detach=True)
 
     if not success:
         print(f"Error starting group {group_name}: {message}")

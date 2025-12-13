@@ -19,12 +19,7 @@ from flask import jsonify, request, send_file
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 
-from pymodules.hd_FunctionsGlobals import (
-    current_directory,
-    user_packages_hds_folder,
-    user_packages_images_folder,
-    user_packages_available_folder,
-)
+from pymodules.hd_FunctionsGlobals import user_packages_hds_folder, user_packages_images_folder, user_packages_available_folder
 from pymodules.hd_ComposeDevHooks import extract_devhook_placeholders, DEVHOOK_PLACEHOLDERS
 from pymodules.hd_DockerAPIContainerData import invalidate_external_apps_cache
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
@@ -145,12 +140,6 @@ def parse_compose_file(compose_content: str) -> Dict:
 
     except Exception as e:
         return {"error": str(e), "image": None, "tag": None, "devhooks": [], "service_name": None}
-
-
-def ensure_external_dir():
-    os.makedirs(user_packages_hds_folder, exist_ok=True)
-    os.makedirs(user_packages_images_folder, exist_ok=True)
-    os.makedirs(user_packages_available_folder, exist_ok=True)
 
 
 def cleanup_partial_installation(app_slug: str, apps_folder: str) -> None:
@@ -281,7 +270,8 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
     if not app_slug:
         return False, "Manifest missing required 'name' field", None
 
-    ensure_external_dir()
+    os.makedirs(user_packages_available_folder, exist_ok=True)
+    os.makedirs(user_packages_images_folder, exist_ok=True)
 
     try:
         with zipfile.ZipFile(hds_path, "r") as zip_ref:
@@ -353,7 +343,7 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
 
 @login_required
 def list_external_apps():
-    ensure_external_dir()
+    os.makedirs(user_packages_hds_folder, exist_ok=True)
 
     try:
         installed_container_names = set()
@@ -391,7 +381,9 @@ def list_external_apps():
 
 @login_required
 def upload_hds_package():
-    ensure_external_dir()
+    os.makedirs(user_packages_hds_folder, exist_ok=True)
+    os.makedirs(user_packages_available_folder, exist_ok=True)
+    os.makedirs(user_packages_images_folder, exist_ok=True)
 
     if "file" not in request.files:
         return jsonify({"success": False, "message": "No file provided"}), 400

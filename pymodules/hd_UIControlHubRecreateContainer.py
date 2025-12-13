@@ -50,23 +50,17 @@ def recreate_container():
         container.remove()
         time.sleep(1)
 
-        temp_folder_path = os.path.join(compose_upload_folder, container_name)
-        os.makedirs(temp_folder_path, exist_ok=True)
+        os.makedirs(compose_upload_folder, exist_ok=True)
+        compose_file_path = os.path.join(compose_upload_folder, f"{container_name}.yml")
 
-        temp_file_path = os.path.join(temp_folder_path, "docker-compose.yml")
-        with open(temp_file_path, "w") as f:
+        with open(compose_file_path, "w") as f:
             f.write(yml_content)
 
         compose_helper = DockerComposeHelper.get_instance()
-        success, message = compose_helper.up(cwd=temp_folder_path, detach=True)
+        success, message = compose_helper.up(compose_file=compose_file_path, detach=True)
 
         if not success:
             return {"message": f"Failed to recreate container: {message}"}, 500
-
-        original_file_path = os.path.join(compose_upload_folder, f"{container_name}.yml")
-        os.replace(temp_file_path, original_file_path)  # HDOS00004
-
-        os.rmdir(temp_folder_path)
 
         mark_container_as_disabled(container_name)
         time.sleep(1)

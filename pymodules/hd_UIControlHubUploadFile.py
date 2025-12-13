@@ -32,6 +32,7 @@ def upload_compose_file():
     if not container_name:
         return jsonify(message="No container name specified."), 400
 
+    os.makedirs(compose_upload_folder, exist_ok=True)
     filename = secure_filename(container_name + ".yml")
     file.save(os.path.join(compose_upload_folder, filename))
 
