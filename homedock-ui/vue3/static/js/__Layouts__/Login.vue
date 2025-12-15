@@ -12,50 +12,87 @@
   <StaticOscillatingLines />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
-      <div :class="[themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
+      <div :class="[themeClasses.scopeSelector, themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
         <div class="flex justify-between items-start mb-6">
           <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
         </div>
-        <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
-        <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">Sign in to continue</p>
-        <Form layout="vertical" :model="formState" :rules="rules" @finish="handleFinish" @finishFailed="handleFinishFailed">
-          <Form.Item name="username">
-            <label class="text-gray-300" for="username">Username</label>
-            <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser" autocomplete="username" v-model:value="formState.username" placeholder="Username..." :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
-              <template #prefix>
-                <Icon :icon="accountIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
-              </template>
-            </Input>
-          </Form.Item>
-          <div class="mt-2"></div>
-          <Form.Item name="">
-            <label class="text-gray-300" for="password">Password</label>
-            <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group" autocomplete="current-password" v-model:value="formState.password" :type="passwordVisible ? 'text' : 'password'" placeholder="••••••••" :status="validationStatus" :maxlength="30" required @focus="showCloudInstances">
-              <template #prefix>
-                <Icon :icon="passIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
-              </template>
-              <template #suffix>
-                <Button class="mb-1 transition duration-300" :class="{ 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }" type="link" @click="togglePasswordVisibility" icon>
-                  <Icon :icon="openEye" v-if="passwordVisible" class="mt-1" />
-                  <Icon :icon="closedEye" v-else class="mt-1" />
+        <div class="flip-card-container" :class="{ flipped: requires2FA }">
+          <div class="flip-card-inner">
+            <div class="flip-card-face flip-card-front">
+              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
+              <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">Sign in to continue</p>
+              <Form layout="vertical" :model="formState" :rules="rules" @finish="handleFinish" @finishFailed="handleFinishFailed">
+                <Form.Item name="username">
+                  <label class="text-gray-300" for="username">Username</label>
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser" autocomplete="username" v-model:value="formState.username" placeholder="Username..." :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
+                    <template #prefix>
+                      <Icon :icon="accountIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
+                    </template>
+                  </Input>
+                </Form.Item>
+                <div class="mt-2"></div>
+                <Form.Item name="">
+                  <label class="text-gray-300" for="password">Password</label>
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group" autocomplete="current-password" v-model:value="formState.password" :type="passwordVisible ? 'text' : 'password'" placeholder="••••••••" :status="validationStatus" :maxlength="30" required @focus="showCloudInstances">
+                    <template #prefix>
+                      <Icon :icon="passIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
+                    </template>
+                    <template #suffix>
+                      <Button class="mb-1 transition duration-300" :class="{ 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }" type="link" @click="togglePasswordVisibility" icon>
+                        <Icon :icon="openEye" v-if="passwordVisible" class="mt-1" />
+                        <Icon :icon="closedEye" v-else class="mt-1" />
+                      </Button>
+                    </template>
+                  </Input>
+                </Form.Item>
+                <Button id="main_button_login" @click="triggerBounce" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" :loading="isSubmitting" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0" :disabled="isSubmitting || isLoginSuccessful">
+                  <div v-if="!isLoginSuccessful" class="flex items-center justify-center">
+                    <Icon :icon="passIcon" class="text-white" width="16" height="16" />
+                    <span class="ml-1">Sign In</span>
+                  </div>
+                  <span v-else>
+                    <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
+                  </span>
                 </Button>
-              </template>
-            </Input>
-          </Form.Item>
-          <Button id="main_button_login" @click="triggerBounce" :class="{ clicked: isLoginSuccessful }" :loading="isSubmitting" type="primary" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0 disabled:bg-blue-400 disabled:cursor-pointer disabled:text-white" :disabled="isSubmitting || isLoginSuccessful">
-            <div v-if="!isLoginSuccessful" class="flex items-center justify-center">
-              <Icon :icon="passIcon" class="text-white" width="16" height="16" />
-              <span class="ml-1">Sign In</span>
+                <Transition name="slide-down-error">
+                  <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">Remaining attempts: {{ remainingAttempts }}</p>
+                </Transition>
+              </Form>
             </div>
-            <span v-else>
-              <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
-            </span>
-          </Button>
-          <Transition name="slide-down-error">
-            <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">Remaining attempts: {{ remainingAttempts }}</p>
-          </Transition>
-        </Form>
-        <div :class="[themeClasses.loginSocialsCont]" class="flex items-center space-x-2 transition-all duration-300 ease-in-out transform translate-y-5 w-fit px-1.5 group-hover:px-10 py-1 rounded-full mx-auto">
+
+            <div class="flip-card-face flip-card-back">
+              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
+              <p :class="[themeClasses.subText]" class="font-light mb-4 leading-3">Two-factor verification</p>
+              <div class="flex items-center gap-2 mb-2">
+                <Icon :icon="shieldKeyIcon" :class="[themeClasses.mainText]" width="24" height="24" />
+                <h3 :class="[themeClasses.mainText]" class="text-lg font-medium">Two-Factor Authentication</h3>
+              </div>
+              <p :class="[themeClasses.subText]" class="text-sm mb-4">Enter the 6-digit code from your authenticator app or a backup code.</p>
+              <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-14 text-center text-xl tracking-wide mb-4" v-model:value="totpCode" placeholder="Ex: 123456" :maxlength="12" autocomplete="one-time-code" @keyup.enter="handle2FAVerify" />
+              <div :class="[themeClasses.subText]" class="flex items-center gap-2 select-none mb-2">
+                <Switch v-model:checked="trustDevice" size="small" />
+                <span class="text-sm">Don't ask on this device for 30 days</span>
+              </div>
+              <div class="flex gap-2 mt-4">
+                <Button :class="[themeClasses.loginSecondaryButton]" class="flex items-center h-14" @click="cancel2FA" :disabled="verifying2FA || isLoginSuccessful">
+                  <Icon :icon="arrowLeftIcon" width="16" height="16" class="mr-1" />
+                  Back
+                </Button>
+                <Button id="main_button_login_2fa" class="flex-1 h-14 border-0" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" @click="handle2FAVerify" :disabled="verifying2FA || isLoginSuccessful">
+                  <div v-if="!isLoginSuccessful && !verifying2FA" class="flex items-center justify-center">
+                    <Icon :icon="checkIcon" class="text-white" width="16" height="16" />
+                    <span class="ml-1">Verify</span>
+                  </div>
+                  <span v-else>
+                    <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
+                  </span>
+                </Button>
+              </div>
+              <p :class="[themeClasses.subText]" class="text-xs mt-2 text-center opacity-70">Lost your device? Use a backup code instead.</p>
+            </div>
+          </div>
+        </div>
+        <div :class="[themeClasses.loginSocialsCont, { 'opacity-0 pointer-events-none': requires2FA }]" class="flex items-center space-x-2 transition-all duration-300 ease-in-out transform translate-y-5 w-fit px-1.5 group-hover:px-10 py-1 rounded-full mx-auto">
           <a href="https://github.com/BansheeTech/HomeDockOS" target="_blank" class="flex items-center">
             <Icon :class="[themeClasses.loginSocials]" class="w-5 h-5 transition duration-300 hover:scale-125 hover:-translate-y-1" :icon="githubIcon" />
           </a>
@@ -82,6 +119,7 @@ import axios from "axios";
 
 import { ref, watch } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { getServerKeyAndToken, encryptWithKey } from "../__Utils__/CryptoClient";
 
 import { AxiosError } from "axios";
 
@@ -94,8 +132,11 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import websiteIcon from "@iconify-icons/mdi/earth";
 import supportIcon from "@iconify-icons/mdi/lifebuoy";
 import githubIcon from "@iconify-icons/mdi/github";
+import shieldKeyIcon from "@iconify-icons/mdi/shield-key";
+import arrowLeftIcon from "@iconify-icons/mdi/arrow-left";
+import checkIcon from "@iconify-icons/mdi/check";
 
-import { Form, Input, Button } from "ant-design-vue";
+import { Form, Input, Button, Switch } from "ant-design-vue";
 import { message } from "ant-design-vue";
 import type { Rule } from "ant-design-vue/es/form";
 
@@ -139,6 +180,12 @@ const remainingAttempts = ref<number | null>(null);
 const isLoginSuccessful = ref<boolean>(false);
 const { themeClasses } = useTheme();
 
+const requires2FA = ref<boolean>(false);
+const pending2FAToken = ref<string>("");
+const totpCode = ref<string>("");
+const verifying2FA = ref<boolean>(false);
+const trustDevice = ref<boolean>(false);
+
 const togglePasswordVisibility = (): void => {
   passwordVisible.value = !passwordVisible.value;
 };
@@ -159,41 +206,20 @@ const handleFinish = async () => {
 
   try {
     // 1. RSA Pub key + Token from Back
-    const publicKeyResponse = await axios.get("/api/pksend", {
-      headers: {
-        "Content-Type": "application/json",
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-    });
-
-    const pemPublicKey = publicKeyResponse.data.public_key;
-    const token = publicKeyResponse.data.token;
-    if (!pemPublicKey || !token) {
+    const { publicKey, token } = await getServerKeyAndToken(csrfToken.value, true);
+    if (!publicKey || !token) {
       throw new Error("Public Key or token not found in response.");
     }
 
-    // 2. Cypher password with RSA
-    const forge = (await import("node-forge")).default;
-    const encoder = new TextEncoder();
-    const encodedPassword = encoder.encode(formState.value.password);
-    const binaryStringPassword = Array.from(encodedPassword)
-      .map((byte) => String.fromCharCode(byte))
-      .join("");
+    // 2. Encrypt password with RSA
+    const encryptedPassword = encryptWithKey(formState.value.password, publicKey);
 
-    const publicKey = forge.pki.publicKeyFromPem(pemPublicKey);
-    const encryptedPassword = publicKey.encrypt(binaryStringPassword, "RSA-OAEP", {
-      md: forge.md.sha256.create(),
-      mgf1: { md: forge.md.sha256.create() },
-    });
-
-    const encryptedPasswordBase64 = forge.util.encode64(encryptedPassword);
-
-    // 3. Encrypt password with pcrypt
+    // 3. Send Enc password to Back
     const pcryptResponse = await axios.post(
       "/api/pcrypt",
       {
         token: token,
-        password: encryptedPasswordBase64,
+        password: encryptedPassword,
       },
       {
         headers: {
@@ -233,6 +259,10 @@ const handleFinish = async () => {
         setTimeout(() => {
           window.location.href = loginResponse.data.redirect_url;
         }, 2500);
+      } else if (loginResponse.data.status === "2fa_required") {
+        requires2FA.value = true;
+        pending2FAToken.value = loginResponse.data.pending_token;
+        message.info(loginResponse.data.message);
       } else {
         if (loginResponse.data.remaining_attempts !== undefined) {
           remainingAttempts.value = loginResponse.data.remaining_attempts;
@@ -290,49 +320,176 @@ watch(remainingAttempts, () => {
 });
 
 const handleFinishFailed = (errors: any): void => {};
+
+const handle2FAVerify = async () => {
+  const codeLength = totpCode.value.length;
+  if (codeLength !== 6 && codeLength !== 12) {
+    message.warning("Please enter a 6-digit code or backup code");
+    return;
+  }
+
+  verifying2FA.value = true;
+
+  try {
+    const response = await axios.post(
+      "/api/pk2fa",
+      {
+        code: totpCode.value,
+        pending_token: pending2FAToken.value,
+        homedock_csrf_token: csrfToken.value,
+        trust_device: trustDevice.value,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-HomeDock-CSRF-Token": csrfToken.value,
+        },
+      }
+    );
+
+    if (response.data.status === "success") {
+      message.success(response.data.message);
+      isLoginSuccessful.value = true;
+
+      if (response.data.used_backup) {
+        message.warning("You used a backup code. Consider generating new backup codes in Settings.", 5);
+      }
+
+      setTimeout(() => {
+        window.location.href = response.data.redirect_url;
+      }, 2500);
+    }
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.data) {
+      message.error(error.response.data.error || "Invalid verification code");
+      if (error.response.status === 429 || error.response.status === 403) {
+        cancel2FA();
+      }
+    }
+  } finally {
+    verifying2FA.value = false;
+  }
+};
+
+const cancel2FA = () => {
+  requires2FA.value = false;
+  pending2FAToken.value = "";
+  totpCode.value = "";
+  trustDevice.value = false;
+};
 </script>
 
 <style scoped>
-#main_button_login {
+/* Flip Card Animation */
+.flip-card-container {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card-container.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-front {
+  position: relative;
+}
+
+.flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: rotateY(180deg);
+}
+
+/* Hide back face */
+.flip-card-container:not(.flipped) .flip-card-back {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.flip-card-container.flipped .flip-card-front {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.flip-card-container.flipped .flip-card-back {
+  visibility: visible;
+}
+
+#main_button_login,
+#main_button_login_2fa {
   position: relative;
   overflow: hidden;
   z-index: 1;
   width: 100%;
 }
 
-#main_button_login::before {
+#main_button_login::before,
+#main_button_login_2fa::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgb(50, 50, 50);
+  background-color: var(--login-button-clicked-bg, rgb(50, 50, 50));
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.4s ease-in-out;
   z-index: -1;
 }
 
-#main_button_login.clicked::before {
+#main_button_login.clicked::before,
+#main_button_login_2fa.clicked::before {
   transform: scaleX(1);
   transform-origin: center;
+}
+
+#main_button_login:disabled,
+#main_button_login_2fa:disabled {
+  opacity: 1 !important;
+}
+
+/* Theme-specific clicked animation colors */
+.white-mode-theme #main_button_login::before,
+.white-mode-theme #main_button_login_2fa::before {
+  --login-button-clicked-bg: rgb(156, 163, 175);
+}
+
+.dark-mode-theme #main_button_login::before,
+.dark-mode-theme #main_button_login_2fa::before {
+  --login-button-clicked-bg: rgb(82, 82, 91);
+}
+
+.aero-mode-theme #main_button_login::before,
+.aero-mode-theme #main_button_login_2fa::before {
+  --login-button-clicked-bg: rgba(255, 255, 255, 0.2);
 }
 
 /* Bounce Effect */
 @keyframes bounce-effect {
   0%,
   100% {
-    transform: translateY(0);
+    margin-top: 0;
   }
   50% {
-    transform: translateY(-5px);
+    margin-top: -15px;
   }
 }
 
 .bounce {
   animation: bounce-effect 0.3s ease;
-  z-index: 1;
 }
 
 /* Animated Attempts */

@@ -10,12 +10,13 @@ from pymodules.hd_FunctionsHandleCSRFToken import CSRF_Protect
 
 def RouteAllModules(homedock_www, send_public_key):
 
-    from pymodules.hd_UILogin import login_pwd_encrypt, login_page, api_login, login_manager, load_user
+    from pymodules.hd_UILogin import login_pwd_encrypt, login_page, api_login, login_2fa_verify, load_user, login_manager
 
     homedock_www.add_url_rule("/", "login_page", login_page, methods=["GET"])
     homedock_www.add_url_rule("/login", "api_login", CSRF_Protect(api_login), methods=["POST"])
     homedock_www.add_url_rule("/api/pksend", "send_public_key", CSRF_Protect(send_public_key), methods=["GET"])
     homedock_www.add_url_rule("/api/pcrypt", "login_pwd_encrypt", CSRF_Protect(login_pwd_encrypt), methods=["POST"])
+    homedock_www.add_url_rule("/api/pk2fa", "login_2fa_verify", CSRF_Protect(login_2fa_verify), methods=["POST"])
     login_manager.init_app(homedock_www)
     login_manager.user_loader(load_user)
 
@@ -191,3 +192,11 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/notifications/dismiss", "dismiss_notification", CSRF_Protect(dismiss_notification), methods=["POST"])
     homedock_www.add_url_rule("/api/notifications/list", "get_notifications", CSRF_Protect(get_notifications), methods=["GET"])
+
+    from pymodules.hd_2FAInternalHandler import api_2fa_status, api_2fa_setup_init, api_2fa_setup_verify, api_2fa_disable, api_2fa_regenerate_backup_codes
+
+    homedock_www.add_url_rule("/api/2fa/status", "2fa_status", CSRF_Protect(api_2fa_status), methods=["GET"])
+    homedock_www.add_url_rule("/api/2fa/setup/init", "2fa_setup_init", CSRF_Protect(api_2fa_setup_init), methods=["POST"])
+    homedock_www.add_url_rule("/api/2fa/setup/verify", "2fa_setup_verify", CSRF_Protect(api_2fa_setup_verify), methods=["POST"])
+    homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
+    homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])

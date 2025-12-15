@@ -51,6 +51,8 @@ export function useTheme() {
       formIcon: "text-gray-300",
       loginSocialsCont: "bg-gray-100 border border-gray-200/50",
       loginSocials: "text-gray-300 hover:text-blue-600",
+      loginPrimaryButton: "login-primary-button",
+      loginSecondaryButton: "login-secondary-button",
 
       iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-300 via-gray-200 to-gray-300",
       appHolder: "hover:bg-gray-50 border-gray-200",
@@ -803,6 +805,8 @@ export function useTheme() {
       formIcon: "text-zinc-500",
       loginSocialsCont: "bg-zinc-800 border border-zinc-700/50",
       loginSocials: "text-zinc-600 hover:text-blue-600",
+      loginPrimaryButton: "login-primary-button",
+      loginSecondaryButton: "login-secondary-button",
 
       iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
       appHolder: "border-zinc-800 hover:bg-zinc-800",
@@ -1555,6 +1559,8 @@ export function useTheme() {
       formIcon: "text-zinc-500",
       loginSocialsCont: "bg-zinc-800/25 border border-zinc-800/25",
       loginSocials: "text-zinc-500 hover:text-blue-500",
+      loginPrimaryButton: "login-primary-button",
+      loginSecondaryButton: "login-secondary-button",
 
       iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
       appHolder: "border-zinc-800/50 hover:bg-zinc-800/25",

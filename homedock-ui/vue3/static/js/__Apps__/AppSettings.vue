@@ -69,20 +69,16 @@
           </TabPane>
         </Tabs>
 
-        <div class="flex mt-4 gap-2">
-          <Button id="cancelButton" class="flex items-center" type="default" danger @click="handleCancel">
-            <Icon :icon="arrowLeftIcon" size="15px" class="mr-1" />
+        <div class="flex mt-4 gap-3">
+          <button type="button" id="cancelButton" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
+            <Icon :icon="arrowLeftIcon" width="15" height="15" />
             Cancel
-          </Button>
-          <Button :disabled="!isFormValid" class="flex items-center" type="primary" htmlType="submit">
-            <template v-if="savingLoading">
-              <Icon :icon="loadingIcon" size="15px" class="mr-1 animate-spin" key="loading" />
-            </template>
-            <template v-else>
-              <Icon :icon="contentSaveIcon" size="15px" class="mr-1" key="save" />
-            </template>
+          </button>
+          <button :disabled="!isFormValid || savingLoading" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="isFormValid ? [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover] : 'save-btn-disabled'" type="submit">
+            <Icon v-if="savingLoading" :icon="loadingIcon" width="15" height="15" class="animate-spin" />
+            <Icon v-else :icon="contentSaveIcon" width="15" height="15" />
             <span>Save Settings</span>
-          </Button>
+          </button>
         </div>
       </form>
     </div>
@@ -106,14 +102,14 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import forge from "node-forge";
 
 import { computed, inject, reactive, ref, onBeforeUnmount } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { encryptForServer } from "../__Utils__/CryptoClient";
 
-import { Tabs, TabPane, Button } from "ant-design-vue";
+import { Tabs, TabPane } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import accountIcon from "@iconify-icons/mdi/account";
@@ -166,7 +162,6 @@ const windowStore = useWindowStore();
 const systemStatsStore = useSystemStatsStore();
 
 const activeKey = ref("1");
-const publicKey = ref<string>("");
 const savingLoading = ref<boolean>(false);
 const themeTabRef = ref<any>(null);
 
@@ -182,29 +177,6 @@ const themeDisplayName = computed(() => {
   };
   return themeMap[formData.theme.selectedTheme || "default"] || "Default";
 });
-
-const fetchPublicKey = async () => {
-  try {
-    const response = await axios.get("/api/pksend", {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-    publicKey.value = response.data.public_key;
-  } catch (error) {
-    console.error("Failed to fetch public encryption key:", error);
-    throw error;
-  }
-};
-
-const encryptData = (data: any): string => {
-  const rsa = forge.pki.publicKeyFromPem(publicKey.value);
-  const jsonData = JSON.stringify(data);
-  return forge.util.encode64(
-    rsa.encrypt(jsonData, "RSA-OAEP", {
-      md: forge.md.sha256.create(),
-      mgf1: { md: forge.md.sha256.create() },
-    })
-  );
-};
 
 const isFormValid = computed(() => {
   const userValid = !(!formData.user.username || !/^[a-zA-Z0-9]+$/.test(formData.user.username) || formData.user.username.length > 30 || (formData.user.changePassword && ((formData.user.password?.length ?? 0) < 6 || formData.user.password !== formData.user.confirmPassword)));
@@ -303,16 +275,17 @@ const handleSubmit = async () => {
     }
   }
 
-  if (!publicKey.value) await fetchPublicKey();
-
   const usernameChanged = formData.user.username !== settingsData.userName;
 
-  const encryptedPayload = encryptData({
-    user: formData.user,
-    system: formData.system,
-    storage: formData.storage,
-    theme: formData.theme,
-  });
+  const encryptedPayload = await encryptForServer(
+    {
+      user: formData.user,
+      system: formData.system,
+      storage: formData.storage,
+      theme: formData.theme,
+    },
+    csrfToken.value
+  );
 
   try {
     const response = await axios.post(
@@ -396,11 +369,11 @@ const handleCancel = () => {
   transform: translateY(-20px);
 }
 
-::v-deep(.ant-btn-primary:disabled) {
+.save-btn-disabled {
   border-color: #85858587 !important;
   background-color: #740a0a !important;
   color: #ffffff !important;
   text-decoration: line-through !important;
-  transition: ease-in-out 0.3s !important;
+  cursor: not-allowed !important;
 }
 </style>

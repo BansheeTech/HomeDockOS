@@ -7,8 +7,6 @@ https://www.banshee.pro
 
 import os
 import re
-import json
-import base64
 import bcrypt
 import configparser
 
@@ -16,38 +14,25 @@ from flask import jsonify, session, request
 from flask_login import login_required
 from urllib.parse import urlparse
 
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.backends import default_backend
-
-from werkzeug.utils import secure_filename
-
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
 from pymodules.hd_FunctionsGlobals import current_directory
-from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
+from pymodules.hd_CryptoServer import decrypt_json_from_client
 from pymodules.hd_ConfigEventManager import notify_config_changed
-from pymodules.hd_ExternalDriveManager import get_valid_external_drives, is_valid_external_drive
+from pymodules.hd_ExternalDriveManager import is_valid_external_drive
 
 
 @login_required
 def api_save_settings():
     try:
-
         encrypted_data = request.json.get("encrypted_data")
         if not encrypted_data:
             return jsonify({"error": "No encrypted data provided."}), 400
 
-        private_key = serialization.load_pem_private_key(get_private_key(), password=None, backend=default_backend())
-        decrypted_data_bytes = private_key.decrypt(
-            base64.b64decode(encrypted_data),
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None,
-            ),
-        )
-        decrypted_data = json.loads(decrypted_data_bytes.decode("utf-8"))
+        try:
+            decrypted_data = decrypt_json_from_client(encrypted_data)
+        except ValueError as e:
+            return jsonify({"error": "Failed to decrypt data."}), 400
 
         user_data = decrypted_data.get("user", {})
         system_data = decrypted_data.get("system", {})
@@ -116,10 +101,17 @@ def api_save_settings():
         delete_old_image_containers_after_uninstall = "True" if bool(system_data.get("deleteOldImagesUninstall", False)) else "False"
         delete_internal_data_volumes = "True" if bool(system_data.get("deleteVolumesUninstall", False)) else "False"
 
-        valid_drives = get_valid_external_drives()
         default_external_drive = storage_data.get("externalDrive", "disabled")
         if not is_valid_external_drive(default_external_drive):
             default_external_drive = "disabled"
+
+        existing_config = configparser.ConfigParser()
+        existing_config.read(os.path.join(current_directory, "homedock_server.conf"))
+
+        two_fa_enabled = existing_config.get("Config", "2fa_enabled", fallback="False")
+        two_fa_secret = existing_config.get("Config", "2fa_secret", fallback="False")
+        two_fa_backup_codes = existing_config.get("Config", "2fa_backup_codes", fallback="False")
+        two_fa_whitelist_hashes = existing_config.get("Config", "2fa_whitelist_hashes", fallback="False")
 
         config = configparser.ConfigParser()
         config["Config"] = {
@@ -136,6 +128,10 @@ def api_save_settings():
             "default_external_drive": default_external_drive,
             "selected_theme": selected_theme,
             "selected_back": selected_back,
+            "2fa_enabled": two_fa_enabled,
+            "2fa_secret": two_fa_secret,
+            "2fa_backup_codes": two_fa_backup_codes,
+            "2fa_whitelist_hashes": two_fa_whitelist_hashes,
         }
         with open(os.path.join(current_directory, "homedock_server.conf"), "w") as config_file:
             config.write(config_file)

@@ -11,8 +11,14 @@ from typing import Optional, Type
 DEFAULT_MAX_SIZE = 1 * 1024 * 1024  # 1MB
 
 endpoint_limits = {
-    "/login": 64 * 1024,  # 64KB
-    "/api/pcrypt": 64 * 1024,  # 64KB
+    "/login": 2 * 1024,  # 2KB
+    "/api/pcrypt": 2 * 1024,  # 2KB
+    "/api/pksend": 1 * 1024,  # 1KB
+    "/api/pk2fa": 1 * 1024,  # 1KB
+    "/api/2fa/setup/verify": 2 * 1024,  # 2KB
+    "/api/2fa/setup/init": 1 * 1024,  # 1KB
+    "/api/2fa/status": 1 * 1024,  # 1KB
+    "/api/2fa/disable": 2 * 1024,  # 2KB
     "/api/upload_file": 1 * 1024 * 1024 * 1024,  # 1GB
     "/api/upload_wallpaper": 10 * 1024 * 1024,  # 10MB
 }

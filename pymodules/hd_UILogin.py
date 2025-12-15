@@ -7,15 +7,12 @@ https://www.banshee.pro
 
 import os
 import bcrypt
-import base64
+import secrets
 import ipaddress
+import configparser
 
 from datetime import datetime, timedelta
 from collections import defaultdict
-
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.backends import default_backend
 
 from flask import render_template, request, session, g, jsonify, redirect, url_for
 from flask_login import UserMixin, login_user, current_user, LoginManager
@@ -25,8 +22,9 @@ from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsMain import sanitize_input
 from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
-from pymodules.hd_FunctionsEnhancedEncryption import get_private_key
+from pymodules.hd_CryptoServer import decrypt_from_client
 from pymodules.hd_DropZoneEncryption import dropzone_init
+from pymodules.hd_2FAInternalHandler import verify_2fa_code, is_device_trusted, add_trusted_device
 
 login_manager = LoginManager()
 login_manager.init_app(homedock_www)
@@ -39,6 +37,10 @@ shield_mode_timestamp = None
 shield_mode_count = 0
 
 failed_attempts = defaultdict(list)
+
+PENDING_2FA_EXPIRATION_MINUTES = 5
+MAX_2FA_ATTEMPTS = 3
+failed_2fa_attempts = defaultdict(list)
 
 
 class User(UserMixin):
@@ -140,6 +142,15 @@ def log_attempt(ip_address, status, username):
         log_file.writelines(entries_to_keep)
 
 
+def complete_login_session(user_name, ip_address):
+    user = User(user_name)
+    login_user(user)
+    log_attempt(ip_address, "Success", "Hidden")
+    regenerate_csrf_token()
+    session.permanent = True
+    dropzone_init()
+
+
 def login_page():
     ip_address = request.remote_addr
     aux_config = read_config()
@@ -209,18 +220,9 @@ def api_login():
     encrypted_password_base64 = token_data["password"]
 
     try:
-        encrypted_password = base64.b64decode(encrypted_password_base64)
-        private_key_serialized = get_private_key()
-        private_key = serialization.load_pem_private_key(private_key_serialized, password=None, backend=default_backend())
-
-        decrypted_password_bytes = private_key.decrypt(encrypted_password, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
-        decrypted_password = decrypted_password_bytes.decode("utf-8")
-
-    except UnicodeDecodeError:
-        return jsonify({"status": "bad_request", "message": "Error decoding non-plain password."}), 400
-
-    except Exception:
-        return jsonify({"status": "bad_request", "message": "Password encryption failed, please contact support."}), 400
+        decrypted_password = decrypt_from_client(encrypted_password_base64, allow_hybrid=False)
+    except ValueError:
+        return jsonify({"status": "bad_request", "message": "Password decryption failed, please contact support."}), 400
 
     given_username = data.get("username", "").lower()
     given_password = decrypted_password
@@ -242,14 +244,22 @@ def api_login():
         failed_attempts[ip_address] = []
         remaining_attempts = 3
 
-        user = User(sanitized_username)
-        login_user(user)
-        log_attempt(ip_address, "Success", "Hidden")
+        if config.get("2fa_enabled"):
+            user_agent = request.headers.get("User-Agent", "")
+            if is_device_trusted(ip_address, user_agent, config):
+                complete_login_session(sanitized_username, ip_address)
+                return jsonify({"status": "success", "message": "Login successful, welcome to HomeDock OS.", "redirect_url": "/dashboard"}), 200
 
-        regenerate_csrf_token()
-        session.permanent = True
+            pending_token = secrets.token_hex(32)
+            session["pending_2fa_login"] = {
+                "token": pending_token,
+                "user_name": sanitized_username,
+                "ip_address": ip_address,
+                "timestamp": datetime.now().isoformat(),
+            }
+            return jsonify({"status": "2fa_required", "message": "Two-factor authentication required.", "pending_token": pending_token}), 200
 
-        dropzone_init()
+        complete_login_session(sanitized_username, ip_address)
 
         return jsonify({"status": "success", "message": "Login successful, welcome to HomeDock OS.", "redirect_url": "/dashboard"}), 200
 
@@ -290,3 +300,78 @@ def api_login():
             return jsonify({"status": "limited", "message": "You've been limited, please try again later.", "redirect_url": "/limited"}), 429
 
         return jsonify({"status": "failed", "message": f"Incorrect credentials, remaining attempts: {remaining_attempts}.", "remaining_attempts": remaining_attempts}), 401
+
+
+def login_2fa_verify():
+    data = request.get_json()
+    code = data.get("code", "")
+    pending_token = data.get("pending_token")
+    trust_device = data.get("trust_device", False)
+    ip_address = request.remote_addr
+    user_agent = request.headers.get("User-Agent", "")
+
+    if not code or not pending_token:
+        return jsonify({"error": "Missing verification code or token."}), 400
+
+    pending_login = session.get("pending_2fa_login")
+    if not pending_login or pending_login.get("token") != pending_token:
+        log_attempt(ip_address, "2FA Errored", "Hidden")
+        return jsonify({"error": "Invalid or expired 2FA session. Please login again."}), 403
+
+    login_timestamp_str = pending_login.get("timestamp")
+    if login_timestamp_str:
+        try:
+            login_timestamp = datetime.fromisoformat(login_timestamp_str)
+            if (datetime.now() - login_timestamp) > timedelta(minutes=PENDING_2FA_EXPIRATION_MINUTES):
+                session.pop("pending_2fa_login", None)
+                log_attempt(ip_address, "2FA Errored", "Hidden")
+                return jsonify({"error": "2FA session expired. Please login again."}), 403
+        except ValueError:
+            session.pop("pending_2fa_login", None)
+            log_attempt(ip_address, "2FA Errored", "Hidden")
+            return jsonify({"error": "Invalid 2FA session. Please login again."}), 403
+
+    failed_2fa_attempts[pending_token] = [
+        attempt for attempt in failed_2fa_attempts[pending_token]
+        if attempt > datetime.now() - timedelta(minutes=PENDING_2FA_EXPIRATION_MINUTES)
+    ]
+
+    config = read_config()
+    secret = config.get("2fa_secret")
+    backup_codes_str = config.get("2fa_backup_codes", "")
+    backup_codes = backup_codes_str.split(",") if backup_codes_str else []
+
+    is_valid, used_backup, updated_backup_codes = verify_2fa_code(code, secret, backup_codes)
+
+    if not is_valid:
+        failed_2fa_attempts[pending_token].append(datetime.now())
+        log_attempt(ip_address, "2FA Failed", "Hidden")
+
+        if len(failed_2fa_attempts[pending_token]) >= MAX_2FA_ATTEMPTS:
+            session.pop("pending_2fa_login", None)
+            failed_2fa_attempts.pop(pending_token, None)
+            log_attempt(ip_address, "2FA Errored", "Hidden")
+            return jsonify({"error": "Too many failed 2FA attempts. Please login again."}), 429
+
+        remaining = MAX_2FA_ATTEMPTS - len(failed_2fa_attempts[pending_token])
+        return jsonify({"error": f"Invalid verification code. {remaining} attempt{'s' if remaining != 1 else ''} remaining."}), 401
+
+    if used_backup and updated_backup_codes is not None:
+        config_file = os.path.join(current_directory, "homedock_server.conf")
+        config_parser = configparser.ConfigParser()
+        config_parser.read(config_file)
+        config_parser.set("Config", "2fa_backup_codes", ",".join(updated_backup_codes))
+        with open(config_file, "w") as f:
+            config_parser.write(f)
+
+    user_name = pending_login.get("user_name")
+    ip_address = pending_login.get("ip_address")
+
+    if trust_device:
+        add_trusted_device(ip_address, user_agent, config)
+
+    complete_login_session(user_name, ip_address)
+    session.pop("pending_2fa_login", None)
+    failed_2fa_attempts.pop(pending_token, None)
+
+    return jsonify({"status": "success", "message": "Login successful, welcome to HomeDock OS.", "redirect_url": "/dashboard", "used_backup": used_backup})

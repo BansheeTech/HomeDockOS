@@ -8,10 +8,14 @@
     <Transition name="dialog-backdrop">
       <div v-if="visible" class="dialog-overlay fixed inset-0 z-[10000] flex items-center justify-center" @click="handleOverlayClick">
         <Transition name="dialog">
-          <div v-if="visible" class="dialog-window rounded-xl flex flex-col overflow-hidden shadow-2xl" :class="[themeClasses.windowBg, themeClasses.windowBorderFocused, themeClasses.windowShadow]" :style="dialogStyle" @click.stop>
-            <div class="dialog-header flex items-center gap-3 px-4 py-3 border-b" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
+          <div ref="dialogRef" v-if="visible" class="dialog-window rounded-xl flex flex-col overflow-hidden shadow-2xl" :class="[themeClasses.windowBg, themeClasses.windowBorderFocused, themeClasses.windowShadow, { 'is-dragging': isDragging }]" :style="dialogStyle" @click.stop>
+            <div
+              class="dialog-header flex items-center gap-3 px-4 py-3 border-b"
+              :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder, { 'cursor-grab': canDrag && !isDragging, 'cursor-grabbing': isDragging }]"
+              @mousedown="handleDragStart"
+            >
               <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                <Icon v-if="icon" :icon="icon" class="flex-shrink-0" :class="[iconColorClass, themeClasses.windowTitleTextFocused]" width="20" height="20" />
+                <Icon v-if="displayIcon" :icon="displayIcon" class="flex-shrink-0" :class="[iconColorClass, themeClasses.windowTitleTextFocused]" width="20" height="20" />
                 <span class="text-sm font-semibold truncate" :class="themeClasses.windowTitleTextFocused">{{ title }}</span>
               </div>
 
@@ -57,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref, watch, onUnmounted } from "vue";
 
 import { Icon } from "@iconify/vue";
 import closeIcon from "@iconify-icons/mdi/close";
@@ -85,6 +89,8 @@ interface Props {
   loading?: boolean;
   icon?: any;
   reverseButtons?: boolean;
+  closeOnOk?: boolean;
+  draggable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -99,6 +105,8 @@ const props = withDefaults(defineProps<Props>(), {
   maskClosable: true,
   loading: false,
   reverseButtons: false,
+  closeOnOk: true,
+  draggable: true,
 });
 
 const emit = defineEmits<{
@@ -109,13 +117,100 @@ const emit = defineEmits<{
 
 const { themeClasses } = useTheme();
 
+// Drag state
+const isDragging = ref(false);
+const dragOffset = ref({ x: 0, y: 0 });
+const dragStart = ref({ x: 0, y: 0 });
+const dialogRef = ref<HTMLElement | null>(null);
+
+// Only allow dragging on desktop (screen width > 768px)
+const canDrag = computed(() => props.draggable && window.innerWidth > 768);
+
+// Boundary margin (same as windows)
+const BOUNDARY_MARGIN = 16;
+
 const dialogStyle = computed(() => ({
   width: `${props.width}px`,
   maxWidth: "calc(100vw - 32px)",
   maxHeight: "calc(100vh - 32px)",
+  transform: `translate(${dragOffset.value.x}px, ${dragOffset.value.y}px)`,
 }));
 
-const icon = computed(() => {
+// Reset position when dialog closes
+watch(() => props.visible, (newVisible) => {
+  if (!newVisible) {
+    dragOffset.value = { x: 0, y: 0 };
+  }
+});
+
+// Drag handlers
+function handleDragStart(e: MouseEvent | TouchEvent) {
+  if (!canDrag.value) return;
+
+  isDragging.value = true;
+
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+  dragStart.value = {
+    x: clientX - dragOffset.value.x,
+    y: clientY - dragOffset.value.y,
+  };
+
+  document.addEventListener('mousemove', handleDragMove);
+  document.addEventListener('mouseup', handleDragEnd);
+  document.addEventListener('touchmove', handleDragMove, { passive: false });
+  document.addEventListener('touchend', handleDragEnd);
+}
+
+function handleDragMove(e: MouseEvent | TouchEvent) {
+  if (!isDragging.value || !dialogRef.value) return;
+
+  e.preventDefault();
+
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+  let newX = clientX - dragStart.value.x;
+  let newY = clientY - dragStart.value.y;
+
+  // Get dialog dimensions and viewport
+  const dialogRect = dialogRef.value.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // Calculate center position (dialog starts centered)
+  const centerX = (viewportWidth - dialogRect.width) / 2;
+  const centerY = (viewportHeight - dialogRect.height) / 2;
+
+  // Calculate boundaries (dialog position = center + offset)
+  const minX = BOUNDARY_MARGIN - centerX;
+  const maxX = viewportWidth - dialogRect.width - BOUNDARY_MARGIN - centerX;
+  const minY = BOUNDARY_MARGIN - centerY;
+  const maxY = viewportHeight - dialogRect.height - BOUNDARY_MARGIN - centerY;
+
+  // Clamp to boundaries
+  newX = Math.max(minX, Math.min(maxX, newX));
+  newY = Math.max(minY, Math.min(maxY, newY));
+
+  dragOffset.value = { x: newX, y: newY };
+}
+
+function handleDragEnd() {
+  isDragging.value = false;
+
+  document.removeEventListener('mousemove', handleDragMove);
+  document.removeEventListener('mouseup', handleDragEnd);
+  document.removeEventListener('touchmove', handleDragMove);
+  document.removeEventListener('touchend', handleDragEnd);
+}
+
+// Cleanup on unmount
+onUnmounted(() => {
+  handleDragEnd();
+});
+
+const defaultIcon = computed(() => {
   switch (props.type) {
     case "success":
       return successIcon;
@@ -130,6 +225,8 @@ const icon = computed(() => {
       return infoIcon;
   }
 });
+
+const displayIcon = computed(() => props.icon || defaultIcon.value);
 
 const iconColorClass = computed(() => {
   switch (props.type) {
@@ -161,7 +258,9 @@ const okButtonClasses = computed(() => {
 function handleOk() {
   if (props.loading) return;
   emit("ok");
-  emit("update:visible", false);
+  if (props.closeOnOk) {
+    emit("update:visible", false);
+  }
 }
 
 function handleCancel() {
@@ -185,6 +284,16 @@ function handleOverlayClick() {
   position: relative;
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
+  transition: box-shadow 0.2s ease;
+}
+
+.dialog-window.is-dragging {
+  user-select: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+  user-select: none;
 }
 
 .dialog-close-btn {

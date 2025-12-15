@@ -1,6 +1,21 @@
 # CHANGELOG
 
-- **2.0.3.190** (Latest): Secure in-app installation workflow and centralized directory management.
+- **2.0.4.22** (Latest): Two-Factor Authentication (2FA) and centralized encryption architecture.
+
+  - Added **Two-Factor Authentication (2FA)** support using TOTP-compatible authenticator apps like Google Authenticator, Authy, Microsoft Authenticator and more with QR code setup directly from Settings.
+  - Implemented **backup codes system** generating 10 single-use recovery codes during 2FA setup, with the ability to regenerate them at any time from Settings.
+  - Added **"Trust this device"** option that remembers verified devices for 30 days, allowing users to skip 2FA on trusted devices.
+  - Created **centralized encryption module** (`pymodules/hd_CryptoServer.py` + `__Utils__/CryptoClient.ts`) consolidating all client-server encryption logic into a single, well-tested system, replacing scattered implementations across the codebase.
+  - Implemented **hybrid RSA + AES-GCM encryption** to overcome RSA's ~446 byte payload limit (imposed by OAEP padding on our 4096-bit key). For larger payloads, the client generates a random AES-256 key, encrypts the data with AES-GCM, then RSA-encrypts only the 32-byte AES key. The server reverses this process, combining RSA's security for key exchange with AES's efficiency for bulk data.
+  - Added **draggable dialogs** allowing popup windows to be repositioned by dragging their title bar like in regular operating systems where dialogs alone can be move too.
+  - Improved **login attempt logging** with new status types (`2FA Failed`, `2FA Errored`) for better security monitoring and audit trails.
+  - Enhanced **theme consistency** for login buttons with proper styling across Light, Dark, and Aero+ themes.
+  - Added **pyotp** Python dependency for TOTP code generation and verification.
+  - Added **qrcode** npm package for generating QR codes during 2FA setup.
+
+---
+
+- **2.0.3.190**: Secure in-app installation workflow and centralized directory management.
 
   - Implemented **secure installation verification** using SHA256 hash validation to ensure compose file integrity before deploying containers, preventing tampering during the installation process.
   - Added **centralized directory initialization** that ensures all required system folders (logs, compose-link, dropzone, user packages) are properly created at startup.
@@ -11,8 +26,6 @@
   - Fixed **HTTP > HTTPS redirector** to only start when SSL is running on port 443, avoiding useless redirects on non-standard ports.
   - Added **automatic port switching** from 80 to 443 when SSL is enabled, preventing invalid SSL-on-HTTP configurations.
   - Updated **Dockerfile** to expose both ports 80 and 443 for Docker deployments with SSL support.
-
----
 
 - **2.0.3.188**: New notification system with external notifications and smart reminders.
 

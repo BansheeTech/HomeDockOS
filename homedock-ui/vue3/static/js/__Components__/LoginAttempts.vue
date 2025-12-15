@@ -403,8 +403,10 @@ const getPrivateNetworkType = (ip: string): string => {
 const getStatusClass = (status: string): string => {
   switch (status) {
     case "Failed":
+    case "2FA Failed":
       return "text-yellow-600";
     case "Limited":
+    case "2FA Errored":
       return "text-red-700";
     case "Warning":
       return "!text-white !bg-red-500 cursor-help";

@@ -678,3 +678,93 @@ input.ant-input-disabled.aero-mode-theme:hover {
   border-color: rgba(0, 0, 0, 0.3);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
 }
+
+.white-mode-theme .login-primary-button {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+  border-color: rgb(37, 99, 235) !important;
+}
+.white-mode-theme .login-primary-button:hover:not(:disabled) {
+  background-color: rgb(29, 78, 216) !important;
+  border-color: rgb(29, 78, 216) !important;
+}
+.white-mode-theme .login-primary-button:disabled {
+  background-color: rgb(156, 163, 175) !important;
+  border-color: rgb(156, 163, 175) !important;
+  color: rgb(229, 231, 235) !important;
+}
+
+.white-mode-theme .login-secondary-button {
+  background-color: white !important;
+  color: rgb(55, 65, 81) !important;
+  border: 1px solid rgb(209, 213, 219) !important;
+}
+.white-mode-theme .login-secondary-button:hover:not(:disabled) {
+  background-color: rgb(243, 244, 246) !important;
+  color: rgb(17, 24, 39) !important;
+}
+.white-mode-theme .login-secondary-button:disabled {
+  background-color: rgb(243, 244, 246) !important;
+  color: rgb(156, 163, 175) !important;
+  border-color: rgb(229, 231, 235) !important;
+}
+
+.dark-mode-theme .login-primary-button {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+  border-color: rgb(37, 99, 235) !important;
+}
+.dark-mode-theme .login-primary-button:hover:not(:disabled) {
+  background-color: rgb(29, 78, 216) !important;
+  border-color: rgb(29, 78, 216) !important;
+}
+.dark-mode-theme .login-primary-button:disabled {
+  background-color: rgb(63, 63, 70) !important;
+  border-color: rgb(63, 63, 70) !important;
+  color: rgb(161, 161, 170) !important;
+}
+
+.dark-mode-theme .login-secondary-button {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(212, 212, 216) !important;
+  border: 1px solid rgb(82, 82, 91) !important;
+}
+.dark-mode-theme .login-secondary-button:hover:not(:disabled) {
+  background-color: rgb(63, 63, 70) !important;
+  color: white !important;
+}
+.dark-mode-theme .login-secondary-button:disabled {
+  background-color: rgb(24, 24, 27) !important;
+  color: rgb(82, 82, 91) !important;
+  border-color: rgb(63, 63, 70) !important;
+}
+
+.aero-mode-theme .login-primary-button {
+  background-color: rgba(37, 99, 235, 0.9) !important;
+  color: white !important;
+  border-color: rgba(37, 99, 235, 0.9) !important;
+}
+.aero-mode-theme .login-primary-button:hover:not(:disabled) {
+  background-color: rgb(37, 99, 235) !important;
+  border-color: rgb(37, 99, 235) !important;
+}
+.aero-mode-theme .login-primary-button:disabled {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.aero-mode-theme .login-secondary-button {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.aero-mode-theme .login-secondary-button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+.aero-mode-theme .login-secondary-button:disabled {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}

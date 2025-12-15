@@ -40,6 +40,10 @@ def check_and_generate_config():
             "default_external_drive": default_external_drive,
             "selected_theme": "default",
             "selected_back": "back1.jpg",
+            "2fa_enabled": "False",
+            "2fa_secret": "False",
+            "2fa_backup_codes": "False",
+            "2fa_whitelist_hashes": "False",
         }
 
         with open(config_file, "w") as configfile:
@@ -93,6 +97,22 @@ def check_and_update_config():
             config.set("Config", "delete_internal_data_volumes", "False")
             missing_options.append("delete_internal_data_volumes")
 
+        if not config.has_option("Config", "2fa_enabled"):
+            config.set("Config", "2fa_enabled", "False")
+            missing_options.append("2fa_enabled")
+
+        if not config.has_option("Config", "2fa_secret"):
+            config.set("Config", "2fa_secret", "False")
+            missing_options.append("2fa_secret")
+
+        if not config.has_option("Config", "2fa_backup_codes"):
+            config.set("Config", "2fa_backup_codes", "False")
+            missing_options.append("2fa_backup_codes")
+
+        if not config.has_option("Config", "2fa_whitelist_hashes"):
+            config.set("Config", "2fa_whitelist_hashes", "False")
+            missing_options.append("2fa_whitelist_hashes")
+
         if missing_options:
             with open(config_file, "w") as configfile:
                 config.write(configfile)
@@ -131,6 +151,10 @@ def read_config():
         "delete_old_image_containers_after_uninstall": config.getboolean("Config", "delete_old_image_containers_after_uninstall"),
         "delete_internal_data_volumes": config.getboolean("Config", "delete_internal_data_volumes"),
         "default_external_drive": config.get("Config", "default_external_drive"),
+        "2fa_enabled": config.getboolean("Config", "2fa_enabled"),
+        "2fa_secret": config.get("Config", "2fa_secret"),
+        "2fa_backup_codes": config.get("Config", "2fa_backup_codes"),
+        "2fa_whitelist_hashes": config.get("Config", "2fa_whitelist_hashes", fallback=""),
     }
 
     return config_dict
