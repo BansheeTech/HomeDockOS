@@ -47,8 +47,8 @@ HomeDockOS_Update.*.zip
 homedock-ui/static/images/wallpapers/back_custom.jpg
 
 # Enterprise & SME Modules
-pymodules/__Enterprise__/
-pymodules/__Enterprise__*
+__Enterprise__/
+__Enterprise__*
 *.key
 *.pem
 enterprise_private*

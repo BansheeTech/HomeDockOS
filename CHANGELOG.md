@@ -1,6 +1,14 @@
 # CHANGELOG
 
-- **2.0.4.24** (Latest): Enterprise module loader architecture with SRI validation and Ed25519 cryptographic signing.
+- **2.0.4.26** (Latest): Enhanced Ed25519 signature verification with cross-browser fallback support.
+
+  - Added **fallback Ed25519 signature verification** using `@noble/ed25519` library for browsers that don't support Web Crypto API or are running in non-secure contexts (HTTP).
+  - Implemented **automatic cryptographic API detection** that uses native Web Crypto API when available in secure contexts, falling back to the noble library implementation when `crypto.subtle` is unavailable.
+  - Enhanced **cross-browser compatibility** ensuring enterprise module signature verification works reliably across all browsers and contexts, including HTTP development environments.
+
+---
+
+- **2.0.4.24**: Enterprise module loader architecture with SRI validation and Ed25519 cryptographic signing.
 
   - Implemented **Enterprise Module Loader** for businesses and organizations running self-hosted, on-premise HomeDock OS instances, enabling dynamic loading of custom enterprise modules with automatic initialization, startup and routing.
   - Added **Ed25519 cryptographic signature verification** ensuring only our signed modules can get executed, preventing unauthorized code injection.
@@ -9,8 +17,6 @@
   - Introduced **`EnterpriseSlotRenderer.vue`** component enabling enterprise modules to render natively within the HomeDock OS interface at predefined injection points.
   - Added **enterprise startup banner** displaying Enterprise UUID, license status, and loaded modules list during server initialization.
     > **TLDR - What are Enterprise modules?** When businesses or organizations need custom functionality for their HomeDock OS deployment (CRMs, ERPs, inventory systems, log exports, internal tools, etc.), we develop it as a native Enterprise module for HomeDock OS rather than a standalone app. This means custom-built solutions that integrate seamlessly with HomeDock's UI, theming, authentication, and security layers, extending HomeDock OS beyond the typical homelab into professional and business environments. Think of it as bespoke software development that runs natively inside HomeDock OS. This architecture keeps the same core build for everyone while enterprise modules are loaded on-demand only where and when needed. Some features, like Drop Zone started as enterprise modules before eventually becoming part of HomeDock OS for all users.
-
----
 
 - **2.0.4.22**: Two-Factor Authentication (2FA) and centralized encryption architecture.
 

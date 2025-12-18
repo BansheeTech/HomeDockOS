@@ -49,8 +49,8 @@ docker-compose.yml
 .dockerignore
 
 # Enterprise & SME Modules
-pymodules/__Enterprise__/
-pymodules/__Enterprise__*
+__Enterprise__/
+__Enterprise__*
 *.key
 *.pem
 enterprise_private*

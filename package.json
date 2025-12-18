@@ -1,6 +1,6 @@
 {
   "name": "homedock_os",
-  "version": "2.0.4.24",
+  "version": "2.0.4.26",
   "description": "![HomeDock OS Banner](https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-banner-rhino.png)",
   "type": "module",
   "scripts": {
@@ -14,6 +14,8 @@
   "dependencies": {
     "@iconify-icons/mdi": "^1.2.48",
     "@iconify/vue": "^5.0.0",
+    "@noble/ed25519": "^3.0.0",
+    "@noble/hashes": "^2.0.1",
     "@unhead/vue": "^2.0.19",
     "@vitejs/plugin-vue": "^6.0.3",
     "ant-design-vue": "^4.2.6",

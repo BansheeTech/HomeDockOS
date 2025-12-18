@@ -7,7 +7,7 @@ FROM python:3.12-slim
 
 LABEL maintainer="Banshee Technologies S.L."
 LABEL description="HomeDock OS - One Docker container to rule them all, a self-hosted Cloud OS for your Home Server."
-LABEL version="2.0.4.24"
+LABEL version="2.0.4.26"
 
 # Deps
 RUN apt-get update && apt-get install -y --no-install-recommends \

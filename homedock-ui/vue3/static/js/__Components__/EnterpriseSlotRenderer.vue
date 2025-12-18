@@ -4,12 +4,16 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <component v-if="moduleComponent" :is="moduleComponent" />
+  <component v-if="moduleComponent" :is="moduleComponent" v-bind="$attrs" />
 </template>
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watch, type Component } from "vue";
 import EnterpriseSRILoader from "../__Utils__/EnterpriseSRILoader";
+
+defineOptions({
+  inheritAttrs: false,
+});
 
 const props = defineProps<{
   module: string;

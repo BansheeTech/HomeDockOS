@@ -4,6 +4,13 @@
 // https://www.banshee.pro
 
 import axios from "axios";
+import * as ed from "@noble/ed25519";
+import { sha512 } from "@noble/hashes/sha2.js";
+
+if (!globalThis.crypto?.subtle || !window.isSecureContext) {
+  ed.hashes.sha512 = (msg: Uint8Array) => sha512(msg);
+  ed.hashes.sha512Async = async (msg: Uint8Array) => sha512(msg);
+}
 
 import * as Vue from "vue";
 
@@ -100,13 +107,23 @@ function hexToBase64(hexString: string): string {
   return btoa(String.fromCharCode(...bytes));
 }
 
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
+function base64ToUint8Array(base64: string): Uint8Array {
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  return bytes.buffer;
+  return bytes;
+}
+
+async function verifyEd25519Signature(message: Uint8Array, signature: Uint8Array, publicKey: Uint8Array): Promise<boolean> {
+  if (window.crypto?.subtle && window.isSecureContext) {
+    try {
+      const key = await crypto.subtle.importKey("raw", publicKey.buffer as ArrayBuffer, { name: "Ed25519" }, false, ["verify"]);
+      return await crypto.subtle.verify({ name: "Ed25519" }, key, signature.buffer as ArrayBuffer, message.buffer as ArrayBuffer);
+    } catch {}
+  }
+  return await ed.verifyAsync(signature, message, publicKey);
 }
 
 function sortObjectKeys(obj: any): any {
@@ -135,8 +152,7 @@ async function verifyModuleSignature(module: EnterpriseModule, serverPublicKey?:
       return false;
     }
 
-    const publicKeyBytes = base64ToArrayBuffer(publicKeyB64);
-    const publicKey = await crypto.subtle.importKey("raw", publicKeyBytes, { name: "Ed25519" }, false, ["verify"]);
+    const publicKey = base64ToUint8Array(publicKeyB64);
 
     const payload = {
       module: module.sig.module,
@@ -145,10 +161,10 @@ async function verifyModuleSignature(module: EnterpriseModule, serverPublicKey?:
     };
 
     const deterministicPayload = deterministicStringify(payload);
-    const payloadBytes = new TextEncoder().encode(deterministicPayload);
-    const signatureBytes = base64ToArrayBuffer(module.sig.signature);
+    const message = new TextEncoder().encode(deterministicPayload);
+    const signature = base64ToUint8Array(module.sig.signature);
 
-    const isValid = await crypto.subtle.verify({ name: "Ed25519" }, publicKey, signatureBytes, payloadBytes);
+    const isValid = await verifyEd25519Signature(message, signature, publicKey);
 
     if (!isValid) {
       console.error(`[EnterpriseSRILoader] INVALID SIGNATURE for module '${module.name}'`);

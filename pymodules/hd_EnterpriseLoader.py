@@ -9,7 +9,7 @@ import os
 
 from pymodules.hd_FunctionsGlobals import current_directory
 
-ENTERPRISE_PATH = os.path.join(current_directory, "pymodules", "__Enterprise__")
+ENTERPRISE_PATH = os.path.join(current_directory, "__Enterprise__")
 
 
 def load_enterprise(app):
@@ -17,7 +17,7 @@ def load_enterprise(app):
         return []
 
     try:
-        from pymodules.__Enterprise__ import load_enterprise_cogs
+        from __Enterprise__ import load_enterprise_cogs
 
         loaded = load_enterprise_cogs(app, ENTERPRISE_PATH)
         return loaded
@@ -31,7 +31,7 @@ def print_enterprise_banner(enterprise_cogs):
         return
 
     try:
-        from pymodules.__Enterprise__ import get_enterprise_uuid, get_license_info
+        from __Enterprise__ import get_enterprise_uuid, get_license_info
 
         enterprise_uuid = get_enterprise_uuid()
         license_info = get_license_info()
