@@ -1,6 +1,18 @@
 # CHANGELOG
 
-- **2.0.4.22** (Latest): Two-Factor Authentication (2FA) and centralized encryption architecture.
+- **2.0.4.24** (Latest): Enterprise module loader architecture with SRI validation and Ed25519 cryptographic signing.
+
+  - Implemented **Enterprise Module Loader** for businesses and organizations running self-hosted, on-premise HomeDock OS instances, enabling dynamic loading of custom enterprise modules with automatic initialization, startup and routing.
+  - Added **Ed25519 cryptographic signature verification** ensuring only our signed modules can get executed, preventing unauthorized code injection.
+  - Added **Subresource Integrity (SRI) validation** using SHA256 hashes as a secondary layer to ensure code integrity before executing any enterprise module, preventing tampering and supply chain attacks.
+  - Created **`EnterpriseSRILoader.ts`** frontend loader that securely verifies and loads enterprise modules as self-contained Vue components with full access to HomeDock OS theme system and UI framework.
+  - Introduced **`EnterpriseSlotRenderer.vue`** component enabling enterprise modules to render natively within the HomeDock OS interface at predefined injection points.
+  - Added **enterprise startup banner** displaying Enterprise UUID, license status, and loaded modules list during server initialization.
+    > **TLDR - What are Enterprise modules?** When businesses or organizations need custom functionality for their HomeDock OS deployment (CRMs, ERPs, inventory systems, log exports, internal tools, etc.), we develop it as a native Enterprise module for HomeDock OS rather than a standalone app. This means custom-built solutions that integrate seamlessly with HomeDock's UI, theming, authentication, and security layers, extending HomeDock OS beyond the typical homelab into professional and business environments. Think of it as bespoke software development that runs natively inside HomeDock OS. This architecture keeps the same core build for everyone while enterprise modules are loaded on-demand only where and when needed. Some features, like Drop Zone started as enterprise modules before eventually becoming part of HomeDock OS for all users.
+
+---
+
+- **2.0.4.22**: Two-Factor Authentication (2FA) and centralized encryption architecture.
 
   - Added **Two-Factor Authentication (2FA)** support using TOTP-compatible authenticator apps like Google Authenticator, Authy, Microsoft Authenticator and more with QR code setup directly from Settings.
   - Implemented **backup codes system** generating 10 single-use recovery codes during 2FA setup, with the ability to regenerate them at any time from Settings.
@@ -12,8 +24,6 @@
   - Enhanced **theme consistency** for login buttons with proper styling across Light, Dark, and Aero+ themes.
   - Added **pyotp** Python dependency for TOTP code generation and verification.
   - Added **qrcode** npm package for generating QR codes during 2FA setup.
-
----
 
 - **2.0.3.190**: Secure in-app installation workflow and centralized directory management.
 

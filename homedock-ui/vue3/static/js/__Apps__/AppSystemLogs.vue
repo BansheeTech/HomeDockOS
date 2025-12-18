@@ -11,6 +11,8 @@
         <LoginAttempts />
       </div>
 
+      <EnterpriseSlotRenderer module="SystemLogs2PDF" />
+
       <div class="system-metrics-grid gap-x-4">
         <div>
           <SectionHeader title="CPU Temperature" description="In-depth CPU insights" :icon="thermometerLowIcon" />
@@ -71,6 +73,7 @@ import SectionHeader from "../__Components__/SectionHeader.vue";
 import LoginAttempts from "../__Components__/LoginAttempts.vue";
 import ChartDetails from "../__Components__/ChartDetails.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 
 import { Icon } from "@iconify/vue";
 import thermometerLowIcon from "@iconify-icons/mdi/thermometer-low";

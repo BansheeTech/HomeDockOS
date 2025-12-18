@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
       clientPort: 5173,
     },
     watch: {
-      ignored: ["**/dropzone/**", "**/compose-link/**", "**/app-store/**", "**/_user_packages/**"],
+      ignored: ["**/dropzone/**", "**/compose-link/**", "**/app-store/**", "**/_user_packages/**", "**/__Enterprise__/**"],
     },
   },
   build: {

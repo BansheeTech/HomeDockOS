@@ -11,8 +11,9 @@
       </div>
 
       <div class="flex-1 min-w-0">
-        <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-4']">
+        <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-4 flex items-center gap-1.5']">
           {{ title }}
+          <slot name="badge"></slot>
         </div>
         <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs leading-2']">
           {{ description }}
@@ -31,8 +32,9 @@
         </div>
 
         <div class="flex-1 min-w-0">
-          <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-3']">
+          <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-3 flex items-center gap-1.5']">
             {{ title }}
+            <slot name="badge"></slot>
           </div>
           <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs mt-0.5 leading-relaxed']">
             {{ description }}

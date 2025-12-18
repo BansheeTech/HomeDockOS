@@ -37,6 +37,7 @@ from pymodules.hd_ThreadAppUpdatesChecker import start_app_updates_checker_threa
 from pymodules.hd_ThreadNotificationsFetcher import start_notifications_fetcher_thread
 
 from pymodules.hd_RouteModules import RouteAllModules
+from pymodules.hd_EnterpriseLoader import load_enterprise, print_enterprise_banner
 from pymodules.hd_UpdateDeps import check_and_update_dependencies
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info, get_ssl_cert_directory
 from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
@@ -79,6 +80,7 @@ if __name__ == "__main__":
     check_and_update_dependencies()
 
     RouteAllModules(homedock_www, send_public_key)
+    enterprise_cogs = load_enterprise(homedock_www)
 
     start_auto_port_routing_thread()
     start_resource_usage_thread()
@@ -127,6 +129,7 @@ if __name__ == "__main__":
 
     print(" ⌂ \033[1;32;40mHomeDock OS Version\033[0m:", version)
     print(" ~ \033[1;30mVersion Hash: " + version_hash + "\033[0m")
+    print_enterprise_banner(enterprise_cogs)
     print()
 
     print(" * Run from:", current_directory)
@@ -220,6 +223,7 @@ if __name__ == "__main__":
 
                 if run_port == 443:
                     from pymodules.hd_HTTPRedirector import start_http_redirect_server
+
                     redirect_app, redirect_config = start_http_redirect_server()
 
             async def homedock_www_asgi(scope, receive, send):

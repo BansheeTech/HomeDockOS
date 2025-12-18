@@ -12,6 +12,7 @@
             <LogoIcon class="h-24 w-24 p-4 rounded-3xl ring-1 shadow-xl" :class="[themeClasses.aboutLogo]" />
           </div>
           <h1 :class="['text-3xl font-bold', themeClasses.aboutTitle]">HomeDock OS</h1>
+          <EnterpriseSlotRenderer module="AboutBranding" />
           <p :class="['text-lg mt-2 text-balance leading-none mb-1 opacity-80', themeClasses.aboutSubtitle]">Your Personal Cloud Operating System</p>
           <p :class="['text-[10px] opacity-40', themeClasses.aboutSubtitle]">Private, secure and universally multiplatform</p>
         </div>
@@ -324,6 +325,7 @@ import accountGroupIcon from "@iconify-icons/mdi/account-group";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";
+import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 
 const commonData = inject<{ version: string }>("data-common");
 

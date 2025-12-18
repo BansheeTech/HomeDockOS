@@ -48,3 +48,11 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
+# Enterprise & SME Modules
+pymodules/__Enterprise__/
+pymodules/__Enterprise__*
+*.key
+*.pem
+enterprise_private*
+enterprise_signer*
+ENTERPRISE.license

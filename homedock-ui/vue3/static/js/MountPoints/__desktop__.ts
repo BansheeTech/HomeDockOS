@@ -11,6 +11,8 @@ import router from "../__Router__/index";
 import Desktop from "../__Layouts__/Desktop.vue";
 import { setCsrfTokenGetter } from "../__Services__/DockerAPIFetchContainerData";
 
+import EnterpriseSRILoader from "../__Utils__/EnterpriseSRILoader";
+
 interface ThemeData {
   selected_theme: string;
   selected_back: string;
@@ -76,109 +78,109 @@ const settingsData = parseBase64Data("data-settings") as SettingsData | null;
 const dashboardData = parseBase64Data("data-dashboard") as DashboardData | null;
 
 if (themeData && commonData && settingsData && dashboardData) {
-  try {
-    const app = createApp(Desktop);
+  const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
 
-    const pinia = createPinia();
-    app.use(pinia);
+  const app = createApp(Desktop);
 
-    app.use(router);
+  const pinia = createPinia();
+  app.use(pinia);
 
-    const faviconHeadAdder = createHead();
-    app.use(faviconHeadAdder);
+  app.use(router);
 
-    const reactiveTheme = reactive({
-      selectedTheme: themeData.selected_theme,
-      selectedBack: themeData.selected_back,
-    });
-    app.provide("data-theme", reactiveTheme);
+  const faviconHeadAdder = createHead();
+  app.use(faviconHeadAdder);
 
-    const wallpaperTimestamp = reactive({
-      value: Date.now(),
-    });
-    app.provide("wallpaper-timestamp", wallpaperTimestamp);
+  const reactiveTheme = reactive({
+    selectedTheme: themeData.selected_theme,
+    selectedBack: themeData.selected_back,
+  });
+  app.provide("data-theme", reactiveTheme);
 
-    const updateTheme = (newTheme: { selectedTheme?: string; selectedBack?: string }) => {
-      if (newTheme.selectedTheme !== undefined) {
-        reactiveTheme.selectedTheme = newTheme.selectedTheme;
+  const wallpaperTimestamp = reactive({
+    value: Date.now(),
+  });
+  app.provide("wallpaper-timestamp", wallpaperTimestamp);
+
+  const updateTheme = (newTheme: { selectedTheme?: string; selectedBack?: string }) => {
+    if (newTheme.selectedTheme !== undefined) {
+      reactiveTheme.selectedTheme = newTheme.selectedTheme;
+    }
+    if (newTheme.selectedBack !== undefined) {
+      reactiveTheme.selectedBack = newTheme.selectedBack;
+      if (newTheme.selectedBack.startsWith("_back_custom")) {
+        wallpaperTimestamp.value = Date.now();
       }
-      if (newTheme.selectedBack !== undefined) {
-        reactiveTheme.selectedBack = newTheme.selectedBack;
-        // Update timestamp when custom wallpaper changes
-        if (newTheme.selectedBack.startsWith("_back_custom")) {
-          wallpaperTimestamp.value = Date.now();
-        }
-      }
-    };
-    app.provide("update-theme", updateTheme);
+    }
+  };
+  app.provide("update-theme", updateTheme);
 
-    app.provide("data-common", {
-      version: commonData.version,
-    });
+  app.provide("data-common", {
+    version: commonData.version,
+  });
 
-    const reactiveSettings = reactive({
-      userName: settingsData.user_name,
-      runPort: settingsData.run_port,
-      dynamicDNS: settingsData.dynamic_dns,
-      localDNS: settingsData.local_dns,
-      runOnDev: settingsData.run_on_development,
-      disableUsageData: settingsData.disable_usage_data,
-      deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
-      deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
-      deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
-      defaultExternalDrive: settingsData.default_external_drive,
-      validDrives: Array.isArray(dashboardData.valid_drives) ? dashboardData.valid_drives : [],
-    });
-    app.provide("data-settings", reactiveSettings);
+  const reactiveSettings = reactive({
+    userName: settingsData.user_name,
+    runPort: settingsData.run_port,
+    dynamicDNS: settingsData.dynamic_dns,
+    localDNS: settingsData.local_dns,
+    runOnDev: settingsData.run_on_development,
+    disableUsageData: settingsData.disable_usage_data,
+    deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
+    deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
+    deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
+    defaultExternalDrive: settingsData.default_external_drive,
+    validDrives: Array.isArray(dashboardData.valid_drives) ? dashboardData.valid_drives : [],
+  });
+  app.provide("data-settings", reactiveSettings);
 
-    const updateSettings = (newSettings: Partial<typeof reactiveSettings>) => {
-      Object.assign(reactiveSettings, newSettings);
-    };
-    app.provide("update-settings", updateSettings);
+  const updateSettings = (newSettings: Partial<typeof reactiveSettings>) => {
+    Object.assign(reactiveSettings, newSettings);
+  };
+  app.provide("update-settings", updateSettings);
 
-    app.provide("data-dashboard", {
-      cpuTemp: dashboardData.cpu_temp,
-      cpuGhz: dashboardData.get_cpu_max_speed,
-      cpuUsage: dashboardData.cpu_usage,
-      cpuCores: dashboardData.cpu_cores,
-      ramUsage: dashboardData.ram_usage,
-      totalRam: dashboardData.total_ram,
-      hardDiskUsage: dashboardData.hard_disk_usage,
-      hardDiskTotal: dashboardData.hard_disk_total,
-      externalDefaultDisk: dashboardData.external_default_disk,
-      externalDiskUsage: dashboardData.external_disk_usage,
-      externalDiskTotal: dashboardData.external_disk_total,
-      validDrives: dashboardData.valid_drives,
-      interfaceName: dashboardData.interface_name,
-      downloadData: dashboardData.vdownload,
-      uploadData: dashboardData.vupload,
-      totalContainers: dashboardData.n_total_containers,
-      activeContainers: dashboardData.n_active_containers,
-      uptimeData: dashboardData.uptime_data,
-      startTime: dashboardData.start_time,
-    });
+  app.provide("data-dashboard", {
+    cpuTemp: dashboardData.cpu_temp,
+    cpuGhz: dashboardData.get_cpu_max_speed,
+    cpuUsage: dashboardData.cpu_usage,
+    cpuCores: dashboardData.cpu_cores,
+    ramUsage: dashboardData.ram_usage,
+    totalRam: dashboardData.total_ram,
+    hardDiskUsage: dashboardData.hard_disk_usage,
+    hardDiskTotal: dashboardData.hard_disk_total,
+    externalDefaultDisk: dashboardData.external_default_disk,
+    externalDiskUsage: dashboardData.external_disk_usage,
+    externalDiskTotal: dashboardData.external_disk_total,
+    validDrives: dashboardData.valid_drives,
+    interfaceName: dashboardData.interface_name,
+    downloadData: dashboardData.vdownload,
+    uploadData: dashboardData.vupload,
+    totalContainers: dashboardData.n_total_containers,
+    activeContainers: dashboardData.n_active_containers,
+    uptimeData: dashboardData.uptime_data,
+    startTime: dashboardData.start_time,
+  });
 
-    const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
-    const reactiveCsrfToken = reactive({
-      value: csrfToken,
-    });
-    app.provide("csrf-token", reactiveCsrfToken);
+  const reactiveCsrfToken = reactive({
+    value: csrfToken,
+  });
+  app.provide("csrf-token", reactiveCsrfToken);
 
-    const updateCsrfToken = (newToken: string) => {
-      reactiveCsrfToken.value = newToken;
-    };
-    app.provide("update-csrf-token", updateCsrfToken);
+  const updateCsrfToken = (newToken: string) => {
+    reactiveCsrfToken.value = newToken;
+  };
+  app.provide("update-csrf-token", updateCsrfToken);
 
-    setCsrfTokenGetter(() => reactiveCsrfToken.value);
+  setCsrfTokenGetter(() => reactiveCsrfToken.value);
 
-    app.mount("#app-desktop-root");
+  EnterpriseSRILoader.init({
+    csrfToken: reactiveCsrfToken,
+    theme: reactiveTheme,
+    updateTheme: updateTheme,
+  });
 
-    console.log("▫️▫️▫️ HomeDock OS Prism Window Manager Loaded");
-  } catch (error) {
-    console.error("❌ Error initializing HomeDock OS Prism Window Manager:", error);
-  }
+  app.mount("#app-desktop-root");
 } else {
-  console.error("❌ Required data is missing or invalid. Cannot initialize Prism Window Manager.");
+  console.error("Required data is missing or invalid. Cannot initialize Prism Window Manager.");
   console.error({
     themeData: !!themeData,
     commonData: !!commonData,

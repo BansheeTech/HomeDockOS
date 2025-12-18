@@ -45,6 +45,8 @@
     </SettingsItem>
   </SettingsGroup>
 
+  <EnterpriseSlotRenderer module="SecureTunnel" />
+
   <div v-if="false">
     <SettingsItem :icon="hazardLightsIcon" icon-color="yellow" title="Development Mode" description="Run in development mode (requires restart)" is-last>
       <Switch v-model:checked="developmentValue" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" />
@@ -72,6 +74,8 @@ import cubeOffIcon from "@iconify-icons/mdi/cube-off";
 
 import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
+
+import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 
 const { themeClasses } = useTheme();
 
