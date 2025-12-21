@@ -7,7 +7,7 @@
   <Transition name="text-reveal" appear>
     <div v-if="show" class="absolute bottom-[6px] right-2 text-[9px] md:bottom-2 md:right-3 md:text-[10px] font-medium opacity-15 hover:opacity-40 select-none z-50 font-sans tracking-wide transition duration-300 animate-opacity flex items-center gap-1 md:gap-1.5 cursor-pointer" :class="[themeClasses.versionText]" @click="openAbout" title="About HomeDock OS">
       <LogoIcon class="w-[10px] h-[10px] md:w-[14px] md:h-[14px]" />
-      <span>HomeDock OS v{{ version }}</span>
+      <EnterpriseSlotReplacer module="WhiteLabel" slot-name="companyName">HomeDock OS v{{ version }}</EnterpriseSlotReplacer>
       <EnterpriseSlotRenderer module="AboutBranding" size="mini" />
     </div>
   </Transition>
@@ -21,6 +21,7 @@ import { useWindowStore } from "../__Stores__/windowStore";
 import LogoIcon from "./LogoIcon.vue";
 
 import EnterpriseSlotRenderer from "./EnterpriseSlotRenderer.vue";
+import EnterpriseSlotReplacer from "./EnterpriseSlotReplacer.vue";
 
 const commonData = inject<{ version: string }>("data-common");
 

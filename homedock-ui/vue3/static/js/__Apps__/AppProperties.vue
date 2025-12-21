@@ -29,6 +29,10 @@
             <Icon :icon="infoIcon" width="15" height="15" />
             <span>General</span>
           </button>
+          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'files' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'files' }]" @click="activeTab = 'files'">
+            <Icon :icon="folderIcon" width="15" height="15" />
+            <span>Files</span>
+          </button>
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'actions' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'actions' }]" @click="activeTab = 'actions'">
             <Icon :icon="cogIcon" width="15" height="15" />
             <span>Actions</span>
@@ -140,6 +144,40 @@
               </div>
             </div>
 
+            <div v-else-if="activeTab === 'files'" key="files" class="flex flex-col gap-4">
+              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <Icon :icon="cubeScanIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">App Drive Volumes</span>
+                </div>
+
+                <div v-if="isLoadingMounts" class="flex items-center justify-center py-6">
+                  <Icon :icon="loadingIcon" width="24" height="24" class="animate-spin" :class="[themeClasses.appPropsInfoLabel]" />
+                </div>
+
+                <div v-else-if="mountsError" class="flex flex-col items-center justify-center py-6 gap-2">
+                  <Icon :icon="alertCircleIcon" width="32" height="32" :class="[themeClasses.appPropsInfoLabel]" class="opacity-50" />
+                  <span class="text-xs" :class="[themeClasses.appPropsInfoLabel]">{{ mountsError }}</span>
+                </div>
+
+                <div v-else-if="mounts.length === 0" class="flex flex-col items-center justify-center py-6 gap-2">
+                  <Icon :icon="folderIcon" width="32" height="32" :class="[themeClasses.appPropsInfoLabel]" class="opacity-50" />
+                  <span class="text-xs" :class="[themeClasses.appPropsInfoLabel]">No accessible volumes found</span>
+                </div>
+
+                <div v-else class="flex flex-col gap-2">
+                  <button v-for="(mount, index) in mounts" :key="index" class="flex items-center gap-4 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 text-left border hover:translate-x-1" :class="[themeClasses.appPropsActionListItemBg, themeClasses.appPropsActionListItemBorder, themeClasses.appPropsActionListItemText, themeClasses.appPropsActionListItemBgHover, themeClasses.appPropsActionListItemBorderHover]" @click="openAppDrive(index)">
+                    <Icon :icon="mount.read_only ? lockIcon : folderOpenIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <div class="flex-1 flex flex-col gap-0.5 min-w-0">
+                      <span class="text-sm font-medium truncate" :class="[themeClasses.appPropsInfoValue]">{{ mount.container_path }}</span>
+                      <span class="text-[10px] opacity-60 truncate" :class="[themeClasses.appPropsInfoLabel]">{{ mount.read_only ? "Read-only" : "Read/Write" }}</span>
+                    </div>
+                    <Icon :icon="chevronRightIcon" width="16" height="16" :class="[themeClasses.appPropsInfoLabel]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div v-else-if="activeTab === 'actions'" key="actions" class="flex flex-col gap-4">
               <div class="flex flex-col gap-4">
                 <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">Quick Actions</h3>
@@ -214,12 +252,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import axios from "axios";
+import { ref, computed, watch } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import type { DockerApp } from "../__Stores__/desktopStore";
+import { useWindowStore } from "../__Stores__/windowStore";
 
 import { Icon } from "@iconify/vue";
 import playIcon from "@iconify-icons/mdi/play";
@@ -241,6 +281,11 @@ import containerIcon from "@iconify-icons/mdi/package-variant-closed";
 import downloadIcon from "@iconify-icons/mdi/download";
 import uploadIcon from "@iconify-icons/mdi/upload";
 import accesPointNetworkIcon from "@iconify-icons/mdi/access-point-network";
+import folderIcon from "@iconify-icons/mdi/folder";
+import lockIcon from "@iconify-icons/mdi/lock";
+import folderOpenIcon from "@iconify-icons/mdi/folder-open";
+import alertCircleIcon from "@iconify-icons/mdi/alert-circle";
+import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import PortRouter from "../__Components__/PortRouter.vue";
@@ -273,6 +318,19 @@ const isStopping = ref(false);
 const isRestarting = ref(false);
 const isPausing = ref(false);
 const isUnpausing = ref(false);
+
+interface MountInfo {
+  host_path: string;
+  container_path: string;
+  type: string;
+  read_only: boolean;
+}
+
+const mounts = ref<MountInfo[]>([]);
+const isLoadingMounts = ref(false);
+const mountsError = ref<string | null>(null);
+
+const windowStore = useWindowStore();
 
 const app = computed<DockerApp | null>(() => {
   const appId = props.appId || props.containerName || props.data?.appId || props.data?.containerName;
@@ -412,6 +470,61 @@ function handleOpenUrl() {
   if (!app.value?.service_url) return;
   window.open(app.value.service_url, "_blank", "noopener,noreferrer");
 }
+
+function sanitizeContainerName(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "").substring(0, 128);
+}
+
+async function loadMounts() {
+  if (!app.value) return;
+
+  const sanitizedName = sanitizeContainerName(app.value.name);
+  if (!sanitizedName) return;
+
+  isLoadingMounts.value = true;
+  mountsError.value = null;
+
+  try {
+    const response = await axios.get("/api/appdrive/mounts", {
+      params: { container: sanitizedName },
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+    });
+    mounts.value = response.data.mounts || [];
+  } catch (error: any) {
+    mountsError.value = error.response?.data?.error || "Failed to load mounts";
+    mounts.value = [];
+  } finally {
+    isLoadingMounts.value = false;
+  }
+}
+
+function openAppDrive(mountIndex: number) {
+  if (!app.value) return;
+
+  const sanitizedName = sanitizeContainerName(app.value.name);
+  if (!sanitizedName) return;
+
+  if (mountIndex < 0 || mountIndex >= mounts.value.length) return;
+
+  windowStore.openWindow("appdrive", {
+    data: {
+      containerName: sanitizedName,
+      mountIndex: mountIndex,
+    },
+  });
+}
+
+watch(activeTab, (newTab) => {
+  if (newTab === "files" && mounts.value.length === 0 && !isLoadingMounts.value) {
+    loadMounts();
+  }
+});
+
+watch(app, () => {
+  if (activeTab.value === "files") {
+    loadMounts();
+  }
+});
 </script>
 
 <style scoped>

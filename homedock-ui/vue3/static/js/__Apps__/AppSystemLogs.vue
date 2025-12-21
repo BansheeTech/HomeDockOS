@@ -6,12 +6,13 @@
 <template>
   <div class="app-systemlogs flex flex-col h-full overflow-hidden">
     <div class="flex-1 overflow-auto p-4">
+      <EnterpriseSlotRenderer module="SystemLogs2PDF" />
+      <EnterpriseSlotRenderer module="AuditTrail" />
+
       <div class="mb-6">
         <SectionHeader title="Login Attempts" description="In-depth recent login attempts" :icon="accountAlertIcon" />
         <LoginAttempts />
       </div>
-
-      <EnterpriseSlotRenderer module="SystemLogs2PDF" />
 
       <div class="system-metrics-grid gap-x-4">
         <div>

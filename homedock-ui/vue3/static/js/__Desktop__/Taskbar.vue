@@ -38,6 +38,8 @@
 
         <UploadIndicator />
 
+        <AppDriveUploadIndicator />
+
         <NetworkOfflineTray />
 
         <EnterpriseSlotRenderer module="SecureTunnelTray" />
@@ -103,6 +105,7 @@ import InstallationIndicator from "../__Components__/InstallationIndicator.vue";
 import AppUpdatesIndicator from "../__Components__/AppUpdatesIndicator.vue";
 import UpdateIndicator from "../__Components__/UpdateIndicator.vue";
 import UploadIndicator from "../__Components__/UploadIndicator.vue";
+import AppDriveUploadIndicator from "../__Components__/AppDriveUploadIndicator.vue";
 import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
 import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";

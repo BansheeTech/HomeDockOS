@@ -27,8 +27,8 @@ homedock_dropzone.conf
 
 # Arts
 *.pyc
-__pycache__/
-.DS_Store
+**/__pycache__/
+**/.DS_Store
 
 # Flags
 .is_updating

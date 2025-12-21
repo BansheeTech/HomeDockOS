@@ -106,7 +106,15 @@
                         <Icon v-else :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="transition duration-300 h-3 w-3" />
                       </div>
 
-                      <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
+                      <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute -right-1 -top-1 z-20">
+                        <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4" />
+                      </div>
+
+                      <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon, file.is_directory && compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
+
+                      <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center z-10">
+                        <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-7 w-7 animate-spin" />
+                      </div>
                     </div>
 
                     <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="file.display_name || file.name">
@@ -143,7 +151,14 @@
                         <div :class="['relative w-6 h-6 flex items-center justify-center']">
                           <div v-if="isNewFile(file)" class="absolute -left-1 -top-1 w-1.5 h-1.5 bg-green-500 rounded-full z-10 ring-1 ring-black/30"></div>
 
-                          <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon]" class="h-5 w-5" />
+                          <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon, file.is_directory && compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-5 w-5" />
+
+                          <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center">
+                            <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4 animate-spin" />
+                          </div>
+                          <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute -right-1.5 -top-1">
+                            <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-3 w-3" />
+                          </div>
 
                           <div v-if="!file.is_directory" class="absolute -right-1 -bottom-1">
                             <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-2 w-2" />
@@ -178,7 +193,14 @@
                     <div :class="['relative w-6 h-6 flex items-center justify-center']">
                       <div v-if="isNewFile(file)" class="absolute -left-1 -top-1 w-1.5 h-1.5 bg-green-500 rounded-full z-10 ring-1 ring-black/30"></div>
 
-                      <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon]" class="h-5 w-5" />
+                      <Icon :icon="fileIcon(file)" :class="[themeClasses.dropZoneFileIcon, file.is_directory && compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-5 w-5" />
+
+                      <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center">
+                        <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4 animate-spin" />
+                      </div>
+                      <div v-if="file.is_directory && compressingFolders.has(file.name)" class="absolute -right-1.5 -top-1">
+                        <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-3 w-3" />
+                      </div>
 
                       <div v-if="!file.is_directory" class="absolute -right-1 -bottom-1">
                         <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-2 w-2" />
@@ -411,6 +433,7 @@ import chevronUpIcon from "@iconify-icons/mdi/chevron-up";
 import checkIcon from "@iconify-icons/mdi/check-circle";
 import viewGridIcon from "@iconify-icons/mdi/view-grid";
 import viewListIcon from "@iconify-icons/mdi/view-list";
+import refreshIcon from "@iconify-icons/mdi/refresh";
 
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
@@ -486,11 +509,15 @@ const selectedFile = ref<string | null>(null);
 const selectedFiles = ref<Set<string>>(new Set());
 const isSelectingArea = ref(false);
 const selectionBox = ref({ startX: 0, startY: 0, currentX: 0, currentY: 0 });
+const dragStartPoint = ref<{ x: number; y: number } | null>(null);
+let wasDragSelection = false;
+const DRAG_SELECTION_THRESHOLD = 20;
 const containerRef = ref<HTMLElement | null>(null);
 
 const fileStates = ref<Record<string, boolean>>({});
 const loadingStates = ref<Record<string, boolean>>({});
 const downloadProgresses = ref<Record<string, number>>({});
+const compressingFolders = ref<Set<string>>(new Set());
 const isSearching = ref(false);
 const uploadStatusMessage = ref("");
 const showUploadStatus = ref(false);
@@ -835,7 +862,7 @@ const selectionBoxStyle = computed(() => {
 });
 
 const contextMenuItems = computed(() => {
-  const items = [];
+  const items: Array<{ label?: string; icon?: any; action?: () => void; shortcut?: string; disabled?: boolean; divider?: boolean; danger?: boolean }> = [];
   const selectedCount = selectedFiles.value.size;
 
   if (selectedCount > 1) {
@@ -843,19 +870,30 @@ const contextMenuItems = computed(() => {
       .map((name) => files.value.find((f) => f.name === name))
       .filter((f) => f !== undefined) as FileEntry[];
 
-    const hasFiles = selectedFilesList.some((f) => !f.is_directory);
+    const hasDirectories = selectedFilesList.some((f) => f.is_directory);
+    const onlyFiles = selectedFilesList.filter((f) => !f.is_directory);
+
+    const shouldZip = selectedCount > 3 || hasDirectories;
 
     items.push({ label: `Selected: ${selectedCount} items`, icon: checkIcon, disabled: true }, { divider: true });
 
-    if (hasFiles) {
+    if (shouldZip) {
+      items.push({
+        label: "Download as ZIP",
+        icon: zipFileIcon,
+        action: async () => {
+          const fileNames = selectedFilesList.map((f) => f.name);
+          closeContextMenu();
+          await downloadMultipleAsZip(fileNames);
+        },
+      });
+    } else if (onlyFiles.length > 0) {
       items.push({
         label: "Download All",
         icon: arrowDownThickIcon,
         action: async () => {
-          for (const file of selectedFilesList) {
-            if (!file.is_directory) {
-              await downloadFile(file.name);
-            }
+          for (const file of onlyFiles) {
+            await downloadFile(file.name);
           }
           closeContextMenu();
         },
@@ -875,7 +913,8 @@ const contextMenuItems = computed(() => {
         },
       },
       { divider: true },
-      { label: "New Folder", icon: folderPlusIcon, action: () => showCreateFolderDialog() }
+      { label: "New Folder", icon: folderPlusIcon, action: () => showCreateFolderDialog() },
+      { label: "Refresh", icon: refreshIcon, action: () => fetchFiles(currentPath.value) }
     );
 
     return items;
@@ -903,6 +942,12 @@ const contextMenuItems = computed(() => {
         },
       });
 
+      items.push({
+        label: "Download as ZIP",
+        icon: arrowDownThickIcon,
+        action: () => downloadFolderAsZip(contextMenuTarget.value!.name),
+      });
+
       items.push({ divider: true });
 
       if (isSearchMode.value) {
@@ -925,6 +970,7 @@ const contextMenuItems = computed(() => {
     }
   } else {
     items.push({ label: "New Folder", icon: folderPlusIcon, action: () => showCreateFolderDialog() });
+    items.push({ label: "Refresh", icon: refreshIcon, action: () => fetchFiles(currentPath.value) });
   }
 
   return items;
@@ -1303,6 +1349,81 @@ const downloadFile = async (fileName: string) => {
   }
 };
 
+const downloadMultipleAsZip = async (fileNames: string[]) => {
+  if (fileNames.length === 0) return;
+
+  try {
+    fileNames.forEach((name) => {
+      const file = files.value.find((f) => f.name === name);
+      if (file?.is_directory) {
+        compressingFolders.value.add(name);
+      }
+    });
+
+    const response = await axios.post(
+      "/api/download_multiple",
+      { files: fileNames },
+      {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "blob",
+      }
+    );
+
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = "download.zip";
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+      if (match) filename = match[1].replace(/[<>:"/\\|?*]/g, "_");
+    }
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    message.success(`Downloaded ${fileNames.length} items as ZIP`);
+  } catch (error) {
+    message.error("Failed to download files as ZIP");
+  } finally {
+    fileNames.forEach((name) => {
+      compressingFolders.value.delete(name);
+    });
+  }
+};
+
+const downloadFolderAsZip = async (folderName: string) => {
+  try {
+    compressingFolders.value.add(folderName);
+
+    const response = await axios.post(
+      "/api/download_multiple",
+      { files: [folderName] },
+      {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "blob",
+      }
+    );
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    const baseName = folderName.split("/").pop() || folderName;
+    link.setAttribute("download", `${baseName}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    message.error("Failed to download folder as ZIP");
+  } finally {
+    compressingFolders.value.delete(folderName);
+  }
+};
+
 const deleteFile = async (fileName: string, silent = false) => {
   try {
     const response = await axios.post("/api/delete_file", { file: fileName }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
@@ -1627,9 +1748,10 @@ const handleFileClick = (file: FileEntry, event?: MouseEvent | TouchEvent) => {
   const e = event;
   if (!e) return;
 
+  if (wasDragSelection) return;
+
   const isTouchEvent = "touches" in e;
 
-  // Handle ".." navigation item
   if (file.name === "..") {
     if (isTouchEvent) {
       const touch = (e as TouchEvent).changedTouches?.[0] || (e as TouchEvent).touches?.[0];
@@ -1862,8 +1984,6 @@ const handleContainerTouchEnd = () => {
 
 const handleContainerMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
-  const isFileItem = target.closest(".dropzone-file-item");
-  if (isFileItem) return;
 
   const isControl = target.closest(".dropzone-controls-container");
   if (isControl) return;
@@ -1875,22 +1995,29 @@ const handleContainerMouseDown = (e: MouseEvent) => {
   const rect = (e.currentTarget as HTMLElement)?.getBoundingClientRect();
   if (!rect) return;
 
-  isSelectingArea.value = true;
-  selectionBox.value.startX = e.clientX - rect.left;
-  selectionBox.value.startY = e.clientY - rect.top;
-  selectionBox.value.currentX = selectionBox.value.startX;
-  selectionBox.value.currentY = selectionBox.value.startY;
+  const startX = e.clientX - rect.left;
+  const startY = e.clientY - rect.top;
 
-  selectedFile.value = null;
-  selectedFiles.value.clear();
+  dragStartPoint.value = { x: startX, y: startY };
+
+  const isFileItem = target.closest(".dropzone-file-item");
+
+  if (!isFileItem) {
+    isSelectingArea.value = true;
+    selectionBox.value.startX = startX;
+    selectionBox.value.startY = startY;
+    selectionBox.value.currentX = startX;
+    selectionBox.value.currentY = startY;
+
+    selectedFile.value = null;
+    selectedFiles.value.clear();
+  }
 
   document.addEventListener("mousemove", handleMouseMove);
   document.addEventListener("mouseup", handleMouseUp);
 };
 
 const handleMouseMove = (e: MouseEvent) => {
-  if (!isSelectingArea.value) return;
-
   const container = containerRef.value;
   const rect = container?.getBoundingClientRect();
   if (!rect) return;
@@ -1901,10 +2028,23 @@ const handleMouseMove = (e: MouseEvent) => {
   mouseX = Math.max(0, Math.min(mouseX, rect.width));
   mouseY = Math.max(0, Math.min(mouseY, rect.height));
 
-  selectionBox.value.currentX = mouseX;
-  selectionBox.value.currentY = mouseY;
+  if (!isSelectingArea.value && dragStartPoint.value) {
+    const distance = Math.sqrt(Math.pow(mouseX - dragStartPoint.value.x, 2) + Math.pow(mouseY - dragStartPoint.value.y, 2));
 
-  updateSelectedFilesInBox();
+    if (distance > DRAG_SELECTION_THRESHOLD) {
+      isSelectingArea.value = true;
+      selectionBox.value.startX = dragStartPoint.value.x;
+      selectionBox.value.startY = dragStartPoint.value.y;
+      selectedFile.value = null;
+      selectedFiles.value.clear();
+    }
+  }
+
+  if (isSelectingArea.value) {
+    selectionBox.value.currentX = mouseX;
+    selectionBox.value.currentY = mouseY;
+    updateSelectedFilesInBox();
+  }
 };
 
 const handleMouseUp = () => {
@@ -1915,7 +2055,15 @@ const handleMouseUp = () => {
     selectedFiles.value.clear();
   }
 
+  if (isSelectingArea.value && didDrag) {
+    wasDragSelection = true;
+    setTimeout(() => {
+      wasDragSelection = false;
+    }, 50);
+  }
+
   isSelectingArea.value = false;
+  dragStartPoint.value = null;
   document.removeEventListener("mousemove", handleMouseMove);
   document.removeEventListener("mouseup", handleMouseUp);
 };
@@ -1956,11 +2104,14 @@ const showContextMenu = (event: MouseEvent, file: FileEntry | null = null) => {
   event.preventDefault();
 
   if (file?.name === "..") {
-    return;
+    file = null;
   }
 
   if (file && !selectedFiles.value.has(file.name)) {
     selectedFile.value = file.name;
+    selectedFiles.value.clear();
+  } else if (!file) {
+    selectedFile.value = "";
     selectedFiles.value.clear();
   }
 

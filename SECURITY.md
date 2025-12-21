@@ -11,6 +11,10 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
+- `✦ Possible Self-DDoS by Enumerating Thousands of Files on Drop Zone`
+
+  - **Internally Discovered** – Fixed in v2.0.4.212
+
 - `✦ DNS Open Redirect in HTTP to HTTPS Redirector when SSL enabled`
 
   - **Internally Discovered** – Fixed in v2.0.3.186

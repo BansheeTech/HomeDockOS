@@ -11,8 +11,16 @@ from pymodules.hd_FunctionsGlobals import current_directory
 
 ENTERPRISE_PATH = os.path.join(current_directory, "__Enterprise__")
 
+_enterprise_loaded = False
+
+
+def is_enterprise_loaded():
+    return _enterprise_loaded
+
 
 def load_enterprise(app):
+    global _enterprise_loaded
+
     if not os.path.exists(ENTERPRISE_PATH):
         return []
 
@@ -20,6 +28,8 @@ def load_enterprise(app):
         from __Enterprise__ import load_enterprise_cogs
 
         loaded = load_enterprise_cogs(app, ENTERPRISE_PATH)
+        if loaded:
+            _enterprise_loaded = True
         return loaded
     except Exception as e:
         print(f" ! Enterprise loader error: {e}")

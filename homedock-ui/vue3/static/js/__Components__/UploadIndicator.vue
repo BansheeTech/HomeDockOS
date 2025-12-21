@@ -24,13 +24,15 @@
             </path>
           </g>
         </svg>
+        <Icon :icon="cubeIcon" class="dropzone-badge-icon" />
       </div>
 
       <Transition name="dropdown">
         <Teleport to="body">
           <div v-if="isExpanded" class="upload-dropdown border" :class="[themeClasses.uploadDropdownBg, themeClasses.uploadDropdownBorder, themeClasses.uploadDropdownShadow]">
             <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">Uploading Files</span>
+              <Icon :icon="cubeIcon" class="w-4 h-4" />
+              <span class="dropdown-title" :class="themeClasses.notTextUp">Drop Zone Uploads</span>
             </div>
 
             <div v-if="uploadStore.currentlyUploading.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
@@ -74,6 +76,7 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { useTrayManager } from "../__Composables__/useTrayManager";
 
 import { Icon } from "@iconify/vue";
+import cubeIcon from "@iconify-icons/mdi/cube";
 import folderIcon from "@iconify-icons/mdi/folder";
 import textFileIcon from "@iconify-icons/mdi/file-document";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
@@ -229,6 +232,16 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: all 0.15s ease;
   cursor: pointer;
+  position: relative;
+}
+
+.dropzone-badge-icon {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  opacity: 0.8;
 }
 
 /* Dropdown */

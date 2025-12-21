@@ -28,12 +28,13 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/dashboard", "dashboard", desktop)
 
-    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, delete_file, create_folder, rename_item, search_files
+    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, download_multiple, delete_file, create_folder, rename_item, search_files
 
     homedock_www.add_url_rule("/api/get_files", "list_files", CSRF_Protect(list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/search_files", "search_files", CSRF_Protect(search_files), methods=["GET"])
     homedock_www.add_url_rule("/api/upload_file", "upload_file", CSRF_Protect(upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/download_multiple", "download_multiple", CSRF_Protect(download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/delete_file", "delete_file", CSRF_Protect(delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/create_folder", "create_folder", CSRF_Protect(create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/rename_item", "rename_item", CSRF_Protect(rename_item), methods=["POST"])
@@ -200,3 +201,15 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/2fa/setup/verify", "2fa_setup_verify", CSRF_Protect(api_2fa_setup_verify), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])
+
+    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_upload_file, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item
+
+    homedock_www.add_url_rule("/api/appdrive/containers", "appdrive_list_containers", CSRF_Protect(appdrive_list_containers), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/mounts", "appdrive_get_mounts", CSRF_Protect(appdrive_get_mounts), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/files", "appdrive_list_files", CSRF_Protect(appdrive_list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/download", "appdrive_download_file", CSRF_Protect(appdrive_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/download-multiple", "appdrive_download_multiple", CSRF_Protect(appdrive_download_multiple), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/upload", "appdrive_upload_file", CSRF_Protect(appdrive_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/delete", "appdrive_delete_file", CSRF_Protect(appdrive_delete_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/create-folder", "appdrive_create_folder", CSRF_Protect(appdrive_create_folder), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/rename", "appdrive_rename_item", CSRF_Protect(appdrive_rename_item), methods=["POST"])

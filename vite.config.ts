@@ -43,10 +43,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         chunkFileNames: "hdos_[hash:21].js",
         entryFileNames: "hdos_[hash:21].js",
-        assetFileNames: (assetInfo) => {
-          const ext = (assetInfo.name ?? "").split(".").pop();
-          return `hdos_[hash:21].[ext]`;
-        },
+        assetFileNames: "hdos_[hash:21].[ext]",
       },
     },
   },

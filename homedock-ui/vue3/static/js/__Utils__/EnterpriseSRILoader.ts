@@ -15,8 +15,33 @@ if (!globalThis.crypto?.subtle || !window.isSecureContext) {
 import * as Vue from "vue";
 
 import { ref, reactive, computed, watch, onMounted, onUnmounted, h, defineComponent, createApp, type Component } from "vue";
-import { message, notification, Modal, Button, Switch, Input, Select, Spin } from "ant-design-vue";
 import { getThemeClasses } from "../__Themes__/ThemeSelector";
+
+import type { MessageInstance } from "ant-design-vue/es/message";
+import type { NotificationInstance } from "ant-design-vue/es/notification";
+
+type AntdComponents = {
+  message: MessageInstance;
+  notification: NotificationInstance;
+  Button: typeof import("ant-design-vue/es/button")["default"];
+  Switch: typeof import("ant-design-vue/es/switch")["default"];
+};
+
+let antdComponents: AntdComponents | null = null;
+
+async function loadAntdComponents() {
+  if (antdComponents) return antdComponents;
+
+  const [messageM, notificationM, ButtonM, SwitchM] = await Promise.all([import("ant-design-vue/es/message"), import("ant-design-vue/es/notification"), import("ant-design-vue/es/button"), import("ant-design-vue/es/switch")]);
+
+  antdComponents = {
+    message: messageM.default,
+    notification: notificationM.default,
+    Button: ButtonM.default,
+    Switch: SwitchM.default,
+  };
+  return antdComponents;
+}
 
 const ENTERPRISE_PUBLIC_KEY = "oAr2gC4aEQkVVjYoys4bY/Jt+jLjXJkABkG2Lk1Nj88=";
 
@@ -33,18 +58,9 @@ export interface EnterpriseDeps {
     createApp: typeof createApp;
   };
   axios: typeof axios;
-  antd: {
-    message: typeof message;
-    notification: typeof notification;
-    Modal: typeof Modal;
-    Button: typeof Button;
-    Switch: typeof Switch;
-    Input: typeof Input;
-    Select: typeof Select;
-    Spin: typeof Spin;
-  };
+  antd: AntdComponents;
   app: {
-    csrfToken: string;
+    csrfToken: { value: string };
     theme: { selectedTheme: string; selectedBack: string };
     updateTheme: (theme: { selectedTheme?: string; selectedBack?: string }) => void;
     getThemeClasses: () => Record<string, string>;
@@ -218,17 +234,19 @@ function waitForRegistration(moduleName: string, timeoutMs: number = 5000): Prom
   });
 }
 
-function buildDeps(): EnterpriseDeps {
+async function buildDeps(): Promise<EnterpriseDeps> {
   if (!appContext) {
     throw new Error("EnterpriseSRILoader not initialized with app context");
   }
 
+  const antd = await loadAntdComponents();
+
   return {
     vue: { ref, reactive, computed, watch, onMounted, onUnmounted, h, defineComponent, createApp },
     axios,
-    antd: { message, notification, Modal, Button, Switch, Input, Select, Spin },
+    antd,
     app: {
-      csrfToken: appContext.csrfToken.value,
+      csrfToken: appContext.csrfToken,
       theme: appContext.theme,
       updateTheme: appContext.updateTheme,
       getThemeClasses: () => getThemeClasses(appContext!.theme.selectedTheme),
@@ -257,7 +275,7 @@ async function loadAndInitModule(module: EnterpriseModule): Promise<void> {
   const entry = await waitForRegistration(module.name);
 
   if (!initializedModules.has(module.name) && entry.init) {
-    const deps = buildDeps();
+    const deps = await buildDeps();
     await entry.init(deps);
     initializedModules.add(module.name);
   }

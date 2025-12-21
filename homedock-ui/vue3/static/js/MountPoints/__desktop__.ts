@@ -20,6 +20,7 @@ interface ThemeData {
 
 interface CommonData {
   version: string;
+  enterprise_available: boolean;
 }
 
 interface SettingsData {
@@ -172,11 +173,13 @@ if (themeData && commonData && settingsData && dashboardData) {
 
   setCsrfTokenGetter(() => reactiveCsrfToken.value);
 
-  EnterpriseSRILoader.init({
-    csrfToken: reactiveCsrfToken,
-    theme: reactiveTheme,
-    updateTheme: updateTheme,
-  });
+  if (commonData.enterprise_available) {
+    EnterpriseSRILoader.init({
+      csrfToken: reactiveCsrfToken,
+      theme: reactiveTheme,
+      updateTheme: updateTheme,
+    });
+  }
 
   app.mount("#app-desktop-root");
 } else {

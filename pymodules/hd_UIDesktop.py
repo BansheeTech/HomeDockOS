@@ -26,6 +26,7 @@ from pymodules.hd_LogRAMUsage import get_ram_usage
 from pymodules.hd_LogNetworkUsage import get_download_data, get_upload_data
 from pymodules.hd_LogDiskUsage import get_disk_usage
 from pymodules.hd_LogExternalDiskUsage import get_external_disk_usage
+from pymodules.hd_EnterpriseLoader import is_enterprise_loaded
 
 
 @login_required
@@ -94,5 +95,6 @@ def desktop():
         external_default_disk=get_configured_external_drives(),
         external_path=external_path,
         valid_drives=valid_drives,
+        enterprise_available=is_enterprise_loaded(),
         nonce=g.get("nonce", ""),
     )

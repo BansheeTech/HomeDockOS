@@ -1,12 +1,34 @@
 # CHANGELOG
 
-- **2.0.4.26** (Latest): Enhanced Ed25519 signature verification with cross-browser fallback support.
+- **2.0.4.212** (Latest): Added App Drive file manager for Docker containers volume management and more.
+
+  - Introduced **App Drive** (thanks **@bitebait** for the idea!), a new system application for browsing and managing files directly inside Docker container volumes without terminal access. Notepad for direct editing still in the work.
+  - Implemented **container mount browser** allowing navigation through all mounted volumes of running containers with automatic detection of read-only mounts.
+  - Added **file operations** including upload, download, create folder, rename, and delete with full multi-selection support maintaining folder hierarchy.
+  - Implemented **dual view modes** as in Drop Zone (grid/list) with sorting by name, size, or date and ascending/descending toggle for flexible file browsing.
+  - Created **breadcrumb navigation** for intuitive path navigation within container filesystems with quick access.
+  - Added **multi-selection support** with Ctrl+Click and drag-to-select for batch file operations.
+  - Implemented **context menus** for files and folders with right-click actions including download, rename, delete, and folder-specific operations.
+  - Added **"Files" tab in Application Properties** window showing all accessible container volumes with quick-launch buttons to open App Drive directly for any mount point.
+  - Created **upload progress tracking store** (`useAppDriveUploadingStore.ts`) for managing concurrent file uploads with queue system and real-time progress indicators.
+  - **Fixed Self-DDoS vulnerability** in Drop Zone where enumerating thousands of files could overwhelm the server. Implemented `calculate_directory_size_ddos_safe()` with file count limits (10,000 files) and time limits (2 seconds) to prevent resource exhaustion.
+  - Added **ZIP download support for Drop Zone**: download multiple selected files as a single ZIP archive, or download entire folders as ZIP with visual compression indicator and animated feedback.
+  - Implemented **server-side ZIP generation** with security limits (50,000 files max, 30 seconds timeout) to prevent resource exhaustion during batch downloads.
+  - Added **"Refresh" button** to Drop Zone context menu for quick file list updates without navigating away.
+  - Enhanced **Drop Zone error responses** by removing detailed error messages that could expose internal paths or system information, improving security posture.
+  - Added **size exceeded indicator** showing when directory size calculation hits limits, so users know the displayed size is approximate for very large folders.
+  - Improved **Enterprise SRI Loader** with lazy loading for Ant Design components, reducing initial bundle size and improving load performance for enterprise deployments.
+  - Updated **open source credits** adding Noble Ed25519, Noble Hashes, and PyOTP libraries to the acknowledgments section.
+  - Enhanced **oscillating background lines** with mouse-reactive physics because we got bored and started playing with the login screen. Now they dodge your cursor like mass trying to escape a black hole. Added Catmull-Rom spline interpolation for buttery-smooth curves, because cubic beziers are **_so 2024_** and we're already in in 2030.
+    > **TLDR - Is App Drive safe?** Yes. App Drive only accesses container volumes mounted within HomeDock's secure paths: `/DATA/HomeDock` on Linux, `~/HomeDock` on macOS, and `C:\HomeDock` on Windows. It cannot browse arbitrary system directories or escape these sandboxed locations. All file operations are validated against path traversal attacks and symlink escapes consistently, period.
+
+---
+
+- **2.0.4.26**: Enhanced Ed25519 signature verification with cross-browser fallback support.
 
   - Added **fallback Ed25519 signature verification** using `@noble/ed25519` library for browsers that don't support Web Crypto API or are running in non-secure contexts (HTTP).
   - Implemented **automatic cryptographic API detection** that uses native Web Crypto API when available in secure contexts, falling back to the noble library implementation when `crypto.subtle` is unavailable.
   - Enhanced **cross-browser compatibility** ensuring enterprise module signature verification works reliably across all browsers and contexts, including HTTP development environments.
-
----
 
 - **2.0.4.24**: Enterprise module loader architecture with SRI validation and Ed25519 cryptographic signing.
 

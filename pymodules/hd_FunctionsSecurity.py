@@ -6,6 +6,31 @@ https://www.banshee.pro
 """
 
 import os
+import time
+
+
+def calculate_directory_size_ddos_safe(dir_path, max_files=10000, max_time=2.0):
+    total_size = 0
+    file_count = 0
+    exceeded = False
+    start_time = time.time()
+
+    try:
+        for dirpath, _, filenames in os.walk(dir_path):
+            for filename in filenames:
+                file_count += 1
+                if file_count > max_files or (time.time() - start_time) > max_time:
+                    exceeded = True
+                    return total_size, exceeded
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    total_size += os.path.getsize(file_path)
+                except (OSError, PermissionError):
+                    continue
+    except (OSError, PermissionError):
+        pass
+
+    return total_size, exceeded
 
 
 def validate_safe_path(base_dir, user_provided_path):
