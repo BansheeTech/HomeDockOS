@@ -399,6 +399,8 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
 import { useDropZoneStore } from "../__Stores__/useDropZoneStore";
+import { useFileViewerPrefsStore } from "../__Stores__/useFileViewerPrefsStore";
+import { storeToRefs } from "pinia";
 
 import { message, Upload, AutoComplete, InputSearch, Empty, Progress, Select, SelectOption, Input } from "ant-design-vue";
 
@@ -472,9 +474,9 @@ const fileList = ref([]);
 const isDraggingFiles = ref(false);
 let dragCounter = 0;
 
-const sortBy = ref<"name" | "size" | "date">("name");
-const sortDirection = ref<"asc" | "desc">("asc");
-const viewMode = ref<"grid" | "list">("grid");
+// Unified file viewer preferences (shared with AppDrive)
+const fileViewerPrefs = useFileViewerPrefsStore();
+const { sortBy, sortDirection, viewMode } = storeToRefs(fileViewerPrefs);
 
 const uploadQueue = ref<
   Array<{
@@ -976,10 +978,6 @@ const contextMenuItems = computed(() => {
   return items;
 });
 
-watch([sortBy, sortDirection, viewMode], () => {
-  savePreferences();
-});
-
 watch(searchQuery, (newQuery) => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);
@@ -1181,33 +1179,6 @@ const showStatus = (message: string, duration: number = 0) => {
 
 const hideStatus = () => {
   showUploadStatus.value = false;
-};
-
-const loadPreferences = () => {
-  try {
-    const saved = localStorage.getItem("dropzoneStatus");
-    if (saved) {
-      const prefs = JSON.parse(saved);
-      sortBy.value = prefs.sortBy || "name";
-      sortDirection.value = prefs.sortDirection || "asc";
-      viewMode.value = prefs.viewMode || "grid";
-    }
-  } catch (error) {
-    console.warn("[DropZone] Failed to load preferences from localStorage:", error);
-  }
-};
-
-const savePreferences = () => {
-  try {
-    const prefs = {
-      sortBy: sortBy.value,
-      sortDirection: sortDirection.value,
-      viewMode: viewMode.value,
-    };
-    localStorage.setItem("dropzoneStatus", JSON.stringify(prefs));
-  } catch (error) {
-    console.warn("[DropZone] Failed to save preferences to localStorage:", error);
-  }
 };
 
 const fetchFiles = async (path: string = "", forceSearch: boolean = false) => {
@@ -2239,7 +2210,7 @@ const reconnectResizeObserver = () => {
 };
 
 onMounted(() => {
-  loadPreferences();
+  fileViewerPrefs.load();
   fetchFiles();
 
   updateContainerWidth();

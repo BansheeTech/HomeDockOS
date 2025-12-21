@@ -102,10 +102,10 @@
           <span v-if="containerPath" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 opacity-60 truncate max-w-[200px]" :title="containerPath"> {{ containerPath }} </span>
         </div>
 
-        <div ref="containerRef" class="view-mode-container flex-1 overflow-auto" @mousedown="handleContainerMouseDown" @contextmenu="showContextMenu($event, null)" @touchstart="handleContainerTouchStart" @touchmove="handleContainerTouchMove" @touchend="handleContainerTouchEnd" @touchcancel="handleContainerTouchEnd">
+        <div ref="containerRef" class="view-mode-container" @mousedown="handleContainerMouseDown" @contextmenu="showContextMenu($event, null)" @touchstart="handleContainerTouchStart" @touchmove="handleContainerTouchMove" @touchend="handleContainerTouchEnd" @touchcancel="handleContainerTouchEnd">
           <div v-if="!selectedContainer" class="appdrive-container-picker relative w-full select-none" :style="{ height: `${containerPickerHeight}px` }">
             <TransitionGroup name="container-icon">
-              <div v-for="(positioned, index) in positionedContainers" :key="positioned.name" @click="selectContainer(positioned.name)" :style="{ position: 'absolute', left: `${positioned.x}px`, top: `${positioned.y}px`, '--stagger-index': index }" :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border border-transparent', 'transition-[background,transform,border,box-shadow] duration-150', 'w-[100px] h-[120px] select-none', 'hover:-translate-y-0.5', themeClasses.desktopIconBg || 'hover:bg-white/5']">
+              <div v-for="positioned in positionedContainers" :key="positioned.name" @click="selectContainer(positioned.name)" :style="{ position: 'absolute', left: `${positioned.x}px`, top: `${positioned.y}px` }" :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border border-transparent', 'transition-[background,transform,border,box-shadow] duration-150', 'w-[100px] h-[120px] select-none', 'hover:-translate-y-0.5', themeClasses.desktopIconBg || 'hover:bg-white/5']">
                 <div class="relative">
                   <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden border border-transparent', 'transition-[background,transform,border-color] duration-150', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerBgHover]">
                     <BaseImage :src="getAppInfo(positioned.name).iconPath" :alt="getAppInfo(positioned.name).displayName" class="w-12 h-12 object-contain rounded-xl" draggable="false" />
@@ -132,14 +132,14 @@
               </div>
               <TransitionGroup name="file-item">
                 <template v-for="file in positionedFiles" :key="file.name">
-                  <div v-if="file.name === '__back__'" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" @click="handleBackClick" @contextmenu.prevent :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg appdrive-file-item', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px]', themeClasses.desktopIconBg || 'hover:bg-white/5']">
+                  <div v-if="file.name === '__back__'" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" @click="handleBackClick" @contextmenu.prevent @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)" @touchcancel="handleFileTouchEnd(file, $event)" :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg appdrive-file-item touch-manipulation select-none', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px]', themeClasses.desktopIconBg || 'hover:bg-white/5']">
                     <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg || 'bg-white/10', 'transition-transform duration-200 group-hover:scale-105']">
                       <Icon :icon="folderArrowLeftIcon" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10" />
                     </div>
                     <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center">..</span>
                   </div>
 
-                  <div v-else :data-filename="file.name" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg appdrive-file-item', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] border', selectedFile === file.name || selectedFiles.has(file.name) ? [themeClasses.desktopIconBgSelected || 'bg-blue-500/20', themeClasses.desktopIconBorderSelected || 'border-blue-500'] : ['border-transparent', themeClasses.desktopIconBg || 'hover:bg-white/5']]" @click="handleFileClick(file, $event)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file)" @touchcancel="handleFileTouchEnd(file)">
+                  <div v-else :data-filename="file.name" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" :class="['group flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg appdrive-file-item touch-manipulation select-none', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] border', selectedFile === file.name || selectedFiles.has(file.name) ? [themeClasses.desktopIconBgSelected || 'bg-blue-500/20', themeClasses.desktopIconBorderSelected || 'border-blue-500'] : ['border-transparent', themeClasses.desktopIconBg || 'hover:bg-white/5']]" @click="handleFileClick(file, $event)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)" @touchcancel="handleFileTouchEnd(file, $event)">
                     <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg || 'bg-white/10', 'transition-transform duration-200 group-hover:scale-105', (selectedFile === file.name || selectedFiles.has(file.name)) && (themeClasses.desktopIconContainerBgSelected || 'bg-blue-500/30')]">
                       <div v-if="!file.is_directory && file.size > 0" :class="[themeClasses.dropZoneFileSize]" class="absolute -left-1 -top-1 text-[8px] font-medium px-1 py-0.5 rounded whitespace-nowrap z-10">
                         {{ formatSizeCompact(file.size) }}
@@ -181,7 +181,7 @@
                 <Empty :class="[themeClasses.dropZoneEmptyText]" :description="isReadOnly ? 'This mount is empty' : 'This mount is empty. Drag and drop files to upload.'" />
               </div>
               <TransitionGroup name="file-item-list">
-                <div v-if="currentPath" key="back-button" @click="handleBackClick" @contextmenu.prevent :class="['group flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors appdrive-file-item', themeClasses.desktopIconBg || 'hover:bg-white/5']">
+                <div v-if="currentPath" key="back-button" @click="handleBackClick" @contextmenu.prevent @touchstart="handleBackTouchStart" @touchmove="handleFileTouchMove" @touchend="handleBackTouchEnd($event)" @touchcancel="handleBackTouchEnd($event)" :class="['group flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors appdrive-file-item touch-manipulation select-none', themeClasses.desktopIconBg || 'hover:bg-white/5']">
                   <div class="relative flex-shrink-0 z-[1]">
                     <div :class="['relative w-6 h-6 flex items-center justify-center']">
                       <Icon :icon="folderArrowLeftIcon" :class="[themeClasses.dropZoneFileIcon]" class="h-5 w-5" />
@@ -190,7 +190,7 @@
                   <span :class="[themeClasses.dropZoneFileText]" class="text-xs">..</span>
                 </div>
 
-                <div v-for="file in sortedFiles" :key="file.name" :data-filename="file.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors appdrive-file-item overflow-hidden', selectedFile === file.name || selectedFiles.has(file.name) ? [themeClasses.desktopIconBgSelected || 'bg-blue-500/20'] : [themeClasses.desktopIconBg || 'hover:bg-white/5']]" @click="handleFileClick(file, $event)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file)" @touchcancel="handleFileTouchEnd(file)">
+                <div v-for="file in sortedFiles" :key="file.name" :data-filename="file.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors appdrive-file-item touch-manipulation select-none overflow-hidden', selectedFile === file.name || selectedFiles.has(file.name) ? [themeClasses.desktopIconBgSelected || 'bg-blue-500/20'] : [themeClasses.desktopIconBg || 'hover:bg-white/5']]" @click="handleFileClick(file, $event)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)" @touchcancel="handleFileTouchEnd(file, $event)">
                   <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[file.name]}%` }" />
 
                   <div class="relative flex-shrink-0 z-[1]">
@@ -380,6 +380,8 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useAppDriveUploadingStore, type UploadFile } from "../__Stores__/useAppDriveUploadingStore";
+import { useFileViewerPrefsStore } from "../__Stores__/useFileViewerPrefsStore";
+import { storeToRefs } from "pinia";
 
 import { message, Upload, Empty, Progress, Select, SelectOption, Input } from "ant-design-vue";
 
@@ -494,9 +496,8 @@ const dragStartPoint = ref<{ x: number; y: number } | null>(null);
 let wasDragSelection = false;
 const DRAG_SELECTION_THRESHOLD = 20;
 
-const sortBy = ref<string>("name");
-const sortDirection = ref<"asc" | "desc">("asc");
-const viewMode = ref<"grid" | "list">("grid");
+const fileViewerPrefs = useFileViewerPrefsStore();
+const { sortBy, sortDirection, viewMode } = storeToRefs(fileViewerPrefs);
 
 const isDraggingFiles = ref<boolean>(false);
 const dragCounter = ref<number>(0);
@@ -525,6 +526,7 @@ let isProcessingQueue = false;
 
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref<number>(0);
+const stableGridCols = ref<number>(0);
 let resizeObserver: ResizeObserver | null = null;
 
 let loadFilesRequestId = 0;
@@ -641,7 +643,7 @@ const sortedFiles = computed(() => {
 
 const positionedFiles = computed((): PositionedFileEntry[] => {
   const width = containerWidth.value || window.innerWidth - 100;
-  const maxCols = Math.max(1, Math.floor(width / MIN_GRID_SIZE_X));
+  const maxCols = stableGridCols.value || Math.max(1, Math.floor(width / MIN_GRID_SIZE_X));
   const availableWidth = width - 16;
   const actualCellWidth = availableWidth / maxCols;
 
@@ -699,7 +701,8 @@ interface PositionedContainer extends ContainerInfo {
 
 const positionedContainers = computed((): PositionedContainer[] => {
   const width = containerWidth.value || window.innerWidth - 100;
-  const maxCols = Math.max(1, Math.floor(width / MIN_GRID_SIZE_X));
+  // Use stableGridCols to prevent layout thrashing from scrollbar changes
+  const maxCols = stableGridCols.value || Math.max(1, Math.floor(width / MIN_GRID_SIZE_X));
   const availableWidth = width - 16;
   const actualCellWidth = availableWidth / maxCols;
 
@@ -933,6 +936,7 @@ function sanitizeMountIndex(index: unknown): number | null {
 }
 
 onMounted(async () => {
+  fileViewerPrefs.load();
   await loadContainers();
 
   if (props.containerName) {
@@ -980,7 +984,19 @@ watch(
 
 function updateContainerWidth() {
   if (containerRef.value) {
-    containerWidth.value = containerRef.value.clientWidth;
+    const newWidth = containerRef.value.clientWidth;
+    const newCols = Math.max(1, Math.floor(newWidth / MIN_GRID_SIZE_X));
+
+    if (stableGridCols.value === 0) {
+      stableGridCols.value = newCols;
+      containerWidth.value = newWidth;
+    } else if (newCols !== stableGridCols.value) {
+      const widthDiff = Math.abs(newWidth - containerWidth.value);
+      if (widthDiff > 20) {
+        stableGridCols.value = newCols;
+        containerWidth.value = newWidth;
+      }
+    }
   }
 }
 
@@ -992,7 +1008,20 @@ function setupResizeObserver() {
   if (containerRef.value) {
     resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        containerWidth.value = entry.contentRect.width;
+        const newWidth = entry.contentRect.width;
+        const newCols = Math.max(1, Math.floor(newWidth / MIN_GRID_SIZE_X));
+
+        // Stabilize columns: only update if columns actually change significantly
+        if (stableGridCols.value === 0) {
+          stableGridCols.value = newCols;
+          containerWidth.value = newWidth;
+        } else if (newCols !== stableGridCols.value) {
+          const widthDiff = Math.abs(newWidth - containerWidth.value);
+          if (widthDiff > 20) {
+            stableGridCols.value = newCols;
+            containerWidth.value = newWidth;
+          }
+        }
       }
     });
     resizeObserver.observe(containerRef.value);
@@ -1099,6 +1128,8 @@ let lastClickedFile: string | null = null;
 
 const LONG_PRESS_DURATION = 500;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
+const DOUBLE_TAP_THRESHOLD = 300;
+const DOUBLE_TAP_DISTANCE = 30;
 
 let longPressTimer: ReturnType<typeof setTimeout> | null = null;
 let longPressStartX = 0;
@@ -1106,6 +1137,11 @@ let longPressStartY = 0;
 let currentTouchFile: FileEntry | null = null;
 let hasMoved = false;
 let isLongPressing = false;
+let lastTapTime = 0;
+let lastTapX = 0;
+let lastTapY = 0;
+let backButtonTouching = false;
+let backButtonHasMoved = false;
 
 let containerLongPressTimer: ReturnType<typeof setTimeout> | null = null;
 let containerTouchStartX = 0;
@@ -1226,6 +1262,7 @@ function handleFileTouchMove(event: TouchEvent) {
 
   if (distance > LONG_PRESS_MOVE_THRESHOLD) {
     hasMoved = true;
+    backButtonHasMoved = true; // Also track for back button
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       longPressTimer = null;
@@ -1233,7 +1270,7 @@ function handleFileTouchMove(event: TouchEvent) {
   }
 }
 
-function handleFileTouchEnd(file: FileEntry) {
+function handleFileTouchEnd(file: FileEntry, event: TouchEvent) {
   if (longPressTimer) {
     clearTimeout(longPressTimer);
     longPressTimer = null;
@@ -1247,11 +1284,80 @@ function handleFileTouchEnd(file: FileEntry) {
   }
 
   if (!hasMoved && currentTouchFile === file) {
-    handleFileClick(file);
+    const now = Date.now();
+    const touch = event.changedTouches[0];
+    if (!touch) {
+      hasMoved = false;
+      currentTouchFile = null;
+      return;
+    }
+
+    const timeSinceLastTap = now - lastTapTime;
+    const distance = Math.sqrt(Math.pow(touch.clientX - lastTapX, 2) + Math.pow(touch.clientY - lastTapY, 2));
+
+    if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && distance < DOUBLE_TAP_DISTANCE) {
+      event.preventDefault();
+      if (file.name === "__back__") {
+        navigateUp();
+      } else {
+        handleFileDoubleClick(file);
+      }
+      lastTapTime = 0;
+      lastTapX = 0;
+      lastTapY = 0;
+    } else {
+      selectedFiles.value.clear();
+      selectedFile.value = file.name;
+      lastTapTime = now;
+      lastTapX = touch.clientX;
+      lastTapY = touch.clientY;
+    }
   }
 
   hasMoved = false;
   currentTouchFile = null;
+}
+
+function handleBackTouchStart(event: TouchEvent) {
+  const touch = event.touches[0];
+  if (!touch) return;
+
+  backButtonTouching = true;
+  backButtonHasMoved = false;
+  longPressStartX = touch.clientX;
+  longPressStartY = touch.clientY;
+}
+
+function handleBackTouchEnd(event: TouchEvent) {
+  if (!backButtonTouching || backButtonHasMoved) {
+    backButtonTouching = false;
+    backButtonHasMoved = false;
+    return;
+  }
+
+  const now = Date.now();
+  const touch = event.changedTouches[0];
+  if (!touch) {
+    backButtonTouching = false;
+    return;
+  }
+
+  const timeSinceLastTap = now - lastTapTime;
+  const distance = Math.sqrt(Math.pow(touch.clientX - lastTapX, 2) + Math.pow(touch.clientY - lastTapY, 2));
+
+  if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && distance < DOUBLE_TAP_DISTANCE) {
+    event.preventDefault();
+    navigateUp();
+    lastTapTime = 0;
+    lastTapX = 0;
+    lastTapY = 0;
+  } else {
+    lastTapTime = now;
+    lastTapX = touch.clientX;
+    lastTapY = touch.clientY;
+  }
+
+  backButtonTouching = false;
 }
 
 function handleContainerTouchStart(event: TouchEvent) {
@@ -2155,17 +2261,14 @@ function getRelativeTime(file: FileEntry): string {
   opacity: 0;
 }
 
-/* Container icon transitions - Staggered entry */
-.container-icon-enter-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: calc(var(--stagger-index, 0) * 50ms);
-}
+/* Container icon transitions */
+.container-icon-enter-active,
 .container-icon-leave-active {
-  transition: all 0.2s ease-out;
+  transition: all 0.3s ease;
 }
 .container-icon-enter-from {
   opacity: 0;
-  transform: scale(0.6) translateY(20px);
+  transform: scale(0.8);
 }
 .container-icon-leave-to {
   opacity: 0;

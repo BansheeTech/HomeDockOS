@@ -1,6 +1,17 @@
 # CHANGELOG
 
-- **2.0.4.212** (Latest): Added App Drive file manager for Docker containers volume management and more.
+- **2.0.4.214** (Latest): Unified file viewer experience and mobile stability improvements.
+
+  - **Unified view preferences** between Drop Zone and App Drive: sorting, view mode (grid/list), and order direction now sync instantly across both file managers. Change to list view in Drop Zone? App Drive updates in real-time, no refresh needed.
+  - Created **shared preferences store** laying the groundwork for the upcoming **File Explorer** in version 3, which will unify Disk Drives, Drop Zone, and Container Volumes into a single, cohesive file management experience.
+  - **Fixed mobile flickering** in App Drive where container icons would rapidly alternate between 2 and 3 columns, causing constant visual jitter. Icons now render smoothly without layout recalculations.
+  - **Fixed double-tap behavior** on mobile devices on App Drive: tap once to select, tap again to open, consistent with Drop Zone. Previously some actions required awkward double-taps or one-taps depending the context due to missing touch handlers.
+  - **Fixed double scrollbar** issue where two vertical scrollbars would appear simultaneously when browsing container icons on App Drive.
+  - Improved **touch responsiveness** across all file items with proper gesture handling, eliminating the 300ms delay that made mobile interactions feel sluggish.
+
+---
+
+- **2.0.4.212**: Added App Drive file manager for Docker containers volume management and more.
 
   - Introduced **App Drive** (thanks **@bitebait** for the idea!), a new system application for browsing and managing files directly inside Docker container volumes without terminal access. Notepad for direct editing still in the work.
   - Implemented **container mount browser** allowing navigation through all mounted volumes of running containers with automatic detection of read-only mounts.
@@ -21,8 +32,6 @@
   - Updated **open source credits** adding Noble Ed25519, Noble Hashes, and PyOTP libraries to the acknowledgments section.
   - Enhanced **oscillating background lines** with mouse-reactive physics because we got bored and started playing with the login screen. Now they dodge your cursor like mass trying to escape a black hole. Added Catmull-Rom spline interpolation for buttery-smooth curves, because cubic beziers are **_so 2024_** and we're already in in 2030.
     > **TLDR - Is App Drive safe?** Yes. App Drive only accesses container volumes mounted within HomeDock's secure paths: `/DATA/HomeDock` on Linux, `~/HomeDock` on macOS, and `C:\HomeDock` on Windows. It cannot browse arbitrary system directories or escape these sandboxed locations. All file operations are validated against path traversal attacks and symlink escapes consistently, period.
-
----
 
 - **2.0.4.26**: Enhanced Ed25519 signature verification with cross-browser fallback support.
 
