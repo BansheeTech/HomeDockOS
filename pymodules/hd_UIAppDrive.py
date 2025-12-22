@@ -70,7 +70,13 @@ def get_container_valid_mounts(container_name):
             source_normalized = os.path.normpath(source)
 
             if source_normalized.startswith(homedock_root_normalized + os.sep) or source_normalized == homedock_root_normalized:
-                valid_mounts.append({"host_path": source, "container_path": destination, "type": mount_type, "read_only": mount.get("RW", True) is False})
+                if is_docker:
+                    data_root = os.environ.get("DATA_ROOT", "/DATA")
+                    internal_path = "/DATA" + source_normalized[len(os.path.normpath(data_root)) :]
+                else:
+                    internal_path = source_normalized
+
+                valid_mounts.append({"host_path": internal_path, "container_path": destination, "type": mount_type, "read_only": mount.get("RW", True) is False})
 
         valid_mounts.sort(key=lambda m: m["container_path"])
 

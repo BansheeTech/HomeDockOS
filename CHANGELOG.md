@@ -1,6 +1,14 @@
 # CHANGELOG
 
-- **2.0.4.214** (Latest): Unified file viewer experience and mobile stability improvements.
+- **2.0.4.216** (Latest): Fixed App Drive file access in Docker-in-Docker deployments.
+
+  - **Fixed App Drive in Docker-in-Docker (DinD) mode** where browsing container volumes would fail with a "Security violation" error due to our strict path validation preventing what it perceived as an unauthorized access attempt. App Drive now correctly resolves volume paths when HomeDock OS runs as a container.
+  - Added **automatic path translation** in DinD mode, now host paths like `/home/user/homedock/_DATA/DATA/HomeDock/AppData/...` are now correctly mapped to `/DATA/HomeDock/AppData/...` inside HomeDock OS container.
+  - Improved **path normalization** for mount sources ensuring consistent security validation across all deployment modes.
+
+---
+
+- **2.0.4.214**: Unified file viewer experience and mobile stability improvements.
 
   - **Unified view preferences** between Drop Zone and App Drive: sorting, view mode (grid/list), and order direction now sync instantly across both file managers. Change to list view in Drop Zone? App Drive updates in real-time, no refresh needed.
   - Created **shared preferences store** laying the groundwork for the upcoming **File Explorer** in version 3, which will unify Disk Drives, Drop Zone, and Container Volumes into a single, cohesive file management experience.
@@ -8,8 +16,6 @@
   - **Fixed double-tap behavior** on mobile devices on App Drive: tap once to select, tap again to open, consistent with Drop Zone. Previously some actions required awkward double-taps or one-taps depending the context due to missing touch handlers.
   - **Fixed double scrollbar** issue where two vertical scrollbars would appear simultaneously when browsing container icons on App Drive.
   - Improved **touch responsiveness** across all file items with proper gesture handling, eliminating the 300ms delay that made mobile interactions feel sluggish.
-
----
 
 - **2.0.4.212**: Added App Drive file manager for Docker containers volume management and more.
 
