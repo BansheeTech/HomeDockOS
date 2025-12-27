@@ -30,7 +30,10 @@
             <Icon :icon="window.icon" class="window-icon" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText" width="16" height="16" />
           </div>
 
-          <span class="window-title" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText">{{ window.title }}</span>
+          <span class="window-title flex items-center gap-1.5" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText">
+            {{ window.title }}
+            <EnterpriseIndicator v-if="window.appId === 'enterprise-window'" size="mini" />
+          </span>
         </div>
 
         <div class="window-controls">
@@ -78,6 +81,7 @@ import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import WindowLoading from "../__Components__/WindowLoading.vue";
+import EnterpriseIndicator from "../__Components__/EnterpriseIndicator.vue";
 
 interface Props {
   window: WindowState;

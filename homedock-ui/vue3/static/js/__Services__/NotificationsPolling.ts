@@ -51,19 +51,24 @@ export function useNotificationsPolling(propCSRF: string, initialIntervalMs = 60
           currentIntervalMs = initialIntervalMs;
           unchangedCount = 0;
 
-          notifications.value = newNotifications.map((n) => ({
-            title: n.title || "",
-            message: n.message || "",
-            permanent: n.permanent || false,
-            startDate: n.startDate || null,
-            endDate: n.endDate || null,
-            showDate: n.showDate || false,
-            allowRemove: n.allowRemove !== false,
-            icon: n.icon,
-            hash: n.hash,
-            actionUrl: n.actionUrl?.startsWith("https://") ? n.actionUrl : undefined,
-            actionText: n.actionText,
-          }));
+          const updateNotifications = notifications.value.filter((n) => n.isUpdate);
+
+          notifications.value = [
+            ...updateNotifications,
+            ...newNotifications.map((n) => ({
+              title: n.title || "",
+              message: n.message || "",
+              permanent: n.permanent || false,
+              startDate: n.startDate || null,
+              endDate: n.endDate || null,
+              showDate: n.showDate || false,
+              allowRemove: n.allowRemove !== false,
+              icon: n.icon,
+              hash: n.hash,
+              actionUrl: n.actionUrl?.startsWith("https://") ? n.actionUrl : undefined,
+              actionText: n.actionText,
+            })),
+          ];
         } else {
           unchangedCount++;
           currentIntervalMs = Math.min(initialIntervalMs * (unchangedCount + 1), maxIntervalMs);

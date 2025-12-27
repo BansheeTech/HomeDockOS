@@ -82,6 +82,9 @@ def get_notifications():
         if is_docker and uptime_minutes >= 4320:
             all_notifications.append({"title": "Take HomeDock OS to the next level", "message": "You're running in Docker mode. Install natively for faster performance, easier updates, and full hardware access.", "permanent": True, "allowRemove": True, "actionUrl": "https://www.homedock.cloud/install/", "actionText": "Install natively"})
 
+        if is_docker and uptime_minutes >= 10080:
+            all_notifications.append({"title": "Time to check for updates!", "message": "It's been a while! Check if there's a new version available and run docker pull to update.", "permanent": True, "allowRemove": True, "actionUrl": "https://hub.docker.com/r/bansheetech/homedock-os/tags", "actionText": "Check latest version"})
+
         external_notifications = get_external_notifications()
         all_notifications.extend(external_notifications)
 

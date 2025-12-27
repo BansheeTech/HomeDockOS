@@ -75,7 +75,13 @@ export const useWindowStore = defineStore("window", {
 
     openWindow(appId: string, options?: Partial<WindowState> & { allowMultiple?: boolean }) {
       if (!options?.allowMultiple) {
-        const existing = this.windows.find((w) => w.appId === appId);
+        const existing = this.windows.find((w) => {
+          if (w.appId !== appId) return false;
+          if (appId === "enterprise-window" && options?.data?.module) {
+            return w.data?.module === options.data.module;
+          }
+          return true;
+        });
         if (existing) {
           this.focusWindow(existing.id);
           if (existing.isMinimized) {
@@ -96,11 +102,13 @@ export const useWindowStore = defineStore("window", {
       const rawTitle = options?.title || app?.name || appId;
       const sanitizedTitle = this.sanitizeWindowTitle(rawTitle);
 
+      const resolvedIcon = options?.icon || options?.data?.icon || app?.icon || null;
+
       const newWindow: WindowState = {
         id: this.generateUUID(),
         appId,
         title: sanitizedTitle,
-        icon: options?.icon || app?.icon || null,
+        icon: resolvedIcon,
         x: options?.x ?? Math.min(100 + cascadeOffset, window.innerWidth - 300),
         y: options?.y ?? Math.min(100 + cascadeOffset, window.innerHeight - 300),
         width: options?.width ?? app?.defaultWidth ?? 800,

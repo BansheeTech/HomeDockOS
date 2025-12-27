@@ -768,3 +768,44 @@ input.ant-input-disabled.aero-mode-theme:hover {
   color: rgba(255, 255, 255, 0.3) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+/* Popover */
+.ant-popover {
+  pointer-events: none !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+.ant-popover .ant-popover-content {
+  pointer-events: auto !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+.ant-popover .ant-popover-inner {
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+.white-mode-theme.ant-popover .ant-popover-inner {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  color: rgb(0, 0, 0) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark-mode-theme.ant-popover .ant-popover-inner {
+  background-color: rgb(39, 39, 42) !important;
+  color: rgb(255, 255, 255) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.aero-mode-theme.ant-popover {
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+}
+
+.aero-mode-theme.ant-popover .ant-popover-inner {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: rgb(255, 255, 255) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}

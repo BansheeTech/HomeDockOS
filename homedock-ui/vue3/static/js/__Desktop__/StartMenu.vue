@@ -21,8 +21,8 @@
         <div v-if="pinnedApps.length > 0" class="flex-shrink-0 px-6 py-3 max-md:!px-4 max-md:!py-2 md:overflow-y-auto max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
           <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">Pinned</h3>
           <div class="md:grid md:gap-3 w-full max-md:flex max-md:overflow-x-auto max-md:gap-3 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-            <div v-for="app in pinnedApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
-              <div class="app-icon" :class="[{ 'bg-transparent p-0': app.type === 'docker' }, app.type === 'system' ? themeClasses.startMenuAppIconBg : '', getContainerClasses(app)]">
+            <div v-for="app in pinnedApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+              <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110" :class="[{ 'bg-transparent p-0': app.type === 'docker' }, app.type === 'system' ? themeClasses.startMenuAppIconBg : '', getContainerClasses(app)]">
                 <Icon v-if="app.type === 'system' && app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 <Icon v-else-if="app.type === 'system'" :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 <BaseImage v-else-if="app.type === 'docker' && app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
@@ -31,13 +31,15 @@
             </div>
           </div>
         </div>
-
         <div class="flex-shrink-0 px-6 py-2 pt-4 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
           <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">System Applications</h3>
           <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-              <div v-for="app in filteredSystemApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
-                <div class="app-icon" :class="themeClasses.startMenuAppIconBg">
+              <EnterpriseSlotRenderer module="FirewallStartMenuIcon" @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
+              <EnterpriseSlotRenderer module="DataSpaceStartMenuIcon" @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
+
+              <div v-for="app in filteredSystemApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+                <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110" :class="themeClasses.startMenuAppIconBg">
                   <Icon v-if="app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                   <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 </div>
@@ -51,8 +53,8 @@
           <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">Installed Applications</h3>
           <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-              <div v-for="app in filteredInstalledApps" :key="app.id" class="app-item max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
-                <div class="app-icon bg-transparent p-0" :class="getContainerClasses(app)">
+              <div v-for="app in filteredInstalledApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+                <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110 bg-transparent p-0" :class="getContainerClasses(app)">
                   <BaseImage v-if="app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
                   <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 </div>
@@ -124,6 +126,7 @@ import docsIcon from "@iconify-icons/mdi/lifebuoy";
 import BaseImage from "../__Components__/BaseImage.vue";
 import UserGreeting from "../__Components__/UserGreeting.vue";
 import WelcomeMessage from "../__Components__/WelcomeMessage.vue";
+import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 
 import { clientSignOut } from "../__Services__/ClientSignOut";
 
@@ -291,6 +294,10 @@ function handleLogout() {
   clientSignOut(csrfToken.value);
 }
 
+function handleEnterpriseOpenWindow(windowType: string, options: any) {
+  windowStore.openWindow(windowType, options);
+}
+
 watch(
   () => desktopStore.startMenuOpen,
   (isOpen) => {
@@ -340,52 +347,6 @@ watch(
   }
 }
 
-.app-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  min-width: 0;
-}
-
-@media (max-width: 768px) {
-  .app-item {
-    padding: 0.5rem 0.25rem !important;
-    gap: 0.375rem !important;
-  }
-}
-
-.app-item:hover {
-  transform: translateY(-2px);
-}
-
-.app-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .app-icon {
-    width: 44px !important;
-    height: 44px !important;
-  }
-}
-
-.app-item:hover .app-icon {
-  transform: scale(1.1);
-}
-
 /* Vue Transitions */
 @media (min-width: 769px) {
   .start-menu-enter-active,
@@ -422,11 +383,6 @@ watch(
 
   .apps-scroll-container::-webkit-scrollbar {
     display: none;
-  }
-
-  .apps-scroll-container .app-item {
-    width: 90px;
-    min-width: 90px;
   }
 }
 </style>

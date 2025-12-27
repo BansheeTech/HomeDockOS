@@ -52,8 +52,7 @@
           </div>
 
           <EnterpriseSlotRenderer module="LicenseGrant" :theme-classes="themeClasses" />
-
-          <EnterpriseSlotRenderer module="CorporationName" />
+          <EnterpriseSlotReplacer module="WhiteLabel" slot-name="licensedTo" :theme-classes="themeClasses" />
         </div>
 
         <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">

@@ -1,12 +1,21 @@
 # CHANGELOG
 
-- **2.0.4.216** (Latest): Fixed App Drive file access in Docker-in-Docker deployments.
+- **2.0.4.218** (Latest): UI refactoring, notification improvements, and backend security hardening.
+
+  - Implemented **enterprise module signature verification** on the backend using Ed25519 cryptographic signatures, ensuring both the enterprise `__init__.py` and individual module files are verified against their manifest signatures before loading.
+  - Refactored **Popover styles** from component-scoped CSS to global `antd.css` for consistent theming across all popovers in the application.
+  - Improved **notification persistence** to preserve update notifications when polling refreshes the notification list, preventing update alerts from disappearing unexpectedly.
+  - Added **`@layer enterprise`** CSS layer for proper style isolation and ordering of enterprise module stylesheets.
+  - Refactored **Start Menu app items** from scoped CSS to inline Tailwind classes with group-hover effects for better maintainability and consistent styling.
+  - Added **Docker update reminder notification** that appears after 7 days of uptime in Docker deployments, prompting users to check for new versions on Docker Hub.
+
+---
+
+- **2.0.4.216**: Fixed App Drive file access in Docker-in-Docker deployments.
 
   - **Fixed App Drive in Docker-in-Docker (DinD) mode** where browsing container volumes would fail with a "Security violation" error due to our strict path validation preventing what it perceived as an unauthorized access attempt. App Drive now correctly resolves volume paths when HomeDock OS runs as a container.
   - Added **automatic path translation** in DinD mode, now host paths like `/home/user/homedock/_DATA/DATA/HomeDock/AppData/...` are now correctly mapped to `/DATA/HomeDock/AppData/...` inside HomeDock OS container.
   - Improved **path normalization** for mount sources ensuring consistent security validation across all deployment modes.
-
----
 
 - **2.0.4.214**: Unified file viewer experience and mobile stability improvements.
 

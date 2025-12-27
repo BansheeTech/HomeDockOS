@@ -77,9 +77,11 @@ interface SignatureData {
 interface EnterpriseModule {
   name: string;
   js: string;
-  hash: string;
+  jsHash: string;
   cog: string;
   sig: SignatureData;
+  css?: string;
+  cssHash?: string;
 }
 
 interface EnterpriseModuleEntry {
@@ -193,6 +195,38 @@ async function verifyModuleSignature(module: EnterpriseModule, serverPublicKey?:
   }
 }
 
+const loadedCss = new Set<string>();
+
+async function loadModuleCss(cssUrl: string, hexHash?: string): Promise<void> {
+  if (loadedCss.has(cssUrl)) return;
+
+  return new Promise((resolve) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = cssUrl;
+
+    if (hexHash) {
+      link.integrity = `sha256-${hexToBase64(hexHash)}`;
+      const linkUrl = new URL(cssUrl, window.location.href);
+      if (linkUrl.origin !== window.location.origin) {
+        link.crossOrigin = "anonymous";
+      }
+    }
+
+    link.onload = () => {
+      loadedCss.add(cssUrl);
+      resolve();
+    };
+
+    link.onerror = () => {
+      console.warn("[EnterpriseSRILoader] Module CSS failed to load:", cssUrl);
+      resolve();
+    };
+
+    document.head.appendChild(link);
+  });
+}
+
 async function loadScriptWithSRI(url: string, hexHash: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
@@ -267,9 +301,13 @@ async function loadAndInitModule(module: EnterpriseModule): Promise<void> {
     return;
   }
 
-  if (!loadedScripts.has(module.hash)) {
-    await loadScriptWithSRI(module.js, module.hash);
-    loadedScripts.add(module.hash);
+  if (module.css) {
+    await loadModuleCss(module.css, module.cssHash);
+  }
+
+  if (!loadedScripts.has(module.jsHash)) {
+    await loadScriptWithSRI(module.js, module.jsHash);
+    loadedScripts.add(module.jsHash);
   }
 
   const entry = await waitForRegistration(module.name);

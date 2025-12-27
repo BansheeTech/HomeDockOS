@@ -103,6 +103,11 @@ const AppHome = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const AppEnterpriseWindow = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppEnterpriseWindow.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline"; // App Store
 import nutIcon from "@iconify-icons/mdi/nut"; // Control Hub
@@ -119,6 +124,7 @@ import informationOutlineIcon from "@iconify-icons/mdi/cloud-question"; // About
 import packageVariantIcon from "@iconify-icons/mdi/package-variant"; // App Packager
 import cloudIcon from "@iconify-icons/mdi/cloud"; // App Home
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan"; // App Drive
+import shieldStarIcon from "@iconify-icons/mdi/shield-star"; // Enterprise Window Placeholder
 
 // The Registry System Apps
 export const SYSTEM_APPS: SystemApp[] = [
@@ -406,6 +412,25 @@ export const SYSTEM_APPS: SystemApp[] = [
     showInStartMenu: true,
     showInExplorerApp: true,
     showInMyHomeApp: true,
+  },
+  {
+    id: "enterprise-window",
+    name: "Enterprise",
+    description: "Enterprise System App Window Placeholder",
+    icon: shieldStarIcon,
+    component: AppEnterpriseWindow,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "system",
+    showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
   },
 ];
 
