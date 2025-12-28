@@ -3,38 +3,33 @@
 # See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 # https://www.banshee.pro
 
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 LABEL maintainer="Banshee Technologies S.L."
 LABEL description="HomeDock OS - One Docker container to rule them all, a self-hosted Cloud OS for your Home Server."
-LABEL version="2.0.4.218"
-
-# Deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    jq \
-    ca-certificates \
-    gnupg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Docker
-RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" > /etc/apt/sources.list.d/docker.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-    docker-ce-cli \
-    docker-buildx-plugin \
-    docker-compose-plugin \
-    && rm -rf /var/lib/apt/lists/*
+LABEL version="2.0.4.220"
 
 # Workdir
 WORKDIR /homedock
 
-# Reqs
+# Deps > Build > Cleanup
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache \
+    bash \
+    curl \
+    jq \
+    shadow \
+    docker-cli \
+    docker-cli-compose \
+    && apk add --no-cache --virtual .build-deps \
+        gcc \
+        musl-dev \
+        linux-headers \
+        python3-dev \
+        libffi-dev \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apk del .build-deps
 
 # Code
 COPY . .

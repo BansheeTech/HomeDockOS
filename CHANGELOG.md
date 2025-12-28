@@ -1,6 +1,16 @@
 # CHANGELOG
 
-- **2.0.4.218** (Latest): UI refactoring, notification improvements, and backend security hardening.
+- **2.0.4.220** (Latest): Migrated Docker base image from Debian to Alpine Linux, reducing image size by ~50%.
+
+  - **Migrated base image from `python:3.12-slim` (Debian) to `python:3.12-alpine`**, reducing image size from 826MB to 441MB (~400MB savings per arch).
+  - **Reduced CVE count from 42 to 5** by eliminating unnecessary Debian packages (glibc, systemd, etc) that carried 33 LOW and several MEDIUM vulnerabilities.
+  - **Replaced Debian Docker packages** with Alpine equivalents, `docker-cli` and `docker-cli-compose` instead of `docker-ce-cli` and `docker-compose-plugin`.
+  - **Added build-time compilation support** for Python packages requiring native extensions (psutil + cryptography) on ARM64, with automatic cleanup of build dependencies (gcc, musl-dev, etc) to keep the final image lean.
+  - **Upgraded pip** during build to address CVE-2025-8869 because... Why not? Yes, we upgrade pip.
+
+---
+
+- **2.0.4.218**: UI refactoring, notification improvements, and backend security hardening.
 
   - Implemented **enterprise module signature verification** on the backend using Ed25519 cryptographic signatures, ensuring both the enterprise `__init__.py` and individual module files are verified against their manifest signatures before loading.
   - Refactored **Popover styles** from component-scoped CSS to global `antd.css` for consistent theming across all popovers in the application.
@@ -8,8 +18,6 @@
   - Added **`@layer enterprise`** CSS layer for proper style isolation and ordering of enterprise module stylesheets.
   - Refactored **Start Menu app items** from scoped CSS to inline Tailwind classes with group-hover effects for better maintainability and consistent styling.
   - Added **Docker update reminder notification** that appears after 7 days of uptime in Docker deployments, prompting users to check for new versions on Docker Hub.
-
----
 
 - **2.0.4.216**: Fixed App Drive file access in Docker-in-Docker deployments.
 
