@@ -1,14 +1,22 @@
 # CHANGELOG
 
-- **2.0.4.220** (Latest): Migrated Docker base image from Debian to Alpine Linux, reducing image size by ~50%.
+- **2.0.4.222** (Latest): Dynamic Enterprise slot system for Start Menu modules.
+
+  - Implemented **dynamic slot-based rendering** for Enterprise modules in Start Menu, eliminating the need to modify core files when adding new Enterprise modules, preparing for open core philosophy.
+  - Added **`getModulesBySlot()`** function to `EnterpriseSRILoader.ts` allowing Enterprise modules to self-declare their rendering location via `slot` and `order` metadata during registration.
+  - Created **`EnterpriseStartMenuSlots.vue`** component that dynamically discovers and renders all Enterprise modules registered for the `startMenu` slot, ordered by their declared priority.
+  - Refactored **Start Menu** to use the new dynamic slot system instead of hardcoded module references, decoupling the open core from specific Enterprise module implementations.
+  - Almost new year release kickoff!
+
+---
+
+- **2.0.4.220**: Migrated Docker base image from Debian to Alpine Linux, reducing image size by ~50%.
 
   - **Migrated base image from `python:3.12-slim` (Debian) to `python:3.12-alpine`**, reducing image size from 826MB to 441MB (~400MB savings per arch).
   - **Reduced CVE count from 42 to 5** by eliminating unnecessary Debian packages (glibc, systemd, etc) that carried 33 LOW and several MEDIUM vulnerabilities.
   - **Replaced Debian Docker packages** with Alpine equivalents, `docker-cli` and `docker-cli-compose` instead of `docker-ce-cli` and `docker-compose-plugin`.
   - **Added build-time compilation support** for Python packages requiring native extensions (psutil + cryptography) on ARM64, with automatic cleanup of build dependencies (gcc, musl-dev, etc) to keep the final image lean.
   - **Upgraded pip** during build to address CVE-2025-8869 because... Why not? Yes, we upgrade pip.
-
----
 
 - **2.0.4.218**: UI refactoring, notification improvements, and backend security hardening.
 

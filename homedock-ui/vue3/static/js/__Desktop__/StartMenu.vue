@@ -35,8 +35,7 @@
           <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">System Applications</h3>
           <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
-              <EnterpriseSlotRenderer module="FirewallStartMenuIcon" @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
-              <EnterpriseSlotRenderer module="DataSpaceStartMenuIcon" @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
+              <EnterpriseStartMenuSlots @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
 
               <div v-for="app in filteredSystemApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
                 <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110" :class="themeClasses.startMenuAppIconBg">
@@ -126,7 +125,7 @@ import docsIcon from "@iconify-icons/mdi/lifebuoy";
 import BaseImage from "../__Components__/BaseImage.vue";
 import UserGreeting from "../__Components__/UserGreeting.vue";
 import WelcomeMessage from "../__Components__/WelcomeMessage.vue";
-import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
+import EnterpriseStartMenuSlots from "../__Components__/EnterpriseStartMenuSlots.vue";
 
 import { clientSignOut } from "../__Services__/ClientSignOut";
 

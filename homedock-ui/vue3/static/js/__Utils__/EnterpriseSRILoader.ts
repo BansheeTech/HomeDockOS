@@ -88,6 +88,8 @@ interface EnterpriseModuleEntry {
   init?: (deps: EnterpriseDeps) => Promise<void> | void;
   component?: Component;
   destroy?: () => Promise<void> | void;
+  slot?: string;
+  order?: number;
 }
 
 interface AppContext {
@@ -358,6 +360,18 @@ export function getModuleByName(name: string): EnterpriseModuleEntry | null {
   return moduleRegistry.get(name) || null;
 }
 
+export function getModulesBySlot(slot: string): { name: string; entry: EnterpriseModuleEntry }[] {
+  const modules: { name: string; entry: EnterpriseModuleEntry }[] = [];
+
+  moduleRegistry.forEach((entry, name) => {
+    if (entry.slot === slot) {
+      modules.push({ name, entry });
+    }
+  });
+
+  return modules.sort((a, b) => (a.entry.order ?? 999) - (b.entry.order ?? 999));
+}
+
 export function isReady(): boolean {
   return isInitialized;
 }
@@ -365,5 +379,6 @@ export function isReady(): boolean {
 export default {
   init,
   getModuleByName,
+  getModulesBySlot,
   isReady,
 };
