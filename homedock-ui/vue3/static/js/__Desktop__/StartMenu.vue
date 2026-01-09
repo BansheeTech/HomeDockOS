@@ -37,7 +37,7 @@
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
               <EnterpriseStartMenuSlots @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
 
-              <div v-for="app in filteredSystemApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
+              <div v-for="app in filteredSystemApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)" @contextmenu.stop.prevent="handleSystemAppContextMenu($event, app)" @touchstart.passive="handleSystemAppTouchStart($event, app)" @touchend="handleSystemAppTouchEnd" @touchmove="handleSystemAppTouchMove">
                 <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110" :class="themeClasses.startMenuAppIconBg">
                   <Icon v-if="app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                   <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
@@ -99,6 +99,8 @@
         </div>
       </div>
     </Transition>
+
+    <ContextMenu :visible="systemAppContextMenu.visible" :x="systemAppContextMenu.x" :y="systemAppContextMenu.y" :items="systemAppContextMenuItems" @close="closeSystemAppContextMenu" />
   </div>
 </template>
 
@@ -126,6 +128,9 @@ import BaseImage from "../__Components__/BaseImage.vue";
 import UserGreeting from "../__Components__/UserGreeting.vue";
 import WelcomeMessage from "../__Components__/WelcomeMessage.vue";
 import EnterpriseStartMenuSlots from "../__Components__/EnterpriseStartMenuSlots.vue";
+import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
+
+import monitorPlusIcon from "@iconify-icons/mdi/monitor-cellphone-star";
 
 import { clientSignOut } from "../__Services__/ClientSignOut";
 
@@ -140,6 +145,9 @@ const userName = computed(() => settingsData?.userName || "User");
 
 const searchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
+
+// Long press state for iOS touch support
+const longPressTriggered = ref(false);
 
 const systemApps = getStartMenuApps();
 
@@ -232,6 +240,12 @@ function getContainerClasses(app: CombinedApp): string {
 }
 
 function openApp(app: CombinedApp) {
+  // Prevent click after long press on touch devices
+  if (longPressTriggered.value) {
+    longPressTriggered.value = false;
+    return;
+  }
+
   if (app.type === "system") {
     desktopStore.openSystemApp(app.id);
   } else if (app.type === "docker" && app.dockerApp) {
@@ -296,6 +310,121 @@ function handleLogout() {
 function handleEnterpriseOpenWindow(windowType: string, options: any) {
   windowStore.openWindow(windowType, options);
 }
+
+const systemAppContextMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+});
+const contextMenuSystemApp = ref<CombinedApp | null>(null);
+
+const systemAppIconMap: Record<string, string> = {
+  apphome: "mdi:cloud",
+  explorer: "mdi:file-search",
+  appstore: "mdi:widgets-outline",
+  appdrive: "mdi:cube-scan",
+  packager: "mdi:package-variant",
+  dropzone: "mdi:cube",
+  controlhub: "mdi:nut",
+  systemlogs: "mdi:chart-timeline-variant",
+  settings: "mdi:tune",
+  about: "mdi:cloud-question",
+};
+
+function handleSystemAppContextMenu(event: MouseEvent, app: CombinedApp) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (desktopStore.isSystemIconOnDesktop(app.id)) {
+    return;
+  }
+
+  contextMenuSystemApp.value = app;
+  systemAppContextMenu.value = {
+    visible: true,
+    x: event.clientX,
+    y: event.clientY,
+  };
+}
+
+// Long press handling for iOS
+const longPressTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const longPressApp = ref<CombinedApp | null>(null);
+const LONG_PRESS_DURATION = 500;
+
+function handleSystemAppTouchStart(event: TouchEvent, app: CombinedApp) {
+  if (desktopStore.isSystemIconOnDesktop(app.id)) {
+    return;
+  }
+
+  longPressApp.value = app;
+  longPressTriggered.value = false;
+
+  const touch = event.touches[0];
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
+
+  longPressTimer.value = setTimeout(() => {
+    longPressTriggered.value = true;
+    contextMenuSystemApp.value = app;
+    systemAppContextMenu.value = {
+      visible: true,
+      x: touchX,
+      y: touchY,
+    };
+  }, LONG_PRESS_DURATION);
+}
+
+function handleSystemAppTouchEnd() {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+    longPressTimer.value = null;
+  }
+  longPressApp.value = null;
+}
+
+function handleSystemAppTouchMove() {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+    longPressTimer.value = null;
+  }
+}
+
+function closeSystemAppContextMenu() {
+  systemAppContextMenu.value.visible = false;
+  contextMenuSystemApp.value = null;
+}
+
+const systemAppContextMenuItems = computed<ContextMenuItem[]>(() => {
+  const app = contextMenuSystemApp.value;
+  if (!app) return [];
+
+  const items: ContextMenuItem[] = [];
+  const isOnDesktop = desktopStore.isSystemIconOnDesktop(app.id);
+
+  if (!isOnDesktop) {
+    items.push({
+      label: "Add to Desktop",
+      icon: monitorPlusIcon,
+      action: () => {
+        const iconString = systemAppIconMap[app.id] || "mdi:application";
+        desktopStore.addSystemIconToDesktop(app.id, app.name, iconString);
+        closeSystemAppContextMenu();
+      },
+    });
+    items.push({ divider: true });
+  }
+
+  items.push({
+    label: "Dismiss",
+    icon: closeIcon,
+    action: () => {
+      closeSystemAppContextMenu();
+    },
+  });
+
+  return items;
+});
 
 watch(
   () => desktopStore.startMenuOpen,

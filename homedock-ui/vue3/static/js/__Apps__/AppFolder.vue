@@ -20,10 +20,11 @@
       <p class="empty-description" :class="themeClasses.folderEmptyDescription">Drag apps here to organize them</p>
     </div>
 
-    <div class="folder-apps-grid" ref="containerRef" @contextmenu="handleDesktopContextMenu">
+    <div class="folder-apps-grid" ref="containerRef" @contextmenu="handleDesktopContextMenu" @mousedown="handleGridMouseDown">
+      <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
       <TransitionGroup name="icon-appear">
-        <div v-for="(app, index) in folderApps" :key="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', selectedApp !== app.id && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], selectedApp === app.id && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected]]" :style="getIconStyle(index)" @click="handleClick(app)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
-          <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedApp !== app.id && ['border-transparent', themeClasses.desktopIconContainerBgHover], selectedApp === app.id && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
+        <div v-for="(app, index) in folderApps" :key="app.id" :data-app-id="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedApp === app.id || selectedApps.has(app.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(index)" @mousedown="handleMouseDown($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
+          <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
             <BaseImage :src="app.image_path" class="app-image rounded-xl" alt="" draggable="false" />
             <Transition name="loading-overlay-fade">
               <div v-if="app.isProcessing === true" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
@@ -53,6 +54,8 @@
         </div>
       </template>
     </StatusBar>
+
+    <DragGhost :visible="draggedAppsForGhost.length > 0" :items="draggedAppsForGhost" :style="ghostStyle" />
   </div>
 </template>
 
@@ -64,6 +67,14 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDialog } from "../__Composables__/useDialog";
+import { useDesktopDragSelection } from "../__Composables__/useDesktopDragSelection";
+import { useDesktopDragAndDrop } from "../__Composables__/useDesktopDragAndDrop";
+import { useDesktopDragGhost } from "../__Composables__/useDesktopDragGhost";
+
+import type { GridConfig, SelectionState } from "../__Composables__/desktopDragTypes";
+
+import DragGhost from "../__Components__/DragGhost.vue";
+import SelectionBox from "../__Components__/SelectionBox.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
@@ -105,28 +116,109 @@ const csrfToken = useCsrfToken();
 
 const containerRef = ref<HTMLDivElement | null>(null);
 
-const selectedApp = ref<string | null>(null);
+const GRID_SIZE_X = ref(110);
+const GRID_SIZE_Y = ref(125);
+const ICON_PADDING = ref(16);
+
+const gridConfig = computed<GridConfig>(() => ({
+  sizeX: GRID_SIZE_X.value,
+  sizeY: GRID_SIZE_Y.value,
+  padding: ICON_PADDING.value,
+  iconWidth: 100,
+  iconHeight: 130,
+}));
+
+const {
+  selectedApp,
+  selectedApps,
+  isSelectingArea,
+  selectionBox,
+  selectionBoxStyle: composableSelectionBoxStyle,
+  selectItem,
+  clearSelection,
+} = useDesktopDragSelection({
+  containerRef,
+  gridConfig,
+  enableBoxSelection: true,
+  enableMultiSelect: true,
+});
+
+const selectionState = computed<SelectionState>(() => ({
+  selectedApp: selectedApp.value,
+  selectedApps: selectedApps.value,
+  selectedFolder: null,
+  selectedFolders: new Set<string>(),
+  selectedSystemIcon: null,
+  selectedSystemIcons: new Set<string>(),
+}));
+
+const {
+  isDragging,
+  hasMoved,
+  startDrag: composableStartDrag,
+  updateDrag,
+  endDrag: composableEndDrag,
+  handleTouchStart: composableHandleTouchStart,
+} = useDesktopDragAndDrop({
+  mode: "ghost",
+  containerId: props.folderId,
+  containerRef,
+  gridConfig,
+  selection: selectionState,
+  enableMobileDrag: false,
+
+  onMobileTap: (item, _e) => {
+    selectItem({ type: "app", id: item.id });
+  },
+
+  onMobileDoubleTap: (item, _e) => {
+    const app = folderApps.value.find((a) => a.id === item.id);
+    if (app) {
+      handleDoubleClick(app, true);
+    }
+  },
+
+  onMobileLongPress: (item, e) => {
+    const app = folderApps.value.find((a) => a.id === item.id);
+    if (app) {
+      const touch = e.touches?.[0] || e.changedTouches?.[0];
+      if (touch) {
+        const contextMenuEvent = new MouseEvent("contextmenu", {
+          bubbles: true,
+          cancelable: true,
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+        });
+        handleContextMenu(contextMenuEvent, app);
+      }
+    }
+  },
+});
+
+const { ghostStyle, updatePosition: updateGhostPosition } = useDesktopDragGhost();
+
+const draggedApp = ref<string | null>(null);
+
 const contextMenuApp = ref<DockerApp | null>(null);
 const maxCols = ref<number>(0);
 
 const isHovering = ref(false);
 
-let longPressTimer: ReturnType<typeof setTimeout> | null = null;
-const longPressStartX = ref(0);
-const longPressStartY = ref(0);
-const longPressMoved = ref(false);
-const LONG_PRESS_DURATION = 500; // ms
-const LONG_PRESS_MOVE_THRESHOLD = 10; // px
+const draggedAppsForGhost = computed(() => {
+  if (!isDragging.value || !hasMoved.value || !draggedApp.value) return [];
+  const selected = selectedApps.value;
+  if (selected.size > 0 && selected.has(draggedApp.value)) {
+    return folderApps.value.filter((a) => selected.has(a.id));
+  }
+  const single = folderApps.value.find((a) => a.id === draggedApp.value);
+  return single ? [single] : [];
+});
 
 const contextMenu = ref({
   visible: false,
   x: 0,
   y: 0,
 });
-
-const GRID_SIZE_X = ref(110);
-const GRID_SIZE_Y = ref(125);
-const ICON_PADDING = ref(16);
 
 const folder = computed(() => desktopStore.getFolderById(props.folderId));
 const folderName = computed(() => folder.value?.name || "Unknown Folder");
@@ -152,6 +244,8 @@ const folderApps = computed(() => {
     return priorityA - priorityB;
   });
 });
+
+const selectionBoxStyle = composableSelectionBoxStyle;
 
 function getStatusBadgeClass(status: string): string {
   const statusClasses: Record<string, string> = {
@@ -219,11 +313,181 @@ function getContainerClasses(app: DockerApp): string {
   return statusClasses[app.status] || "";
 }
 
-function handleClick(app: DockerApp) {
-  selectedApp.value = app.id;
+function handleClick(app: DockerApp, e?: MouseEvent) {
+  if (hasMoved.value) return;
+
+  const isCtrlPressed = e?.ctrlKey || e?.metaKey;
+  selectItem({ type: "app", id: app.id }, { ctrl: isCtrlPressed });
 }
 
-function handleDoubleClick(app: DockerApp) {
+const SELECTION_PADDING = 16;
+
+function handleGridMouseDown(e: MouseEvent) {
+  if (isMobile.value) return;
+  if ((e.target as HTMLElement).closest(".desktop-icon")) return;
+  if (e.button !== 0) return;
+
+  const containerRect = containerRef.value?.getBoundingClientRect();
+  if (!containerRect) return;
+
+  clearSelection();
+
+  const rawX = e.clientX - containerRect.left;
+  const rawY = e.clientY - containerRect.top;
+
+  const startX = Math.max(SELECTION_PADDING, Math.min(rawX, containerRect.width - SELECTION_PADDING));
+  const startY = Math.max(SELECTION_PADDING, Math.min(rawY, containerRect.height - SELECTION_PADDING));
+
+  isSelectingArea.value = true;
+  selectionBox.value.startX = startX;
+  selectionBox.value.startY = startY;
+  selectionBox.value.currentX = startX;
+  selectionBox.value.currentY = startY;
+
+  document.addEventListener("mousemove", handleGridMouseMove);
+  document.addEventListener("mouseup", handleGridMouseUp);
+}
+
+function handleGridMouseMove(e: MouseEvent) {
+  if (!isSelectingArea.value) return;
+
+  const containerRect = containerRef.value?.getBoundingClientRect();
+  if (!containerRect) return;
+
+  const rawX = e.clientX - containerRect.left;
+  const rawY = e.clientY - containerRect.top;
+
+  selectionBox.value.currentX = Math.max(SELECTION_PADDING, Math.min(rawX, containerRect.width - SELECTION_PADDING));
+  selectionBox.value.currentY = Math.max(SELECTION_PADDING, Math.min(rawY, containerRect.height - SELECTION_PADDING));
+
+  updateSelectedAppsInBox();
+}
+
+function handleGridMouseUp(_e: MouseEvent) {
+  if (!isSelectingArea.value) return;
+
+  isSelectingArea.value = false;
+
+  document.removeEventListener("mousemove", handleGridMouseMove);
+  document.removeEventListener("mouseup", handleGridMouseUp);
+}
+
+function updateSelectedAppsInBox() {
+  const boxX = Math.min(selectionBox.value.startX, selectionBox.value.currentX);
+  const boxY = Math.min(selectionBox.value.startY, selectionBox.value.currentY);
+  const boxWidth = Math.abs(selectionBox.value.currentX - selectionBox.value.startX);
+  const boxHeight = Math.abs(selectionBox.value.currentY - selectionBox.value.startY);
+
+  selectedApps.value.clear();
+
+  const boxLeft = boxX;
+  const boxTop = boxY;
+  const boxRight = boxX + boxWidth;
+  const boxBottom = boxY + boxHeight;
+
+  const cols = maxCols.value || 1;
+
+  folderApps.value.forEach((app, index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+
+    const iconLeft = ICON_PADDING.value + col * GRID_SIZE_X.value;
+    const iconTop = ICON_PADDING.value + row * GRID_SIZE_Y.value;
+    const iconRight = iconLeft + 100;
+    const iconBottom = iconTop + 130;
+
+    const intersects = boxLeft < iconRight && boxRight > iconLeft && boxTop < iconBottom && boxBottom > iconTop;
+
+    if (intersects) {
+      selectedApps.value.add(app.id);
+    }
+  });
+}
+
+const ghostOffset = ref({ x: 0, y: 0 });
+
+function startDrag(app: DockerApp, clientX: number, clientY: number) {
+  draggedApp.value = app.id;
+
+  const iconElement = containerRef.value?.querySelector(`[data-app-id="${app.id}"]`);
+  if (iconElement) {
+    const rect = iconElement.getBoundingClientRect();
+    ghostOffset.value = {
+      x: clientX - rect.left - rect.width / 2,
+      y: clientY - rect.top - rect.height / 2,
+    };
+  } else {
+    ghostOffset.value = { x: 50, y: 60 };
+  }
+
+  composableStartDrag({ type: "app", id: app.id }, clientX, clientY);
+}
+
+function handleMouseDown(e: MouseEvent, app: DockerApp) {
+  if (isMobile.value) return;
+  if (e.button !== 0) return;
+
+  e.preventDefault();
+
+  startDrag(app, e.clientX, e.clientY);
+
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+}
+
+function handleMouseMove(e: MouseEvent) {
+  if (!draggedApp.value) return;
+
+  updateDrag(e.clientX, e.clientY);
+
+  if (hasMoved.value) {
+    updateGhostPosition({
+      x: e.clientX - ghostOffset.value.x,
+      y: e.clientY - ghostOffset.value.y,
+    });
+  }
+}
+
+function handleMouseUp(_e: MouseEvent) {
+  document.removeEventListener("mousemove", handleMouseMove);
+  document.removeEventListener("mouseup", handleMouseUp);
+
+  composableEndDrag();
+  draggedApp.value = null;
+}
+
+function handleDragTouchMove(e: TouchEvent) {
+  if (!draggedApp.value) return;
+  if (e.touches.length > 1) {
+    handleDragTouchEnd(e);
+    return;
+  }
+
+  const touch = e.touches[0];
+
+  updateDrag(touch.clientX, touch.clientY);
+
+  if (hasMoved.value) {
+    e.preventDefault();
+    updateGhostPosition({
+      x: touch.clientX - ghostOffset.value.x,
+      y: touch.clientY - ghostOffset.value.y,
+    });
+  }
+}
+
+function handleDragTouchEnd(_e: TouchEvent) {
+  document.removeEventListener("touchmove", handleDragTouchMove);
+  document.removeEventListener("touchend", handleDragTouchEnd);
+  document.removeEventListener("touchcancel", handleDragTouchEnd);
+
+  composableEndDrag();
+  draggedApp.value = null;
+}
+
+function handleDoubleClick(app: DockerApp, fromMobileGesture = false) {
+  if (isMobile.value && !fromMobileGesture) return;
+
   const isRunning = app.status === "running";
 
   if (isRunning && app.service_url) {
@@ -429,58 +693,12 @@ function closeContextMenu() {
 }
 
 function handleTouchStart(e: TouchEvent, app: DockerApp) {
-  if (e.touches.length > 1) return;
-
-  const touch = e.touches[0];
-
-  longPressStartX.value = touch.clientX;
-  longPressStartY.value = touch.clientY;
-  longPressMoved.value = false;
-
-  longPressTimer = setTimeout(() => {
-    if (!longPressMoved.value) {
-      const contextMenuEvent = new MouseEvent("contextmenu", {
-        bubbles: true,
-        cancelable: true,
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-      });
-
-      handleContextMenu(contextMenuEvent, app);
-
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-    }
-  }, LONG_PRESS_DURATION);
+  composableHandleTouchStart(e, { type: "app", id: app.id });
 }
 
-function handleTouchMove(e: TouchEvent) {
-  if (!longPressTimer) return;
+function handleTouchMove(_e: TouchEvent) {}
 
-  const touch = e.touches[0];
-  const deltaX = touch.clientX - longPressStartX.value;
-  const deltaY = touch.clientY - longPressStartY.value;
-  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-  if (distance > LONG_PRESS_MOVE_THRESHOLD) {
-    longPressMoved.value = true;
-
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  }
-}
-
-function handleTouchEnd(e: TouchEvent, app: DockerApp) {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
-
-  longPressMoved.value = false;
-}
+function handleTouchEnd(_e: TouchEvent, _app: DockerApp) {}
 
 function isMouseOver(x: number, y: number): boolean {
   if (!containerRef.value) return false;
@@ -495,7 +713,6 @@ function onGlobalMouseMove(e: MouseEvent) {
 function onGlobalMouseUp(e: MouseEvent) {
   if (isHovering.value && desktopStore.draggedAppIds.length > 0) {
     e.preventDefault();
-    e.stopPropagation();
 
     desktopStore.draggedAppIds.forEach((appId) => {
       const app = desktopStore.dockerApps.find((a) => a.id === appId);
@@ -511,14 +728,22 @@ function onGlobalMouseUp(e: MouseEvent) {
 
 watch(
   () => desktopStore.draggedAppIds.length > 0,
-  (isDragging) => {
-    if (isDragging) {
+  (hasDraggedApps) => {
+    if (hasDraggedApps) {
       document.addEventListener("mousemove", onGlobalMouseMove, true);
       document.addEventListener("mouseup", onGlobalMouseUp, true);
     } else {
       document.removeEventListener("mousemove", onGlobalMouseMove, true);
       document.removeEventListener("mouseup", onGlobalMouseUp, true);
       isHovering.value = false;
+
+      if (isDragging.value) {
+        isDragging.value = false;
+        draggedApp.value = null;
+        hasMoved.value = false;
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      }
     }
   }
 );
@@ -561,6 +786,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  draggedApp.value = null;
+  composableEndDrag();
+
   window.removeEventListener("resize", handleResize);
 
   if (containerRef.value && (containerRef.value as any).__resizeObserver) {
@@ -570,9 +798,17 @@ onUnmounted(() => {
   document.removeEventListener("mousemove", onGlobalMouseMove, true);
   document.removeEventListener("mouseup", onGlobalMouseUp, true);
 
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
+  document.removeEventListener("mousemove", handleMouseMove);
+  document.removeEventListener("mouseup", handleMouseUp);
+  document.removeEventListener("touchmove", handleDragTouchMove);
+  document.removeEventListener("touchend", handleDragTouchEnd);
+  document.removeEventListener("touchcancel", handleDragTouchEnd);
+
+  document.removeEventListener("mousemove", handleGridMouseMove);
+  document.removeEventListener("mouseup", handleGridMouseUp);
+
+  if (isDragging.value) {
+    desktopStore.clearDraggedApps();
   }
 });
 </script>

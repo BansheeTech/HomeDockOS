@@ -64,6 +64,15 @@ import PageIndicator from "./PageIndicator.vue";
 
 import { Icon } from "@iconify/vue";
 import cloudIcon from "@iconify-icons/mdi/cloud";
+import fileSearchIcon from "@iconify-icons/mdi/file-search";
+import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline";
+import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
+import packageVariantIcon from "@iconify-icons/mdi/package-variant";
+import cubeIcon from "@iconify-icons/mdi/cube";
+import nutIcon from "@iconify-icons/mdi/nut";
+import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
+import tuneIcon from "@iconify-icons/mdi/tune";
+import cloudQuestionIcon from "@iconify-icons/mdi/cloud-question";
 
 interface Props {
   selectedApp: string | null;
@@ -94,12 +103,12 @@ const emit = defineEmits<{
   (e: "folderClick", folder: DesktopFolder, event?: MouseEvent): void;
   (e: "folderDblclick", folder: DesktopFolder): void;
   (e: "folderContextmenu", event: MouseEvent, folder: DesktopFolder): void;
-  (e: "systemiconContextmenu", event: MouseEvent, systemIcon: SystemDesktopIcon): void;
+  (e: "systemiconContextmenu", event: MouseEvent, systemicon: SystemDesktopIcon): void;
 }>();
 
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
-const { windowWidth, windowHeight, isPortrait, isLandscape } = useResponsive();
+const { windowWidth, windowHeight, isPortrait, isLandscape, isMobile } = useResponsive();
 const { themeClasses } = useTheme();
 
 const pagesContainerRef = ref<HTMLDivElement | null>(null);
@@ -172,10 +181,10 @@ const iconsByPage = computed(() => {
   const container = pagesContainerRef.value;
   const pageWidth = container?.clientWidth || windowWidth.value;
 
-  const systemIcons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
+  const systemicons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
   const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
   const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...systemIcons, ...folders, ...apps];
+  const allItems = [...systemicons, ...folders, ...apps];
 
   if (allItems.length === 0) return [[]];
 
@@ -328,10 +337,10 @@ function isPositionOccupied(x: number, y: number, pageIndex: number, excludeId?:
 
   const pageWidth = container.clientWidth;
 
-  const systemIcons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
+  const systemicons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
   const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
   const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...systemIcons, ...folders, ...apps];
+  const allItems = [...systemicons, ...folders, ...apps];
 
   return allItems.some((item) => {
     if (excludeId && item.id === excludeId) return false;
@@ -466,8 +475,21 @@ function getContainerClasses(app: any): string {
 }
 
 function getSystemIconObject(icon: any) {
+  if (typeof icon.icon === "object" && icon.icon !== null) {
+    return icon.icon;
+  }
+
   const iconMap: Record<string, any> = {
     "mdi:cloud": cloudIcon,
+    "mdi:file-search": fileSearchIcon,
+    "mdi:widgets-outline": widgetsOutlineIcon,
+    "mdi:cube-scan": cubeScanIcon,
+    "mdi:package-variant": packageVariantIcon,
+    "mdi:cube": cubeIcon,
+    "mdi:nut": nutIcon,
+    "mdi:chart-timeline-variant": chartTimelineVariantIcon,
+    "mdi:tune": tuneIcon,
+    "mdi:cloud-question": cloudQuestionIcon,
   };
   return iconMap[icon.icon] || cloudIcon;
 }
@@ -914,13 +936,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
       const globalX = finalPage * pageWidth + snapped.x;
       const globalY = snapped.y;
 
-      if (currentTouchItem.value.type === "app") {
-        desktopStore.updateIconPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col);
-      } else if (currentTouchItem.value.type === "folder") {
-        desktopStore.updateFolderPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col);
-      } else if (currentTouchItem.value.type === "systemicon") {
-        desktopStore.updateSystemIconPosition(currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col, finalPage);
-      }
+      desktopStore.updateItemPosition(currentTouchItem.value.type, currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col, finalPage);
     }
 
     isDragging.value = false;
@@ -1053,6 +1069,7 @@ function handleFolderClick(folder: DesktopFolder, e?: MouseEvent) {
 }
 
 function handleFolderDoubleClick(folder: DesktopFolder) {
+  if (isMobile.value) return;
   emit("folderDblclick", folder);
 }
 

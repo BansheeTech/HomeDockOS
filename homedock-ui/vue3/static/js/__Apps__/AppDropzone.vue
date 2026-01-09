@@ -76,7 +76,7 @@
           <transition :name="viewMode === 'grid' ? 'view-mode-fade' : 'list-view-fade'" mode="out-in">
             <!-- Grid View -->
             <div v-if="viewMode === 'grid'" :key="'grid-view'" class="dropzone-icons-container relative w-full select-none" :style="{ height: `${containerHeight}px` }">
-              <div v-if="isSelectingArea" class="absolute pointer-events-none z-[100] border-2 border-blue-500 bg-blue-500/20" :style="selectionBoxStyle" />
+              <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
 
               <TransitionGroup name="file-item">
                 <template v-for="file in positionedFiles" :key="file.name">
@@ -131,7 +131,7 @@
 
             <!-- List View -->
             <div v-else :key="`list-view-${currentPath}`" class="dropzone-list-container w-full select-none">
-              <div v-if="isSelectingArea" class="absolute pointer-events-none z-[100] border-2 border-blue-500 bg-blue-500/20" :style="selectionBoxStyle" />
+              <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
 
               <template v-if="isSearchMode">
                 <template v-for="group in groupedFilesByFolder" :key="group.folder">
@@ -438,6 +438,7 @@ import viewListIcon from "@iconify-icons/mdi/view-list";
 import refreshIcon from "@iconify-icons/mdi/refresh";
 
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
+import SelectionBox from "../__Components__/SelectionBox.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 import ContextMenu from "../__Components__/ContextMenu.vue";
 import AppDialog from "../__Components__/AppDialog.vue";

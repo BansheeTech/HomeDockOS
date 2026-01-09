@@ -10,11 +10,11 @@ bcrypt==5.0.0
 cython==3.2.0
 colorama==0.4.6
 cryptography==46.0.3
-Werkzeug==3.1.4
+Werkzeug==3.1.5
 configparser==7.2.0
 psutil==7.1.3
 zeroconf==0.148.0
 vite-fusion==0.0.9
-urllib3==2.6.0
+urllib3==2.6.3
 pyotp==2.9.0
 Hypercorn==0.17.3

@@ -26,7 +26,7 @@
     >
       <div class="window-header" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
         <div class="window-header-draggable" @mousedown="handleHeaderMouseDown" @dblclick="handleHeaderDblClick">
-          <div v-if="window.icon" class="window-icon-container transition duration-150" :class="isActive ? themeClasses.windowIconContainerBgFocused : themeClasses.windowIconContainerBg">
+          <div v-if="window.icon" class="window-icon-container transition duration-150" :class="isActive ? themeClasses.windowIconContainerBgFocused : themeClasses.windowIconContainerBg" @contextmenu.stop.prevent="handleIconClick" title="System menu">
             <Icon :icon="window.icon" class="window-icon" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText" width="16" height="16" />
           </div>
 
@@ -64,6 +64,8 @@
         <div class="resize-handle resize-se" @mousedown.stop="(e: MouseEvent) => handleResizeStart('se', e)"></div>
         <div class="resize-handle resize-sw" @mousedown.stop="(e: MouseEvent) => handleResizeStart('sw', e)"></div>
       </template>
+
+      <ContextMenu :visible="systemMenu.visible" :x="systemMenu.x" :y="systemMenu.y" :items="systemMenuItems" @close="closeSystemMenu" />
     </div>
   </Transition>
 </template>
@@ -82,6 +84,7 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import WindowLoading from "../__Components__/WindowLoading.vue";
 import EnterpriseIndicator from "../__Components__/EnterpriseIndicator.vue";
+import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 
 interface Props {
   window: WindowState;
@@ -102,6 +105,12 @@ const { isMobile, isResizeEnabled, isDragEnabled, taskbarHeight, availableHeight
 const { themeClasses } = useTheme();
 
 const windowRef = ref<HTMLElement | null>(null);
+
+const systemMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+});
 
 const appConfig = computed(() => getAppById(props.window.appId));
 
@@ -178,6 +187,61 @@ function handleMinimize() {
 function handleToggleMaximize() {
   windowStore.toggleMaximize(props.window.id);
 }
+
+function handleIconClick(e: MouseEvent) {
+  e.stopPropagation();
+  systemMenu.value = {
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+  };
+}
+
+function closeSystemMenu() {
+  systemMenu.value.visible = false;
+}
+
+const systemMenuItems = computed<ContextMenuItem[]>(() => {
+  const items: ContextMenuItem[] = [];
+
+  if (appConfig.value?.minimizable !== false) {
+    items.push({
+      label: "Minimize",
+      icon: minimizeIcon,
+      action: () => {
+        handleMinimize();
+        closeSystemMenu();
+      },
+    });
+  }
+
+  if (!isMobile.value && appConfig.value?.maximizable !== false) {
+    items.push({
+      label: props.window.isMaximized ? "Restore" : "Maximize",
+      icon: props.window.isMaximized ? restoreIcon : maximizeIcon,
+      action: () => {
+        handleToggleMaximize();
+        closeSystemMenu();
+      },
+    });
+  }
+
+  if (appConfig.value?.closeable !== false) {
+    if (items.length > 0) {
+      items.push({ divider: true });
+    }
+    items.push({
+      label: "Close",
+      icon: closeIcon,
+      action: () => {
+        handleClose();
+        closeSystemMenu();
+      },
+    });
+  }
+
+  return items;
+});
 
 function handleHeaderMouseDown(e: MouseEvent) {
   if (props.window.isMaximized) return;

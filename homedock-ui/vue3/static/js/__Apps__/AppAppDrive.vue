@@ -126,7 +126,7 @@
           <transition v-else-if="selectedContainer" :name="viewMode === 'grid' ? 'view-mode-fade' : 'list-view-fade'" mode="out-in">
             <!-- Grid View -->
             <div v-if="viewMode === 'grid'" :key="'grid-view'" class="appdrive-icons-container relative w-full select-none" :style="{ height: `${gridContainerHeight}px` }">
-              <div v-if="isSelectingArea" class="absolute pointer-events-none z-[100] border-2 border-blue-500 bg-blue-500/20" :style="selectionBoxStyle" />
+              <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
               <div v-if="files.length === 0 && !currentPath && !isLoading" class="absolute inset-0 flex justify-center items-center text-balance px-2 py-8">
                 <Empty :class="[themeClasses.dropZoneEmptyText]" :description="isReadOnly ? 'This mount is empty' : 'This mount is empty. Drag and drop files to upload.'" />
               </div>
@@ -176,7 +176,7 @@
 
             <!-- List View -->
             <div v-else :key="`list-view-${currentPath}`" class="appdrive-list-container w-full select-none">
-              <div v-if="isSelectingArea" class="absolute pointer-events-none z-[100] border-2 border-blue-500 bg-blue-500/20" :style="selectionBoxStyle" />
+              <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
               <div v-if="files.length === 0 && !currentPath && !isLoading" class="flex justify-center items-center text-balance px-2 py-8">
                 <Empty :class="[themeClasses.dropZoneEmptyText]" :description="isReadOnly ? 'This mount is empty' : 'This mount is empty. Drag and drop files to upload.'" />
               </div>
@@ -420,6 +420,7 @@ import checkIcon from "@iconify-icons/mdi/check-circle";
 import loadingIcon from "@iconify-icons/mdi/loading";
 
 import ContextMenu from "../__Components__/ContextMenu.vue";
+import SelectionBox from "../__Components__/SelectionBox.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 import StatusBubble from "../__Components__/StatusBubble.vue";

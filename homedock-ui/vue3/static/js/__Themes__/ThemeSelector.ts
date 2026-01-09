@@ -803,7 +803,7 @@ export const themes: Record<string, Record<string, string>> = {
     loginPrimaryButton: "login-primary-button",
     loginSecondaryButton: "login-secondary-button",
 
-    iconHolder: "ring-zinc-600/25 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
+    iconHolder: "ring-indigo-500/20 bg-gradient-to-br from-slate-700 via-indigo-900/40 to-slate-800 shadow-inner shadow-indigo-500/10",
     appHolder: "border-zinc-800 hover:bg-zinc-800",
     appName: "text-white",
     appRepo: "text-zinc-500",
@@ -1559,7 +1559,7 @@ export const themes: Record<string, Record<string, string>> = {
     loginPrimaryButton: "login-primary-button",
     loginSecondaryButton: "login-secondary-button",
 
-    iconHolder: "ring-zinc-600/50 bg-gradient-to-tr from-zinc-600 via-zinc-700 to-zinc-600",
+    iconHolder: "ring-sky-400/15 bg-gradient-to-br from-slate-600/80 via-sky-900/30 to-slate-700/80 shadow-inner shadow-sky-400/10 backdrop-blur-sm",
     appHolder: "border-zinc-800/50 hover:bg-zinc-800/25",
     appName: "text-white",
     appRepo: "text-zinc-500",

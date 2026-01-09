@@ -16,6 +16,7 @@ import * as Vue from "vue";
 
 import { ref, reactive, computed, watch, onMounted, onUnmounted, h, defineComponent, createApp, type Component } from "vue";
 import { getThemeClasses } from "../__Themes__/ThemeSelector";
+import { useDesktopStore } from "../__Stores__/desktopStore";
 
 import type { MessageInstance } from "ant-design-vue/es/message";
 import type { NotificationInstance } from "ant-design-vue/es/notification";
@@ -90,6 +91,12 @@ interface EnterpriseModuleEntry {
   destroy?: () => Promise<void> | void;
   slot?: string;
   order?: number;
+  desktopMeta?: {
+    id: string;
+    moduleName: string;
+    displayName: string;
+    icon: any;
+  };
 }
 
 interface AppContext {
@@ -321,6 +328,51 @@ async function loadAndInitModule(module: EnterpriseModule): Promise<void> {
   }
 }
 
+async function restoreValidEnterpriseDesktopIcons(): Promise<void> {
+  try {
+    const desktopStore = useDesktopStore();
+
+    const savedIconsList = desktopStore.loadSystemIconsList();
+    const savedPositions = desktopStore.loadSystemIconPositions();
+
+    const savedEnterpriseIcons = savedIconsList.filter((icon) => icon.appId.startsWith("enterprise-"));
+
+    let needsCleanup = false;
+
+    for (const iconData of savedEnterpriseIcons) {
+      if (!iconData.moduleName) {
+        needsCleanup = true;
+        continue;
+      }
+
+      const moduleEntry = moduleRegistry.get(`${iconData.moduleName}StartMenuIcon`);
+
+      if (moduleEntry) {
+        if (!desktopStore.isSystemIconOnDesktop(iconData.appId)) {
+          const savedPos = savedPositions[`system-icon-${iconData.appId}`] || {};
+          desktopStore.systemDesktopIcons.push({
+            id: `system-icon-${iconData.appId}`,
+            appId: iconData.appId,
+            name: iconData.name,
+            icon: iconData.icon,
+            isPermanent: false,
+            moduleName: iconData.moduleName,
+            ...savedPos,
+          });
+        }
+      } else {
+        needsCleanup = true;
+      }
+    }
+
+    if (needsCleanup) {
+      desktopStore.saveSystemIconsList();
+    }
+  } catch (error) {
+    console.error("[EnterpriseSRILoader] Error restoring enterprise desktop icons:", error);
+  }
+}
+
 export async function init(context: AppContext): Promise<void> {
   if (isInitialized) return;
 
@@ -333,6 +385,7 @@ export async function init(context: AppContext): Promise<void> {
 
     if (!response.ok) {
       isInitialized = true;
+      await restoreValidEnterpriseDesktopIcons();
       return;
     }
 
@@ -345,6 +398,7 @@ export async function init(context: AppContext): Promise<void> {
 
     if (modules.length === 0) {
       isInitialized = true;
+      await restoreValidEnterpriseDesktopIcons();
       return;
     }
 
@@ -354,6 +408,7 @@ export async function init(context: AppContext): Promise<void> {
   }
 
   isInitialized = true;
+  await restoreValidEnterpriseDesktopIcons();
 }
 
 export function getModuleByName(name: string): EnterpriseModuleEntry | null {

@@ -4,13 +4,15 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="['desktop-folder group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 md:p-3 rounded-lg w-[100px] z-[1] touch-none select-none outline-none border', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
+  <div :class="['desktop-folder group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 md:p-3 rounded-lg w-[100px] z-[1] touch-none select-none outline-none border', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle', isDropTarget && 'folder-drop-target']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
     <div :class="['folder-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-visible pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !isSelected && ['border-transparent', themeClasses.desktopIconContainerBgHover], isSelected && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]" :style="{ backgroundColor: folder.color }">
       <div v-if="itemCount > 0" class="folder-papers-stack">
         <BaseImage v-for="(item, index) in previewItems" :key="item.id" :src="item.image_path" class="folder-paper-icon" :class="`paper-icon-${index}`" alt="" draggable="false" />
       </div>
 
-      <Icon :icon="folderIcon" :class="['w-10 h-10 pointer-events-none absolute inset-0 m-auto z-10', themeClasses.folderIconColor, themeClasses.folderIconShadow]" />
+      <Transition name="icon-switch" mode="out-in">
+        <Icon :key="folder.icon || 'default'" :icon="displayIcon" :class="['w-10 h-10 pointer-events-none absolute inset-0 m-auto z-10', themeClasses.folderIconColor, themeClasses.folderIconShadow]" />
+      </Transition>
 
       <Transition name="loading-indicator-fade">
         <div v-if="hasProcessingApps" :class="['absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full z-[20] pointer-events-none shadow-lg', themeClasses.folderLoadingBg]">
@@ -38,23 +40,62 @@ import BaseImage from "../__Components__/BaseImage.vue";
 
 import { Icon } from "@iconify/vue";
 import folderIcon from "@iconify-icons/mdi/folder";
+import gamepadIcon from "@iconify-icons/mdi/gamepad-variant";
+import movieIcon from "@iconify-icons/mdi/movie";
+import musicIcon from "@iconify-icons/mdi/music";
+import codeIcon from "@iconify-icons/mdi/code-braces";
+import cloudIcon from "@iconify-icons/mdi/cloud";
+import heartIcon from "@iconify-icons/mdi/heart";
+import starIcon from "@iconify-icons/mdi/star";
+import downloadIcon from "@iconify-icons/mdi/download";
+import cogIcon from "@iconify-icons/mdi/cog";
+import imageIcon from "@iconify-icons/mdi/image";
+import fileIcon from "@iconify-icons/mdi/file-document";
+import bookIcon from "@iconify-icons/mdi/book";
+import briefcaseIcon from "@iconify-icons/mdi/briefcase";
+import schoolIcon from "@iconify-icons/mdi/school";
+import homeIcon from "@iconify-icons/mdi/home";
+import lockIcon from "@iconify-icons/mdi/lock";
+
+const iconMap: Record<string, typeof folderIcon> = {
+  gamepad: gamepadIcon,
+  movie: movieIcon,
+  music: musicIcon,
+  code: codeIcon,
+  cloud: cloudIcon,
+  heart: heartIcon,
+  star: starIcon,
+  download: downloadIcon,
+  cog: cogIcon,
+  image: imageIcon,
+  file: fileIcon,
+  book: bookIcon,
+  briefcase: briefcaseIcon,
+  school: schoolIcon,
+  home: homeIcon,
+  lock: lockIcon,
+};
 
 interface Props {
   folder: DesktopFolder;
   isSelected?: boolean;
   isDragging?: boolean;
   isWiggleMode?: boolean;
+  isDropTarget?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isSelected: false,
   isDragging: false,
   isWiggleMode: false,
+  isDropTarget: false,
 });
 
 const emit = defineEmits<{
   mousedown: [e: MouseEvent, folder: DesktopFolder];
   touchstart: [e: TouchEvent, folder: DesktopFolder];
+  touchmove: [e: TouchEvent, folder: DesktopFolder];
+  touchend: [e: TouchEvent, folder: DesktopFolder];
   click: [folder: DesktopFolder, e: MouseEvent];
   dblclick: [folder: DesktopFolder];
   contextmenu: [e: MouseEvent, folder: DesktopFolder];
@@ -67,6 +108,13 @@ const desktopStore = useDesktopStore();
 const itemAdded = ref(false);
 
 const itemCount = computed(() => props.folder.items.length);
+
+const displayIcon = computed(() => {
+  if (props.folder.icon && iconMap[props.folder.icon]) {
+    return iconMap[props.folder.icon];
+  }
+  return folderIcon;
+});
 
 const previewItems = computed(() => {
   const apps = props.folder.items.map((appId) => desktopStore.dockerApps.find((app) => app.id === appId)).filter((app) => app !== undefined); // Filtrar undefined
@@ -144,6 +192,14 @@ function handleTouchStart(e: TouchEvent) {
   emit("touchstart", e, props.folder);
 }
 
+function handleTouchMove(e: TouchEvent) {
+  emit("touchmove", e, props.folder);
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  emit("touchend", e, props.folder);
+}
+
 function handleClick(e: MouseEvent) {
   emit("click", props.folder, e);
 }
@@ -172,6 +228,12 @@ function handleContextMenu(e: MouseEvent) {
 
 .desktop-folder:active {
   cursor: grabbing;
+}
+
+/* Drop target */
+.folder-drop-target .folder-container {
+  transform: scale(1.05) rotate(6deg);
+  transition: transform 0.15s ease-out;
 }
 
 /* Bounce animation */
@@ -343,5 +405,21 @@ function handleContextMenu(e: MouseEvent) {
 .loading-indicator-fade-leave-to {
   opacity: 0;
   transform: scale(0.5);
+}
+
+/* Icon Switch Transition */
+.icon-switch-enter-active,
+.icon-switch-leave-active {
+  transition: all 0.2s ease;
+}
+
+.icon-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.5) rotate(-15deg);
+}
+
+.icon-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.5) rotate(15deg);
 }
 </style>

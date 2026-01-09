@@ -1,14 +1,38 @@
 # CHANGELOG
 
-- **2.0.4.222** (Latest): Dynamic Enterprise slot system for Start Menu modules.
+- **2.0.4.224** (Latest): Advanced desktop drag & drop system, folder customization, unified grid positioning, and Python deps CVE hotfix.
+
+  - **Patched Werkzeug CVE-2026-21860** (opened 6 hours ago) by upgrading from 3.1.4 to 3.1.5, addressing a security vulnerability in the WSGI utility library.
+  - **Patched urllib3 CVE-2026-21441** (opened 20 hours ago) by upgrading from 2.6.0 to 2.6.3, fixing a security issue in the HTTP client library.
+  - Created **`useDesktopGrid.ts`** composable centralizing all desktop icon positioning logic for apps, folders, and system icons, eliminating ~160 lines of duplicated code across components.
+  - Unified **`updateItemPosition()`** in desktop store replacing three separate functions (`updateIconPosition`, `updateFolderPosition`, `updateSystemIconPosition`) with a single type-safe function.
+  - Standardized **`DesktopItemType`** to `"app" | "folder" | "systemicon"` across all composables for future support of new items on Prism Window Manager such as widgets and more.
+  - Implemented **advanced desktop drag & drop architecture** with new composables (`useDesktopDragAndDrop.ts`, `useDesktopDragGhost.ts`, `useDesktopDragSelection.ts`) providing a unified, type-safe foundation for all desktop, folders and any future app interactions.
+  - Refactored **multi-selection support** on desktop with Ctrl+Click for individual items and drag-to-select box selection for batch operations across apps, folders, and system icons simultaneously.
+  - Created **`DragGhost.vue`** component displaying a visual preview when dragging multiple selected items from folders to desktop, showing app icons stacked with a count badge for better drag feedback.
+  - Implemented **`SelectionBox.vue`** component for rubber-band selection, allowing users to draw a selection rectangle to select multiple desktop items at once, shared by Drop Zone, App Drive, Desktop and Folders.
+  - Added **folder drop targets** with visual highlighting when dragging apps over folders, making it intuitive to organize apps into folders.
+  - Replaced **`ColorPickerMenu.vue`** with new **`FolderCustomizeMenu.vue`** that allows customizing both folder color and icon in a unified interface.
+  - Added **18 predefined folder icons** (games, movies, music, code, cloud, heart, star, downloads, settings, images, documents, books, briefcase, school, home, lock, and more) for better visual organization.
+  - Added **"Add to Desktop" context menu** for system apps in Start Menu, allowing users to right-click any system app and add it as a desktop shortcut with automatic icon detection.
+  - Extended **multi-selection and drag ghost** support inside folder windows, bringing the same advanced drag & drop experience to folder contents.
+  - Fixed **system app icons on mobile** ensuring proper display and interaction on touch devices.
+  - Integrated **mobile touch gestures** (tap, double tap, long press) directly into `useDesktopDragAndDrop` composable with configurable callbacks, avoiding composable fragmentation.
+  - Fixed super-edge **Android double-action bug** where double tap would trigger actions twice due to browser-synthesized click/dblclick events after touch events.
+  - Fixed **window focus stealing** when opening Properties from inside folders on mobile, where the folder window would regain focus after the new window opened.
+  - Fixed **SelectionBox appearing on mobile** when tapping empty space inside folders, caused by synthesized mousedown events triggering box selection logic.
+  - Fixed **DesktopFolderIcon missing touch events** by adding touchmove/touchend emissions, ensuring consistent gesture handling across all desktop item types.
+  - Minor updates to `StartMenu.vue` and `Enteprise modules` to allow users to add Enterprise Start Menu icons to the desktop too.
+
+---
+
+- **2.0.4.222**: Dynamic Enterprise slot system for Start Menu modules.
 
   - Implemented **dynamic slot-based rendering** for Enterprise modules in Start Menu, eliminating the need to modify core files when adding new Enterprise modules, preparing for open core philosophy.
   - Added **`getModulesBySlot()`** function to `EnterpriseSRILoader.ts` allowing Enterprise modules to self-declare their rendering location via `slot` and `order` metadata during registration.
   - Created **`EnterpriseStartMenuSlots.vue`** component that dynamically discovers and renders all Enterprise modules registered for the `startMenu` slot, ordered by their declared priority.
   - Refactored **Start Menu** to use the new dynamic slot system instead of hardcoded module references, decoupling the open core from specific Enterprise module implementations.
   - Almost new year release kickoff!
-
----
 
 - **2.0.4.220**: Migrated Docker base image from Debian to Alpine Linux, reducing image size by ~50%.
 
