@@ -1,11 +1,19 @@
 # CHANGELOG
 
-- **2.0.4.226** (Latest): Mobile desktop grid fixes and touch scroll improvements.
+- **2.0.4.228** (Latest): Added iOS-like window persistence for optimized browser RAM management.
+
+  - Implemented **`a new composable`** providing intelligent, transparent memory management for minimized windows, inspired by iOS app lifecycle management.
+  - Added **3-tier persistence strategy** for minimized windows: (1) immediate cleanup under memory pressure (>75% heap), (2) automatic general cleanup after 5 minutes for independent windows, and (3) graceful cleanup of expired windows (>2min) when over device limits.
+  - Implemented **device-aware window limits** using `navigator.deviceMemory` API when available, dynamically adjusting maximum minimized windows from 2 (low-end devices) to 8 (high-end devices), with fallback to 4 windows on unsupported browsers.
+  - Added **real-time memory monitoring** using `performance.memory` API (Chromium) to detect heap pressure and proactively free resources, falling back to time-based cleanup only on Firefox/Safari/Others.
+  - Designed for **complete user transparency**: no notifications, no console logs, no visible indicators. Windows are silently recycled in the background, exactly like iOS manages background apps.
+
+---
+
+- **2.0.4.226**: Mobile desktop grid fixes and touch scroll improvements.
 
   - Fixed **mobile icon auto-positioning on pages > 0** where icons were placed incorrectly due to using container width instead of inner pages width.
   - Fixed **touch scroll blocking on mobile-desktop icons** allowing horizontal page swiping when touch gesture starts on an icon (when not in wiggle/edit mode), improving mobile navigation UX.
-
----
 
 - **2.0.4.224**: Advanced desktop drag & drop system, folder customization, unified grid positioning, and Python deps CVE hotfix.
 

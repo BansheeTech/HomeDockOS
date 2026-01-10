@@ -6,7 +6,7 @@
 <template>
   <Transition name="minimize">
     <div
-      v-if="!window.isMinimized"
+      v-show="!window.isMinimized"
       ref="windowRef"
       class="window"
       :class="[
@@ -50,7 +50,7 @@
       </div>
 
       <div class="window-body window-container">
-        <component :is="appComponent" v-if="appComponent" v-bind="window.data" />
+        <component :is="appComponent" v-if="appComponent && shouldKeepAlive" v-bind="window.data" />
         <WindowLoading v-else />
       </div>
 
@@ -81,6 +81,7 @@ import closeIcon from "@iconify-icons/mdi/close";
 import { useWindowStore, WindowState } from "../__Stores__/windowStore";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
+import { useWindowRAMManager } from "../__Composables__/useWindowRAMManager";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import WindowLoading from "../__Components__/WindowLoading.vue";
 import EnterpriseIndicator from "../__Components__/EnterpriseIndicator.vue";
@@ -103,6 +104,8 @@ const emit = defineEmits<{
 const windowStore = useWindowStore();
 const { isMobile, isResizeEnabled, isDragEnabled, taskbarHeight, availableHeight } = useResponsive();
 const { themeClasses } = useTheme();
+
+const { shouldKeepAlive } = useWindowRAMManager(() => props.window.isMinimized);
 
 const windowRef = ref<HTMLElement | null>(null);
 
