@@ -144,7 +144,7 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
     const rowCount = Math.max(1, Math.floor(availableHeight / gy) - 1);
     const ipp = cols * rowCount;
 
-    const pw = containerWidth;
+    const pw = innerContainerWidth;
 
     const occupiedPositions = new Set<string>();
 

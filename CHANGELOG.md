@@ -1,6 +1,13 @@
 # CHANGELOG
 
-- **2.0.4.224** (Latest): Advanced desktop drag & drop system, folder customization, unified grid positioning, and Python deps CVE hotfix.
+- **2.0.4.226** (Latest): Mobile desktop grid fixes and touch scroll improvements.
+
+  - Fixed **mobile icon auto-positioning on pages > 0** where icons were placed incorrectly due to using container width instead of inner pages width.
+  - Fixed **touch scroll blocking on mobile-desktop icons** allowing horizontal page swiping when touch gesture starts on an icon (when not in wiggle/edit mode), improving mobile navigation UX.
+
+---
+
+- **2.0.4.224**: Advanced desktop drag & drop system, folder customization, unified grid positioning, and Python deps CVE hotfix.
 
   - **Patched Werkzeug CVE-2026-21860** (opened 6 hours ago) by upgrading from 3.1.4 to 3.1.5, addressing a security vulnerability in the WSGI utility library.
   - **Patched urllib3 CVE-2026-21441** (opened 20 hours ago) by upgrading from 2.6.0 to 2.6.3, fixing a security issue in the HTTP client library.
@@ -23,8 +30,6 @@
   - Fixed **SelectionBox appearing on mobile** when tapping empty space inside folders, caused by synthesized mousedown events triggering box selection logic.
   - Fixed **DesktopFolderIcon missing touch events** by adding touchmove/touchend emissions, ensuring consistent gesture handling across all desktop item types.
   - Minor updates to `StartMenu.vue` and `Enteprise modules` to allow users to add Enterprise Start Menu icons to the desktop too.
-
----
 
 - **2.0.4.222**: Dynamic Enterprise slot system for Start Menu modules.
 
