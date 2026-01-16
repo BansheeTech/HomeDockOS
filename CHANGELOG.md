@@ -1,14 +1,55 @@
 # CHANGELOG
 
-- **2.0.4.228** (Latest): Added iOS-like window persistence for optimized browser RAM management.
+- **2.1.0.232** (Latest): Unified File Explorer with three storage backends, new utility applications suite, and consolidated file management experience.
+
+  - Introduced **Unified File Explorer** combining three storage backends into a single, cohesive file management interface: **Storage** (unencrypted local files), **DropZone** (AES-256-GCM encrypted files), and **AppDrive** (Docker container volumes).
+  - **Native audio & video playback** via Media Player: MP4, WebM, OGV, OGG, MP3, WAV, AAC, FLAC, M4A.
+  - **Native image viewing & annotation** via Image Viewer & Brusher: JPG, JPEG, PNG, GIF, WebP, BMP, ICO, TIF, TIFF.
+  - **Native PDF rendering** via PDF Viewer.
+  - **Native text & code editing** via Notepad: TXT, MD, JSON, YML, YAML, XML, CONF, INI, ENV, LOG, JS, TS, JSX, TSX, and more (much more, lol).
+  - **Removed standalone App Drive and Drop Zone applications** in favor of the new unified File Explorer, reducing code duplication and providing a consistent user experience across all storage types.
+  - Added **Window Snap to Screen** feature allowing desktop users to snap windows to left or right half of the screen by dragging to screen edges, with animated pulsating blue preview indicator, automatic size restoration when unsnapping, and respect for window constraints (disabled for non-maximizable windows like Calculator and Properties).
+  - Added **Audio Indicator** to the Taskbar that appears when media is playing in the Media Player, with styled volume controls and active media playback.
+  - Added **sidebar navigation** to File Explorer providing quick access between storage locations, favorites, and recent files.
+  - Implemented **favorites system** allowing users to bookmark up to 50 frequently accessed files or folders across all three storage backends.
+  - Implemented **recents tracking** that automatically records the last 100 accessed items, making it easy to return to recently used files.
+  - Created **unified upload progress indicator** in the system tray consolidating upload tracking for all storage backends into a single component.
+  - Added **Notepad utility** featuring a full-featured text editor with **per-user AES-256-GCM encryption** for notes, auto-save functionality, and complete note management.
+  - Added **Calculator utility** with standard arithmetic operations and full keyboard support.
+  - Added **Image Viewer utility** supporting common formats (JPG, PNG, GIF, WebP, SVG) with zoom, pan, and rotation controls.
+  - Added **Media Player utility** for audio and video playback with volume controls, fullscreen support, and **real-time spectrum analyzer** for audio visualization using Web Audio API.
+  - Added **PDF Viewer utility** powered by PDF.js with page navigation, zoom controls, and search functionality.
+  - Added **Brusher utility** for simple image annotation and quick markups.
+  - Implemented **unencrypted Storage API** with full CRUD operations, folder management, multi-file ZIP downloads, and comprehensive path traversal protection.
+  - Implemented **encrypted Notepad API** using existing DropZone encryption infrastructure for secure note storage.
+  - Implemented **File Explorer metadata API** for managing favorites and recents with location-aware storage across all three backends.
+  - Added **centralized state management** for File Explorer including current location, path navigation, view preferences, and selection state.
+  - Created **unified upload queue management** replacing the previous separate upload stores for App Drive and Drop Zone.
+  - Added **window configuration system** for utility applications and auxiliary windows with proper size constraints and default dimensions.
+  - **Reorganized all file-related API routes** with a cleaner RESTful structure under `/api/storage/`, `/api/dropzone/`, `/api/appdrive/`, `/api/utils/notepad/`, and `/api/fileexplorer/`.
+  - Added **search functionality to App Drive** with time limits (10 seconds) and result limits (500 files) for DoS protection.
+  - Implemented **automatic DropZone data migration** from the legacy location to the new unified storage structure, ensuring seamless transition for existing users.
+  - **Relocated all user storage directories** under a unified `_storage` folder for better organization, separating encrypted DropZone files from unencrypted Storage files.
+  - Added **PDF.js dependency** for PDF rendering capabilities in the PDF Viewer utility.
+  - Updated **python-on-whales** dependency for improved Docker API compatibility.
+  - Enhanced **system integration** allowing files to be opened directly in appropriate utility applications from the File Explorer.
+  - Updated **My Home, Properties, Notifications, Taskbar, and Start Menu** with File Explorer integration and utility app launchers.
+  - Added **File Explorer as default desktop icon** alongside My Home, providing quick access to the unified file management interface directly from the desktop.
+  - **My Home is now removable from the desktop** like any other system app. Both My Home and File Explorer can be removed via right-click context menu and re-added from Start Menu > "Add to Desktop".
+  - Added **dynamic volume icon** to Audio Indicator and Media Player that changes based on volume level: muted, zero, low (<50%), and high (≥50%).
+  - All new endpoints protected with **CSRF validation** and **login authentication**.
+  - Maintained **comprehensive security controls** including path traversal protection, symlink validation, DoS limits (file counts and time limits), and null byte injection prevention across all new modules.
+    > **TL;DR:** This update and the previous one put us at the forefront of the Cloud OS technology ecosystem, bringing **real multitasking** to what used to be a single dashboard panel. The line between a browser Cloud OS and a native OS blurs **now**. Every release brings us one step closer to our vision, a fully-featured operating system that lives in your browser. Thank you for reshaping the future with us :)
+
+---
+
+- **2.0.4.228**: Added iOS-like window persistence for optimized browser RAM management.
 
   - Implemented **`a new composable`** providing intelligent, transparent memory management for minimized windows, inspired by iOS app lifecycle management.
   - Added **3-tier persistence strategy** for minimized windows: (1) immediate cleanup under memory pressure (>75% heap), (2) automatic general cleanup after 5 minutes for independent windows, and (3) graceful cleanup of expired windows (>2min) when over device limits.
   - Implemented **device-aware window limits** using `navigator.deviceMemory` API when available, dynamically adjusting maximum minimized windows from 2 (low-end devices) to 8 (high-end devices), with fallback to 4 windows on unsupported browsers.
   - Added **real-time memory monitoring** using `performance.memory` API (Chromium) to detect heap pressure and proactively free resources, falling back to time-based cleanup only on Firefox/Safari/Others.
   - Designed for **complete user transparency**: no notifications, no console logs, no visible indicators. Windows are silently recycled in the background, exactly like iOS manages background apps.
-
----
 
 - **2.0.4.226**: Mobile desktop grid fixes and touch scroll improvements.
 

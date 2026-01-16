@@ -234,7 +234,7 @@
       </div>
     </div>
 
-    <StatusBar v-if="app" :icon="infoIcon" message="Properties" :info="`Viewing ${app.display_name || app.name}`" :showHelp="true">
+    <StatusBar v-if="app" :icon="infoIcon" message="App Properties" :info="`Viewing ${app.display_name || app.name}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
@@ -506,10 +506,12 @@ function openAppDrive(mountIndex: number) {
 
   if (mountIndex < 0 || mountIndex >= mounts.value.length) return;
 
-  windowStore.openWindow("appdrive", {
+  windowStore.openFileInApp("fileexplorer", {
+    title: `File Explorer - ${app.value.display_name || app.value.name}`,
     data: {
-      containerName: sanitizedName,
-      mountIndex: mountIndex,
+      initialLocation: "appdrive",
+      initialContainer: sanitizedName,
+      initialMountIndex: mountIndex,
     },
   });
 }

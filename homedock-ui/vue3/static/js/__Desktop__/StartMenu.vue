@@ -321,6 +321,7 @@ const contextMenuSystemApp = ref<CombinedApp | null>(null);
 const systemAppIconMap: Record<string, string> = {
   apphome: "mdi:cloud",
   explorer: "mdi:file-search",
+  fileexplorer: "mdi:folder-multiple",
   appstore: "mdi:widgets-outline",
   appdrive: "mdi:cube-scan",
   packager: "mdi:package-variant",
@@ -329,6 +330,7 @@ const systemAppIconMap: Record<string, string> = {
   systemlogs: "mdi:chart-timeline-variant",
   settings: "mdi:tune",
   about: "mdi:cloud-question",
+  utilities: "mdi:toolbox-outline",
 };
 
 function handleSystemAppContextMenu(event: MouseEvent, app: CombinedApp) {

@@ -24,6 +24,8 @@ from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
 from pymodules.hd_CryptoServer import decrypt_from_client
 from pymodules.hd_DropZoneEncryption import dropzone_init
+from pymodules.hd_FunctionsInitUserFolders import init_user_storage
+from pymodules.hd_FunctionsGlobals import storage_folder
 from pymodules.hd_2FAInternalHandler import verify_2fa_code, is_device_trusted, add_trusted_device
 
 login_manager = LoginManager()
@@ -149,6 +151,9 @@ def complete_login_session(user_name, ip_address):
     regenerate_csrf_token()
     session.permanent = True
     dropzone_init()
+
+    user_storage_dir = os.path.join(storage_folder, user_name.lower())
+    init_user_storage(user_storage_dir)
 
 
 def login_page():
@@ -331,10 +336,7 @@ def login_2fa_verify():
             log_attempt(ip_address, "2FA Errored", "Hidden")
             return jsonify({"error": "Invalid 2FA session. Please login again."}), 403
 
-    failed_2fa_attempts[pending_token] = [
-        attempt for attempt in failed_2fa_attempts[pending_token]
-        if attempt > datetime.now() - timedelta(minutes=PENDING_2FA_EXPIRATION_MINUTES)
-    ]
+    failed_2fa_attempts[pending_token] = [attempt for attempt in failed_2fa_attempts[pending_token] if attempt > datetime.now() - timedelta(minutes=PENDING_2FA_EXPIRATION_MINUTES)]
 
     config = read_config()
     secret = config.get("2fa_secret")

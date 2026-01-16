@@ -5,14 +5,12 @@
 
 <template>
   <div class="window-manager">
+    <Transition name="snap-preview-fade">
+      <div v-if="snapPreview" class="snap-preview" :class="[`snap-preview-${snapPreview}`, themeClasses.windowBorderFocused]" :style="snapPreviewStyle" />
+    </Transition>
     <TransitionGroup name="window-fade">
       <Window v-for="window in openWindows" :key="window.id" :window="window" :is-active="window.id === activeWindowId" @close="handleClose" @focus="handleFocus" @minimize="handleMinimize" @maximize="handleMaximize" />
     </TransitionGroup>
-
-    <!-- <div v-if="showDebugInfo" class="debug-info">
-      <p class="text-xs text-white opacity-50">Windows: {{ openWindows.length }}</p>
-      <p class="text-xs text-white opacity-50">Active: {{ activeWindowId }}</p>
-    </div> -->
   </div>
 </template>
 
@@ -20,6 +18,8 @@
 import { computed, onMounted, onUnmounted } from "vue";
 import Window from "./Window.vue";
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useResponsive } from "../__Composables__/useResponsive";
+import { useTheme } from "../__Themes__/ThemeSelector";
 
 interface Props {
   showDebugInfo?: boolean;
@@ -30,9 +30,21 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const windowStore = useWindowStore();
+const { taskbarHeightPx } = useResponsive();
+const { themeClasses } = useTheme();
 
 const openWindows = computed(() => windowStore.windows);
 const activeWindowId = computed(() => windowStore.activeWindowId);
+const snapPreview = computed(() => windowStore.snapPreview);
+
+const snapPreviewStyle = computed(() => {
+  const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080;
+  const availableHeight = screenHeight - taskbarHeightPx.value;
+
+  return {
+    height: `${availableHeight}px`,
+  };
+});
 
 function handleClose(windowId: string) {
   windowStore.closeWindow(windowId);
@@ -50,14 +62,25 @@ function handleMaximize(windowId: string) {
   windowStore.toggleMaximize(windowId);
 }
 
+function requestCloseWindow(windowId: string) {
+  const event = new CustomEvent(`homedock:request-close-${windowId}`, {
+    cancelable: true,
+  });
+  const wasNotPrevented = window.dispatchEvent(event);
+
+  if (wasNotPrevented) {
+    windowStore.closeWindow(windowId);
+  }
+}
+
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === "Escape" && activeWindowId.value) {
-    windowStore.closeWindow(activeWindowId.value);
+    requestCloseWindow(activeWindowId.value);
     e.preventDefault();
   }
 
   if (e.altKey && e.key === "F4" && activeWindowId.value) {
-    windowStore.closeWindow(activeWindowId.value);
+    requestCloseWindow(activeWindowId.value);
     e.preventDefault();
   }
 }
@@ -123,5 +146,54 @@ onUnmounted(() => {
 
 .window-fade-move {
   transition: transform 0.3s ease;
+}
+
+.snap-preview {
+  position: fixed;
+  top: 0;
+  width: 50%;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 99;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.5);
+  animation: snap-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes snap-pulse {
+  0%,
+  100% {
+    background: rgba(59, 130, 246, 0.15);
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    background: rgba(59, 130, 246, 0.25);
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.7);
+  }
+}
+
+.snap-preview-left {
+  left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.snap-preview-right {
+  right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.snap-preview-fade-enter-active,
+.snap-preview-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.snap-preview-fade-enter-from,
+.snap-preview-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 </style>

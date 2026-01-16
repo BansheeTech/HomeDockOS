@@ -15,7 +15,7 @@ import hashlib
 from flask import send_file, jsonify, request
 from flask_login import current_user, login_required
 
-from pymodules.hd_FunctionsGlobals import dropzone_folder
+from pymodules.hd_FunctionsGlobals import dropzone_folder, dropzone_folder_legacy
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
 from pymodules.hd_DropZoneEncryption import save_user_file, load_user_file
 
@@ -25,6 +25,42 @@ MAX_FILES_FOR_ZIP = 50000
 MAX_TIME_FOR_ZIP = 30.0
 MAX_FILES_FOR_SEARCH = 100000
 MAX_TIME_FOR_SEARCH = 5.0
+
+
+def migrate_dropzone_data():
+    if not os.path.exists(dropzone_folder_legacy):
+        return
+
+    if os.path.isdir(dropzone_folder_legacy):
+        legacy_contents = os.listdir(dropzone_folder_legacy)
+        if not legacy_contents:
+            try:
+                os.rmdir(dropzone_folder_legacy)
+            except OSError:
+                pass
+            return
+
+        os.makedirs(dropzone_folder, exist_ok=True)
+
+        for item in legacy_contents:
+            src = os.path.join(dropzone_folder_legacy, item)
+            dst = os.path.join(dropzone_folder, item)
+
+            if os.path.exists(dst):
+                continue
+
+            try:
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, symlinks=False)
+                else:
+                    shutil.copy2(src, dst)
+            except (OSError, shutil.Error):
+                continue
+
+        try:
+            shutil.rmtree(dropzone_folder_legacy)
+        except OSError:
+            pass
 
 
 @login_required

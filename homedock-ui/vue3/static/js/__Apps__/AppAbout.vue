@@ -224,6 +224,10 @@
                 <span>Noble Hashes</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
+              <a href="https://github.com/mozilla/pdf.js/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>PDF.js</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
             </div>
           </div>
 

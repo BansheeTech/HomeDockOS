@@ -30,6 +30,8 @@ html {
   width: 100vw;
   position: fixed;
   overscroll-behavior: none;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
 }
 
 body.theme-default {

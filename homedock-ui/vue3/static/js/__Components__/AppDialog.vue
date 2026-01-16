@@ -9,11 +9,7 @@
       <div v-if="visible" class="dialog-overlay fixed inset-0 z-[10000] flex items-center justify-center" @click="handleOverlayClick">
         <Transition name="dialog">
           <div ref="dialogRef" v-if="visible" class="dialog-window rounded-xl flex flex-col overflow-hidden shadow-2xl" :class="[themeClasses.windowBg, themeClasses.windowBorderFocused, themeClasses.windowShadow, { 'is-dragging': isDragging }]" :style="dialogStyle" @click.stop>
-            <div
-              class="dialog-header flex items-center gap-3 px-4 py-3 border-b"
-              :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder, { 'cursor-grab': canDrag && !isDragging, 'cursor-grabbing': isDragging }]"
-              @mousedown="handleDragStart"
-            >
+            <div class="dialog-header flex items-center gap-3 px-4 py-3 border-b" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder, { 'cursor-grab': canDrag && !isDragging, 'cursor-grabbing': isDragging }]" @mousedown="handleDragStart">
               <div class="flex items-center gap-2.5 flex-1 min-w-0">
                 <Icon v-if="displayIcon" :icon="displayIcon" class="flex-shrink-0" :class="[iconColorClass, themeClasses.windowTitleTextFocused]" width="20" height="20" />
                 <span class="text-sm font-semibold truncate" :class="themeClasses.windowTitleTextFocused">{{ title }}</span>
@@ -36,16 +32,24 @@
                   {{ cancelText }}
                 </button>
 
-                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading">
+                <button v-if="dismissText" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleDismiss">
+                  {{ dismissText }}
+                </button>
+
+                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading || okDisabled">
                   <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
                   <span v-else>{{ okText }}</span>
                 </button>
               </template>
 
               <template v-else>
-                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading">
+                <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading || okDisabled">
                   <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
                   <span v-else>{{ okText }}</span>
+                </button>
+
+                <button v-if="dismissText" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleDismiss">
+                  {{ dismissText }}
                 </button>
 
                 <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
@@ -83,6 +87,7 @@ interface Props {
   content?: string;
   okText?: string;
   cancelText?: string;
+  dismissText?: string;
   okCancel?: boolean;
   width?: number;
   maskClosable?: boolean;
@@ -91,6 +96,7 @@ interface Props {
   reverseButtons?: boolean;
   closeOnOk?: boolean;
   draggable?: boolean;
+  okDisabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -100,6 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   content: "",
   okText: "OK",
   cancelText: "Cancel",
+  dismissText: "",
   okCancel: true,
   width: 420,
   maskClosable: true,
@@ -107,26 +114,25 @@ const props = withDefaults(defineProps<Props>(), {
   reverseButtons: false,
   closeOnOk: true,
   draggable: true,
+  okDisabled: false,
 });
 
 const emit = defineEmits<{
   ok: [];
   cancel: [];
+  dismiss: [];
   "update:visible": [value: boolean];
 }>();
 
 const { themeClasses } = useTheme();
 
-// Drag state
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
 const dragStart = ref({ x: 0, y: 0 });
 const dialogRef = ref<HTMLElement | null>(null);
 
-// Only allow dragging on desktop (screen width > 768px)
 const canDrag = computed(() => props.draggable && window.innerWidth > 768);
 
-// Boundary margin (same as windows)
 const BOUNDARY_MARGIN = 16;
 
 const dialogStyle = computed(() => ({
@@ -136,31 +142,32 @@ const dialogStyle = computed(() => ({
   transform: `translate(${dragOffset.value.x}px, ${dragOffset.value.y}px)`,
 }));
 
-// Reset position when dialog closes
-watch(() => props.visible, (newVisible) => {
-  if (!newVisible) {
-    dragOffset.value = { x: 0, y: 0 };
+watch(
+  () => props.visible,
+  (newVisible) => {
+    if (!newVisible) {
+      dragOffset.value = { x: 0, y: 0 };
+    }
   }
-});
+);
 
-// Drag handlers
 function handleDragStart(e: MouseEvent | TouchEvent) {
   if (!canDrag.value) return;
 
   isDragging.value = true;
 
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+  const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
 
   dragStart.value = {
     x: clientX - dragOffset.value.x,
     y: clientY - dragOffset.value.y,
   };
 
-  document.addEventListener('mousemove', handleDragMove);
-  document.addEventListener('mouseup', handleDragEnd);
-  document.addEventListener('touchmove', handleDragMove, { passive: false });
-  document.addEventListener('touchend', handleDragEnd);
+  document.addEventListener("mousemove", handleDragMove);
+  document.addEventListener("mouseup", handleDragEnd);
+  document.addEventListener("touchmove", handleDragMove, { passive: false });
+  document.addEventListener("touchend", handleDragEnd);
 }
 
 function handleDragMove(e: MouseEvent | TouchEvent) {
@@ -168,28 +175,24 @@ function handleDragMove(e: MouseEvent | TouchEvent) {
 
   e.preventDefault();
 
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+  const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
 
   let newX = clientX - dragStart.value.x;
   let newY = clientY - dragStart.value.y;
 
-  // Get dialog dimensions and viewport
   const dialogRect = dialogRef.value.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  // Calculate center position (dialog starts centered)
   const centerX = (viewportWidth - dialogRect.width) / 2;
   const centerY = (viewportHeight - dialogRect.height) / 2;
 
-  // Calculate boundaries (dialog position = center + offset)
   const minX = BOUNDARY_MARGIN - centerX;
   const maxX = viewportWidth - dialogRect.width - BOUNDARY_MARGIN - centerX;
   const minY = BOUNDARY_MARGIN - centerY;
   const maxY = viewportHeight - dialogRect.height - BOUNDARY_MARGIN - centerY;
 
-  // Clamp to boundaries
   newX = Math.max(minX, Math.min(maxX, newX));
   newY = Math.max(minY, Math.min(maxY, newY));
 
@@ -199,13 +202,12 @@ function handleDragMove(e: MouseEvent | TouchEvent) {
 function handleDragEnd() {
   isDragging.value = false;
 
-  document.removeEventListener('mousemove', handleDragMove);
-  document.removeEventListener('mouseup', handleDragEnd);
-  document.removeEventListener('touchmove', handleDragMove);
-  document.removeEventListener('touchend', handleDragEnd);
+  document.removeEventListener("mousemove", handleDragMove);
+  document.removeEventListener("mouseup", handleDragEnd);
+  document.removeEventListener("touchmove", handleDragMove);
+  document.removeEventListener("touchend", handleDragEnd);
 }
 
-// Cleanup on unmount
 onUnmounted(() => {
   handleDragEnd();
 });
@@ -265,6 +267,11 @@ function handleOk() {
 
 function handleCancel() {
   emit("cancel");
+  emit("update:visible", false);
+}
+
+function handleDismiss() {
+  emit("dismiss");
   emit("update:visible", false);
 }
 

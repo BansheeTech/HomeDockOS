@@ -17,17 +17,12 @@
       </div>
     </Transition>
 
-    <Transition name="empty-state-fade">
-      <div v-if="!isLoading && desktopStore.mainDockerApps.length === 0" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center p-12 z-[100] pointer-events-none">
-        <div :class="[themeClasses.desktopEmptyBg, themeClasses.desktopEmptyBorder]" class="flex flex-col items-center gap-0 text-center max-w-[300px] rounded-2xl px-6 py-6 pointer-events-auto">
-          <AnimatedIcon :icons="[hexagonOutlineIcon, hexagonSlice2Icon, hexagonSlice4Icon, hexagonSlice6Icon, hexagonSlice4Icon, hexagonSlice2Icon]" :iconSize="isMobile ? 32 : 48" :interval="1000" :containerClass="`${themeClasses.desktopEmptyIcon} mb-2`" />
-          <h3 :class="[themeClasses.desktopEmptyTitle]" class="text-2xl leading-none font-semibold text-balance mb-2">No apps installed yet</h3>
-          <p :class="[themeClasses.desktopEmptyDescription]" class="text-xs m-0 leading-none opacity-50 text-balance mb-2">Get started by installing your first application from the App Store</p>
-          <button :class="[themeClasses.desktopInstallButtonBg, themeClasses.desktopInstallButtonText, themeClasses.desktopInstallButtonBgHover, themeClasses.desktopInstallButtonShadow]" class="flex items-center justify-center gap-2 px-6 py-3 mt-2 border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:-translate-y-0.5 whitespace-nowrap" @click="openAppStore">
-            <Icon :icon="widgetsOutlineIcon" class="w-[18px] h-[18px] flex-shrink-0" />
-            <span>Browse App Store</span>
-          </button>
-        </div>
+    <Transition name="corner-hint-fade">
+      <div v-if="!isLoading && desktopStore.mainDockerApps.length === 0" class="absolute top-3 right-3 z-[100] pointer-events-none">
+        <button @click="openAppStore" :class="[themeClasses.desktopEmptyBg, themeClasses.desktopEmptyBorder]" class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 pointer-events-auto shadow-md backdrop-blur-sm cursor-pointer border transition-all hover:scale-105 hover:shadow-lg">
+          <Icon :icon="widgetsOutlineIcon" class="w-3.5 h-3.5" :class="themeClasses.desktopEmptyIcon" />
+          <span :class="[themeClasses.desktopEmptyTitle]" class="text-[10px] font-medium leading-none">Install apps</span>
+        </button>
       </div>
     </Transition>
 
@@ -106,7 +101,6 @@ import { fetchContainers, startContainerPolling, stopContainerPolling } from "..
 import BaseImage from "../__Components__/BaseImage.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
-import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
 import FolderCustomizeMenu from "../__Components__/FolderCustomizeMenu.vue";
 import MobileDesktopPages from "./MobileDesktopPages.vue";
@@ -135,10 +129,6 @@ import folderEditIcon from "@iconify-icons/mdi/folder-edit";
 import folderRemoveIcon from "@iconify-icons/mdi/folder-remove";
 import paletteIcon from "@iconify-icons/mdi/palette";
 
-import hexagonOutlineIcon from "@iconify-icons/mdi/hexagon-outline";
-import hexagonSlice2Icon from "@iconify-icons/mdi/hexagon-slice-2";
-import hexagonSlice4Icon from "@iconify-icons/mdi/hexagon-slice-4";
-import hexagonSlice6Icon from "@iconify-icons/mdi/hexagon-slice-6";
 import cloudIcon from "@iconify-icons/mdi/cloud";
 import monitorOffIcon from "@iconify-icons/mdi/monitor-off";
 import fileSearchIcon from "@iconify-icons/mdi/file-search";
@@ -149,6 +139,8 @@ import nutIcon from "@iconify-icons/mdi/nut";
 import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
 import tuneIcon from "@iconify-icons/mdi/tune";
 import cloudQuestionIcon from "@iconify-icons/mdi/cloud-question";
+import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
+import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
 
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
@@ -483,6 +475,7 @@ function getSystemIconObject(icon: SystemDesktopIcon) {
   const iconMap: Record<string, any> = {
     "mdi:cloud": cloudIcon,
     "mdi:file-search": fileSearchIcon,
+    "mdi:folder-multiple": folderMultipleIcon,
     "mdi:widgets-outline": widgetsOutlineIcon,
     "mdi:cube-scan": cubeScanIcon,
     "mdi:package-variant": packageVariantIcon,
@@ -491,6 +484,7 @@ function getSystemIconObject(icon: SystemDesktopIcon) {
     "mdi:chart-timeline-variant": chartTimelineVariantIcon,
     "mdi:tune": tuneIcon,
     "mdi:cloud-question": cloudQuestionIcon,
+    "mdi:toolbox-outline": toolboxOutlineIcon,
   };
   return iconMap[icon.icon] || cloudIcon;
 }
@@ -1572,28 +1566,28 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.empty-state-fade-enter-active {
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+.corner-hint-fade-enter-active {
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
-.empty-state-fade-leave-active {
-  transition: opacity 0.4s ease-in, transform 0.4s ease-in;
+.corner-hint-fade-leave-active {
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
 }
 
-.empty-state-fade-enter-from {
+.corner-hint-fade-enter-from {
   opacity: 0;
-  transform: translateX(-50%) translateY(calc(-50% + 20px));
+  transform: translateX(20px);
 }
 
-.empty-state-fade-leave-to {
+.corner-hint-fade-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(calc(-50% - 10px));
+  transform: translateX(10px);
 }
 
-.empty-state-fade-enter-to,
-.empty-state-fade-leave-from {
+.corner-hint-fade-enter-to,
+.corner-hint-fade-leave-from {
   opacity: 1;
-  transform: translateX(-50%) translateY(-50%);
+  transform: translateX(0);
 }
 
 .opacity-fade-enter-active,

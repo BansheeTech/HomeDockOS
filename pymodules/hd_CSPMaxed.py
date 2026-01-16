@@ -19,7 +19,7 @@ def generate_csp(nonce, is_development, endpoint=""):
         "script-src 'self' 'nonce-{{nonceMarker}}' ;"
         "style-src 'self' 'unsafe-inline' ;"
         "form-action 'self' ;"
-        "media-src 'self' ;"
+        "media-src 'self' blob: ;"
         "img-src 'self' cdn.homedock.cloud data: ;"
         "base-uri 'self' ;"
         "object-src 'none' ;"

@@ -44,7 +44,18 @@ function generateErrorDescription(errorMessage: string, documentationLink: strin
   ]);
 }
 
-export function notifyError(error: AxiosError, themeClass?: string) {
+export function notifyError(error: AxiosError | string, themeClass?: string) {
+  if (typeof error === "string") {
+    notification.warning({
+      message: "Uh-oh...",
+      description: error,
+      placement: "bottomRight",
+      class: themeClass || "",
+      duration: 5,
+    });
+    return;
+  }
+
   const responseData = error.response?.data || {};
 
   interface ErrorResponseData {

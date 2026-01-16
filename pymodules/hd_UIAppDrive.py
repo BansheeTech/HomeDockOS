@@ -25,6 +25,8 @@ MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
 MAX_FILES_FOR_ZIP = 50000
 MAX_TIME_FOR_ZIP = 30.0
+MAX_SEARCH_RESULTS = 500
+MAX_SEARCH_TIME = 10.0
 
 
 def get_allowed_homedock_root():
@@ -650,3 +652,96 @@ def appdrive_download_multiple():
 
     except Exception:
         return jsonify({"error": "Error creating ZIP"}), 500
+
+
+@login_required
+def appdrive_search_files():
+    container_name = request.args.get("container")
+    mount_index = request.args.get("mount", "0")
+    query = request.args.get("query", "").strip().lower()
+
+    if not container_name:
+        return jsonify({"error": "Container name is required"}), 400
+
+    if not query or len(query) < 2:
+        return jsonify({"error": "Search query must be at least 2 characters"}), 400
+
+    try:
+        mount_index = int(mount_index)
+    except ValueError:
+        return jsonify({"error": "Invalid mount index"}), 400
+
+    valid_mounts = get_container_valid_mounts(container_name)
+
+    if not valid_mounts:
+        return jsonify({"error": "No accessible mounts found for this container"}), 404
+
+    if mount_index < 0 or mount_index >= len(valid_mounts):
+        return jsonify({"error": "Invalid mount index"}), 400
+
+    mount = valid_mounts[mount_index]
+    base_dir = mount["host_path"]
+
+    if not os.path.exists(base_dir):
+        return jsonify({"error": "Mount path not found"}), 404
+
+    files = []
+    start_time = time.time()
+
+    try:
+        for root, dirs, filenames in os.walk(base_dir):
+            if (time.time() - start_time) > MAX_SEARCH_TIME:
+                break
+
+            if len(files) >= MAX_SEARCH_RESULTS:
+                break
+
+            dirs[:] = [d for d in dirs if not d.startswith(".") and not os.path.islink(os.path.join(root, d))]
+
+            for dirname in dirs:
+                if len(files) >= MAX_SEARCH_RESULTS:
+                    break
+
+                if query in dirname.lower():
+                    dir_path = os.path.join(root, dirname)
+
+                    if os.path.islink(dir_path):
+                        continue
+
+                    try:
+                        validate_no_symlinks(dir_path, base_dir)
+                        dir_stats = os.stat(dir_path)
+                        relative_path = os.path.relpath(dir_path, base_dir)
+
+                        dir_size, size_exceeded = calculate_directory_size_ddos_safe(dir_path)
+
+                        files.append({"name": relative_path, "display_name": dirname, "size": dir_size, "modified": dir_stats.st_mtime, "is_directory": True, "size_exceeded": size_exceeded})
+                    except (ValueError, OSError, PermissionError):
+                        continue
+
+            for filename in filenames:
+                if len(files) >= MAX_SEARCH_RESULTS:
+                    break
+
+                if filename.startswith("."):
+                    continue
+
+                if query in filename.lower():
+                    file_path = os.path.join(root, filename)
+
+                    if os.path.islink(file_path):
+                        continue
+
+                    try:
+                        validate_no_symlinks(file_path, base_dir)
+                        file_stats = os.stat(file_path)
+                        relative_path = os.path.relpath(file_path, base_dir)
+
+                        files.append({"name": relative_path, "display_name": filename, "size": file_stats.st_size, "modified": file_stats.st_mtime, "is_directory": False, "size_exceeded": False})
+                    except (ValueError, OSError, PermissionError):
+                        continue
+
+    except PermissionError:
+        return jsonify({"error": "Permission denied"}), 403
+
+    return jsonify({"files": files, "current_path": "", "container_path": mount["container_path"], "read_only": mount["read_only"], "truncated": len(files) >= MAX_SEARCH_RESULTS})

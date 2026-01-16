@@ -34,7 +34,14 @@
               <span>{{ systemDiskInfo.usedFormatted }} used</span>
               <span>{{ systemDiskInfo.totalFormatted }} total</span>
             </div>
-            <div @click="openDropZone" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.25rem">
+            <div @click="openStorage" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.25rem">
+              <div class="flex items-center gap-2">
+                <Icon :icon="folderIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
+                <span class="text-xs font-medium" :class="themeClasses.statInnerText">Storage: {{ storageInfo.usedFormatted }}</span>
+              </div>
+              <span class="text-xs" :class="themeClasses.statSubtleText">{{ storageInfo.fileCount }} {{ storageInfo.fileCount === 1 ? "file" : "files" }} • {{ storageInfo.folderCount }} {{ storageInfo.folderCount === 1 ? "folder" : "folders" }}</span>
+            </div>
+            <div @click="openDropZone" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.5rem">
               <div class="flex items-center gap-2">
                 <Icon :icon="lockIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
                 <span class="text-xs font-medium" :class="themeClasses.statInnerText">Encrypted: {{ encryptedStorageInfo.usedFormatted }}</span>
@@ -167,32 +174,40 @@
         </div>
       </div>
 
-      <div>
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
+      <div class="mb-6">
+        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="appsIcon" class="w-4 h-4" />
           <span>System Applications</span>
         </h3>
 
-        <div class="flex flex-col gap-2">
-          <div v-for="app in systemApps" :key="app.id" @click="openApp(app)" @dblclick="openApp(app)" class="group flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]">
-            <div class="flex-shrink-0 w-12 h-12 md:w-10 md:h-10 flex items-center justify-center rounded-lg overflow-hidden">
-              <Icon :icon="app.icon" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
+        <div class="flex flex-col gap-1">
+          <div v-for="app in systemApps" :key="app.id" @click="app.id !== 'apphome' && openApp(app)" class="group flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all duration-150" :class="[themeClasses.explorerResultItem, app.id !== 'apphome' ? [themeClasses.explorerResultItemHover, 'cursor-pointer'] : 'opacity-50']">
+            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
+              <Icon :icon="app.icon" class="w-5 h-5" :class="themeClasses.explorerItemIcon" />
             </div>
-
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap" :class="themeClasses.explorerItemName">
-                {{ app.name }}
-              </div>
-              <div class="text-xs mt-0.5 overflow-hidden text-ellipsis whitespace-nowrap" :class="themeClasses.explorerItemDescription">
-                {{ app.description }}
-              </div>
+              <div class="text-xs font-medium truncate" :class="themeClasses.explorerItemName">{{ app.name }}</div>
             </div>
+            <Icon v-if="app.id !== 'apphome'" :icon="chevronRightIcon" class="w-4 h-4 opacity-40 group-hover:opacity-70 transition-opacity" :class="themeClasses.explorerItemIcon" />
+          </div>
+        </div>
+      </div>
 
-            <div class="flex-shrink-0">
-              <button @click.stop="openApp(app)" class="p-2 rounded-md border-none cursor-pointer transition-all duration-150" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" title="Open">
-                <Icon :icon="chevronRightIcon" class="w-4 h-4" />
-              </button>
+      <div>
+        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2" :class="themeClasses.explorerGroupHeader">
+          <Icon :icon="toolboxOutlineIcon" class="w-4 h-4" />
+          <span>Utilities</span>
+        </h3>
+
+        <div class="flex flex-col gap-1">
+          <div v-for="util in utilitiesApps" :key="util.id" @click="openApp(util)" class="group flex items-center gap-3 px-2.5 py-2 rounded-lg cursor-pointer transition-all duration-150" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]">
+            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
+              <Icon :icon="util.icon" class="w-5 h-5" :class="themeClasses.explorerItemIcon" />
             </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-medium truncate" :class="themeClasses.explorerItemName">{{ util.name }}</div>
+            </div>
+            <Icon :icon="chevronRightIcon" class="w-4 h-4 opacity-40 group-hover:opacity-70 transition-opacity" :class="themeClasses.explorerItemIcon" />
           </div>
         </div>
       </div>
@@ -222,10 +237,11 @@ import axios from "axios";
 
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useWindowStore } from "../__Stores__/windowStore";
 import { useDropZoneStore } from "../__Stores__/useDropZoneStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { getStandaloneApps } from "../__Config__/WindowDefaultDetails";
+import { getExplorerApps } from "../__Config__/WindowDefaultDetails";
 
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
@@ -235,8 +251,10 @@ import { Icon } from "@iconify/vue";
 import cloudIcon from "@iconify-icons/mdi/cloud";
 import externalDiskIcon from "@iconify-icons/mdi/usb-flash-drive";
 import lockIcon from "@iconify-icons/mdi/lock";
+import folderIcon from "@iconify-icons/mdi/folder";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
 import appsIcon from "@iconify-icons/mdi/apps";
+import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
 import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
 import homeIcon from "@iconify-icons/mdi/home";
 import cpuIcon from "@iconify-icons/mdi/speedometer";
@@ -246,8 +264,11 @@ import containerIcon from "@iconify-icons/mdi/docker";
 import uptimeIcon from "@iconify-icons/mdi/clock-outline";
 import serverIcon from "@iconify-icons/mdi/server";
 
+import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
+
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
+const windowStore = useWindowStore();
 const dropZoneStore = useDropZoneStore();
 const systemStatsStore = useSystemStatsStore();
 const csrfToken = useCsrfToken();
@@ -281,6 +302,13 @@ const externalDiskInfo = ref<DiskInfo>({
   usedFormatted: "0 GB",
   totalFormatted: "0 GB",
   percentage: 0,
+});
+
+const storageInfo = ref<EncryptedStorageInfo>({
+  used: 0,
+  usedFormatted: "0 B",
+  fileCount: 0,
+  folderCount: 0,
 });
 
 const encryptedStorageInfo = ref<EncryptedStorageInfo>({
@@ -326,6 +354,11 @@ const externalDiskTotal = computed(() => systemStatsStore.externalDiskTotal);
 
 const externalDiskAvailable = computed(() => {
   return externalDefaultDisk.value !== "disabled" && externalDiskValue.value > 0;
+});
+
+const storagePercentage = computed(() => {
+  if (systemDiskInfo.value.total === 0) return 0;
+  return Math.round((storageInfo.value.used / systemDiskInfo.value.total) * 100 * 100) / 100;
 });
 
 const encryptedStoragePercentage = computed(() => {
@@ -375,7 +408,11 @@ const systemUptime = computed(() => systemStatsStore.uptimeData);
 const homeDockUptime = computed(() => systemStatsStore.startTime);
 
 const systemApps = computed(() => {
-  return getStandaloneApps();
+  return getExplorerApps();
+});
+
+const utilitiesApps = computed(() => {
+  return UTILITIES_APPS;
 });
 
 function formatBytes(bytes: number): string {
@@ -414,9 +451,33 @@ function updateExternalDiskInfo() {
   };
 }
 
+async function fetchStorageInfo() {
+  try {
+    const response = await axios.get("/api/storage/files", {
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+    });
+
+    if (response.data.files && Array.isArray(response.data.files)) {
+      const totalUsed = response.data.files.reduce((sum: number, file: any) => sum + (file.size || 0), 0);
+
+      const files = response.data.files.filter((item: any) => !item.is_directory);
+      const folders = response.data.files.filter((item: any) => item.is_directory);
+
+      storageInfo.value = {
+        used: totalUsed,
+        usedFormatted: formatBytes(totalUsed),
+        fileCount: files.length,
+        folderCount: folders.length,
+      };
+    }
+  } catch (error) {
+    console.error("Failed to fetch storage info:", error);
+  }
+}
+
 async function fetchEncryptedStorageInfo() {
   try {
-    const response = await axios.get("/api/get_files", {
+    const response = await axios.get("/api/dropzone/files", {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
 
@@ -442,8 +503,16 @@ function openApp(app: any) {
   desktopStore.openSystemApp(app.id);
 }
 
+function openStorage() {
+  windowStore.openWindow("fileexplorer", {
+    data: { initialLocation: "storage" },
+  });
+}
+
 function openDropZone() {
-  desktopStore.openSystemApp("dropzone");
+  windowStore.openWindow("fileexplorer", {
+    data: { initialLocation: "dropzone" },
+  });
 }
 
 watch([diskValue, hardDiskTotal], () => {
@@ -466,6 +535,7 @@ let resizeObserver: ResizeObserver | null = null;
 onMounted(() => {
   updateSystemDiskInfo();
   updateExternalDiskInfo();
+  fetchStorageInfo();
   fetchEncryptedStorageInfo();
 
   if (containerRef.value) {

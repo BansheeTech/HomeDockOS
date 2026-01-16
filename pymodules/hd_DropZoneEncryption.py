@@ -10,7 +10,7 @@ import base64
 
 from flask_login import current_user
 
-from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsGlobals import current_directory, dropzone_folder
 
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.backends import default_backend
@@ -126,14 +126,14 @@ def decrypt_user_file_new(username: str, full_content: bytes) -> bytes:
 
 def save_user_file(username: str, filename: str, data: bytes):
     encrypted_content = encrypt_user_file_new(username, data)
-    encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
+    encrypted_file_path = os.path.join(dropzone_folder, username, filename)
     os.makedirs(os.path.dirname(encrypted_file_path), exist_ok=True)
     with open(encrypted_file_path, "wb") as f:
         f.write(encrypted_content)
 
 
 def load_user_file(username: str, filename: str) -> bytes:
-    encrypted_file_path = os.path.join(current_directory, "dropzone", username, filename)
+    encrypted_file_path = os.path.join(dropzone_folder, username, filename)
     if not os.path.exists(encrypted_file_path):
         raise FileNotFoundError(f"File not found: {encrypted_file_path}")
     with open(encrypted_file_path, "rb") as f:

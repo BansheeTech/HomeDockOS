@@ -73,6 +73,8 @@ import nutIcon from "@iconify-icons/mdi/nut";
 import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
 import tuneIcon from "@iconify-icons/mdi/tune";
 import cloudQuestionIcon from "@iconify-icons/mdi/cloud-question";
+import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
+import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
 
 interface Props {
   selectedApp: string | null;
@@ -482,6 +484,7 @@ function getSystemIconObject(icon: any) {
   const iconMap: Record<string, any> = {
     "mdi:cloud": cloudIcon,
     "mdi:file-search": fileSearchIcon,
+    "mdi:folder-multiple": folderMultipleIcon,
     "mdi:widgets-outline": widgetsOutlineIcon,
     "mdi:cube-scan": cubeScanIcon,
     "mdi:package-variant": packageVariantIcon,
@@ -490,6 +493,7 @@ function getSystemIconObject(icon: any) {
     "mdi:chart-timeline-variant": chartTimelineVariantIcon,
     "mdi:tune": tuneIcon,
     "mdi:cloud-question": cloudQuestionIcon,
+    "mdi:toolbox-outline": toolboxOutlineIcon,
   };
   return iconMap[icon.icon] || cloudIcon;
 }
@@ -1009,9 +1013,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
     } else {
       if (currentTouchItem.value.type === "folder") {
         emit("folderClick", currentTouchItem.value);
-      } else if (currentTouchItem.value.type === "systemicon") {
-        // System icon click - just select it
-      } else {
+      } else if (currentTouchItem.value.type !== "systemicon") {
         emit("click", currentTouchItem.value);
       }
 

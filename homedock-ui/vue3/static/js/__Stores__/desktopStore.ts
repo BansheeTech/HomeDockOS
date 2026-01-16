@@ -290,21 +290,37 @@ export const useDesktopStore = defineStore("desktop", {
     initializeSystemIcons() {
       const savedPositions = this.loadSystemIconPositions();
       const additionalIcons = this.loadSystemIconsList();
+      const removedDefaultIcons = this.loadRemovedDefaultIcons();
 
-      const appHomeIcon: SystemDesktopIcon = {
-        id: "system-icon-apphome",
-        appId: "apphome",
-        name: "My Home",
-        icon: "mdi:cloud",
-        isPermanent: true,
-        ...savedPositions["system-icon-apphome"],
-      };
+      const defaultIcons: SystemDesktopIcon[] = [];
 
-      this.systemDesktopIcons = [appHomeIcon];
+      if (!removedDefaultIcons.includes("apphome")) {
+        defaultIcons.push({
+          id: "system-icon-apphome",
+          appId: "apphome",
+          name: "My Home",
+          icon: "mdi:cloud",
+          isPermanent: false,
+          ...savedPositions["system-icon-apphome"],
+        });
+      }
+
+      if (!removedDefaultIcons.includes("fileexplorer")) {
+        defaultIcons.push({
+          id: "system-icon-fileexplorer",
+          appId: "fileexplorer",
+          name: "File Explorer",
+          icon: "mdi:folder-multiple",
+          isPermanent: false,
+          ...savedPositions["system-icon-fileexplorer"],
+        });
+      }
+
+      this.systemDesktopIcons = defaultIcons;
 
       let needsCleanup = false;
       additionalIcons.forEach((iconData) => {
-        if (iconData.appId !== "apphome") {
+        if (iconData.appId !== "apphome" && iconData.appId !== "fileexplorer") {
           const isEnterpriseModule = iconData.appId.startsWith("enterprise-");
 
           if (isEnterpriseModule) {
@@ -396,6 +412,26 @@ export const useDesktopStore = defineStore("desktop", {
       return [];
     },
 
+    saveRemovedDefaultIcons(removedIds: string[]) {
+      try {
+        localStorage.setItem("homedock_removed_default_icons", JSON.stringify(removedIds));
+      } catch (error) {
+        console.error("Error saving removed default icons:", error);
+      }
+    },
+
+    loadRemovedDefaultIcons(): string[] {
+      try {
+        const stored = localStorage.getItem("homedock_removed_default_icons");
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (error) {
+        console.error("Error loading removed default icons:", error);
+      }
+      return [];
+    },
+
     isSystemIconOnDesktop(appId: string): boolean {
       return this.systemDesktopIcons.some((icon) => icon.appId === appId);
     },
@@ -403,6 +439,16 @@ export const useDesktopStore = defineStore("desktop", {
     addSystemIconToDesktop(appId: string, name: string, icon: any, moduleName?: string): boolean {
       if (this.isSystemIconOnDesktop(appId)) {
         return false;
+      }
+
+      const defaultIconIds = ["apphome", "fileexplorer"];
+      if (defaultIconIds.includes(appId)) {
+        const removedDefaults = this.loadRemovedDefaultIcons();
+        const index = removedDefaults.indexOf(appId);
+        if (index !== -1) {
+          removedDefaults.splice(index, 1);
+          this.saveRemovedDefaultIcons(removedDefaults);
+        }
       }
 
       const newIcon: SystemDesktopIcon = {
@@ -426,6 +472,16 @@ export const useDesktopStore = defineStore("desktop", {
       }
 
       this.systemDesktopIcons.splice(index, 1);
+
+      const defaultIconIds = ["apphome", "fileexplorer"];
+      if (defaultIconIds.includes(appId)) {
+        const removedDefaults = this.loadRemovedDefaultIcons();
+        if (!removedDefaults.includes(appId)) {
+          removedDefaults.push(appId);
+          this.saveRemovedDefaultIcons(removedDefaults);
+        }
+      }
+
       this.saveSystemIconsList();
       this.saveSystemIconPositions();
       return true;

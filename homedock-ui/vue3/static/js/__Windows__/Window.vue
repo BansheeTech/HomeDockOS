@@ -102,7 +102,7 @@ const emit = defineEmits<{
 }>();
 
 const windowStore = useWindowStore();
-const { isMobile, isResizeEnabled, isDragEnabled, taskbarHeight, availableHeight } = useResponsive();
+const { isMobile, isResizeEnabled, isDragEnabled, taskbarHeight, taskbarHeightPx, availableHeight } = useResponsive();
 const { themeClasses } = useTheme();
 
 const { shouldKeepAlive } = useWindowRAMManager(() => props.window.isMinimized);
@@ -161,6 +161,7 @@ const dragState = ref<{
 
 const lastClickTime = ref<number>(0);
 const DOUBLE_CLICK_THRESHOLD = 300;
+const SNAP_EDGE_THRESHOLD = 20;
 
 const resizeState = ref<{
   isResizing: boolean;
@@ -180,7 +181,14 @@ function handleFocus() {
 }
 
 function handleClose() {
-  windowStore.closeWindow(props.window.id);
+  const event = new CustomEvent(`homedock:request-close-${props.window.id}`, {
+    cancelable: true,
+  });
+  const wasNotPrevented = window.dispatchEvent(event);
+
+  if (wasNotPrevented) {
+    windowStore.closeWindow(props.window.id);
+  }
 }
 
 function handleMinimize() {
@@ -263,12 +271,29 @@ function handleHeaderMouseDown(e: MouseEvent) {
 
   handleFocus();
 
+  let initialX = props.window.x;
+  let initialY = props.window.y;
+
+  if (props.window.isSnapped) {
+    const preSnapBounds = windowStore.preSnapBounds[props.window.id];
+    if (preSnapBounds) {
+      const originalWidth = preSnapBounds.width;
+      const cursorRelativeX = e.clientX - props.window.x;
+      const cursorPercentage = cursorRelativeX / props.window.width;
+      initialX = e.clientX - originalWidth * cursorPercentage;
+      initialY = e.clientY - 20;
+
+      windowStore.unSnapWindow(props.window.id);
+      windowStore.updateWindowPosition(props.window.id, initialX, initialY);
+    }
+  }
+
   dragState.value = {
     isDragging: true,
     startX: e.clientX,
     startY: e.clientY,
-    initialX: props.window.x,
-    initialY: props.window.y,
+    initialX,
+    initialY,
   };
 
   document.addEventListener("mousemove", handleDragMove);
@@ -296,9 +321,27 @@ function handleDragMove(e: MouseEvent) {
   const newY = dragState.value.initialY + deltaY;
 
   windowStore.updateWindowPosition(props.window.id, newX, newY);
+
+  if (!isMobile.value && appConfig.value?.maximizable !== false) {
+    const screenWidth = window.innerWidth;
+    const cursorX = e.clientX;
+
+    if (cursorX <= SNAP_EDGE_THRESHOLD) {
+      windowStore.setSnapPreview("left");
+    } else if (cursorX >= screenWidth - SNAP_EDGE_THRESHOLD) {
+      windowStore.setSnapPreview("right");
+    } else {
+      windowStore.clearSnapPreview();
+    }
+  }
 }
 
 function handleDragEnd() {
+  if (windowStore.snapPreview && !isMobile.value && appConfig.value?.maximizable !== false) {
+    windowStore.snapWindow(props.window.id, windowStore.snapPreview, taskbarHeightPx.value);
+  }
+
+  windowStore.clearSnapPreview();
   dragState.value = null;
 
   document.removeEventListener("mousemove", handleDragMove);

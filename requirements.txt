@@ -3,7 +3,7 @@ Flask==3.1.2
 Flask-Login==0.6.3
 Flask-Compress==1.23
 docker==7.1.0
-python-on-whales==0.79.0
+python-on-whales==0.80.0
 requests==2.32.5
 PyYAML==6.0.3
 bcrypt==5.0.0

@@ -36,11 +36,15 @@
 
         <UpdateIndicator />
 
-        <UploadIndicator />
+        <UnifiedUploadIndicator location="storage" title="Storage Uploads" :badgeIcon="folderIcon" trayId="storage-upload-indicator" />
 
-        <AppDriveUploadIndicator />
+        <UnifiedUploadIndicator location="dropzone" title="Drop Zone Uploads" :badgeIcon="cubeIcon" trayId="dropzone-upload-indicator" />
+
+        <UnifiedUploadIndicator location="appdrive" title="App Drive Uploads" :badgeIcon="cubeScanIcon" trayId="appdrive-upload-indicator" />
 
         <NetworkOfflineTray />
+
+        <AudioIndicator />
 
         <EnterpriseSlotRenderer module="SecureTunnelTray" />
 
@@ -104,8 +108,12 @@ import DateTimePicker from "../__Components__/DateTimePicker.vue";
 import InstallationIndicator from "../__Components__/InstallationIndicator.vue";
 import AppUpdatesIndicator from "../__Components__/AppUpdatesIndicator.vue";
 import UpdateIndicator from "../__Components__/UpdateIndicator.vue";
-import UploadIndicator from "../__Components__/UploadIndicator.vue";
-import AppDriveUploadIndicator from "../__Components__/AppDriveUploadIndicator.vue";
+import UnifiedUploadIndicator from "../__Components__/UnifiedUploadIndicator.vue";
+import AudioIndicator from "../__Components__/AudioIndicator.vue";
+
+import cubeIcon from "@iconify-icons/mdi/cube";
+import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
+import folderIcon from "@iconify-icons/mdi/folder";
 import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
 import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";

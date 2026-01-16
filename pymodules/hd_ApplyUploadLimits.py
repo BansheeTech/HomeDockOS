@@ -19,8 +19,9 @@ endpoint_limits = {
     "/api/2fa/setup/init": 1 * 1024,  # 1KB
     "/api/2fa/status": 1 * 1024,  # 1KB
     "/api/2fa/disable": 2 * 1024,  # 2KB
-    "/api/upload_file": 1 * 1024 * 1024 * 1024,  # 1GB
     "/api/upload_wallpaper": 10 * 1024 * 1024,  # 10MB
+    "/api/storage/upload": 1 * 1024 * 1024 * 1024,  # 1GB
+    "/api/dropzone/upload": 1 * 1024 * 1024 * 1024,  # 1GB
     "/api/appdrive/upload": 1 * 1024 * 1024 * 1024,  # 1GB
 }
 

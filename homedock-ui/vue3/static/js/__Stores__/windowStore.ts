@@ -18,14 +18,26 @@ export interface WindowState {
   zIndex: number;
   isMaximized: boolean;
   isMinimized: boolean;
+  isSnapped?: "left" | "right" | null;
   data?: any;
 }
+
+export interface PreSnapBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type SnapPreviewSide = "left" | "right" | null;
 
 export const useWindowStore = defineStore("window", {
   state: () => ({
     windows: [] as WindowState[],
     activeWindowId: null as string | null,
     nextZIndex: 1000,
+    snapPreview: null as SnapPreviewSide,
+    preSnapBounds: {} as Record<string, PreSnapBounds>,
   }),
 
   getters: {
@@ -104,8 +116,10 @@ export const useWindowStore = defineStore("window", {
 
       const resolvedIcon = options?.icon || options?.data?.icon || app?.icon || null;
 
+      const windowId = this.generateUUID();
+
       const newWindow: WindowState = {
-        id: this.generateUUID(),
+        id: windowId,
         appId,
         title: sanitizedTitle,
         icon: resolvedIcon,
@@ -116,7 +130,7 @@ export const useWindowStore = defineStore("window", {
         zIndex: this.nextZIndex++,
         isMaximized: options?.isMaximized ?? false,
         isMinimized: false,
-        data: options?.data,
+        data: { ...options?.data, _windowId: windowId },
       };
 
       this.windows.push(newWindow);
@@ -263,6 +277,89 @@ export const useWindowStore = defineStore("window", {
       if (!window) return;
 
       window.title = this.sanitizeWindowTitle(title);
+    },
+
+    openFileInApp(appId: string, options?: Partial<WindowState> & { allowMultiple?: boolean }) {
+      const existingWindow = this.windows.find((w) => w.appId === appId);
+
+      if (existingWindow) {
+        this.focusWindow(existingWindow.id);
+
+        const event = new CustomEvent(`homedock:open-file-${existingWindow.id}`, {
+          detail: options?.data,
+        });
+        window.dispatchEvent(event);
+
+        return existingWindow.id;
+      }
+
+      return this.openWindow(appId, options);
+    },
+
+    setSnapPreview(side: SnapPreviewSide) {
+      this.snapPreview = side;
+    },
+
+    snapWindow(windowId: string, side: "left" | "right", taskbarHeight: number) {
+      const index = this.windows.findIndex((w) => w.id === windowId);
+      if (index === -1) return;
+
+      const win = this.windows[index];
+
+      if (!win.isSnapped) {
+        this.preSnapBounds[windowId] = {
+          x: win.x,
+          y: win.y,
+          width: win.width,
+          height: win.height,
+        };
+      }
+
+      const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1920;
+      const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080;
+      const availableHeight = screenHeight - taskbarHeight;
+
+      this.windows[index] = {
+        ...this.windows[index],
+        x: side === "left" ? 0 : screenWidth / 2,
+        y: 0,
+        width: screenWidth / 2,
+        height: availableHeight,
+        isSnapped: side,
+        isMaximized: false,
+      };
+
+      this.snapPreview = null;
+    },
+
+    unSnapWindow(windowId: string) {
+      const index = this.windows.findIndex((w) => w.id === windowId);
+      if (index === -1) return;
+
+      const win = this.windows[index];
+      if (!win.isSnapped) return;
+
+      const bounds = this.preSnapBounds[windowId];
+      if (bounds) {
+        this.windows[index] = {
+          ...this.windows[index],
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          isSnapped: null,
+        };
+        delete this.preSnapBounds[windowId];
+      } else {
+        this.windows[index] = {
+          ...this.windows[index],
+          isSnapped: null,
+        };
+      }
+    },
+
+    clearSnapPreview() {
+      this.snapPreview = null;
     },
   },
 });

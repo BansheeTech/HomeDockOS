@@ -37,6 +37,7 @@ import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
 import { useResponsive } from "../__Composables__/useResponsive";
+import { useMobileZoomPrevention } from "../__Composables__/useMobileZoomPrevention";
 
 import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
@@ -53,6 +54,8 @@ import DesktopIconsGrid from "../__Desktop__/DesktopIconsGrid.vue";
 const { themeClasses } = useTheme();
 
 const { availableHeight } = useResponsive();
+
+useMobileZoomPrevention();
 
 const desktopStore = useDesktopStore();
 const systemStatsStore = useSystemStatsStore();

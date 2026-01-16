@@ -28,17 +28,6 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/dashboard", "dashboard", desktop)
 
-    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, download_multiple, delete_file, create_folder, rename_item, search_files
-
-    homedock_www.add_url_rule("/api/get_files", "list_files", CSRF_Protect(list_files), methods=["GET"])
-    homedock_www.add_url_rule("/api/search_files", "search_files", CSRF_Protect(search_files), methods=["GET"])
-    homedock_www.add_url_rule("/api/upload_file", "upload_file", CSRF_Protect(upload_file), methods=["POST"])
-    homedock_www.add_url_rule("/api/download_file", "download_file", CSRF_Protect(download_file), methods=["GET"])
-    homedock_www.add_url_rule("/api/download_multiple", "download_multiple", CSRF_Protect(download_multiple), methods=["POST"])
-    homedock_www.add_url_rule("/api/delete_file", "delete_file", CSRF_Protect(delete_file), methods=["POST"])
-    homedock_www.add_url_rule("/api/create_folder", "create_folder", CSRF_Protect(create_folder), methods=["POST"])
-    homedock_www.add_url_rule("/api/rename_item", "rename_item", CSRF_Protect(rename_item), methods=["POST"])
-
     from pymodules.hd_UISettings import api_save_settings
 
     homedock_www.add_url_rule("/api/save_settings", "save_settings", CSRF_Protect(api_save_settings), methods=["POST"])
@@ -202,14 +191,54 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])
 
-    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_upload_file, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item
+    from pymodules.hd_UIUtilsNotepad import notepad_list_notes, notepad_get_note, notepad_save_note, notepad_delete_note
+
+    homedock_www.add_url_rule("/api/utils/notepad/list", "notepad_list_notes", CSRF_Protect(notepad_list_notes), methods=["GET"])
+    homedock_www.add_url_rule("/api/utils/notepad/get", "notepad_get_note", CSRF_Protect(notepad_get_note), methods=["GET"])
+    homedock_www.add_url_rule("/api/utils/notepad/save", "notepad_save_note", CSRF_Protect(notepad_save_note), methods=["POST"])
+    homedock_www.add_url_rule("/api/utils/notepad/delete", "notepad_delete_note", CSRF_Protect(notepad_delete_note), methods=["POST"])
+
+    from pymodules.hd_UIStorage import list_files as storage_list_files, upload_file as storage_upload_file, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files
+
+    homedock_www.add_url_rule("/api/storage/files", "storage_list_files", CSRF_Protect(storage_list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/storage/search", "storage_search_files", CSRF_Protect(storage_search_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/storage/upload", "storage_upload_file", CSRF_Protect(storage_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/download", "storage_download_file", CSRF_Protect(storage_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/storage/download-multiple", "storage_download_multiple", CSRF_Protect(storage_download_multiple), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/delete", "storage_delete_file", CSRF_Protect(storage_delete_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/create-folder", "storage_create_folder", CSRF_Protect(storage_create_folder), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/rename", "storage_rename_item", CSRF_Protect(storage_rename_item), methods=["POST"])
+
+    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, download_multiple, delete_file, create_folder, rename_item, search_files
+
+    homedock_www.add_url_rule("/api/dropzone/files", "dropzone_list_files", CSRF_Protect(list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/dropzone/search", "dropzone_search_files", CSRF_Protect(search_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/dropzone/upload", "dropzone_upload_file", CSRF_Protect(upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/download", "dropzone_download_file", CSRF_Protect(download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/dropzone/download-multiple", "dropzone_download_multiple", CSRF_Protect(download_multiple), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/delete", "dropzone_delete_file", CSRF_Protect(delete_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/create-folder", "dropzone_create_folder", CSRF_Protect(create_folder), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/rename", "dropzone_rename_item", CSRF_Protect(rename_item), methods=["POST"])
+
+    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_upload_file, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item, appdrive_search_files
 
     homedock_www.add_url_rule("/api/appdrive/containers", "appdrive_list_containers", CSRF_Protect(appdrive_list_containers), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/mounts", "appdrive_get_mounts", CSRF_Protect(appdrive_get_mounts), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/files", "appdrive_list_files", CSRF_Protect(appdrive_list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/search", "appdrive_search_files", CSRF_Protect(appdrive_search_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/upload", "appdrive_upload_file", CSRF_Protect(appdrive_upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/download", "appdrive_download_file", CSRF_Protect(appdrive_download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/download-multiple", "appdrive_download_multiple", CSRF_Protect(appdrive_download_multiple), methods=["POST"])
-    homedock_www.add_url_rule("/api/appdrive/upload", "appdrive_upload_file", CSRF_Protect(appdrive_upload_file), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/delete", "appdrive_delete_file", CSRF_Protect(appdrive_delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/create-folder", "appdrive_create_folder", CSRF_Protect(appdrive_create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/rename", "appdrive_rename_item", CSRF_Protect(appdrive_rename_item), methods=["POST"])
+
+    from pymodules.hd_UIFileExplorerMeta import get_favorites, add_favorite, remove_favorite, get_recents, add_recent, remove_recent, clear_recents
+
+    homedock_www.add_url_rule("/api/fileexplorer/favorites", "get_favorites", CSRF_Protect(get_favorites), methods=["GET"])
+    homedock_www.add_url_rule("/api/fileexplorer/favorites/add", "add_favorite", CSRF_Protect(add_favorite), methods=["POST"])
+    homedock_www.add_url_rule("/api/fileexplorer/favorites/remove", "remove_favorite", CSRF_Protect(remove_favorite), methods=["POST"])
+    homedock_www.add_url_rule("/api/fileexplorer/recents", "get_recents", CSRF_Protect(get_recents), methods=["GET"])
+    homedock_www.add_url_rule("/api/fileexplorer/recents/add", "add_recent", CSRF_Protect(add_recent), methods=["POST"])
+    homedock_www.add_url_rule("/api/fileexplorer/recents/remove", "remove_recent", CSRF_Protect(remove_recent), methods=["POST"])
+    homedock_www.add_url_rule("/api/fileexplorer/recents/clear", "clear_recents", CSRF_Protect(clear_recents), methods=["POST"])

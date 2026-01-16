@@ -63,7 +63,7 @@
 
           <div class="flex flex-col gap-2">
             <div v-for="(item, itemIndex) in group.items" :key="item.id" @click="handleItemClick(item)" @mouseenter="selectedIndex = getGlobalIndex(groupIndex, itemIndex)" class="relative flex items-center gap-4 px-3 py-3 rounded-lg cursor-pointer transition-all duration-150 overflow-hidden" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover, selectedIndex === getGlobalIndex(groupIndex, itemIndex) ? themeClasses.explorerResultItemSelected : '']">
-              <div v-if="item.type === 'file' && downloadProgresses[item.name] !== undefined && downloadProgresses[item.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[item.name]}%` }" />
+              <div v-if="(item.type === 'file' || item.type === 'storage-file') && getDownloadProgress(item) >= 0 && getDownloadProgress(item) < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${getDownloadProgress(item)}%` }" />
 
               <div class="flex-shrink-0 w-12 h-12 md:w-10 md:h-10 flex items-center justify-center rounded-lg overflow-hidden z-[1]" :class="item.type === 'docker' ? 'bg-transparent p-0' : ''">
                 <BaseImage v-if="item.image_path" :src="item.image_path" alt="" class="w-full h-full object-cover" draggable="false" />
@@ -82,7 +82,7 @@
                   {{ formatSize(item.size) }}
                   <span v-if="item.modified"> • {{ getRelativeTime(item.modified) }}</span>
                 </div>
-                <div v-if="item.type === 'file' && downloadProgresses[item.name] !== undefined && downloadProgresses[item.name] < 100" class="text-xs mt-0.5 font-medium" :class="themeClasses.explorerItemMeta">Downloading... {{ downloadProgresses[item.name] }}%</div>
+                <div v-if="(item.type === 'file' || item.type === 'storage-file') && getDownloadProgress(item) >= 0 && getDownloadProgress(item) < 100" class="text-xs mt-0.5 font-medium" :class="themeClasses.explorerItemMeta">Downloading... {{ getDownloadProgress(item) }}%</div>
               </div>
 
               <div class="flex-shrink-0 px-2 py-1 rounded text-[0.625rem] font-semibold uppercase z-[1]" :class="getBadgeClass(item.type)">
@@ -121,18 +121,20 @@
 import axios from "axios";
 
 import { ref, computed, onMounted, nextTick, watch } from "vue";
-import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
+import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useAppStore } from "../__Stores__/useAppStore";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useDropZoneUploadingStore } from "../__Stores__/useDropZoneUploadingStore";
+import { useUploadingStore } from "../__Stores__/useUploadingStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { getExplorerApps, SystemApp } from "../__Config__/WindowDefaultDetails";
+import { getExplorerApps } from "../__Config__/WindowDefaultDetails";
+import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
 import BaseImage from "../__Components__/BaseImage.vue";
+import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
 import StatusBar from "../__Components__/StatusBar.vue";
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
-import { message, Progress } from "ant-design-vue";
+import { message } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import searchIcon from "@iconify-icons/mdi/magnify";
@@ -160,7 +162,7 @@ import fileSearchIcon from "@iconify-icons/mdi/file-search";
 const desktopStore = useDesktopStore();
 const appStore = useAppStore();
 const windowStore = useWindowStore();
-const uploadStore = useDropZoneUploadingStore();
+const uploadingStore = useUploadingStore();
 const { isMobile } = useResponsive();
 const { themeClasses } = useTheme();
 
@@ -169,6 +171,7 @@ const activeTab = ref<"all" | "apps" | "files" | "available">("all");
 const selectedIndex = ref(0);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const dropzoneFiles = ref<any[]>([]);
+const storageFiles = ref<any[]>([]);
 const isLoadingApps = ref(true);
 const downloadProgresses = ref<Record<string, number>>({});
 
@@ -196,13 +199,13 @@ const tabs = computed(() => {
       id: "apps" as const,
       label: "Apps",
       icon: appsIcon,
-      count: getCount("apps", systemApps.value.length + installedDockerApps.value.length),
+      count: getCount("apps", systemApps.value.length + utilitiesApps.value.length + installedDockerApps.value.length),
     },
     {
       id: "files" as const,
       label: "Files",
       icon: fileIcon,
-      count: getCount("files", dropzoneFiles.value.length),
+      count: getCount("files", storageFiles.value.length + dropzoneFiles.value.length),
     },
     {
       id: "available" as const,
@@ -215,7 +218,7 @@ const tabs = computed(() => {
 
 interface SearchResult {
   id: string;
-  type: "system" | "docker" | "file" | "folder" | "available";
+  type: "system" | "utility" | "docker" | "file" | "folder" | "storage-file" | "available";
   name: string;
   description?: string;
   icon?: any;
@@ -231,6 +234,10 @@ const systemApps = computed(() => {
   return getExplorerApps();
 });
 
+const utilitiesApps = computed(() => {
+  return UTILITIES_APPS;
+});
+
 const installedDockerApps = computed(() => {
   return desktopStore.mainDockerApps.filter((app) => app.status === "running");
 });
@@ -240,17 +247,57 @@ const availableApps = computed(() => {
 });
 
 const totalItems = computed(() => {
-  return systemApps.value.length + installedDockerApps.value.length + dropzoneFiles.value.length + availableApps.value.length;
+  return systemApps.value.length + utilitiesApps.value.length + installedDockerApps.value.length + storageFiles.value.length + dropzoneFiles.value.length + availableApps.value.length;
 });
 
 async function fetchDropZoneFiles() {
   try {
-    const response = await axios.get("/api/get_files", {
+    const response = await axios.get("/api/dropzone/files", {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
     dropzoneFiles.value = response.data.files || [];
   } catch (error) {
     console.error("Failed to fetch DropZone files:", error);
+  }
+}
+
+async function fetchStorageFiles() {
+  try {
+    const allFiles: any[] = [];
+
+    const rootResponse = await axios.get("/api/storage/files", {
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      params: { path: "" },
+    });
+
+    const rootItems = rootResponse.data.files || [];
+
+    for (const item of rootItems) {
+      if (item.is_directory) {
+        try {
+          const folderResponse = await axios.get("/api/storage/files", {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+            params: { path: item.name },
+          });
+
+          const folderFiles = folderResponse.data.files || [];
+          for (const file of folderFiles) {
+            if (!file.is_directory) {
+              const displayName = file.name.split("/").pop() || file.name;
+              allFiles.push({ ...file, fullPath: file.name, displayName });
+            }
+          }
+        } catch (err) {
+          console.warn(`Could not read folder: ${item.name}`);
+        }
+      } else {
+        allFiles.push({ ...item, fullPath: item.name });
+      }
+    }
+
+    storageFiles.value = allFiles;
+  } catch (error) {
+    console.error("Failed to fetch Storage files:", error);
   }
 }
 
@@ -329,6 +376,19 @@ const allResults = computed<SearchResult[]>(() => {
     });
   });
 
+  utilitiesApps.value.forEach((util) => {
+    results.push({
+      id: `utility-${util.id}`,
+      type: "utility",
+      name: util.name,
+      description: util.description,
+      icon: util.icon,
+      category: "Utilities",
+      score: 0,
+      action: () => windowStore.openWindow(util.id, { title: util.name, allowMultiple: true }),
+    });
+  });
+
   installedDockerApps.value.forEach((app) => {
     results.push({
       id: `docker-${app.id}`,
@@ -342,6 +402,22 @@ const allResults = computed<SearchResult[]>(() => {
     });
   });
 
+  storageFiles.value.forEach((file) => {
+    const fileName = file.displayName || file.name.split("/").pop() || file.name;
+    results.push({
+      id: `storage-${file.fullPath}`,
+      type: "storage-file",
+      name: fileName,
+      description: file.fullPath,
+      icon: getFileIcon(fileName),
+      category: "Storage",
+      size: file.size,
+      modified: file.modified,
+      score: 0,
+      action: () => downloadStorageFile(file.fullPath),
+    });
+  });
+
   dropzoneFiles.value.forEach((file) => {
     const isFolder = file.is_directory === true;
     results.push({
@@ -350,7 +426,7 @@ const allResults = computed<SearchResult[]>(() => {
       name: file.name,
       description: isFolder ? "Folder" : "Encrypted file",
       icon: isFolder ? folderIcon : getFileIcon(file.name),
-      category: "Files",
+      category: "Drop Zone",
       size: file.size,
       modified: file.modified,
       score: 0,
@@ -386,8 +462,8 @@ const filteredResults = computed<SearchResult[]>(() => {
 
   if (activeTab.value !== "all") {
     const typeMap: Record<string, string[]> = {
-      apps: ["system", "docker"],
-      files: ["file", "folder"],
+      apps: ["system", "utility", "docker"],
+      files: ["file", "folder", "storage-file"],
       available: ["available"],
     };
     const allowedTypes = typeMap[activeTab.value] || [];
@@ -416,10 +492,12 @@ const filteredResults = computed<SearchResult[]>(() => {
     results = results.sort((a, b) => {
       const typePriority: Record<string, number> = {
         system: 0,
-        folder: 1,
-        file: 2,
-        docker: 3,
-        available: 4,
+        utility: 1,
+        "storage-file": 2,
+        folder: 3,
+        file: 4,
+        docker: 5,
+        available: 6,
       };
 
       const aPriority = typePriority[a.type] ?? 999;
@@ -448,8 +526,10 @@ const groupedResults = computed(() => {
 
   const categoryIcons: Record<string, any> = {
     "System Apps": appsIcon,
+    Utilities: toolboxOutlineIcon,
     "Installed Apps": appsIcon,
-    Files: fileIcon,
+    Storage: folderIcon,
+    "Drop Zone": fileIcon,
     "Available in Store": storeIcon,
   };
 
@@ -467,6 +547,11 @@ function getGlobalIndex(groupIndex: number, itemIndex: number): number {
     index += groupedResults.value[i].items.length;
   }
   return index + itemIndex;
+}
+
+function getDownloadProgress(item: SearchResult): number {
+  const key = item.type === "storage-file" ? item.description : item.name;
+  return key ? downloadProgresses.value[key] ?? -1 : -1;
 }
 
 function getFileIcon(fileName: string): any {
@@ -514,8 +599,10 @@ function getRelativeTime(modified: string | number): string {
 function getTypeBadge(type: string): string {
   const labels: Record<string, string> = {
     system: "System",
+    utility: "Utility",
     docker: "Running",
-    file: "File",
+    "storage-file": "File",
+    file: "Encrypted",
     folder: "Folder",
     available: "Available",
   };
@@ -525,7 +612,9 @@ function getTypeBadge(type: string): string {
 function getBadgeClass(type: string): string {
   const classes: Record<string, string> = {
     system: themeClasses.value.explorerBadgeSystem,
+    utility: themeClasses.value.explorerBadgeSystem,
     docker: themeClasses.value.explorerBadgeDocker,
+    "storage-file": themeClasses.value.explorerBadgeFile,
     file: themeClasses.value.explorerBadgeFile,
     folder: themeClasses.value.explorerBadgeFile,
     available: themeClasses.value.explorerBadgeAvailable,
@@ -536,7 +625,9 @@ function getBadgeClass(type: string): string {
 function getActionIcon(type: string): any {
   const icons: Record<string, any> = {
     system: openInNewIcon,
+    utility: openInNewIcon,
     docker: playIcon,
+    "storage-file": downloadIcon,
     file: downloadIcon,
     folder: folderOpenOutlineIcon,
     available: installIcon,
@@ -547,7 +638,9 @@ function getActionIcon(type: string): any {
 function getActionLabel(type: string): string {
   const labels: Record<string, string> = {
     system: "Open",
+    utility: "Open",
     docker: "Open",
+    "storage-file": "Download",
     file: "Download",
     folder: "Open",
     available: "View in Store",
@@ -568,7 +661,7 @@ async function downloadFile(fileName: string) {
   try {
     downloadProgresses.value[fileName] = 0;
 
-    const response = await axios.get(`/api/download_file?file=${encodeURIComponent(fileName)}`, {
+    const response = await axios.get(`/api/dropzone/download?file=${encodeURIComponent(fileName)}`, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       responseType: "blob",
       onDownloadProgress: (progressEvent) => {
@@ -605,8 +698,55 @@ async function downloadFile(fileName: string) {
   }
 }
 
-function openDropZoneFolder(folderPath: string) {
-  desktopStore.openSystemApp("dropzone");
+async function downloadStorageFile(filePath: string) {
+  if (downloadProgresses.value[filePath] !== undefined && downloadProgresses.value[filePath] < 100 && downloadProgresses.value[filePath] > 0) {
+    message.info(`Download for ${filePath} is already in progress.`);
+    return;
+  }
+
+  try {
+    downloadProgresses.value[filePath] = 0;
+
+    const response = await axios.get("/api/storage/download", {
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      params: { file: filePath },
+      responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          downloadProgresses.value[filePath] = percentCompleted;
+        }
+      },
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    const downloadName = filePath.split("/").pop() || filePath;
+    link.setAttribute("download", downloadName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    message.success(`Downloaded ${downloadName}`);
+
+    setTimeout(() => {
+      delete downloadProgresses.value[filePath];
+    }, 1000);
+  } catch (error) {
+    console.error("Failed to download storage file:", filePath, error);
+    delete downloadProgresses.value[filePath];
+    if (axios.isAxiosError(error)) {
+      message.error(error.response?.data?.error_message || "Failed to download file. Please try again.");
+    } else {
+      message.error("Failed to download file. Please try again.");
+    }
+  }
+}
+
+function openDropZoneFolder(_folderPath: string) {
+  desktopStore.openSystemApp("fileexplorer");
 }
 
 function openAppStore(appName: string) {
@@ -685,7 +825,7 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 onMounted(async () => {
-  await Promise.all([loadAvailableApps(), fetchDropZoneFiles()]);
+  await Promise.all([loadAvailableApps(), fetchDropZoneFiles(), fetchStorageFiles()]);
 
   if (!isMobile.value) {
     nextTick(() => {
@@ -695,11 +835,22 @@ onMounted(async () => {
 });
 
 watch(
-  () => uploadStore.currentlyUploading,
+  () => uploadingStore.currentlyUploadingAt("dropzone"),
   (current, previous) => {
-    if (previous && !current) {
+    if (previous && previous.length > 0 && (!current || current.length === 0)) {
       setTimeout(() => {
         fetchDropZoneFiles();
+      }, 500);
+    }
+  }
+);
+
+watch(
+  () => uploadingStore.currentlyUploadingAt("storage"),
+  (current, previous) => {
+    if (previous && previous.length > 0 && (!current || current.length === 0)) {
+      setTimeout(() => {
+        fetchStorageFiles();
       }, 500);
     }
   }
