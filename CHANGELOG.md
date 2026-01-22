@@ -1,6 +1,17 @@
 # CHANGELOG
 
-- **2.1.0.232** (Latest): Unified File Explorer with three storage backends, new utility applications suite, and consolidated file management experience.
+- **2.1.0.234** (Latest): Security patches and dependency updates.
+
+  - **Patched CVE-2025-13465** (Prototype Pollution in lodash `_.unset` and `_.omit` functions opened 7 hours ago) by adding overrides for `lodash` and `lodash-es` to versions 4.17.22+ and 4.17.23+ respectively, fixing a moderate severity vulnerability introduced transitively via ant-design-vue.
+  - Updated **@unhead/vue** from 2.0.19 to 2.1.2.
+  - Updated **vite** from 7.2.7 to 7.3.1.
+  - Updated **vue** from 3.5.25 to 3.5.27.
+  - Updated **@types/node** from 25.0.1 to 25.0.10.
+  - Updated **@vitejs/plugin-basic-ssl** from 2.1.0 to 2.1.4.
+
+---
+
+- **2.1.0.232**: Unified File Explorer with three storage backends, new utility applications suite, and consolidated file management experience.
 
   - Introduced **Unified File Explorer** combining three storage backends into a single, cohesive file management interface: **Storage** (unencrypted local files), **DropZone** (AES-256-GCM encrypted files), and **AppDrive** (Docker container volumes).
   - **Native audio & video playback** via Media Player: MP4, WebM, OGV, OGG, MP3, WAV, AAC, FLAC, M4A.
@@ -40,8 +51,6 @@
   - All new endpoints protected with **CSRF validation** and **login authentication**.
   - Maintained **comprehensive security controls** including path traversal protection, symlink validation, DoS limits (file counts and time limits), and null byte injection prevention across all new modules.
     > **TL;DR:** This update and the previous one put us at the forefront of the Cloud OS technology ecosystem, bringing **real multitasking** to what used to be a single dashboard panel. The line between a browser Cloud OS and a native OS blurs **now**. Every release brings us one step closer to our vision, a fully-featured operating system that lives in your browser. Thank you for reshaping the future with us :)
-
----
 
 - **2.0.4.228**: Added iOS-like window persistence for optimized browser RAM management.
 
