@@ -34,7 +34,7 @@ ALLOWED_ICON_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 
 HDS_VERSION = "1.0"
 
-ALLOWED_CATEGORIES = ["Media", "Files & Productivity", "Networking", "Home & Automation", "Social", "Gaming", "Security", "Development", "Databases", "Monitoring", "Other"]
+ALLOWED_CATEGORIES = ["Social", "Gaming", "Media", "Files & Productivity", "AI", "Web Development", "Networking", "Developer Tools", "Home & Automation"]
 
 ERROR_MESSAGES = {
     "FILE_TOO_LARGE": "File exceeds maximum allowed size of {max_size} MB",

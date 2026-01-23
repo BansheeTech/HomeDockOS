@@ -1,0 +1,13 @@
+---
+services:
+  disavow-generator:
+    image: bansheetech/disavow-generator:latest
+    container_name: disavow-generator
+    restart: unless-stopped
+    ports:
+      - "44444:44444"
+    volumes:
+      - [[INSTALL_PATH]]/disavow-generator/data:/app/__DISAVOW_DATA__
+      - [[INSTALL_PATH]]/disavow-generator/conf:/app/conf
+    environment:
+      - TZ=Europe/Madrid

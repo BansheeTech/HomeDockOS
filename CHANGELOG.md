@@ -1,6 +1,13 @@
 # CHANGELOG
 
-- **2.1.0.234** (Latest): Security patches and dependency updates.
+- **2.1.0.236** (Latest): App Store additions and Packager bugfix.
+
+  - Added **Disavow Generator** to the App Store, a tool for creating Google disavow files to remove toxic backlinks from your site's link profile. Born as an internal CLI tool to fight a dumb negative SEO attack we faced in January, now it's yours too :)
+  - Fixed **App Packager category validation** where selecting categories like "AI" or "Developer Tools" would fail with "Invalid category" error due to backend using outdated category list that was out of sync with the App Store categories.
+
+---
+
+- **2.1.0.234**: Security patches and dependency updates.
 
   - **Patched CVE-2025-13465** (Prototype Pollution in lodash `_.unset` and `_.omit` functions opened 7 hours ago) by adding overrides for `lodash` and `lodash-es` to versions 4.17.22+ and 4.17.23+ respectively, fixing a moderate severity vulnerability introduced transitively via ant-design-vue.
   - Updated **@unhead/vue** from 2.0.19 to 2.1.2.
@@ -8,8 +15,6 @@
   - Updated **vue** from 3.5.25 to 3.5.27.
   - Updated **@types/node** from 25.0.1 to 25.0.10.
   - Updated **@vitejs/plugin-basic-ssl** from 2.1.0 to 2.1.4.
-
----
 
 - **2.1.0.232**: Unified File Explorer with three storage backends, new utility applications suite, and consolidated file management experience.
 

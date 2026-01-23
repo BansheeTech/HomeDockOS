@@ -616,6 +616,21 @@
   },
   {
     "dependencies": [],
+    "docker_image": "bansheetech/disavow-generator:latest",
+    "picture_path": "docker-icons/disavow-generator.jpg",
+    "is_group": false,
+    "name": "disavow-generator",
+    "category": "Developer Tools",
+    "type": "Negative SEO Disavow Tool",
+    "icon": "mdi:camera",
+    "description": "Easily generate disavow files to help website owners manage and reject unwanted backlinks for SEO purposes",
+    "is_new": true,
+    "new_until": "2026-01-31",
+    "display_name": "Disavow Generator",
+    "screenshot_count": 3
+  },
+  {
+    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/dokuwiki:latest",
     "picture_path": "docker-icons/dokuwiki.jpg",
     "is_group": false,
@@ -714,8 +729,8 @@
     "type": "Accounting Software",
     "icon": "mdi:security",
     "description": "Invoicing system designed to help small and medium-sized businesses manage their finances effectively",
-    "is_new": true,
-    "new_until": "2025-12-31",
+    "is_new": false,
+    "new_until": false,
     "display_name": "FacturaScripts",
     "screenshot_count": 3
   },
@@ -1674,8 +1689,8 @@
     "type": "AI Search Engine",
     "icon": "mdi:share-variant",
     "description": "AI-powered search engine that provides intelligent and relevant search results using advanced algorithms",
-    "is_new": true,
-    "new_until": "2025-12-31",
+    "is_new": false,
+    "new_until": false,
     "display_name": "Perplexica",
     "screenshot_count": 4
   },
