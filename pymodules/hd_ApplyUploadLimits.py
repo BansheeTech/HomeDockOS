@@ -23,6 +23,11 @@ endpoint_limits = {
     "/api/storage/upload": 1 * 1024 * 1024 * 1024,  # 1GB
     "/api/dropzone/upload": 1 * 1024 * 1024 * 1024,  # 1GB
     "/api/appdrive/upload": 1 * 1024 * 1024 * 1024,  # 1GB
+    "/api/pkg/upload": 5 * 1024 * 1024,  # 5MB (.hds)
+    "/api/pkg/create": 16 * 1024 * 1024,  # 16MB (.hds upload)
+    "/api/pkg/parse-compose": 10 * 1024 * 1024,  # 10MB (compose file)
+    "/api/pkg/preview-hdstore": 75 * 1024 * 1024,  # 75MB (.hdstore preview)
+    "/api/pkg/import-hdstore": 75 * 1024 * 1024,  # 75MB (.hdstore)
 }
 
 

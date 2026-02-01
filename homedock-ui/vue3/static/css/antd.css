@@ -913,3 +913,84 @@ input.ant-input-disabled.aero-mode-theme:hover {
 .aero-mode-theme.ant-dropdown .ant-dropdown-menu-item-divider {
   background-color: rgba(255, 255, 255, 0.12) !important;
 }
+
+/* Segmented White Theme */
+.white-mode-theme.ant-segmented {
+  background-color: rgb(243, 244, 246) !important;
+  border-radius: 8px !important;
+}
+
+.white-mode-theme.ant-segmented .ant-segmented-item {
+  color: rgb(107, 114, 128) !important;
+  border-radius: 6px !important;
+}
+
+.white-mode-theme.ant-segmented .ant-segmented-item:hover:not(.ant-segmented-item-selected) {
+  color: rgb(55, 65, 81) !important;
+}
+
+.white-mode-theme.ant-segmented .ant-segmented-item-selected {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(17, 24, 39) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.white-mode-theme.ant-segmented .ant-segmented-thumb {
+  background-color: rgb(255, 255, 255) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+}
+
+/* Segmented Dark Theme */
+.dark-mode-theme.ant-segmented {
+  background-color: rgb(39, 39, 42) !important;
+  border-radius: 8px !important;
+}
+
+.dark-mode-theme.ant-segmented .ant-segmented-item {
+  color: rgb(115, 115, 115) !important;
+  border-radius: 6px !important;
+}
+
+.dark-mode-theme.ant-segmented .ant-segmented-item:hover:not(.ant-segmented-item-selected) {
+  color: rgb(161, 161, 170) !important;
+}
+
+.dark-mode-theme.ant-segmented .ant-segmented-item-selected {
+  background-color: rgb(63, 63, 70) !important;
+  color: rgb(250, 250, 250) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode-theme.ant-segmented .ant-segmented-thumb {
+  background-color: rgb(63, 63, 70) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+/* Segmented Aero Theme */
+.aero-mode-theme.ant-segmented {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-radius: 8px !important;
+}
+
+.aero-mode-theme.ant-segmented .ant-segmented-item {
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-radius: 6px !important;
+}
+
+.aero-mode-theme.ant-segmented .ant-segmented-item:hover:not(.ant-segmented-item-selected) {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.aero-mode-theme.ant-segmented .ant-segmented-item-selected {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.aero-mode-theme.ant-segmented .ant-segmented-thumb {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 6px !important;
+}

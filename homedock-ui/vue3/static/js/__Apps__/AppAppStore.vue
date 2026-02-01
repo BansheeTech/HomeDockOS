@@ -7,7 +7,14 @@
   <div class="app-appstore flex flex-col h-full overflow-hidden">
     <div class="flex-1 overflow-auto p-4">
       <div class="mb-6">
-        <SectionHeader title="Featured Apps" description="You better check these out!" :icon="licenseIcon" />
+        <SectionHeader title="Featured Apps" description="You better check these out!" :icon="licenseIcon">
+          <template #action>
+            <button @click="desktopStore.openSystemApp('packager')" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, themeClasses.windowBorder]" class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all duration-150">
+              <Icon :icon="packageIcon" class="w-3.5 h-3.5" />
+              <span>Add your own apps</span>
+            </button>
+          </template>
+        </SectionHeader>
         <Banners />
       </div>
 
@@ -52,8 +59,12 @@ import StatusBar from "../__Components__/StatusBar.vue";
 
 import licenseIcon from "@iconify-icons/mdi/license";
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline";
+import packageIcon from "@iconify-icons/mdi/package-variant";
+
+import { useDesktopStore } from "../__Stores__/desktopStore";
 
 const { themeClasses } = useTheme();
+const desktopStore = useDesktopStore();
 const apps = ref([]);
 const appStore = useAppStore();
 

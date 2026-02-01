@@ -166,7 +166,7 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/update_containers", "update_containers", CSRF_Protect(update_containers), methods=["POST"])
 
-    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose
+    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose, export_hdstore, preview_hdstore, import_hdstore
 
     homedock_www.add_url_rule("/api/pkg/list", "list_external_apps", CSRF_Protect(list_external_apps), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/upload", "upload_hds_package", CSRF_Protect(upload_hds_package), methods=["POST"])
@@ -177,6 +177,9 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/pkg/export-imported", "export_imported_app", CSRF_Protect(export_imported_app), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/external-apps", "get_external_apps_for_store", CSRF_Protect(get_external_apps_for_store), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/parse-compose", "parse_compose", CSRF_Protect(parse_compose), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/export-hdstore", "export_hdstore", CSRF_Protect(export_hdstore), methods=["GET"])
+    homedock_www.add_url_rule("/api/pkg/preview-hdstore", "preview_hdstore", CSRF_Protect(preview_hdstore), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/import-hdstore", "import_hdstore", CSRF_Protect(import_hdstore), methods=["POST"])
 
     from pymodules.hd_NotificationHandler import dismiss_notification, get_notifications
 

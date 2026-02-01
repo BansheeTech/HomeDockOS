@@ -1,14 +1,23 @@
 # CHANGELOG
 
-- **2.1.0.236** (Latest): App Store additions and Packager bugfix.
-
-  - Added **Disavow Generator** to the App Store, a tool for creating Google disavow files to remove toxic backlinks from your site's link profile. Born as an internal CLI tool to fight a dumb negative SEO attack we faced in January, now it's yours too :)
-  - Fixed **App Packager category validation** where selecting categories like "AI" or "Developer Tools" would fail with "Invalid category" error due to backend using outdated category list that was out of sync with the App Store categories.
+- **2.1.0.482** (Latest): Packager .hdstore Full App Store bundles, share badges for apps, and UI refinements.
+  - Added **Share Badges** to the system app Packager: when you tap "Share", a dialog lets you preview and download custom SVG badges for your app in light and dark themes. Each badge features your app's icon as a blurred background, the icon in full detail, and the "Get {AppName} on the HomeDock OS App Store" call to action, all self-contained in a single SVG file with the icon embedded as base64, ready to drop into a README, website, or docs.
+  - Added **generic branding badges** (light and dark) for the HomeDock OS App Store, similar to Apple's "Download on the App Store" badges, available for download alongside the custom per-app badges.
+  - Added **Submit to the public App Store** section in the share dialog, guiding developers to send their `.hds` packages to `apps@homedock.cloud` for review and public listing.
+  - Introduced the **`.hdstore` bundle format**, a new way to export and import multiple apps at once. **You can now select several apps from your library** as a bundle, export them as a single `.hdstore` file, and share or import the whole bundle on another HomeDock OS instance.
+  - Added **preview before import** for `.hdstore` bundles, letting you inspect the contents of a bundle before committing to the import.
+  - Improved **app slug generation**: spaces are now converted to hyphens instead of being stripped, producing cleaner and more readable identifiers (e.g., "My App" becomes `my-app` instead of `myapp`).
+  - Replaced **tab navigation with segmented controls** in Settings and Packager for a more compact, modern look with smooth horizontal scrolling on smaller screens.
+  - Added **"Add your own apps"** button in the App Store header, linking directly to the Packager for a more discoverable publishing flow.
+  - Added **smooth animated tab transitions** in Settings, with height auto-adaptation when switching between sections of different sizes.
 
 ---
 
-- **2.1.0.234**: Security patches and dependency updates.
+- **2.1.0.236**: App Store additions and Packager bugfix.
+  - Added **Disavow Generator** to the App Store, a tool for creating Google disavow files to remove toxic backlinks from your site's link profile. Born as an internal CLI tool to fight a dumb negative SEO attack we faced in January, now it's yours too :)
+  - Fixed **App Packager category validation** where selecting categories like "AI" or "Developer Tools" would fail with "Invalid category" error due to backend using outdated category list that was out of sync with the App Store categories.
 
+- **2.1.0.234**: Security patches and dependency updates.
   - **Patched CVE-2025-13465** (Prototype Pollution in lodash `_.unset` and `_.omit` functions opened 7 hours ago) by adding overrides for `lodash` and `lodash-es` to versions 4.17.22+ and 4.17.23+ respectively, fixing a moderate severity vulnerability introduced transitively via ant-design-vue.
   - Updated **@unhead/vue** from 2.0.19 to 2.1.2.
   - Updated **vite** from 7.2.7 to 7.3.1.
@@ -17,7 +26,6 @@
   - Updated **@vitejs/plugin-basic-ssl** from 2.1.0 to 2.1.4.
 
 - **2.1.0.232**: Unified File Explorer with three storage backends, new utility applications suite, and consolidated file management experience.
-
   - Introduced **Unified File Explorer** combining three storage backends into a single, cohesive file management interface: **Storage** (unencrypted local files), **DropZone** (AES-256-GCM encrypted files), and **AppDrive** (Docker container volumes).
   - **Native audio & video playback** via Media Player: MP4, WebM, OGV, OGG, MP3, WAV, AAC, FLAC, M4A.
   - **Native image viewing & annotation** via Image Viewer & Brusher: JPG, JPEG, PNG, GIF, WebP, BMP, ICO, TIF, TIFF.
@@ -58,7 +66,6 @@
     > **TL;DR:** This update and the previous one put us at the forefront of the Cloud OS technology ecosystem, bringing **real multitasking** to what used to be a single dashboard panel. The line between a browser Cloud OS and a native OS blurs **now**. Every release brings us one step closer to our vision, a fully-featured operating system that lives in your browser. Thank you for reshaping the future with us :)
 
 - **2.0.4.228**: Added iOS-like window persistence for optimized browser RAM management.
-
   - Implemented **`a new composable`** providing intelligent, transparent memory management for minimized windows, inspired by iOS app lifecycle management.
   - Added **3-tier persistence strategy** for minimized windows: (1) immediate cleanup under memory pressure (>75% heap), (2) automatic general cleanup after 5 minutes for independent windows, and (3) graceful cleanup of expired windows (>2min) when over device limits.
   - Implemented **device-aware window limits** using `navigator.deviceMemory` API when available, dynamically adjusting maximum minimized windows from 2 (low-end devices) to 8 (high-end devices), with fallback to 4 windows on unsupported browsers.
@@ -66,12 +73,10 @@
   - Designed for **complete user transparency**: no notifications, no console logs, no visible indicators. Windows are silently recycled in the background, exactly like iOS manages background apps.
 
 - **2.0.4.226**: Mobile desktop grid fixes and touch scroll improvements.
-
   - Fixed **mobile icon auto-positioning on pages > 0** where icons were placed incorrectly due to using container width instead of inner pages width.
   - Fixed **touch scroll blocking on mobile-desktop icons** allowing horizontal page swiping when touch gesture starts on an icon (when not in wiggle/edit mode), improving mobile navigation UX.
 
 - **2.0.4.224**: Advanced desktop drag & drop system, folder customization, unified grid positioning, and Python deps CVE hotfix.
-
   - **Patched Werkzeug CVE-2026-21860** (opened 6 hours ago) by upgrading from 3.1.4 to 3.1.5, addressing a security vulnerability in the WSGI utility library.
   - **Patched urllib3 CVE-2026-21441** (opened 20 hours ago) by upgrading from 2.6.0 to 2.6.3, fixing a security issue in the HTTP client library.
   - Created **`useDesktopGrid.ts`** composable centralizing all desktop icon positioning logic for apps, folders, and system icons, eliminating ~160 lines of duplicated code across components.
@@ -95,7 +100,6 @@
   - Minor updates to `StartMenu.vue` and `Enteprise modules` to allow users to add Enterprise Start Menu icons to the desktop too.
 
 - **2.0.4.222**: Dynamic Enterprise slot system for Start Menu modules.
-
   - Implemented **dynamic slot-based rendering** for Enterprise modules in Start Menu, eliminating the need to modify core files when adding new Enterprise modules, preparing for open core philosophy.
   - Added **`getModulesBySlot()`** function to `EnterpriseSRILoader.ts` allowing Enterprise modules to self-declare their rendering location via `slot` and `order` metadata during registration.
   - Created **`EnterpriseStartMenuSlots.vue`** component that dynamically discovers and renders all Enterprise modules registered for the `startMenu` slot, ordered by their declared priority.
@@ -103,7 +107,6 @@
   - Almost new year release kickoff!
 
 - **2.0.4.220**: Migrated Docker base image from Debian to Alpine Linux, reducing image size by ~50%.
-
   - **Migrated base image from `python:3.12-slim` (Debian) to `python:3.12-alpine`**, reducing image size from 826MB to 441MB (~400MB savings per arch).
   - **Reduced CVE count from 42 to 5** by eliminating unnecessary Debian packages (glibc, systemd, etc) that carried 33 LOW and several MEDIUM vulnerabilities.
   - **Replaced Debian Docker packages** with Alpine equivalents, `docker-cli` and `docker-cli-compose` instead of `docker-ce-cli` and `docker-compose-plugin`.
@@ -111,7 +114,6 @@
   - **Upgraded pip** during build to address CVE-2025-8869 because... Why not? Yes, we upgrade pip.
 
 - **2.0.4.218**: UI refactoring, notification improvements, and backend security hardening.
-
   - Implemented **enterprise module signature verification** on the backend using Ed25519 cryptographic signatures, ensuring both the enterprise `__init__.py` and individual module files are verified against their manifest signatures before loading.
   - Refactored **Popover styles** from component-scoped CSS to global `antd.css` for consistent theming across all popovers in the application.
   - Improved **notification persistence** to preserve update notifications when polling refreshes the notification list, preventing update alerts from disappearing unexpectedly.
@@ -120,13 +122,11 @@
   - Added **Docker update reminder notification** that appears after 7 days of uptime in Docker deployments, prompting users to check for new versions on Docker Hub.
 
 - **2.0.4.216**: Fixed App Drive file access in Docker-in-Docker deployments.
-
   - **Fixed App Drive in Docker-in-Docker (DinD) mode** where browsing container volumes would fail with a "Security violation" error due to our strict path validation preventing what it perceived as an unauthorized access attempt. App Drive now correctly resolves volume paths when HomeDock OS runs as a container.
   - Added **automatic path translation** in DinD mode, now host paths like `/home/user/homedock/_DATA/DATA/HomeDock/AppData/...` are now correctly mapped to `/DATA/HomeDock/AppData/...` inside HomeDock OS container.
   - Improved **path normalization** for mount sources ensuring consistent security validation across all deployment modes.
 
 - **2.0.4.214**: Unified file viewer experience and mobile stability improvements.
-
   - **Unified view preferences** between Drop Zone and App Drive: sorting, view mode (grid/list), and order direction now sync instantly across both file managers. Change to list view in Drop Zone? App Drive updates in real-time, no refresh needed.
   - Created **shared preferences store** laying the groundwork for the upcoming **File Explorer** in version 3, which will unify Disk Drives, Drop Zone, and Container Volumes into a single, cohesive file management experience.
   - **Fixed mobile flickering** in App Drive where container icons would rapidly alternate between 2 and 3 columns, causing constant visual jitter. Icons now render smoothly without layout recalculations.
@@ -135,7 +135,6 @@
   - Improved **touch responsiveness** across all file items with proper gesture handling, eliminating the 300ms delay that made mobile interactions feel sluggish.
 
 - **2.0.4.212**: Added App Drive file manager for Docker containers volume management and more.
-
   - Introduced **App Drive** (thanks **@bitebait** for the idea!), a new system application for browsing and managing files directly inside Docker container volumes without terminal access. Notepad for direct editing still in the work.
   - Implemented **container mount browser** allowing navigation through all mounted volumes of running containers with automatic detection of read-only mounts.
   - Added **file operations** including upload, download, create folder, rename, and delete with full multi-selection support maintaining folder hierarchy.
@@ -157,13 +156,11 @@
     > **TLDR - Is App Drive safe?** Yes. App Drive only accesses container volumes mounted within HomeDock's secure paths: `/DATA/HomeDock` on Linux, `~/HomeDock` on macOS, and `C:\HomeDock` on Windows. It cannot browse arbitrary system directories or escape these sandboxed locations. All file operations are validated against path traversal attacks and symlink escapes consistently, period.
 
 - **2.0.4.26**: Enhanced Ed25519 signature verification with cross-browser fallback support.
-
   - Added **fallback Ed25519 signature verification** using `@noble/ed25519` library for browsers that don't support Web Crypto API or are running in non-secure contexts (HTTP).
   - Implemented **automatic cryptographic API detection** that uses native Web Crypto API when available in secure contexts, falling back to the noble library implementation when `crypto.subtle` is unavailable.
   - Enhanced **cross-browser compatibility** ensuring enterprise module signature verification works reliably across all browsers and contexts, including HTTP development environments.
 
 - **2.0.4.24**: Enterprise module loader architecture with SRI validation and Ed25519 cryptographic signing.
-
   - Implemented **Enterprise Module Loader** for businesses and organizations running self-hosted, on-premise HomeDock OS instances, enabling dynamic loading of custom enterprise modules with automatic initialization, startup and routing.
   - Added **Ed25519 cryptographic signature verification** ensuring only our signed modules can get executed, preventing unauthorized code injection.
   - Added **Subresource Integrity (SRI) validation** using SHA256 hashes as a secondary layer to ensure code integrity before executing any enterprise module, preventing tampering and supply chain attacks.
@@ -173,7 +170,6 @@
     > **TLDR - What are Enterprise modules?** When businesses or organizations need custom functionality for their HomeDock OS deployment (CRMs, ERPs, inventory systems, log exports, internal tools, etc.), we develop it as a native Enterprise module for HomeDock OS rather than a standalone app. This means custom-built solutions that integrate seamlessly with HomeDock's UI, theming, authentication, and security layers, extending HomeDock OS beyond the typical homelab into professional and business environments. Think of it as bespoke software development that runs natively inside HomeDock OS. This architecture keeps the same core build for everyone while enterprise modules are loaded on-demand only where and when needed. Some features, like Drop Zone started as enterprise modules before eventually becoming part of HomeDock OS for all users.
 
 - **2.0.4.22**: Two-Factor Authentication (2FA) and centralized encryption architecture.
-
   - Added **Two-Factor Authentication (2FA)** support using TOTP-compatible authenticator apps like Google Authenticator, Authy, Microsoft Authenticator and more with QR code setup directly from Settings.
   - Implemented **backup codes system** generating 10 single-use recovery codes during 2FA setup, with the ability to regenerate them at any time from Settings.
   - Added **"Trust this device"** option that remembers verified devices for 30 days, allowing users to skip 2FA on trusted devices.
@@ -186,7 +182,6 @@
   - Added **qrcode** npm package for generating QR codes during 2FA setup.
 
 - **2.0.3.190**: Secure in-app installation workflow and centralized directory management.
-
   - Implemented **secure installation verification** using SHA256 hash validation to ensure compose file integrity before deploying containers, preventing tampering during the installation process.
   - Added **centralized directory initialization** that ensures all required system folders (logs, compose-link, dropzone, user packages) are properly created at startup.
   - Simplified **Docker Compose deployment** by passing compose files directly instead of working directories, making container operations more reliable and straightforward.
@@ -198,14 +193,12 @@
   - Updated **Dockerfile** to expose both ports 80 and 443 for Docker deployments with SSL support.
 
 - **2.0.3.188**: New notification system with external notifications and smart reminders.
-
   - Added **external notifications support** allowing us to send important announcements directly to your HomeDock OS instance.
   - Implemented **notification persistence** so dismissed notifications stay hidden across sessions and systems.
   - Added **smart system reminders** including security tips, community invites, and helpful suggestions based on uptime.
   - Enhanced **notification bell** with action buttons and smooth animations for a better user experience.
 
 - **2.0.3.186**: Fixed DNS Open Redirect vulnerability, enhanced application packaging workflow and SSL enabled for Windows and macOS.
-
   - **Fixed DNS Open Redirect vulnerability** in HTTP to HTTPS redirector that was inadvertently introduced while mitigating the previous Open Redirect vulnerability patched in v2.0.3.184.
   - Removed unsafe `socket.getfqdn()` call from `hd_HTTPRedirector.py` that performed reverse DNS lookups of the server's own IP address for hostname validation. While unlikely, an attacker who controls the PTR (reverse DNS) (think compromised ISP, shared hosting environments, or malicious datacenter) could manipulate this lookup to return a domain they control, bypassing redirect protections to malicious sites.
   - **Implemented HTTP>HTTPS industry-standard redirect validation** following best practices from NGINX and other production web servers, validating both hostname AND resolved IP addresses before redirecting.
@@ -217,7 +210,6 @@
     > **TLDR - Why this secondary vulnerability?** The DNS Open Redirect is a super edge-case where an attacker with control over reverse DNS (PTR records) could manipulate `socket.getfqdn()` to return a malicious domain that we'd then trust for redirects. The v2.0.3.184 fix added `getfqdn()` for hostname validation, which ironically _introduced_ this DNS-based attack vector. Since we're already hardening against Open Redirect attacks, why leave any vector open... Even super-edge ones? Suck that! This update closes that gap by removing DNS resolution from security checks and following NGINX's whitelist-only approach. If we don't explicitly know about it, it gets rejected. Simple and paranoid as that.
 
 - **2.0.3.184**: Security hardening and simplified Docker-in-Docker networking validation.
-
   - **Fixed Open Redirect vulnerability** in HTTP to HTTPS redirector that could allow attackers to redirect users to malicious sites via Host header manipulation.
   - Added comprehensive host validation in `hd_HTTPRedirector.py` including IP validation, DNS resolution checks, and hostname/FQDN verification before redirecting.
   - **Simplified IP validation logic** in Docker-in-Docker mode by allowing all RFC1918 private IPs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) instead of detecting specific subnets.
@@ -227,13 +219,11 @@
   - Enhanced Docker-in-Docker compatibility by supporting any private network configuration without manual subnet specification.
 
 - **2.0.3.182**: Fixed local network access in Docker deployments.
-
   - Fixed hostname validation in `/app/` endpoint that was preventing access from local network IPs when running in Docker mode.
   - Enhanced security logic to properly detect and allow private subnet access while maintaining strict validation controls.
   - Improved entrypoint script to auto-detect host network configuration for accurate hostname validation.
 
 - **2.0.3.180**: Docker-in-Docker support, security updates and stability fixes.
-
   - Updated **urllib3** from 2.5.0 to 2.6.0 to address two high-severity vulnerabilities (both opened 8 hours ago).
   - Fixed **CVE-2025-66471** (High): urllib3 streaming API improperly handles highly compressed data, preventing excessive resource consumption (high CPU usage and massive memory allocation) when processing malicious compressed responses.
   - Fixed **CVE-2025-66418** (High): urllib3 allows an unbounded number of links in the decompression chain, preventing DoS attacks via unlimited compression steps that could lead to massive memory allocation and high CPU usage.
@@ -246,41 +236,34 @@
   - Improved off-thread initial port routing in `hd_DockerAPIContainerData.py` for non-standard ports, making it fully compatible with reverse proxies, Docker-in-Docker, or any custom deployment, designed to run... Everywhere, hehe, haha.
 
 - **2.0.3.168**: Added uninstallation script.
-
   - Added **uninstall.sh** script for clean removal of HomeDock OS, including service cleanup and installation directory removal.
 
 - **2.0.3.166**: New applications with SSL support and enhanced security configurations.
-
   - Added **Perplexica** to the App Store with SSL support via runtime Node.js HTTPS proxy injection.
   - Added **FacturaScripts** to the App Store with SSL support, unattended installation, and on-the-fly MariaDB credential injection.
 
 - **2.0.3.164** (Latest): New applications with SSL support and enhanced security configurations.
-
   - Added **Perplexica** to the App Store with SSL support via runtime Node.js HTTPS proxy injection.
   - Added **FacturaScripts** to the App Store with SSL support, unattended installation, and on-the-fly MariaDB credential injection.
 
 - **2.0.3.162**: Security update and dependency upgrades.
-
   - Updated **Werkzeug** from 3.1.3 to 3.1.4 to address **CVE-2025-66221**. (Opened 14 hours ago).
   - Updated **Vite** from 7.2.4 to 7.2.6 with latest build improvements.
   - Updated **Vue** from 3.5.24 to 3.5.25 with framework enhancements.
   - Enhanced **auto port routing** with retry mechanism for port availability detection. The system now retries up to 3 times with 5-second delays when no active ports are found, improving reliability for containers that take longer to initialize their services.
 
 - **2.0.3.148**: Security update for node-forge dependency fixing 3 critical CVEs.
-
   - Updated **node-forge** from 1.3.1 to 1.3.2 (CVEs opened 6 hours ago) to address critical ASN.1 vulnerabilities.
   - Fixed **CVE-2025-12816** (High): ASN.1 Validator Desynchronization vulnerability that could bypass cryptographic verifications.
   - Fixed **CVE-2025-66031** (High): ASN.1 Unbounded Recursion vulnerability enabling DoS via stack exhaustion.
   - Fixed **CVE-2025-66030** (Moderate): ASN.1 OID Integer Truncation vulnerability allowing OID spoofing.
 
 - **2.0.3.146**: Updated Booklore to the latest version with corrected Docker image path.
-
   - Updated **Booklore** (both SSL injection support and non-SSL for self-hosted) to the latest version following the official Docker image path change by the developers.
   - Fixed Docker Compose configuration to use the correct image repository after upstream changes.
   - Thanks to **@cringe0287** for reporting the issue!
 
 - **2.0.3.144**: Updated npm dependencies to their latest versions for improved security and performance.
-
   - Updated **Vite** from 7.2.1 to 7.2.4 for enhanced build performance and bug fixes.
   - Updated **Vue** from 3.5.23 to 3.5.24 with latest framework improvements.
   - Updated **@types/node** from 24.10.0 to 24.10.1 for improved TypeScript definitions.
@@ -288,7 +271,6 @@
   - Resolved **CVE-2025-64756** (glob) by updating Tailwind CSS to 3.4.18 (opened 12 hours ago), which removed the vulnerable `glob` package and migrated to `fast-glob` instead. The project no longer includes the affected dependency.
 
 - **2.0.3.142**: Major improvements to application installation workflow with enhanced configuration UI and streamlined Docker Compose handling.
-
   - Completely **redesigned App Installation interface** with an intuitive grid-based layout for configuring ports, volumes, environment variables, network settings, and capabilities before installation.
   - Added **port validation system** that checks for conflicts before installation, showing which application is using a conflicting port with clear error messages, you will not be able to deploy NGINX on port 80 if HomeDock OS or any other app from the App Store is running on that same port.
   - Implemented **network configuration selector** allowing users to choose between Host, Bridge, HomeDock OS Network, None, or custom network modes with proper handling of host networking and group-aware configuration for multi-service apps. `Default is now HomeDock OS Network`, it's like Bridge, but better just because of the name, lol.
@@ -303,7 +285,6 @@
   - Enhanced **regex validation pattern** to block trailing newlines in container names using `\Z` anchor instead of `$`, improving input sanitization and preventing edge case validation bypasses.
 
 - **2.0.3.110**: Redesigned Control Hub with comprehensive system monitoring and enhanced user experience.
-
   - Completely **redesigned Control Hub interface** with a modern card-based layout displaying real-time system information at a glance.
   - Added **CPU usage monitoring** showing current processor utilization with visual percentage indicators.
   - Implemented **RAM usage display** with total/used memory statistics and percentage-based progress visualization.
@@ -320,7 +301,6 @@
   - Added back RobiPet!
 
 - **2.0.3.108**: Enhanced AppPackager security with file type validation preventing malicious file uploads.
-
   - Added **file type validation module** verifying uploaded files match their actual content, not just their extension.
   - Implemented **whitelist-based validation** only allowing HDS files for .hds packages, YAML for docker-compose files, and JPG/PNG for icons.
   - Added **dangerous pattern detection** blocking files containing potentially harmful code like PHP, scripts, or executable commands.
@@ -331,7 +311,6 @@
   - Added RobiPet app by @Anghios.
 
 - **2.0.3.106**: Completely redesigned Drop Zone with folder support, hierarchical navigation, and enhanced user experience.
-
   - Introduced **folder support** allowing you to organize encrypted files in custom folder structures with drag-and-drop uploads maintaining directory hierarchy.
   - Implemented **hierarchical navigation** enabling browsing through folders with breadcrumb path navigation and seamless folder management.
   - Added **global search functionality** with folder-aware results displaying files grouped by their parent directories for easy location.
@@ -361,7 +340,6 @@
   - Updated **all Python dependencies** to their latest stable versions including Flask 3.1.2, Flask-Compress 1.23, python-on-whales 0.79.0, requests 2.32.5, PyYAML 6.0.3, cython 3.2.0, and psutil 7.1.3.
 
 - **2.0.2.286**: Fixed external drive detection and reactive storage display across Settings, My Home, and System Monitor.
-
   - Fixed **external drive detection** that was missing in version 2.0, external USB drives and storage devices now properly appear in Storage Settings dropdown selector. (Thanks **@ExcuseMe300** for the hint).
   - Implemented **cross-platform drive detection** using `get_valid_external_drives()` function that automatically detects external drives on macOS (`/Volumes/`), Linux (`sd*` devices), and Windows (non-C:\ drives).
   - Added **reactive storage display** ensuring external drive selection in Settings immediately reflects in AppHome dashboard and System Monitor without requiring page refresh.
@@ -371,7 +349,6 @@
   - Improved **external drive filtering** to exclude invalid values like "disabled" and "null" from the available drives list, ensuring only genuine storage devices appear in the selector.
 
 - **2.0.2.284**: Enhanced port routing system with intelligent port availability detection and improved window loading experience.
-
   - Implemented **smart port sorting** in auto port routing thread that automatically detects which ports are actively responding and prioritizes them in the port list display, ensuring the most accessible endpoints appear first.
   - Added **real-time port availability checking** during container startup using HEAD and GET request validation with SSL fallback support for both HTTP and HTTPS endpoints as same as in the `/app/` endpoint.
   - Introduced **port rescan functionality** in Application Properties window, allowing users to manually trigger port detection when container services become available, with automatic UI updates.
@@ -386,20 +363,17 @@
   - Improved **thread safety** in port routing configuration updates with proper exception handling and atomic file write operations.
 
 - **2.0.2.282**: Fixed SSL certificate verification for self-signed certificates in application endpoint detection.
-
   - Fixed issue where **self-signed SSL certificates** were incorrectly reported as unavailable in the `/app/` endpoint despite ports being open and certificates configured correctly.
   - Implemented **smart certificate verification** that first attempts full validation (secure for Let's Encrypt and CA-signed certificates), then falls back to accepting self-signed certificates if validation fails (standard for development/internal environments).
   - Thanks to **@Flippy** for reporting this issue and helping make HomeDock OS better! Our community is incredible!
     > **TLDR - Why this happens:** Self-signed certificates can't be verified because they're user-signed, not CA-signed. We always attempt full certificate validation first (ensuring Let's Encrypt and production certificates maintain strict security), and only falling back to accept self-signed certs when verification fails (standard practice for local/dev environments). This way, legitimate certificates stay fully protected while self-signed ones remain functional.
 
 - **2.0.2.280**: Fixed context menu behavior for system icons on mobile devices.
-
   - Fixed **system icon context menu on mobile**, long press on system icons like "My Home" now correctly shows the system icon menu (Refresh) instead of incorrectly displaying the regular app menu (Properties, System Logs, etc.).
   - Implemented **dedicated event handling** for system icons in mobile touch interactions by adding `systemiconContextmenu` event to properly distinguish between apps, folders, and system icons.
   - Enhanced **Mobile Desktop component** to emit the correct context menu event based on item type, ensuring consistent behavior across all desktop icon types.
 
 - **2.0.2.268**: Redesigned Settings interface with new grouped layout system and improved mobile experience.
-
   - Introduced **new Settings layout components** for a cleaner, more modern interface.
   - Implemented **grouped settings sections** with headers and footer descriptions for better organization and user guidance.
   - Added **colored icon indicators** for each setting option (blue, green, red, orange, purple, gray, cyan, pink, yellow) making it easier to identify different types of settings at a glance.
@@ -414,7 +388,6 @@
   - Also updated vite and axios dependencies to latest versions available.
 
 - **2.0.2.266**: Added custom wallpaper support for Aero+ theme and improved Settings reactivity with better state management.
-
   - Introduced **custom wallpaper upload feature** allowing users to personalize their Aero+ theme with custom background images.
   - Added new **wallpaper upload endpoint** (`/api/upload_wallpaper`) with comprehensive security validation including magic byte verification for JPEG and PNG formats.
   - Enhanced **Settings Theme tab** with conditional rendering, showing wallpaper options only when Aero+ theme is selected for cleaner interface.
@@ -433,7 +406,6 @@
   - Updated **SECURITY.md** documentation with latest security considerations and best practices.
 
 - **2.0.2.260**: Enhanced App Store experience with screenshot previews, overall experience and more improvements.
-
   - Added **screenshot preview galleries** to the App Installation dialog, allowing you to view app screenshots before installing with smooth drag-to-scroll navigation.
   - Implemented **fullscreen screenshot viewer** with keyboard navigation support (arrow keys and ESC) for better preview experience.
   - Introduced **Show Desktop button** on the taskbar (vertical line on the bottom right) with right-click context menu for quick desktop access and window management.
@@ -443,7 +415,6 @@
   - Refined **App Installation dialog layout** with reorganized screenshot placement and improved visual hierarchy.
 
 - **2.0.2.148**: Major improvements to the application update system for better stability and efficiency.
-
   - Improved version comparison system to detect updates more accurately an follow only real newer versions instead of just different ones.
   - Fixed critical issue that caused orphaned images during insatlled application updates, making them dangling.
   - Implemented auto-cleanup update flag system with 120-second timeout to prevent locks while updating HomeDock OS.
@@ -452,7 +423,6 @@
 - **2.0.2.146**: Fixed a typo in `homedock-ui/vue3/static/js/__Layouts__/App.vue`, last-minute catch, we're on VDS 2025 and VC investors really do have eagle vision.
 
 - **2.0.2.144**: Introduced the **HDS Package Management System** with the new **Packager** system tool, allowing you to create, import, and share custom application packages directly into the App Store. Added comprehensive **update tracking** for your apps with automatic detection. Enhanced system monitoring with a brand new **Home** dashboard displaying real-time storage statistics and system health.
-
   - Launched the **Packager** application, your personal package creation studio for building custom app distributions in the new `.hds` format.
   - Added **Package Generator** interface where you can bundle Docker Compose files with custom icons, metadata, and configurations into shareable packages.
   - Introduced **Package Manager** allowing you to import, browse, and manage all your custom application packages in one place.
@@ -507,14 +477,12 @@
   - Enhanced **file delivery system** supporting package downloads with proper MIME types and headers for `.hds` files.
 
 - **2.0.1.106**: Updated JavaScript and Python dependencies to latest versions, migrated head management library and simplified rate limiting architecture.
-
   - Updated all **JavaScript dependencies** to their latest stable versions for improved security and performance.
   - Updated all **Python dependencies** to their latest stable versions ensuring compatibility and security patches.
   - Removed **Flask-Limiter** dependency, simplifying the rate limiting architecture with custom implementation.
   - Migrated from **vue-meta** to **@unhead/vue** for improved head/meta tag management with better Vue 3 compatibility, performance, and modern API.
 
 - **2.0.1.104**: Implemented **session expiration detection system** with ultra-hardened axios interceptor and fixed **CSS theming bugs** in `AppDropzone.vue` and `ThemeSelector.ts`.
-
   - Added new `SessionExpiredTray.vue` component to taskbar that monitors HTTP 401/403 responses to automatically detect expired sessions and CSRF token failures.
   - Implemented **ultra-hardened axios interceptor** with comprehensive security protections against prototype pollution, getter traps, type coercion, ReDoS, and DoS attacks using native method caching, strict validation, string length limits, and rate limiting.
   - Added visual indicator to taskbar with animated SVG icon (gear with slash) showing session status.
@@ -525,7 +493,6 @@
 - **2.0.1.102**: Fixed **RegEx injection issue** in AppExplorer search functionality where special regex characters (like `(`, `)`, `[`, `]`, `*`, `+`, etc.) were not being escaped, causing application crashes and potential security issues. Implemented proper input sanitization by escaping all special regex characters before pattern compilation, preventing malformed expressions and protecting against ReDoS attacks.
 
 - **2.0.1.88**: HomeDock OS 2.0 release featuring our brand new **Prism Windows Manager**, introducing real multitasking and a **complete operating system experience**.
-
   - Transformed HomeDock OS from a single-page web application into a **full desktop environment with true multitasking**, similar to **Windows 11** or **macOS**.
   - Released our fully functional **Prism Window Manager** with resizable, draggable, maximizable, and minimizable windows. App load from within this desktop manager will be enabled after the integrated reverse proxy gets released.
   - Implemented **draggable desktop icons** with **snap-to-grid positioning**, allowing users to organize applications freely on the desktop.

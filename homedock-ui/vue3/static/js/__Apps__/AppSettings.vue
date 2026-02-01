@@ -7,67 +7,33 @@
   <div class="app-settings flex flex-col h-full overflow-hidden">
     <div class="flex-1 overflow-auto px-4 pb-4">
       <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
-        <Tabs v-model:activeKey="activeKey" :animated="false" :destroyInactiveTabPane="false" :tabBarGutter="32">
-          <template #moreIcon>
-            <Icon :class="[themeClasses.upperTabText]" :icon="viewMoreIcon" size="18px" />
-          </template>
-
-          <TabPane key="1">
-            <template #tab>
-              <span class="text-slate-800 flex items-center">
-                <Icon :class="[themeClasses.upperTabText]" :icon="accountIcon" size="18px" class="mr-1" />
-                <span :class="[themeClasses.upperTabText]">User Settings</span>
-              </span>
-            </template>
-            <Transition name="fade-slide" appear>
-              <div v-if="activeKey === '1'" class="tab-content">
-                <SettingsTabUser v-model="formData.user" />
+        <div ref="segmentedContainerRef" class="settings-segmented-container" @mousedown="onSegmentedDrag">
+          <Segmented v-model:value="activeKey" :options="segmentedOptions" :class="themeClasses.scopeSelector" class="settings-segmented mt-2">
+            <template #label="{ payload }">
+              <div class="flex items-center justify-center gap-1.5 px-1 py-1">
+                <Icon :icon="payload.icon" class="w-4 h-4 flex-shrink-0" />
+                <span>{{ payload.label }}</span>
               </div>
-            </Transition>
-          </TabPane>
-
-          <TabPane key="2">
-            <template #tab>
-              <span class="text-slate-800 flex items-center">
-                <Icon :class="[themeClasses.upperTabText]" :icon="consoleIcon" size="18px" class="mr-1" />
-                <span :class="[themeClasses.upperTabText]">System Settings</span>
-              </span>
             </template>
-            <Transition name="fade-slide" appear>
-              <div v-if="activeKey === '2'" class="tab-content">
-                <SettingsTabSystem v-model="formData.system" />
-              </div>
-            </Transition>
-          </TabPane>
+          </Segmented>
+        </div>
 
-          <TabPane key="3">
-            <template #tab>
-              <span class="text-slate-800 flex items-center">
-                <Icon :class="[themeClasses.upperTabText]" :icon="sdIcon" size="18px" class="mr-1" />
-                <span :class="[themeClasses.upperTabText]">Storage Settings</span>
-              </span>
-            </template>
-            <Transition name="fade-slide" appear>
-              <div v-if="activeKey === '3'" class="tab-content">
-                <SettingsTabStorage v-model="formData.storage" :validDrives="validDrives" />
-              </div>
-            </Transition>
-          </TabPane>
-
-          <TabPane key="4">
-            <template #tab>
-              <span class="text-slate-800 flex items-center">
-                <Icon :class="[themeClasses.upperTabText]" :icon="compareIcon" size="18px" class="mr-1" />
-                <span :class="[themeClasses.upperTabText]">Theme Settings</span>
-              </span>
-            </template>
-            <Transition name="fade-slide" appear>
-              <div v-if="activeKey === '4'" class="tab-content">
-                <SettingsTabTheme ref="themeTabRef" v-model="formData.theme" />
-              </div>
-            </Transition>
-          </TabPane>
-        </Tabs>
+        <div ref="tabWrapperRef" class="tab-wrapper">
+          <Transition enter-active-class="transition-opacity duration-200 ease-out" leave-active-class="transition-opacity duration-200 ease-in" enter-from-class="opacity-0" leave-to-class="opacity-0" mode="out-in" appear @before-leave="onBeforeLeave" @enter="onEnter">
+            <div v-if="activeKey === '1'" key="1" class="tab-content">
+              <SettingsTabUser v-model="formData.user" />
+            </div>
+            <div v-else-if="activeKey === '2'" key="2" class="tab-content">
+              <SettingsTabSystem v-model="formData.system" />
+            </div>
+            <div v-else-if="activeKey === '3'" key="3" class="tab-content">
+              <SettingsTabStorage v-model="formData.storage" :validDrives="validDrives" />
+            </div>
+            <div v-else-if="activeKey === '4'" key="4" class="tab-content">
+              <SettingsTabTheme ref="themeTabRef" v-model="formData.theme" />
+            </div>
+          </Transition>
+        </div>
 
         <div class="flex mt-4 gap-3">
           <button type="button" id="cancelButton" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
@@ -103,13 +69,13 @@
 <script lang="ts" setup>
 import axios from "axios";
 
-import { computed, inject, reactive, ref, onBeforeUnmount } from "vue";
+import { computed, inject, reactive, ref, watch, nextTick, onBeforeUnmount } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { encryptForServer } from "../__Utils__/CryptoClient";
 
-import { Tabs, TabPane } from "ant-design-vue";
+import { Segmented } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import accountIcon from "@iconify-icons/mdi/account";
@@ -118,7 +84,6 @@ import sdIcon from "@iconify-icons/mdi/sd";
 import compareIcon from "@iconify-icons/mdi/compare";
 import arrowLeftIcon from "@iconify-icons/mdi/arrow-left";
 import contentSaveIcon from "@iconify-icons/mdi/content-save";
-import viewMoreIcon from "@iconify-icons/mdi/unfold-more-vertical";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import settingsIcon from "@iconify-icons/mdi/tune";
 
@@ -162,8 +127,65 @@ const windowStore = useWindowStore();
 const systemStatsStore = useSystemStatsStore();
 
 const activeKey = ref("1");
+const segmentedOptions = [
+  { value: "1", payload: { label: "User", icon: accountIcon } },
+  { value: "2", payload: { label: "System", icon: consoleIcon } },
+  { value: "3", payload: { label: "Storage", icon: sdIcon } },
+  { value: "4", payload: { label: "Theme", icon: compareIcon } },
+];
 const savingLoading = ref<boolean>(false);
 const themeTabRef = ref<any>(null);
+
+const segmentedContainerRef = ref<HTMLElement | null>(null);
+const tabWrapperRef = ref<HTMLElement | null>(null);
+let tabObserver: ResizeObserver | null = null;
+
+const onBeforeLeave = () => {
+  const wrapper = tabWrapperRef.value;
+  if (!wrapper) return;
+  tabObserver?.disconnect();
+  wrapper.style.height = wrapper.offsetHeight + "px";
+};
+
+const onEnter = (el: Element) => {
+  const wrapper = tabWrapperRef.value;
+  if (!wrapper) return;
+  const htmlEl = el as HTMLElement;
+  tabObserver?.disconnect();
+  tabObserver = new ResizeObserver(() => {
+    wrapper.style.height = htmlEl.offsetHeight + "px";
+  });
+  tabObserver.observe(htmlEl);
+};
+
+const onSegmentedDrag = (e: MouseEvent) => {
+  const el = segmentedContainerRef.value;
+  if (!el || el.scrollWidth <= el.clientWidth) return;
+  const startX = e.pageX;
+  const startScroll = el.scrollLeft;
+  const onMove = (ev: MouseEvent) => {
+    el.scrollLeft = startScroll - (ev.pageX - startX);
+  };
+  const onUp = () => {
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+  };
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+};
+
+watch(activeKey, (val) => {
+  nextTick(() => {
+    const container = segmentedContainerRef.value;
+    if (!container || container.scrollWidth <= container.clientWidth) return;
+    const items = container.querySelectorAll<HTMLElement>(".ant-segmented-item");
+    const idx = segmentedOptions.findIndex((o) => o.value === val);
+    const target = items[idx];
+    if (!target) return;
+    const left = target.offsetLeft - (container.clientWidth - target.offsetWidth) / 2;
+    container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  });
+});
 
 const validDrives = computed(() => {
   return settingsData?.validDrives || [];
@@ -247,6 +269,7 @@ const formData = reactive({
 });
 
 onBeforeUnmount(() => {
+  tabObserver?.disconnect();
   if (updateTheme && (formData.theme.selectedTheme !== originalTheme.selectedTheme || formData.theme.selectedBack !== originalTheme.selectedBack)) {
     updateTheme({
       selectedTheme: originalTheme.selectedTheme,
@@ -284,7 +307,7 @@ const handleSubmit = async () => {
       storage: formData.storage,
       theme: formData.theme,
     },
-    csrfToken.value
+    csrfToken.value,
   );
 
   try {
@@ -296,7 +319,7 @@ const handleSubmit = async () => {
           "Content-Type": "application/json",
           "X-HomeDock-CSRF-Token": csrfToken.value,
         },
-      }
+      },
     );
 
     if (response.data.csrf_token && updateCsrfToken) {
@@ -357,16 +380,9 @@ const handleCancel = () => {
   background: transparent;
 }
 
-/* Transition for tabs */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: opacity 0.5s, transform 0.5s;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
+.tab-wrapper {
+  overflow: hidden;
+  transition: height 0.2s ease;
 }
 
 .save-btn-disabled {
@@ -375,5 +391,17 @@ const handleCancel = () => {
   color: #ffffff !important;
   text-decoration: line-through !important;
   cursor: not-allowed !important;
+}
+
+/* Segmented: scrollable wrapper */
+.settings-segmented-container {
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.settings-segmented-container::-webkit-scrollbar {
+  display: none;
 }
 </style>

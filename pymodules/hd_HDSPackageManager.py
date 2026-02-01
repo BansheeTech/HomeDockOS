@@ -5,6 +5,7 @@ See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
+import io
 import os
 import re
 import json
@@ -13,6 +14,7 @@ import shutil
 import hashlib
 import zipfile
 import tempfile
+import datetime
 
 from typing import Dict, Tuple, Optional, List
 from flask import jsonify, request, send_file
@@ -26,9 +28,11 @@ from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_MIMETypeValidation import validate_file_mime
 
 
+MAX_HDSTORE_PACKAGES = 300  # Items
 MAX_HDS_PACKAGE_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_COMPOSE_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 MAX_ICON_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+MAX_HDSTORE_PACKAGE_SIZE = 75 * 1024 * 1024  # 75 MB
 
 ALLOWED_ICON_EXTENSIONS = [".jpg", ".jpeg", ".png"]
 
@@ -50,8 +54,9 @@ def normalize_app_slug(name: str) -> str:
     if not name:
         raise ValueError("Name cannot be empty")
 
-    slug = name.lower().replace(" ", "")
-    slug = re.sub(r"[^a-z0-9\-_]", "", slug)
+    slug = name.lower().replace(" ", "-")
+    slug = re.sub(r"[^a-z0-9\-]", "", slug)
+    slug = re.sub(r"-+", "-", slug).strip("-")
 
     if not slug:
         raise ValueError(f"Name '{name}' results in empty slug after normalization")
@@ -66,10 +71,10 @@ def validate_slug_format(slug: str) -> bool:
     if slug != slug.lower():
         return False
 
-    if not re.match(r"^[a-z0-9\-_]+$", slug):
+    if not re.match(r"^[a-z0-9\-]+$", slug):
         return False
 
-    if slug[0] in ["-", "_"] or slug[-1] in ["-", "_"]:
+    if slug[0] == "-" or slug[-1] == "-":
         return False
 
     return True
@@ -152,13 +157,13 @@ def cleanup_partial_installation(app_slug: str, apps_folder: str) -> None:
         real_compose_path = os.path.realpath(compose_path)
         real_apps_folder = os.path.realpath(apps_folder)
 
-        if real_compose_path.startswith(real_apps_folder) and os.path.exists(compose_path):
+        if real_compose_path.startswith(real_apps_folder + os.sep) and os.path.exists(compose_path):
             os.remove(compose_path)
 
         metadata_path = os.path.join(apps_folder, f"{app_slug}.yml.metadata")
         real_metadata_path = os.path.realpath(metadata_path)
 
-        if real_metadata_path.startswith(real_apps_folder) and os.path.exists(metadata_path):
+        if real_metadata_path.startswith(real_apps_folder + os.sep) and os.path.exists(metadata_path):
             os.remove(metadata_path)
 
         real_images_folder = os.path.realpath(user_packages_images_folder)
@@ -166,7 +171,7 @@ def cleanup_partial_installation(app_slug: str, apps_folder: str) -> None:
             icon_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
             real_icon_path = os.path.realpath(icon_path)
 
-            if real_icon_path.startswith(real_images_folder) and os.path.exists(icon_path):
+            if real_icon_path.startswith(real_images_folder + os.sep) and os.path.exists(icon_path):
                 os.remove(icon_path)
                 break
 
@@ -179,6 +184,14 @@ def calculate_content_hash(manifest_content: str, icon_bytes: bytes, compose_con
     hasher.update(manifest_content.encode("utf-8"))
     hasher.update(icon_bytes)
     hasher.update(compose_content.encode("utf-8"))
+    return hasher.hexdigest()
+
+
+def calculate_hdstore_hash(store_manifest_content: str, hds_files_bytes: List[bytes]) -> str:
+    hasher = hashlib.sha256()
+    hasher.update(store_manifest_content.encode("utf-8"))
+    for hds_bytes in hds_files_bytes:
+        hasher.update(hds_bytes)
     return hasher.hexdigest()
 
 
@@ -299,7 +312,7 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
 
             compose_path_real = os.path.realpath(compose_path)
             available_real = os.path.realpath(user_packages_available_folder)
-            if not compose_path_real.startswith(available_real):
+            if not compose_path_real.startswith(available_real + os.sep):
                 raise ValueError(get_error_message("UNSAFE_PATH", path=compose_path))
 
             with open(compose_path, "w") as f:
@@ -316,7 +329,7 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
 
             icon_dest_real = os.path.realpath(icon_dest)
             images_dir_real = os.path.realpath(user_packages_images_folder)
-            if not icon_dest_real.startswith(images_dir_real):
+            if not icon_dest_real.startswith(images_dir_real + os.sep):
                 raise ValueError(get_error_message("UNSAFE_PATH", path=icon_dest))
 
             with open(icon_dest, "wb") as f:
@@ -396,6 +409,8 @@ def upload_hds_package():
     if not file.filename.endswith(".hds"):
         return jsonify({"success": False, "message": "File must be a .hds package"}), 400
 
+    temp_path = None
+
     try:
         filename = secure_filename(file.filename)
         temp_path = os.path.join(tempfile.gettempdir(), filename)
@@ -403,7 +418,6 @@ def upload_hds_package():
 
         file_size = os.path.getsize(temp_path)
         if file_size > MAX_HDS_PACKAGE_SIZE:
-            os.remove(temp_path)
             return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_HDS_PACKAGE_SIZE // (1024 * 1024))}), 400
 
         with open(temp_path, "rb") as f:
@@ -412,13 +426,11 @@ def upload_hds_package():
         try:
             validate_file_mime(file_content, filename, allowed_types=["application/zip"])
         except ValueError as e:
-            os.remove(temp_path)
             return jsonify({"success": False, "message": f"Invalid file type: {str(e)}"}), 400
 
         is_valid, msg, manifest = validate_hds_package(temp_path)
 
         if not is_valid:
-            os.remove(temp_path)
             return jsonify({"success": False, "message": f"Invalid package: {msg}"}), 400
 
         display_name = manifest.get("display_name") or manifest.get("name")
@@ -444,17 +456,16 @@ def upload_hds_package():
                 break
 
         if existing_files:
-            os.remove(temp_path)
             return jsonify({"success": False, "code": "PACKAGE_EXISTS", "message": "Package already exists. Please delete it first from 'Imported Packages' before uploading a new version.", "display_name": display_name, "app_slug": app_slug, "existing_files": existing_files}), 409
 
         success, extract_msg, extracted_manifest = extract_hds_package(temp_path, display_name)
 
         if not success:
-            os.remove(temp_path)
             return jsonify({"success": False, "message": f"Failed to install package: {extract_msg}"}), 500
 
         final_path = os.path.join(user_packages_hds_folder, filename)
         shutil.move(temp_path, final_path)
+        temp_path = None
 
         invalidate_external_apps_cache()
 
@@ -462,6 +473,10 @@ def upload_hds_package():
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
 
 
 @login_required
@@ -563,15 +578,15 @@ def create_hds_from_files():
 
         signature = calculate_content_hash(manifest_content, icon_bytes, compose_content)
 
-        temp_hds_path = os.path.join(tempfile.gettempdir(), f"{app_slug}.hds")
-
-        with zipfile.ZipFile(temp_hds_path, "w", zipfile.ZIP_DEFLATED) as zip_ref:
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_ref:
             zip_ref.writestr("manifest.json", manifest_content)
             zip_ref.writestr(f"icon{icon_ext}", icon_bytes)
             zip_ref.writestr("docker-compose.yml", compose_content)
             zip_ref.writestr(".hds_signature", signature)
+        buffer.seek(0)
 
-        return send_file(temp_hds_path, as_attachment=True, download_name=f"{app_slug}.hds", mimetype="application/zip")
+        return send_file(buffer, as_attachment=True, download_name=f"{app_slug}.hds", mimetype="application/zip")
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
@@ -672,7 +687,7 @@ def export_imported_app():
         real_compose_path = os.path.realpath(compose_path)
         real_available_folder = os.path.realpath(user_packages_available_folder)
 
-        if not real_metadata_path.startswith(real_available_folder) or not real_compose_path.startswith(real_available_folder):
+        if not real_metadata_path.startswith(real_available_folder + os.sep) or not real_compose_path.startswith(real_available_folder + os.sep):
             return jsonify({"success": False, "message": "Invalid app name"}), 400
 
         if not os.path.exists(metadata_path):
@@ -693,7 +708,7 @@ def export_imported_app():
             test_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
             real_test_path = os.path.realpath(test_path)
 
-            if not real_test_path.startswith(real_images_folder):
+            if not real_test_path.startswith(real_images_folder + os.sep):
                 continue
 
             if os.path.exists(test_path):
@@ -703,14 +718,27 @@ def export_imported_app():
         if not icon_path:
             return jsonify({"success": False, "message": "Icon file not found"}), 404
 
-        temp_hds_path = os.path.join(tempfile.gettempdir(), f"{app_slug}.hds")
+        with open(icon_path, "rb") as f:
+            icon_bytes = f.read()
+        icon_ext = os.path.splitext(icon_path)[1]
 
-        success, msg = create_hds_package(app_slug, display_name, temp_hds_path, metadata, icon_path, compose_path)
+        with open(compose_path, "r") as f:
+            compose_content = f.read()
 
-        if not success:
-            return jsonify({"success": False, "message": msg}), 500
+        export_manifest = {"name": app_slug, "display_name": display_name, "category": metadata.get("category", "Other"), "type": metadata.get("type", "Application"), "description": metadata.get("description", ""), "docker_image": metadata.get("docker_image", ""), "icon": f"icon{icon_ext}", "author": metadata.get("author", "Unknown"), "version": metadata.get("version", "1.0.0"), "hds_version": HDS_VERSION, "dependencies": metadata.get("dependencies", []), "is_group": metadata.get("is_group", False), "is_new": metadata.get("is_new", False), "new_until": metadata.get("new_until", False)}
 
-        return send_file(temp_hds_path, as_attachment=True, download_name=f"{display_name}.hds", mimetype="application/zip")
+        manifest_content = json.dumps(export_manifest, indent=2)
+        signature = calculate_content_hash(manifest_content, icon_bytes, compose_content)
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_ref:
+            zip_ref.writestr("manifest.json", manifest_content)
+            zip_ref.writestr(f"icon{icon_ext}", icon_bytes)
+            zip_ref.writestr("docker-compose.yml", compose_content)
+            zip_ref.writestr(".hds_signature", signature)
+        buffer.seek(0)
+
+        return send_file(buffer, as_attachment=True, download_name=f"{display_name}.hds", mimetype="application/zip")
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
@@ -759,7 +787,7 @@ def delete_external_app():
         try:
             _, _, manifest = validate_hds_package(hds_path)
             app_slug = manifest.get("name") if manifest else None
-        except:
+        except Exception:
             app_slug = None
 
         if app_slug:
@@ -786,13 +814,13 @@ def delete_external_app():
             real_compose_path = os.path.realpath(compose_path)
             real_available_folder = os.path.realpath(user_packages_available_folder)
 
-            if real_compose_path.startswith(real_available_folder) and os.path.exists(compose_path):
+            if real_compose_path.startswith(real_available_folder + os.sep) and os.path.exists(compose_path):
                 os.remove(compose_path)
 
             metadata_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml.metadata")
             real_metadata_path = os.path.realpath(metadata_path)
 
-            if real_metadata_path.startswith(real_available_folder) and os.path.exists(metadata_path):
+            if real_metadata_path.startswith(real_available_folder + os.sep) and os.path.exists(metadata_path):
                 os.remove(metadata_path)
 
             real_images_folder = os.path.realpath(user_packages_images_folder)
@@ -800,7 +828,7 @@ def delete_external_app():
                 icon_path = os.path.join(user_packages_images_folder, f"{app_slug}{ext}")
                 real_icon_path = os.path.realpath(icon_path)
 
-                if real_icon_path.startswith(real_images_folder) and os.path.exists(icon_path):
+                if real_icon_path.startswith(real_images_folder + os.sep) and os.path.exists(icon_path):
                     os.remove(icon_path)
                     break
 
@@ -810,3 +838,369 @@ def delete_external_app():
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def export_hdstore():
+    try:
+        apps_param = request.args.get("apps", "")
+        if not apps_param:
+            return jsonify({"success": False, "message": "No apps selected"}), 400
+
+        app_slugs = [s.strip() for s in apps_param.split(",") if s.strip()]
+        if not app_slugs:
+            return jsonify({"success": False, "message": "No apps selected"}), 400
+
+        os.makedirs(user_packages_hds_folder, exist_ok=True)
+        real_hds_folder = os.path.realpath(user_packages_hds_folder)
+        packages_info = []
+
+        for slug in app_slugs:
+            if "/" in slug or "\\" in slug or ".." in slug:
+                return jsonify({"success": False, "message": f"Invalid app name: {slug}"}), 400
+
+            hds_path = None
+            manifest_data = None
+
+            for filename in os.listdir(user_packages_hds_folder):
+                if not filename.endswith(".hds"):
+                    continue
+                candidate = os.path.join(user_packages_hds_folder, filename)
+                real_candidate = os.path.realpath(candidate)
+                if not real_candidate.startswith(real_hds_folder + os.sep):
+                    continue
+                is_valid, _, manifest = validate_hds_package(candidate)
+                if is_valid and manifest and manifest.get("name") == slug:
+                    hds_path = candidate
+                    manifest_data = manifest
+                    break
+
+            if not hds_path:
+                return jsonify({"success": False, "message": f"Package not found: {slug}"}), 404
+
+            packages_info.append({"hds_path": hds_path, "filename": os.path.basename(hds_path), "manifest": manifest_data})
+
+        store_manifest = {
+            "hdstore_version": HDS_VERSION,
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "package_count": len(packages_info),
+            "packages": [
+                {
+                    "filename": p["filename"],
+                    "name": p["manifest"].get("name"),
+                    "display_name": p["manifest"].get("display_name", p["manifest"].get("name")),
+                    "version": p["manifest"].get("version", "1.0.0"),
+                    "author": p["manifest"].get("author", "Unknown"),
+                    "category": p["manifest"].get("category", "Other"),
+                }
+                for p in packages_info
+            ],
+        }
+
+        store_manifest_content = json.dumps(store_manifest, indent=2)
+
+        hds_files_bytes = []
+        for p in packages_info:
+            with open(p["hds_path"], "rb") as f:
+                hds_files_bytes.append(f.read())
+
+        hdstore_signature = calculate_hdstore_hash(store_manifest_content, hds_files_bytes)
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("store_manifest.json", store_manifest_content)
+            for i, p in enumerate(packages_info):
+                zf.writestr(f"packages/{p['filename']}", hds_files_bytes[i])
+            zf.writestr(".hdstore_signature", hdstore_signature)
+        buffer.seek(0)
+
+        content_hash = hashlib.sha256(buffer.getvalue()).hexdigest()[:8]
+        filename = f"HomeDockOSAppStore_{content_hash}.hdstore"
+
+        return send_file(buffer, as_attachment=True, download_name=filename, mimetype="application/zip")
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def preview_hdstore():
+    try:
+        if "file" not in request.files:
+            return jsonify({"success": False, "message": "No file provided"}), 400
+
+        file = request.files["file"]
+        if not file.filename or file.filename == "":
+            return jsonify({"success": False, "message": "No file selected"}), 400
+
+        if not file.filename.endswith(".hdstore"):
+            return jsonify({"success": False, "message": "File must be a .hdstore package"}), 400
+
+        filename = secure_filename(file.filename)
+        if not filename:
+            return jsonify({"success": False, "message": "Invalid filename"}), 400
+
+        file_data = file.read()
+
+        if len(file_data) > MAX_HDSTORE_PACKAGE_SIZE:
+            return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_HDSTORE_PACKAGE_SIZE // (1024 * 1024))}), 400
+
+        try:
+            validate_file_mime(file_data[:1024], filename, allowed_types=["application/zip"])
+        except ValueError as e:
+            return jsonify({"success": False, "message": f"Invalid file type: {str(e)}"}), 400
+
+        buffer = io.BytesIO(file_data)
+
+        if not zipfile.is_zipfile(buffer):
+            return jsonify({"success": False, "message": "Not a valid archive"}), 400
+
+        buffer.seek(0)
+
+        with zipfile.ZipFile(buffer, "r") as zf:
+            entries = zf.namelist()
+
+            if "store_manifest.json" not in entries:
+                return jsonify({"success": False, "message": "Invalid .hdstore: missing store_manifest.json"}), 400
+
+            if ".hdstore_signature" not in entries:
+                return jsonify({"success": False, "message": "Invalid .hdstore: missing .hdstore_signature"}), 400
+
+            allowed_prefixes = ("store_manifest.json", "packages/", ".hdstore_signature")
+            for entry in entries:
+                if not entry.startswith(allowed_prefixes):
+                    return jsonify({"success": False, "message": f"Unexpected entry in archive: {entry}"}), 400
+
+            store_raw = zf.read("store_manifest.json")
+            if len(store_raw) > 1 * 1024 * 1024:
+                return jsonify({"success": False, "message": "store_manifest.json exceeds maximum size"}), 400
+
+            store_data = json.loads(store_raw.decode("utf-8"))
+
+            if not isinstance(store_data, dict):
+                return jsonify({"success": False, "message": "Invalid store_manifest.json format"}), 400
+            if store_data.get("hdstore_version") != HDS_VERSION:
+                return jsonify({"success": False, "message": "Incompatible hdstore version"}), 400
+
+            packages_list = store_data.get("packages", [])
+            if not isinstance(packages_list, list):
+                return jsonify({"success": False, "message": "Invalid packages list in store_manifest.json"}), 400
+            if len(packages_list) > MAX_HDSTORE_PACKAGES:
+                return jsonify({"success": False, "message": f"Too many packages (max {MAX_HDSTORE_PACKAGES})"}), 400
+
+            stored_signature = zf.read(".hdstore_signature").decode("utf-8").strip()
+            store_manifest_content = store_raw.decode("utf-8")
+
+            hds_files_bytes_for_verify = []
+            for pkg_entry_verify in packages_list:
+                if not isinstance(pkg_entry_verify, dict):
+                    continue
+                pkg_fn = pkg_entry_verify.get("filename")
+                if not pkg_fn:
+                    continue
+                zip_path = f"packages/{pkg_fn}"
+                if zip_path in entries:
+                    hds_files_bytes_for_verify.append(zf.read(zip_path))
+
+            calculated_signature = calculate_hdstore_hash(store_manifest_content, hds_files_bytes_for_verify)
+            if calculated_signature != stored_signature:
+                return jsonify({"success": False, "message": "Store integrity check failed. File may be corrupted or tampered with."}), 400
+
+        return jsonify(
+            {
+                "success": True,
+                "hdstore_version": store_data.get("hdstore_version", ""),
+                "created_at": store_data.get("created_at", ""),
+                "package_count": len(packages_list),
+                "packages": packages_list,
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def import_hdstore():
+    temp_dir = None
+
+    try:
+        os.makedirs(user_packages_hds_folder, exist_ok=True)
+        os.makedirs(user_packages_available_folder, exist_ok=True)
+        os.makedirs(user_packages_images_folder, exist_ok=True)
+
+        if "file" not in request.files:
+            return jsonify({"success": False, "message": "No file provided"}), 400
+
+        file = request.files["file"]
+        if not file.filename or file.filename == "":
+            return jsonify({"success": False, "message": "No file selected"}), 400
+
+        if not file.filename.endswith(".hdstore"):
+            return jsonify({"success": False, "message": "File must be a .hdstore package"}), 400
+
+        filename = secure_filename(file.filename)
+        if not filename:
+            return jsonify({"success": False, "message": "Invalid filename"}), 400
+
+        file_data = file.read()
+
+        if len(file_data) > MAX_HDSTORE_PACKAGE_SIZE:
+            return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_HDSTORE_PACKAGE_SIZE // (1024 * 1024))}), 400
+
+        try:
+            validate_file_mime(file_data[:1024], filename, allowed_types=["application/zip"])
+        except ValueError as e:
+            return jsonify({"success": False, "message": f"Invalid file type: {str(e)}"}), 400
+
+        buffer = io.BytesIO(file_data)
+
+        if not zipfile.is_zipfile(buffer):
+            return jsonify({"success": False, "message": "Not a valid archive"}), 400
+
+        buffer.seek(0)
+        imported = []
+        skipped = []
+        temp_dir = tempfile.mkdtemp()
+        real_temp_dir = os.path.realpath(temp_dir)
+        real_hds_folder = os.path.realpath(user_packages_hds_folder)
+
+        with zipfile.ZipFile(buffer, "r") as zf:
+            entries = zf.namelist()
+
+            if "store_manifest.json" not in entries:
+                return jsonify({"success": False, "message": "Invalid .hdstore: missing store_manifest.json"}), 400
+
+            if ".hdstore_signature" not in entries:
+                return jsonify({"success": False, "message": "Invalid .hdstore: missing .hdstore_signature"}), 400
+
+            allowed_prefixes = ("store_manifest.json", "packages/", ".hdstore_signature")
+            for entry in entries:
+                if not entry.startswith(allowed_prefixes):
+                    return jsonify({"success": False, "message": f"Unexpected entry in archive: {entry}"}), 400
+
+            store_raw = zf.read("store_manifest.json")
+            if len(store_raw) > 1 * 1024 * 1024:
+                return jsonify({"success": False, "message": "store_manifest.json exceeds maximum size"}), 400
+
+            store_data = json.loads(store_raw.decode("utf-8"))
+
+            if not isinstance(store_data, dict):
+                return jsonify({"success": False, "message": "Invalid store_manifest.json format"}), 400
+            if store_data.get("hdstore_version") != HDS_VERSION:
+                return jsonify({"success": False, "message": "Incompatible hdstore version"}), 400
+
+            packages_list = store_data.get("packages", [])
+            if not isinstance(packages_list, list):
+                return jsonify({"success": False, "message": "Invalid packages list in store_manifest.json"}), 400
+            if len(packages_list) > MAX_HDSTORE_PACKAGES:
+                return jsonify({"success": False, "message": f"Too many packages (max {MAX_HDSTORE_PACKAGES})"}), 400
+
+            stored_signature = zf.read(".hdstore_signature").decode("utf-8").strip()
+            store_manifest_content = store_raw.decode("utf-8")
+
+            hds_files_bytes_for_verify = []
+            for pkg_entry_verify in packages_list:
+                if not isinstance(pkg_entry_verify, dict):
+                    continue
+                pkg_fn = pkg_entry_verify.get("filename")
+                if not pkg_fn:
+                    continue
+                zip_path = f"packages/{pkg_fn}"
+                if zip_path in entries:
+                    hds_files_bytes_for_verify.append(zf.read(zip_path))
+
+            calculated_signature = calculate_hdstore_hash(store_manifest_content, hds_files_bytes_for_verify)
+            if calculated_signature != stored_signature:
+                return jsonify({"success": False, "message": "Store integrity check failed. File may be corrupted or tampered with."}), 400
+
+            for pkg_entry in packages_list:
+                if not isinstance(pkg_entry, dict):
+                    continue
+
+                pkg_filename = pkg_entry.get("filename")
+                if not pkg_filename or not isinstance(pkg_filename, str):
+                    continue
+
+                safe_filename = secure_filename(pkg_filename)
+                if not safe_filename or not safe_filename.endswith(".hds"):
+                    skipped.append({"filename": pkg_filename, "reason": "Invalid filename"})
+                    continue
+
+                zip_entry = f"packages/{pkg_filename}"
+                if zip_entry not in entries:
+                    skipped.append({"filename": pkg_filename, "reason": "File not found in archive"})
+                    continue
+
+                hds_temp_path = os.path.join(temp_dir, safe_filename)
+                real_hds_temp = os.path.realpath(hds_temp_path)
+                if not real_hds_temp.startswith(real_temp_dir + os.sep):
+                    skipped.append({"filename": pkg_filename, "reason": "Path traversal detected"})
+                    continue
+
+                hds_data = zf.read(zip_entry)
+
+                if len(hds_data) > MAX_HDS_PACKAGE_SIZE:
+                    skipped.append({"filename": pkg_filename, "reason": "Package too large"})
+                    continue
+
+                try:
+                    validate_file_mime(hds_data[:1024], safe_filename, allowed_types=["application/zip"])
+                except ValueError:
+                    skipped.append({"filename": pkg_filename, "reason": "Invalid file type"})
+                    continue
+
+                with open(hds_temp_path, "wb") as hf:
+                    hf.write(hds_data)
+
+                is_valid, msg, manifest = validate_hds_package(hds_temp_path)
+                if not is_valid:
+                    skipped.append({"filename": pkg_filename, "reason": msg})
+                    if os.path.exists(hds_temp_path):
+                        os.remove(hds_temp_path)
+                    continue
+
+                app_slug = manifest.get("name")
+                if not app_slug or "/" in app_slug or "\\" in app_slug or ".." in app_slug:
+                    skipped.append({"filename": pkg_filename, "reason": "Invalid package name"})
+                    if os.path.exists(hds_temp_path):
+                        os.remove(hds_temp_path)
+                    continue
+
+                display_name = manifest.get("display_name") or app_slug
+
+                final_hds_path = os.path.join(user_packages_hds_folder, safe_filename)
+                real_final = os.path.realpath(final_hds_path)
+                if not real_final.startswith(real_hds_folder + os.sep):
+                    skipped.append({"filename": pkg_filename, "reason": "Path traversal detected"})
+                    if os.path.exists(hds_temp_path):
+                        os.remove(hds_temp_path)
+                    continue
+
+                compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
+                if os.path.exists(final_hds_path) or os.path.exists(compose_path):
+                    skipped.append({"filename": pkg_filename, "reason": "Package already exists"})
+                    if os.path.exists(hds_temp_path):
+                        os.remove(hds_temp_path)
+                    continue
+
+                success, extract_msg, _ = extract_hds_package(hds_temp_path, display_name)
+                if not success:
+                    skipped.append({"filename": pkg_filename, "reason": extract_msg})
+                    if os.path.exists(hds_temp_path):
+                        os.remove(hds_temp_path)
+                    continue
+
+                shutil.move(hds_temp_path, final_hds_path)
+                imported.append({"filename": pkg_filename, "name": app_slug, "display_name": display_name})
+
+        invalidate_external_apps_cache()
+
+        return jsonify({"success": True, "message": f"Imported {len(imported)} package(s)", "imported": imported, "skipped": skipped})
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+    finally:
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
