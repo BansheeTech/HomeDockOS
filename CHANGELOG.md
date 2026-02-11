@@ -1,10 +1,14 @@
 # CHANGELOG
 
-- **2.1.0.484** (Latest): Security patch for cryptography package.
-  - **Patched CVE-2026-26007** (Subgroup Attack in cryptography `public_key_from_numbers` and `EllipticCurvePublicNumbers.public_key` **opened 8 hours ago**) by upgrading `cryptography` (Python package) to 46.0.5+, fixing a high severity vulnerability where SECT curves lacked subgroup validation, allowing private key leakage via ECDH and signature forgery via ECDSA.
-    > **TL;DR:** HomeDock OS uses RSA, AES-GCM, and Ed25519, **none of which are SECT curves**, so this vulnerability didn't affect us in practice. We patched it anyway because staying ahead of CVEs is the best way to keep your data safe, even when the fire isn't in our house.
+- **2.1.0.486** (Latest): Security patch for axios.
+  - **Patched CVE-2026-25639** (Denial of Service via `__proto__` key in axios `mergeConfig` **opened 5 minutes ago**) by upgrading `axios` (npm) to 1.13.5+, fixing a high severity vulnerability where `JSON.parse()`-derived config objects with `__proto__` as own property caused a TypeError crash in `mergeConfig`, enabling DoS on any backend passing user-controlled JSON to axios.
+    > **TL;DR:** A specially crafted JSON payload could crash any app using axios by exploiting a quirk in how JavaScript handles `__proto__`. Not prototype pollution, just a straight crash... Patched by upgrading axios as usual tho.
 
 ---
+
+- **2.1.0.484**: Security patch for cryptography package.
+  - **Patched CVE-2026-26007** (Subgroup Attack in cryptography `public_key_from_numbers` and `EllipticCurvePublicNumbers.public_key` **opened 8 hours ago**) by upgrading `cryptography` (Python package) to 46.0.5+, fixing a high severity vulnerability where SECT curves lacked subgroup validation, allowing private key leakage via ECDH and signature forgery via ECDSA.
+    > **TL;DR:** HomeDock OS uses RSA, AES-GCM, and Ed25519, **none of which are SECT curves**, so this vulnerability didn't affect us in practice. We patched it anyway because staying ahead of CVEs is the best way to keep your data safe, even when the fire isn't in our house.
 
 - **2.1.0.482**: Packager .hdstore Full App Store bundles, share badges for apps, and UI refinements.
   - Added **Share Badges** to the system app Packager: when you tap "Share", a dialog lets you preview and download custom SVG badges for your app in light and dark themes. Each badge features your app's icon as a blurred background, the icon in full detail, and the "Get {AppName} on the HomeDock OS App Store" call to action, all self-contained in a single SVG file with the icon embedded as base64, ready to drop into a README, website, or docs.
