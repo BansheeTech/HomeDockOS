@@ -1,6 +1,12 @@
 # CHANGELOG
 
-- **2.1.0.482** (Latest): Packager .hdstore Full App Store bundles, share badges for apps, and UI refinements.
+- **2.1.0.484** (Latest): Security patch for cryptography package.
+  - **Patched CVE-2026-26007** (Subgroup Attack in cryptography `public_key_from_numbers` and `EllipticCurvePublicNumbers.public_key` **opened 8 hours ago**) by upgrading `cryptography` (Python package) to 46.0.5+, fixing a high severity vulnerability where SECT curves lacked subgroup validation, allowing private key leakage via ECDH and signature forgery via ECDSA.
+    > **TL;DR:** HomeDock OS uses RSA, AES-GCM, and Ed25519, **none of which are SECT curves**, so this vulnerability didn't affect us in practice. We patched it anyway because staying ahead of CVEs is the best way to keep your data safe, even when the fire isn't in our house.
+
+---
+
+- **2.1.0.482**: Packager .hdstore Full App Store bundles, share badges for apps, and UI refinements.
   - Added **Share Badges** to the system app Packager: when you tap "Share", a dialog lets you preview and download custom SVG badges for your app in light and dark themes. Each badge features your app's icon as a blurred background, the icon in full detail, and the "Get {AppName} on the HomeDock OS App Store" call to action, all self-contained in a single SVG file with the icon embedded as base64, ready to drop into a README, website, or docs.
   - Added **generic branding badges** (light and dark) for the HomeDock OS App Store, similar to Apple's "Download on the App Store" badges, available for download alongside the custom per-app badges.
   - Added **Submit to the public App Store** section in the share dialog, guiding developers to send their `.hds` packages to `apps@homedock.cloud` for review and public listing.
@@ -10,8 +16,6 @@
   - Replaced **tab navigation with segmented controls** in Settings and Packager for a more compact, modern look with smooth horizontal scrolling on smaller screens.
   - Added **"Add your own apps"** button in the App Store header, linking directly to the Packager for a more discoverable publishing flow.
   - Added **smooth animated tab transitions** in Settings, with height auto-adaptation when switching between sections of different sizes.
-
----
 
 - **2.1.0.236**: App Store additions and Packager bugfix.
   - Added **Disavow Generator** to the App Store, a tool for creating Google disavow files to remove toxic backlinks from your site's link profile. Born as an internal CLI tool to fight a dumb negative SEO attack we faced in January, now it's yours too :)
