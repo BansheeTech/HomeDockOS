@@ -22,8 +22,12 @@ from pymodules.hd_ThreadContainerResourceUsage import cpu_usage, memory_usage, n
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_ThreadAppUpdatesChecker import get_updates_state
 
+_appstore_json_path = os.path.join(current_directory, "homedock-ui", "vue3", "static", "js", "__Data__", "AppStoreDefault.json")
+
 _app_store_cache = None
 _app_store_external_cache = None
+_suggested_ports_cache = None
+_suggested_trails_cache = None
 
 
 def invalidate_external_apps_cache():
@@ -31,13 +35,40 @@ def invalidate_external_apps_cache():
     _app_store_external_cache = None
 
 
+def load_suggested_ports():
+    global _suggested_ports_cache
+
+    if _suggested_ports_cache is None:
+        try:
+            with open(_appstore_json_path, "r", encoding="utf-8") as f:
+                _suggested_ports_cache = {app["name"]: app["suggested_port"] for app in json.load(f) if "suggested_port" in app}
+        except Exception as e:
+            print(f"Warning: Could not load suggested ports: {e}")
+            _suggested_ports_cache = {}
+
+    return _suggested_ports_cache
+
+
+def load_suggested_trails():
+    global _suggested_trails_cache
+
+    if _suggested_trails_cache is None:
+        try:
+            with open(_appstore_json_path, "r", encoding="utf-8") as f:
+                _suggested_trails_cache = {app["name"]: app["suggested_trail"] for app in json.load(f) if "suggested_trail" in app}
+        except Exception as e:
+            print(f"Warning: Could not load suggested trails: {e}")
+            _suggested_trails_cache = {}
+
+    return _suggested_trails_cache
+
+
 def load_app_store_data():
     global _app_store_cache, _app_store_external_cache
 
     if _app_store_cache is None:
         try:
-            appstore_path = os.path.join(current_directory, "homedock-ui", "vue3", "static", "js", "__Data__", "AppStoreDefault.json")
-            with open(appstore_path, "r", encoding="utf-8") as f:
+            with open(_appstore_json_path, "r", encoding="utf-8") as f:
                 _app_store_cache = {app["name"]: app.get("display_name", app["name"]) for app in json.load(f)}
         except Exception as e:
             print(f"Warning: Could not load AppStoreDefault.json: {e}")

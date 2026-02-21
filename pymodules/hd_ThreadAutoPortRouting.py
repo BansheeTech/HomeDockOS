@@ -6,6 +6,7 @@ https://www.banshee.pro
 """
 
 import os
+import re
 import time
 import docker
 import requests
@@ -16,10 +17,15 @@ from threading import Thread, Event
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_FunctionsHostSelector import docker_host
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_DockerAPIContainerData import load_suggested_ports, load_suggested_trails
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 update_event = Event()
+
+
+def _strip_numeric_suffix(name):
+    return re.sub(r"_\d+$", "", name)
 
 
 def check_port_availability(port):
@@ -145,6 +151,8 @@ def update_container_ports_config():
                             host_port = item["HostPort"]
                             ports_set.add(host_port)
 
+                base_name = _strip_numeric_suffix(container.name)
+
                 if ports_set:
                     ports_list = sorted(ports_set)
 
@@ -152,9 +160,18 @@ def update_container_ports_config():
                         print(f" + THREAD: Checking port availability for {container.name}...")
                         ports_list = sort_ports_by_availability(ports_list)
 
+                    trail = load_suggested_trails().get(base_name, "")
+                    if trail:
+                        ports_list[0] = f"{ports_list[0]}/{trail.lstrip('/')}"
+
                     ports_string = ":".join(ports_list)
                 else:
-                    ports_string = "hostmode"
+                    suggested = load_suggested_ports().get(base_name)
+                    if suggested and check_port_availability(str(suggested)):
+                        trail = load_suggested_trails().get(base_name, "")
+                        ports_string = f"{suggested}/{trail.lstrip('/')}" if trail else str(suggested)
+                    else:
+                        ports_string = "hostmode"
 
                 if container.name not in config_dict:
                     print(f" + THREAD: New ports routed for {container.name} - {ports_string}")

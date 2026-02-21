@@ -8,6 +8,8 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
       - CLI_ARGS= #optional
+      - SETTINGS_ENCRYPTION_KEY=[[HD_RND_STR]]
+      - DUPLICATI__WEBSERVICE_PASSWORD=[[HD_PASSWORD]]
     volumes:
       - [[INSTALL_PATH]]/duplicati:/config
       - [[APP_MOUNT_POINT]]/duplicati/backups:/backups

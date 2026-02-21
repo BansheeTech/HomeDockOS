@@ -25,4 +25,8 @@ export interface App {
   author?: string;
   version?: string;
   screenshot_count?: number;
+  default_credentials?: { username: string; password: string };
+  pwd_min_required?: number;
+  suggested_port?: number;
+  suggested_trail?: string;
 }

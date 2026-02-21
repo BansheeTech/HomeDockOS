@@ -60,21 +60,44 @@
       </div>
 
       <div :class="['rounded-xl border mt-1', themeClasses.windowBorder]">
-        <button @click.stop="showSubmit = !showSubmit" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
-          <Icon :icon="emailIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-          <span class="text-xs font-medium">Submit to the public App Store</span>
-          <Icon :icon="showSubmit ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
-        </button>
-        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: showSubmit ? '1fr' : '0fr' }">
-          <div class="overflow-hidden">
-            <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">
-              Want your app listed in the official HomeDock OS App Store? Help others, send your <strong>.hds</strong> package to
-              <button @click.stop="copyEmail" :class="['inline-flex items-center gap-0.5 font-medium underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity', themeClasses.packagerText]">
-                apps@homedock.cloud
-                <Icon :icon="emailCopied ? checkIcon : copyIcon" class="w-3 h-3 inline" />
-              </button>
-              and we'll review it for public inclusion on the HomeDock OS App Store and our website. If you have more apps, feel free to send them as well!
-            </p>
+        <div>
+          <button @click.stop="toggleSection('discord')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
+            <Icon :icon="discordIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
+            <span class="text-xs font-medium">Share on Discord</span>
+            <Icon :icon="activeSection === 'discord' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
+          </button>
+          <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeSection === 'discord' ? '1fr' : '0fr' }">
+            <div class="overflow-hidden">
+              <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">Packaged an existing app? Share your <strong>.hds</strong> file with the community in the <strong>#package-sharing</strong> channel on our Discord so other users can install it too.</p>
+              <div class="flex items-center gap-2 px-3 pb-3">
+                <button @click.stop="openDiscordChannel" :class="['inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#5865F2] hover:bg-[#4752C4] text-white']">
+                  <Icon :icon="discordIcon" class="w-3.5 h-3.5" />
+                  #package-sharing
+                </button>
+                <button @click.stop="openDiscordInvite" :class="['inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150', themeClasses.windowBorder, themeClasses.packagerTextMuted, 'hover:opacity-80']">
+                  <Icon :icon="accountGroupIcon" class="w-3.5 h-3.5" />
+                  Join Discord
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div :class="['border-t', themeClasses.windowBorder]">
+          <button @click.stop="toggleSection('email')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
+            <Icon :icon="emailIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
+            <span class="text-xs font-medium">Submit your apps to the App Store</span>
+            <Icon :icon="activeSection === 'email' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
+          </button>
+          <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeSection === 'email' ? '1fr' : '0fr' }">
+            <div class="overflow-hidden">
+              <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">
+                Built your own app? Package it as <strong>.hds</strong> and send it to
+                <button @click.stop="copyEmail" :class="['inline-flex items-center gap-0.5 font-medium underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity', themeClasses.packagerText]">
+                  apps@homedock.cloud
+                  <Icon :icon="emailCopied ? checkIcon : copyIcon" class="w-3 h-3 inline" /></button
+                >. We support indie developers and list their apps on the official App Store for free. We're a small team, so reviews may take some time. We'll reach out back for screenshots and details.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -96,6 +119,8 @@ import copyIcon from "@iconify-icons/mdi/content-copy";
 import chevronDownIcon from "@iconify-icons/mdi/chevron-down";
 import chevronUpIcon from "@iconify-icons/mdi/chevron-up";
 import emailIcon from "@iconify-icons/mdi/email-outline";
+import discordIcon from "@iconify-icons/mdi/discord";
+import accountGroupIcon from "@iconify-icons/mdi/account-group";
 
 interface PackageManifest {
   name: string;
@@ -128,7 +153,7 @@ const FONT_STACK = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robo
 
 const downloading = ref(false);
 const emailCopied = ref(false);
-const showSubmit = ref(false);
+const activeSection = ref<"discord" | "email" | null>("discord");
 
 const scrollRef = ref<HTMLElement | null>(null);
 const dragging = ref(false);
@@ -147,10 +172,10 @@ const iconUrl = computed(() => {
 const layout = computed(() => computeLayout(displayName.value));
 
 const badgeVariants = computed(() => [
-  { key: `badge-${slug.value}-light`, type: "per-app", theme: "light", label: "Custom Light .svg" },
-  { key: `badge-${slug.value}-dark`, type: "per-app", theme: "dark", label: "Custom Dark .svg" },
-  { key: "badge-generic-light", type: "generic", theme: "light", label: "Branding Light .svg" },
-  { key: "badge-generic-dark", type: "generic", theme: "dark", label: "Branding Dark .svg" },
+  { key: `badge-${slug.value}-light`, type: "per-app", theme: "light", label: "Custom Light .png" },
+  { key: `badge-${slug.value}-dark`, type: "per-app", theme: "dark", label: "Custom Dark .png" },
+  { key: "badge-generic-light", type: "generic", theme: "light", label: "Branding Light .png" },
+  { key: "badge-generic-dark", type: "generic", theme: "dark", label: "Branding Dark .png" },
 ]);
 
 function computeLayout(name: string) {
@@ -229,6 +254,18 @@ const onScrollMove = (e: MouseEvent) => {
 };
 const onScrollUp = () => {
   dragging.value = false;
+};
+
+const toggleSection = (section: "discord" | "email") => {
+  activeSection.value = activeSection.value === section ? null : section;
+};
+
+const openDiscordChannel = () => {
+  window.open("https://discord.com/channels/1381296490923954226/1467490625384349790", "_blank", "noopener,noreferrer");
+};
+
+const openDiscordInvite = () => {
+  window.open("https://discord.gg/Zj3JCYsRWw", "_blank", "noopener,noreferrer");
 };
 
 const copyEmail = async () => {
@@ -313,27 +350,50 @@ const buildSvgString = (name: string, theme: string, iconBase64: string | null) 
 </svg>`;
 };
 
+const svgToPng = (svgString: string, scale = 4): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth * scale;
+      canvas.height = img.naturalHeight * scale;
+      const ctx = canvas.getContext("2d")!;
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Canvas toBlob failed"))), "image/png");
+    };
+    img.onerror = () => reject(new Error("SVG load failed"));
+    img.src = dataUrl;
+  });
+};
+
 const downloadBadge = async (type: string, theme: string) => {
   if (downloading.value) return;
   downloading.value = true;
 
   try {
+    let svgString: string;
+    let filename: string;
+
     if (type === "generic") {
-      const a = document.createElement("a");
-      a.href = `/images/badges/app-store-badge-${theme}.svg`;
-      a.download = `app-store-badge-${theme}.svg`;
-      a.click();
+      const res = await fetch(`/images/badges/app-store-badge-${theme}.svg`);
+      svgString = await res.text();
+      filename = `app-store-badge-${theme}.png`;
     } else {
       const iconBase64 = await fetchIconBase64();
-      const svg = buildSvgString(displayName.value, theme, iconBase64);
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${slug.value}-badge-${theme}.svg`;
-      a.click();
-      URL.revokeObjectURL(url);
+      svgString = buildSvgString(displayName.value, theme, iconBase64);
+      filename = `${slug.value}-badge-${theme}.png`;
     }
+
+    const pngBlob = await svgToPng(svgString);
+    const url = URL.createObjectURL(pngBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   } finally {
     downloading.value = false;
   }

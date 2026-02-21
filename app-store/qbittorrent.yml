@@ -1,18 +1,30 @@
----
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
       - WEBUI_PORT=8080
+      - HD_USER=[[HD_USER_NAME]]
+      - HD_PASSWORD=[[HD_PASSWORD]]
     volumes:
       - [[INSTALL_PATH]]/qbittorrent:/config
       - [[APP_MOUNT_POINT]]/qbittorrent/downloads:/downloads
-    ports:
-      - 8080:8080
-      - 6881:6881
-      - 6881:6881/udp
-    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /config/qBittorrent &&
+        if ! grep -q 'Password_PBKDF2' /config/qBittorrent/qBittorrent.conf 2>/dev/null; then
+        HASH=$$(python3 -c "import os, hashlib, base64; pwd=os.environ.get('HD_PASSWORD', 'adminadmin').encode(); salt=os.urandom(16); key=hashlib.pbkdf2_hmac('sha512', pwd, salt, 100000); print(f'@ByteArray({base64.b64encode(salt).decode()}:{base64.b64encode(key).decode()})')");
+        echo '[Preferences]' >> /config/qBittorrent/qBittorrent.conf &&
+        echo 'WebUI\Username='"$${HD_USER:-admin}" >> /config/qBittorrent/qBittorrent.conf &&
+        echo 'WebUI\Password_PBKDF2='"$$HASH" >> /config/qBittorrent/qBittorrent.conf;
+        fi &&
+        exec /init

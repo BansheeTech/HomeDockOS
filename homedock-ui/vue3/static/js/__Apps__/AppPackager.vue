@@ -16,138 +16,181 @@
       </Segmented>
     </div>
 
-    <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/15">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/15 packager-content">
       <Transition enter-active-class="transition-opacity duration-200 ease-out" leave-active-class="transition-opacity duration-200 ease-in" enter-from-class="opacity-0" leave-to-class="opacity-0" mode="out-in">
         <div v-if="activeTab === 'generator'" key="generator" class="px-4 py-4 space-y-4">
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="fileCodeIcon" class="w-4 h-4" />
+            <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
+              <Icon :icon="fileCodeIcon" class="w-3 h-3 text-white" />
+            </div>
             <span>Source Files</span>
           </h3>
 
-          <div class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1 flex flex-col">
-              <label :class="['block text-xs font-medium mb-1.5', themeClasses.windowTitleTextFocused]">Docker Compose *</label>
-              <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="composeFileList" name="compose" accept=".yml,.yaml" :multiple="false" :customRequest="handleComposeUpload" @change="handleComposeChange" :showUploadList="false" :maxCount="1" class="compact-dragger h-[160px]">
-                <div class="relative h-full">
-                  <div class="flex items-center justify-center flex-col h-full" :class="composeFile ? 'pb-10' : ''">
-                    <p class="ant-upload-drag-icon">
-                      <Icon :icon="composeFile ? checkIcon : fileCodeIcon" :class="['text-3xl', composeFile ? themeClasses.packagerSuccessIcon : themeClasses.dropZoneDragIcon]" />
-                    </p>
-                    <p :class="[themeClasses.dropZoneDragUpText, 'px-4 text-balance text-xs']">
-                      {{ composeFile ? composeFile.name : "Click or drag .yml/.yaml here" }}
-                    </p>
-                    <p v-if="parsedData.image" :class="['text-[10px] mt-1', themeClasses.packagerSuccessText]">Detected: {{ parsedData.image }}</p>
+          <div class="space-y-2">
+            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="composeFileList" name="compose" accept=".yml,.yaml" :multiple="false" :customRequest="handleComposeUpload" @change="handleComposeChange" :showUploadList="false" :maxCount="1" class="compact-dragger-pkg mb-4">
+              <div>
+                <div class="flex items-center gap-3 px-4 py-3">
+                  <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="composeFile ? themeClasses.settingsIconBgGreen : themeClasses.iconHolder">
+                    <Icon :icon="composeFile ? checkIcon : fileCodeIcon" :class="['w-5 h-5', composeFile ? 'text-white' : themeClasses.explorerItemIcon]" />
                   </div>
-
-                  <div v-if="composeFile" class="absolute bottom-0 left-0 right-0 p-1.5">
-                    <Button @click.stop="openComposeEditor" :class="[themeClasses.scopeSelector]" class="w-full flex items-center justify-center" type="primary" size="small">
-                      <Icon :icon="editIcon" class="w-3.5 h-3.5 mr-1.5" />
-                      <span class="text-xs">Edit Compose</span>
-                    </Button>
+                  <div class="flex-1 min-w-0 text-left">
+                    <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
+                      {{ composeFile ? composeFile.name : "Docker Compose *" }}
+                    </p>
+                    <p :class="[composeFile && parsedData.image ? themeClasses.packagerSuccessText : themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">
+                      {{ composeFile && parsedData.image ? `Detected: ${parsedData.image}` : "Click or drag .yml/.yaml file here" }}
+                    </p>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
                   </div>
                 </div>
-              </UploadDragger>
-            </div>
-
-            <div class="flex-1 flex flex-col">
-              <label :class="['block text-xs font-medium mb-1.5', themeClasses.windowTitleTextFocused]">App Icon *</label>
-              <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="iconFileList" name="icon" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleIconUpload" @change="handleIconChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeIconUpload" class="compact-dragger h-[160px]">
-                <div class="flex items-center justify-center flex-col h-full">
-                  <p class="ant-upload-drag-icon">
-                    <Icon v-if="!iconPreview" :icon="imageIcon" :class="['text-3xl', themeClasses.dropZoneDragIcon]" />
-                    <img v-else :src="iconPreview" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
-                  </p>
-                  <p :class="[themeClasses.dropZoneDragUpText, 'px-4 text-balance text-xs']">
-                    {{ iconFile ? iconFile.name : "Click or drag image here" }}
-                  </p>
-                  <p :class="[themeClasses.dropZoneDragDownText, 'px-4 text-balance text-[10px]']">.jpg or .png</p>
+                <div v-if="composeFile" class="px-4 pb-3">
+                  <button @click.stop="openComposeEditor" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+                    <Icon :icon="editIcon" class="w-3.5 h-3.5" />
+                    <span>Edit Compose</span>
+                  </button>
                 </div>
-              </UploadDragger>
-            </div>
+              </div>
+            </UploadDragger>
+
+            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="iconFileList" name="icon" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleIconUpload" @change="handleIconChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeIconUpload" class="compact-dragger-pkg">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden" :class="iconPreview ? '' : themeClasses.iconHolder">
+                  <img v-if="iconPreview" :src="iconPreview" class="w-9 h-9 rounded-lg object-cover" />
+                  <Icon v-else :icon="imageIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" />
+                </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
+                    {{ iconFile ? iconFile.name : "App Icon *" }}
+                  </p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
+                    {{ iconFile ? ".jpg or .png" : "Click or drag image here (.jpg, .png)" }}
+                  </p>
+                </div>
+                <div class="flex-shrink-0">
+                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
+                </div>
+              </div>
+            </UploadDragger>
           </div>
 
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-2" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="shapeIcon" class="w-4 h-4" />
+            <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgPurple">
+              <Icon :icon="shapeIcon" class="w-3 h-3 text-white" />
+            </div>
             <span>Package Metadata</span>
           </h3>
 
-          <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-            <div>
-              <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">App Slug *</label>
-                <div class="flex-1">
-                  <Input v-model:value="newPackage.slug" placeholder="e.g., my-awesome-app" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" size="small" />
-                  <p v-if="newPackage.slug && !isValidSlug(newPackage.slug)" :class="['text-[10px] mt-0.5', themeClasses.packagerErrorText]">Only lowercase letters, numbers and dashes. Cannot start or end with a dash.</p>
-                </div>
+          <div class="grid packager-grid gap-2">
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">App Slug *</label>
+                <Input v-model:value="newPackage.slug" placeholder="e.g., my-awesome-app" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                <p v-if="newPackage.slug && !isValidSlug(newPackage.slug)" :class="['text-[10px] mt-0.5', themeClasses.packagerErrorText]">Only lowercase letters, numbers and dashes. Cannot start or end with a dash.</p>
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">App Name *</label>
-                <div class="flex-1">
-                  <Input v-model:value="newPackage.display_name" placeholder="e.g., My Awesome App" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" size="small" />
-                </div>
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">App Name *</label>
+                <Input v-model:value="newPackage.display_name" placeholder="e.g., My Awesome App" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">Category *</label>
-                <div class="flex-1">
-                  <Select v-model:value="newPackage.category" placeholder="Select Category" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`" size="small">
-                    <SelectOption value="AI">AI</SelectOption>
-                    <SelectOption value="Developer Tools">Developer Tools</SelectOption>
-                    <SelectOption value="Files & Productivity">Files & Productivity</SelectOption>
-                    <SelectOption value="Gaming">Gaming</SelectOption>
-                    <SelectOption value="Home & Automation">Home & Automation</SelectOption>
-                    <SelectOption value="Media">Media</SelectOption>
-                    <SelectOption value="Networking">Networking</SelectOption>
-                    <SelectOption value="Social">Social</SelectOption>
-                    <SelectOption value="Web Development">Web Development</SelectOption>
-                  </Select>
-                </div>
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Category *</label>
+                <Select v-model:value="newPackage.category" placeholder="Select Category" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`">
+                  <SelectOption value="AI">AI</SelectOption>
+                  <SelectOption value="Developer Tools">Developer Tools</SelectOption>
+                  <SelectOption value="Files & Productivity">Files & Productivity</SelectOption>
+                  <SelectOption value="Gaming">Gaming</SelectOption>
+                  <SelectOption value="Home & Automation">Home & Automation</SelectOption>
+                  <SelectOption value="Media">Media</SelectOption>
+                  <SelectOption value="Networking">Networking</SelectOption>
+                  <SelectOption value="Social">Social</SelectOption>
+                  <SelectOption value="Web Development">Web Development</SelectOption>
+                </Select>
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">Type *</label>
-                <div class="flex-1">
-                  <Input v-model:value="newPackage.type" placeholder="e.g., Media Server" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" size="small" />
-                </div>
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Type *</label>
+                <Input v-model:value="newPackage.type" placeholder="e.g., Media Server" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">Docker Image *</label>
-                <div class="flex-1 flex gap-2">
-                  <Input v-model:value="newPackage.docker_image" placeholder="e.g., myuser/myapp" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" size="small" />
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Docker Image *</label>
+                <div class="flex gap-2">
+                  <Input v-model:value="newPackage.docker_image" placeholder="e.g., myuser/myapp" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
                   <button v-if="parsedData.image" @click="newPackage.docker_image = parsedData.image.split(':')[0]" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" title="Use detected image">
                     <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">Version *</label>
-                <div class="flex-1 flex gap-2">
-                  <Input v-model:value="newPackage.version" placeholder="e.g., latest" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" size="small" />
+            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Version *</label>
+                <div class="flex gap-2">
+                  <Input v-model:value="newPackage.version" placeholder="e.g., latest" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
                   <button v-if="parsedData.tag" @click="newPackage.version = parsedData.tag" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" title="Use detected version">
                     <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0', themeClasses.windowTitleTextFocused]">Creator (you) *</label>
-                <div class="flex-1">
-                  <Input v-model:value="newPackage.author" placeholder="Your name or organization" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" size="small" />
-                </div>
+            <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Creator (you) *</label>
+                <Input v-model:value="newPackage.author" placeholder="Your name or organization" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
+            </div>
 
-              <div :class="themeClasses.windowBorder" class="flex flex-col md:flex-row md:items-start gap-1 md:gap-4 px-4 py-3 border-t">
-                <label :class="['text-xs font-medium w-32 flex-shrink-0 pt-1', themeClasses.windowTitleTextFocused]">Description *</label>
-                <div class="flex-1">
-                  <Input v-model:value="newPackage.description" placeholder="Describe what this application does..." :maxlength="130" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" size="small" />
-                  <p :class="['text-[10px] mt-0.5 text-right', themeClasses.packagerTextMuted]">{{ newPackage.description.length }}/130</p>
-                </div>
+            <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+              <div class="px-3 py-3">
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Description *</label>
+                <Input v-model:value="newPackage.description" placeholder="Describe what this application does..." :maxlength="130" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                <p :class="['text-[10px] mt-0.5 text-right', themeClasses.packagerTextMuted]">{{ newPackage.description.length }}/130</p>
               </div>
             </div>
           </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
+              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgOrange">
+                <Icon :icon="accountKeyIcon" class="w-3 h-3 text-white" />
+              </div>
+              <span>Add Default Credentials</span>
+            </span>
+            <Switch v-model:checked="hasDefaultCredentials" :class="themeClasses.scopeSelector" />
+          </div>
+
+          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
+            <div v-if="hasDefaultCredentials" class="space-y-2">
+              <div class="grid packager-grid gap-2">
+                <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+                  <div class="px-3 py-3">
+                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Username</label>
+                    <Input v-model:value="newPackage.default_username" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                  </div>
+                </div>
+                <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+                  <div class="px-3 py-3">
+                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Password</label>
+                    <Input v-model:value="newPackage.default_password" placeholder="e.g., admin123" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                  </div>
+                </div>
+              </div>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">If this app ships with hardcoded login credentials, specify them here so users know how to sign in.</p>
+            </div>
+          </Transition>
 
           <button @click="createPackage" :disabled="!canCreate || isCreating" :class="['w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center gap-2', canCreate && !isCreating ? `${themeClasses.packagerSuccessButtonBg} ${themeClasses.packagerSuccessButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer` : `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed`]">
             <Icon :icon="isCreating ? loadingIcon : downloadIcon" :class="['w-4 h-4', isCreating ? 'animate-spin' : '']" />
@@ -162,24 +205,41 @@
             <span class="opacity-50 font-normal">{{ packageSearch && filteredExternalApps.length !== externalApps.length ? `(${filteredExternalApps.length}/${externalApps.length})` : `(${externalApps.length})` }}</span>
           </h3>
 
-          <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="packageFileList" name="package" accept=".hds" :multiple="true" :customRequest="handlePackageUploadRequest" @change="handlePackageChange" :showUploadList="false" class="compact-dragger-pkg">
+          <div v-if="!isLoadingExternal && externalApps.length === 0" @click="activeTab = 'generator'" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]" class="rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer">
             <div class="flex items-center gap-3 px-4 py-3">
-              <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                <Icon :icon="isUploading ? loadingIcon : importIcon" :class="['w-5 h-5', isUploading ? 'animate-spin' : '', themeClasses.explorerItemIcon]" />
+              <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.settingsIconBgGreen">
+                <Icon :icon="sparklesIcon" class="w-5 h-5 text-white" />
               </div>
-              <div class="flex-1 min-w-0 text-left">
-                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
-                  {{ isUploading ? "Importing package..." : "Import .hds Package" }}
-                </p>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                  {{ isUploading ? "Please wait" : "Drop .hds files here or click to browse" }}
-                </p>
+              <div class="flex-1 min-w-0">
+                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Create your first .hds application package</p>
+                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Use the Package Generator to get started</p>
               </div>
               <div class="flex-shrink-0">
-                <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
+                <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
               </div>
             </div>
-          </UploadDragger>
+          </div>
+
+          <div>
+            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="packageFileList" name="package" accept=".hds" :multiple="true" :customRequest="handlePackageUploadRequest" @change="handlePackageChange" :showUploadList="false" class="compact-dragger-pkg">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
+                  <Icon :icon="isUploading ? loadingIcon : importIcon" :class="['w-5 h-5', isUploading ? 'animate-spin' : '', themeClasses.explorerItemIcon]" />
+                </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
+                    {{ isUploading ? "Importing package..." : "Import .hds Package" }}
+                  </p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
+                    {{ isUploading ? "Please wait" : "Drop .hds files here or click to browse" }}
+                  </p>
+                </div>
+                <div class="flex-shrink-0">
+                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
+                </div>
+              </div>
+            </UploadDragger>
+          </div>
 
           <div v-if="externalApps.length > 5" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden flex items-center gap-2 px-3 py-2">
             <Icon :icon="magnifyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-4 h-4 flex-shrink-0" />
@@ -630,7 +690,7 @@ import { useAppStore } from "../__Stores__/useAppStore";
 import { useInstallationStore } from "../__Stores__/useInstallationStore";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { Icon } from "@iconify/vue";
-import { Input, Select, SelectOption, Button, UploadDragger, Segmented, message } from "ant-design-vue";
+import { Input, Select, SelectOption, Switch, UploadDragger, Segmented, message } from "ant-design-vue";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
@@ -667,6 +727,7 @@ import exportIcon from "@iconify-icons/mdi/export-variant";
 import storePlusIcon from "@iconify-icons/mdi/store-plus";
 import magnifyIcon from "@iconify-icons/mdi/magnify";
 import closeCircleIcon from "@iconify-icons/mdi/close-circle";
+import accountKeyIcon from "@iconify-icons/mdi/account-key";
 
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
@@ -675,10 +736,10 @@ const appStore = useAppStore();
 const installationStore = useInstallationStore();
 const desktopStore = useDesktopStore();
 
-const activeTab = ref<"generator" | "manager">("generator");
+const activeTab = ref<"generator" | "manager">("manager");
 const segmentedOptions = [
-  { value: "generator", payload: { label: ".hds Package Generator", icon: sparklesIcon } },
-  { value: "manager", payload: { label: ".hds Package Manager", icon: folderMultipleIcon } },
+  { value: "manager", payload: { label: "Package Manager", icon: folderMultipleIcon } },
+  { value: "generator", payload: { label: "Package Generator", icon: sparklesIcon } },
 ];
 
 const segmentedContainerRef = ref<HTMLElement | null>(null);
@@ -785,6 +846,7 @@ const iconFile = ref<File | null>(null);
 const iconFileList = ref<any[]>([]);
 const iconPreview = ref<string | null>(null);
 const isCreating = ref(false);
+const hasDefaultCredentials = ref(false);
 const parsedData = ref<any>({});
 
 const usedDevHooks = computed(() => {
@@ -803,6 +865,8 @@ const newPackage = ref({
   docker_image: "",
   author: "",
   version: "latest",
+  default_username: "",
+  default_password: "",
 });
 
 const isValidSlug = (slug: string): boolean => {
@@ -1132,6 +1196,10 @@ const createPackage = async () => {
     formData.append("docker_image", newPackage.value.docker_image);
     formData.append("author", newPackage.value.author);
     formData.append("version", newPackage.value.version);
+    if (hasDefaultCredentials.value && newPackage.value.default_username && newPackage.value.default_password) {
+      formData.append("default_username", newPackage.value.default_username);
+      formData.append("default_password", newPackage.value.default_password);
+    }
 
     const response = await axios.post("/api/pkg/create", formData, {
       headers: {
@@ -1168,7 +1236,10 @@ const createPackage = async () => {
       docker_image: "",
       author: "",
       version: "latest",
+      default_username: "",
+      default_password: "",
     };
+    hasDefaultCredentials.value = false;
   } catch (error) {
     console.error("Creation error:", error);
     message.error("Creation failed. Please try again.");
@@ -1595,18 +1666,6 @@ watch(
   display: none;
 }
 
-:deep(.compact-dragger .ant-upload-drag) {
-  height: 160px !important;
-  min-height: 160px !important;
-  max-height: 160px !important;
-}
-
-:deep(.compact-dragger-sm .ant-upload-drag) {
-  height: 120px !important;
-  min-height: 120px !important;
-  max-height: 120px !important;
-}
-
 :deep(.compact-dragger-pkg .ant-upload-drag) {
   height: auto !important;
   min-height: auto !important;
@@ -1616,9 +1675,10 @@ watch(
 
 :deep(.compact-dragger-pkg .ant-upload-drag .ant-upload) {
   padding: 0 !important;
+  display: block !important;
+  width: 100% !important;
 }
 
-:deep(.compact-dragger .ant-upload-drag.ant-upload-drag-hover),
 :deep(.compact-dragger-pkg .ant-upload-drag.ant-upload-drag-hover) {
   background: rgba(59, 130, 246, 0.15) !important;
 }
@@ -1629,6 +1689,24 @@ watch(
 
 .compose-editor:focus {
   outline: 2px solid rgba(59, 130, 246, 0.5);
+}
+
+.packager-content {
+  container-type: inline-size;
+}
+
+.packager-grid {
+  grid-template-columns: 1fr;
+}
+
+@container (min-width: 550px) {
+  .packager-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .packager-grid-full {
+    grid-column: 1 / -1;
+  }
 }
 
 .hdstore-card {

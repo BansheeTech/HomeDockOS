@@ -1,10 +1,29 @@
 # CHANGELOG
 
-- **2.1.0.486** (Latest): Security patch for axios.
-  - **Patched CVE-2026-25639** (Denial of Service via `__proto__` key in axios `mergeConfig` **opened 5 minutes ago**) by upgrading `axios` (npm) to 1.13.5+, fixing a high severity vulnerability where `JSON.parse()`-derived config objects with `__proto__` as own property caused a TypeError crash in `mergeConfig`, enabling DoS on any backend passing user-controlled JSON to axios.
-    > **TL;DR:** A specially crafted JSON payload could crash any app using axios by exploiting a quirk in how JavaScript handles `__proto__`. Not prototype pollution, just a straight crash... Patched by upgrading axios as usual tho.
+- **2.1.0.488** (Latest): Default credentials for apps, UI/UX improvements, Packager UI redesign, and share improvements.
+  - Added **Default Credentials** support: apps that ship with hardcoded login credentials (e.g., admin/admin123) now display them with copy-to-clipboard in the App Store install screen, with a reminder to change them after first sign-in. This works for both built-in App Store apps and `.hds` packages.
+  - Default credentials also appear in the **Properties** panel of installed apps in the Desktop (`Right click > Properties`), so you can check them anytime without having to look them up elsewhere.
+  - Added **Default Credentials toggle** in the Package Generator, letting developers and packagers specify the default username and password when creating an `.hds` package.
+  - Added **auto-generated password hint** in the install screen. Apps that receive a unique random password before installation now show a partially masked preview (first 6 characters + bullet dots) with a copy button. The previous UI confused users into thinking this was their HomeDock OS login password. **HomeDock OS never knows your login password**, and that's the whole point of generating random per-app passwords. Copy it, change it, or leave it as-is.
+  - Added **minimum password length validation** for apps (e.g., File Browser requires 12 characters, otherwise it doesn't even boot up). A red inline warning appears when the password is too short, and the Install button is disabled until the requirement is met.
+  - **Install button is now disabled** when required credential fields (username or password) are empty, preventing broken installations.
+  - Added **suggested port** and **suggested trail** fields for apps, improving automatic port routing for containers running in host network mode (e.g., Home Assistant on port 8123, Plex on 32400/web, Pi-hole on /admin and so).
+  - **Redesigned the Package Generator UI** (yes, again lol) with a responsive 2-column grid layout for metadata fields, more compact horizontal upload areas, and colored icon badges on section headers.
+  - **Package Manager is now the default tab** in Packager (instead of Package Generator), with shortened tab labels.
+  - Added **empty state in Package Manager** that links to the Package Generator when no packages exist yet.
+  - Added **Discord sharing section** in the Share Badge dialog with a direct link to the `#package-sharing` channel and a "Join Discord" button.
+  - Updated the **App Store submission** section wording, now mentioning support for indie developers.
+  - **Share badges now download as `.png`** instead of `.svg` for better compatibility, rendered at 4x resolution via canvas.
+  - **Duplicati** now ships with auto-generated encryption key and password, it was a broken app because of that so we fixed it.
+  - **qBittorrent** now supports custom username and password at install time via PBKDF2 hash generation in the container entrypoint, quite hacky, perfectly working.
+  - Added **GhostInk** to the App Store, technically platform-agnostic, but the app is so full of hidden-in-emojis HomeDock OS shout-outs that adding it elsewhere would feel awkward heh.
+    > **TL;DR:** **Sphynx**, our up and coming built-in inverse proxy entirely written in Python + aiohttp, has reached a very (very very lol) advanced stage, it will be released as a pip package under aGPLv3 license. It's what will make Docker apps run seamlessly inside Prism Window Manager, with localStorage isolation via IndexedDB KVs, path rewriting, and no need to open ports anymore, with a ~97% success rate in testing. If you'd like to beta test it open an issue.
 
 ---
+
+- **2.1.0.486**: Security patch for axios.
+  - **Patched CVE-2026-25639** (Denial of Service via `__proto__` key in axios `mergeConfig` **opened 5 minutes ago**) by upgrading `axios` (npm) to 1.13.5+, fixing a high severity vulnerability where `JSON.parse()`-derived config objects with `__proto__` as own property caused a TypeError crash in `mergeConfig`, enabling DoS on any backend passing user-controlled JSON to axios.
+    > **TL;DR:** A specially crafted JSON payload could crash any app using axios by exploiting a quirk in how JavaScript handles `__proto__`. Not prototype pollution, just a straight crash... Patched by upgrading axios as usual tho.
 
 - **2.1.0.484**: Security patch for cryptography package.
   - **Patched CVE-2026-26007** (Subgroup Attack in cryptography `public_key_from_numbers` and `EllipticCurvePublicNumbers.public_key` **opened 8 hours ago**) by upgrading `cryptography` (Python package) to 46.0.5+, fixing a high severity vulnerability where SECT curves lacked subgroup validation, allowing private key leakage via ECDH and signature forgery via ECDSA.

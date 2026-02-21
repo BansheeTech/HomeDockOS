@@ -1,0 +1,10 @@
+---
+services:
+  ghostink:
+    image: bansheetech/ghostink:latest
+    container_name: ghostink
+    ports:
+      - 12500:12500
+    volumes:
+      - [[INSTALL_PATH]]/ghostink:/app
+    restart: unless-stopped

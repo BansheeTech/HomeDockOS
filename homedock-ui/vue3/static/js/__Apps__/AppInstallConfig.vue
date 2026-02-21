@@ -60,7 +60,7 @@
                 <Icon :icon="queueIcon" class="mr-1.5" />
                 Queued
               </Button>
-              <Button v-else :class="[themeClasses.storeButtonInstall]" key="install" class="action-button-primary flex items-center justify-center" type="primary" @click="handleInstall">
+              <Button v-else :disabled="installDisabled" :class="[themeClasses.storeButtonInstall]" key="install" class="action-button-primary flex items-center justify-center" type="primary" @click="handleInstall">
                 <Icon :icon="downloadIcon" class="mr-1.5" />
                 Install
               </Button>
@@ -92,6 +92,37 @@
         </div>
 
         <div class="px-4">
+          <div v-if="app?.default_credentials" :class="[themeClasses.installConfigDefaultCredsRow]" class="mb-3 rounded-lg border px-3 py-2.5">
+            <div class="flex items-center">
+              <Icon :icon="accountKeyIcon" class="h-3.5 w-3.5 flex-shrink-0 mr-2.5" :class="[themeClasses.installConfigDefaultCredsLabel]" />
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">User</span>
+                  <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.username }}</span>
+                  <button @click="copyCredential(app.default_credentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                    <Icon :icon="copiedField === 'username' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
+                  </button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">Pass</span>
+                  <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.password }}</span>
+                  <button @click="copyCredential(app.default_credentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                    <Icon :icon="copiedField === 'password' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="overflow-hidden transition-all duration-400 ease-out" :class="defaultCredsHintVisible ? 'max-h-12 opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'">
+              <p :class="[themeClasses.installConfigDefaultCredsHint]" class="flex items-start gap-1.5 text-[10px] ml-1">
+                <span class="relative flex h-2 w-2 flex-shrink-0 mt-[3px]">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span><strong>Change after first sign-in.</strong> Once installed, view these anytime from {{ app?.display_name || app?.name }} Properties panel on the Desktop.</span>
+              </p>
+            </div>
+          </div>
+
           <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
             {{ app?.description + "." || "No description available" }}
           </p>
@@ -122,7 +153,26 @@
                 </div>
                 <div class="space-y-3">
                   <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" placeholder="Username" class="w-full" />
-                  <InputPassword v-if="userPassword !== undefined" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" placeholder="Password" class="w-full" />
+                  <Transition name="input-swap" mode="out-in">
+                    <Input v-if="userPassword !== undefined && autoGenDisplayMode" key="preview" :value="maskedPasswordPreview" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'autogen-preview']" :disabled="app?.is_installed" placeholder="Password" class="w-full" readonly @click="exitAutoGenMode">
+                      <template #suffix>
+                        <button @click.stop="copyCredential(originalAutoGenPassword, 'autogen')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'autogen' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                          <Icon :icon="copiedField === 'autogen' ? checkIcon : contentCopyIcon" class="h-3.5 w-3.5" />
+                        </button>
+                      </template>
+                    </Input>
+                    <InputPassword v-else-if="userPassword !== undefined" key="password" ref="passwordInputRef" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" placeholder="Password" class="w-full" />
+                  </Transition>
+                  <Transition name="fade-slide" mode="out-in">
+                    <div v-if="autoGenHintVisible" key="autogen-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20">
+                      <Icon :icon="alertIcon" class="h-3 w-3 text-amber-500 flex-shrink-0" />
+                      <p class="text-[10px] font-medium text-amber-600 dark:text-amber-400">This is an auto-generated password. Copy to save it or click the field to set your own.</p>
+                    </div>
+                    <div v-else-if="passwordTooShort" key="pwd-min-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 border border-red-500/20">
+                      <Icon :icon="alertIcon" class="h-3 w-3 text-red-500 flex-shrink-0" />
+                      <p class="text-[10px] font-medium text-red-600 dark:text-red-400">Password for {{ app?.display_name }} must be at least {{ app?.pwd_min_required }} characters long.</p>
+                    </div>
+                  </Transition>
                 </div>
               </div>
 
@@ -280,7 +330,7 @@
         </div>
       </div>
 
-      <StatusBar :icon="downloadIcon" message="Install App" :info="app?.name ? `Installing ${app.display_name || app.name}` : 'Configure application'" :showHelp="true">
+      <StatusBar :icon="downloadIcon" message="Install App" :info="app?.name ? `${app.display_name || app.name} Installation` : 'Configure application'" :showHelp="true">
         <template #help>
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
@@ -368,7 +418,7 @@
 <script lang="ts" setup>
 import axios from "axios";
 
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useAppStore } from "../__Stores__/useAppStore";
@@ -399,6 +449,8 @@ import envIcon from "@iconify-icons/mdi/code-braces";
 import capabilityIcon from "@iconify-icons/mdi/shield-check";
 import privilegedIcon from "@iconify-icons/mdi/shield-crown";
 import accountKeyIcon from "@iconify-icons/mdi/account-key";
+import contentCopyIcon from "@iconify-icons/mdi/content-copy";
+import checkIcon from "@iconify-icons/mdi/check";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
@@ -479,6 +531,12 @@ const showExternalWarning = ref(false);
 const pendingInstall = ref(false);
 const showPrivilegedWarning = ref(false);
 const pendingPrivilegedChange = ref(false);
+const copiedField = ref<string | null>(null);
+const defaultCredsHintVisible = ref(false);
+const originalAutoGenPassword = ref("");
+const autoGenDisplayMode = ref(false);
+const autoGenHintVisible = ref(false);
+const passwordInputRef = ref<{ $el: HTMLElement } | null>(null);
 const screenshots = ref<string[]>([]);
 const showScreenshotModal = ref(false);
 const currentScreenshotModal = ref(0);
@@ -490,6 +548,34 @@ const clickThreshold = ref(5);
 const hasDragged = ref(false);
 
 const csrfToken = useCsrfToken();
+
+const maskedPasswordPreview = computed(() => {
+  const pw = originalAutoGenPassword.value;
+  if (pw.length <= 6) return pw;
+  return pw.slice(0, 6) + "\u2022".repeat(pw.length - 6);
+});
+
+const passwordTooShort = computed(() => {
+  const min = app.value?.pwd_min_required;
+  if (!min || autoGenDisplayMode.value) return false;
+  const pw = userPassword.value || "";
+  return pw.length > 0 && pw.length < min;
+});
+
+const installDisabled = computed(() => {
+  if (userName.value !== undefined && !userName.value?.trim()) return true;
+  if (!autoGenDisplayMode.value && userPassword.value !== undefined && !userPassword.value?.trim()) return true;
+  if (passwordTooShort.value) return true;
+  return false;
+});
+
+function copyCredential(value: string, field: string) {
+  navigator.clipboard.writeText(value);
+  copiedField.value = field;
+  setTimeout(() => {
+    copiedField.value = null;
+  }, 1500);
+}
 
 function parsePortString(portStr: string): PortMapping {
   const parts = portStr.split(":");
@@ -563,6 +649,14 @@ async function fetchAppInfo() {
       userName.value = response.data.data.user_name || undefined;
       userPassword.value = response.data.data.password || undefined;
       sslEnabled.value = response.data.data.ssl_enabled || false;
+
+      if (userPassword.value && !app.value?.default_credentials && !app.value?.is_installed) {
+        originalAutoGenPassword.value = userPassword.value;
+        autoGenDisplayMode.value = true;
+        setTimeout(() => {
+          autoGenHintVisible.value = true;
+        }, 750);
+      }
     } else {
       console.error("Failed to fetch app info:", response.data.message);
       hasLoadedConfig.value = false;
@@ -639,6 +733,23 @@ function convertNetworkMappingsToArray(): string[] {
 
 async function handleInstall() {
   if (!app.value?.name) return;
+
+  const effectivePassword = autoGenDisplayMode.value ? originalAutoGenPassword.value : userPassword.value;
+
+  if (userName.value !== undefined && !userName.value?.trim()) {
+    notifyWarning("Username is required for this application", themeClasses.value.scopeSelector);
+    return;
+  }
+
+  if (effectivePassword !== undefined && !effectivePassword?.trim()) {
+    notifyWarning("Password is required for this application", themeClasses.value.scopeSelector);
+    return;
+  }
+
+  if (passwordTooShort.value) {
+    notifyWarning(`Password must be at least ${app.value.pwd_min_required} characters`, themeClasses.value.scopeSelector);
+    return;
+  }
 
   if (app.value.is_external && !pendingInstall.value) {
     showExternalWarning.value = true;
@@ -813,15 +924,29 @@ function handleKeyboardNavigation(event: KeyboardEvent) {
   }
 }
 
+function exitAutoGenMode() {
+  if (app.value?.is_installed) return;
+  autoGenDisplayMode.value = false;
+  autoGenHintVisible.value = false;
+  nextTick(() => {
+    passwordInputRef.value?.$el?.querySelector<HTMLInputElement>("input")?.focus();
+  });
+}
+
 watch(
   app,
   (newApp) => {
     if (newApp?.name) {
       fetchAppInfo();
       loadScreenshots();
+      if (newApp.default_credentials && !defaultCredsHintVisible.value) {
+        setTimeout(() => {
+          defaultCredsHintVisible.value = true;
+        }, 750);
+      }
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {
@@ -852,7 +977,9 @@ onUnmounted(() => {
 /* Transitions > Install Button Status */
 .button-fade-enter-active,
 .button-fade-leave-active {
-  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+  transition:
+    opacity 0.25s ease-in-out,
+    transform 0.25s ease-in-out;
 }
 
 .button-fade-enter-from,
@@ -867,16 +994,34 @@ onUnmounted(() => {
   transform: scale(1);
 }
 
+/* Transitions > Input Swap (auto-gen preview ↔ real password) */
+.input-swap-enter-active,
+.input-swap-leave-active {
+  transition: opacity 0.12s ease;
+}
+
+.input-swap-enter-from,
+.input-swap-leave-to {
+  opacity: 0;
+}
+
+/* Auto-gen password preview */
+.autogen-preview :deep(input) {
+  cursor: pointer;
+}
+
 /* Transitions > Configuration Mode Switch */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
 }
 
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-12px);
 }
 
 .fade-slide-enter-to,
@@ -888,7 +1033,9 @@ onUnmounted(() => {
 /* Textarea Styling */
 textarea {
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   outline: 1px solid rgba(129, 129, 129, 0.281);
 }
 
@@ -899,6 +1046,15 @@ textarea:focus {
 textarea:disabled {
   opacity: 0.6;
   user-select: none !important;
+}
+
+/* Install button disabled state */
+.action-buttons :deep(.ant-btn-primary[disabled]),
+.action-buttons :deep(.ant-btn-primary[disabled]:hover) {
+  background-color: rgb(99, 99, 99) !important;
+  border-color: transparent !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 0.3;
 }
 
 /* Hide Scrollbar */

@@ -574,6 +574,11 @@ def create_hds_from_files():
 
         manifest = {"name": app_slug, "display_name": display_name, "category": category, "type": app_type, "description": description, "docker_image": docker_image, "icon": f"icon{icon_ext}", "author": author, "version": version, "hds_version": HDS_VERSION, "dependencies": [], "is_group": False, "is_new": False, "new_until": False}
 
+        default_username = request.form.get("default_username")
+        default_password = request.form.get("default_password")
+        if default_username and default_password:
+            manifest["default_credentials"] = {"username": default_username, "password": default_password}
+
         manifest_content = json.dumps(manifest, indent=2)
 
         signature = calculate_content_hash(manifest_content, icon_bytes, compose_content)
@@ -613,6 +618,10 @@ def get_external_apps_for_store():
                     icon_filename = metadata.get("icon_filename", f'{app_slug}{os.path.splitext(metadata.get("icon", ".jpg"))[1]}')
 
                     app_data = {"name": app_slug, "display_name": display_name, "category": metadata.get("category", "Other"), "type": metadata.get("type", "Application"), "description": metadata.get("description", ""), "docker_image": metadata.get("docker_image", ""), "picture_path": f"user-images/{icon_filename}", "icon": metadata.get("icon", "mdi:package-variant"), "is_group": metadata.get("is_group", False), "dependencies": metadata.get("dependencies", []), "is_new": False, "new_until": False, "is_external": True, "author": metadata.get("author", "Unknown"), "version": metadata.get("version", "1.0.0")}
+
+                    default_creds = metadata.get("default_credentials")
+                    if default_creds and isinstance(default_creds, dict):
+                        app_data["default_credentials"] = default_creds
 
                     apps.append(app_data)
 

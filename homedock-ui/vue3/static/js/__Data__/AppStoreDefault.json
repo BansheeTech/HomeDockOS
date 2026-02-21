@@ -57,7 +57,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "File Browser",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "pwd_min_required": 12
   },
   {
     "dependencies": [],
@@ -267,7 +268,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Airsonic Advanced",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "default_credentials": { "username": "admin", "password": "admin" }
   },
   {
     "dependencies": [],
@@ -342,7 +344,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Baby Buddy",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "admin", "password": "admin" }
   },
   {
     "dependencies": [],
@@ -597,7 +600,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Deluge",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "admin", "password": "deluge" }
   },
   {
     "dependencies": [],
@@ -624,8 +628,8 @@
     "type": "Negative SEO Disavow Tool",
     "icon": "mdi:camera",
     "description": "Easily generate disavow files to help website owners manage and reject unwanted backlinks for SEO purposes",
-    "is_new": true,
-    "new_until": "2026-01-31",
+    "is_new": false,
+    "new_until": false,
     "display_name": "Disavow Generator",
     "screenshot_count": 3
   },
@@ -856,6 +860,21 @@
   },
   {
     "dependencies": [],
+    "docker_image": "bansheetech/ghostink:latest",
+    "picture_path": "docker-icons/ghostink.jpg",
+    "is_group": false,
+    "name": "ghostink",
+    "category": "Developer Tools",
+    "type": "Emoji Steganography Tool",
+    "icon": "mdi:image",
+    "description": "Emoji steganography tool that hides secret text inside emojis using Unicode Tag Characters, keeping secret text inside emojis",
+    "is_new": true,
+    "new_until": "2026-03-10",
+    "display_name": "GhostInk",
+    "screenshot_count": 3
+  },
+  {
+    "dependencies": [],
     "docker_image": "lscr.io/linuxserver/gimp:latest",
     "picture_path": "docker-icons/gimp.jpg",
     "is_group": false,
@@ -927,7 +946,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Grocy",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "admin", "password": "admin" }
   },
   {
     "dependencies": [],
@@ -1017,7 +1037,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Home Assistant",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "suggested_port": 8123
   },
   {
     "dependencies": [],
@@ -1752,7 +1773,9 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Plex",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "suggested_port": 32400,
+    "suggested_trail": "/web"
   },
   {
     "dependencies": [],
@@ -1827,7 +1850,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "PyLoad NG",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "pyload", "password": "pyload" }
   },
   {
     "dependencies": [],
@@ -1902,7 +1926,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Raneto",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "default_credentials": { "username": "admin", "password": "password" }
   },
   {
     "dependencies": [],
@@ -2082,7 +2107,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Speedtest Tracker",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "default_credentials": { "username": "admin@example.com", "password": "password" }
   },
   {
     "dependencies": [],
@@ -2427,7 +2453,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "ZNC",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "default_credentials": { "username": "admin", "password": "admin" }
   },
   {
     "dependencies": [],
@@ -2487,7 +2514,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Pi-hole",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "suggested_trail": "/admin"
   },
   {
     "dependencies": [],
@@ -2517,7 +2545,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "RobiPet",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "admin", "password": "admin123" }
   },
   {
     "dependencies": [],

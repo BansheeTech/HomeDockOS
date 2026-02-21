@@ -87,6 +87,34 @@
                 </div>
               </div>
 
+              <div v-if="defaultCredentials" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <Icon :icon="accountKeyIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Default Credentials</span>
+                </div>
+                <div class="flex flex-col">
+                  <div class="flex justify-between items-center py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Username</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.username }}</span>
+                      <button @click="copyCredential(defaultCredentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                        <Icon :icon="copiedField === 'username' ? checkIcon : contentCopyIcon" width="14" height="14" />
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center py-1.5 border-b-0">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Password</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.password }}</span>
+                      <button @click="copyCredential(defaultCredentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                        <Icon :icon="copiedField === 'password' ? checkIcon : contentCopyIcon" width="14" height="14" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-[10px] mt-2 opacity-50" :class="[themeClasses.appPropsInfoLabel]">Please change these credentials after your first sign-in.</p>
+              </div>
+
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="accesPointNetworkIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
@@ -253,7 +281,7 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
@@ -286,11 +314,15 @@ import lockIcon from "@iconify-icons/mdi/lock";
 import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import alertCircleIcon from "@iconify-icons/mdi/alert-circle";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
+import accountKeyIcon from "@iconify-icons/mdi/account-key";
+import contentCopyIcon from "@iconify-icons/mdi/content-copy";
+import checkIcon from "@iconify-icons/mdi/check";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import PortRouter from "../__Components__/PortRouter.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 
+import { useAppStore } from "../__Stores__/useAppStore";
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer } from "../__Services__/DockerActions";
 
 interface Props {
@@ -306,6 +338,7 @@ const props = defineProps<Props>();
 
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
+const appStore = useAppStore();
 
 const csrfToken = useCsrfToken();
 
@@ -350,6 +383,22 @@ const groupContainers = computed<DockerApp[]>(() => {
 const showConfiguration = computed<boolean>(() => {
   return !!(app.value?.HDGroup || app.value?.HDRole || groupContainers.value.length > 0);
 });
+
+const defaultCredentials = computed(() => {
+  if (!app.value?.name) return null;
+  const storeApp = appStore.apps.find((a) => a.name === app.value!.name);
+  return storeApp?.default_credentials || null;
+});
+
+const copiedField = ref<string | null>(null);
+
+function copyCredential(value: string, field: string) {
+  navigator.clipboard.writeText(value);
+  copiedField.value = field;
+  setTimeout(() => {
+    copiedField.value = null;
+  }, 1500);
+}
 
 function getContainerClasses(app: DockerApp): string {
   const statusClasses: Record<string, string> = {
@@ -525,6 +574,12 @@ watch(activeTab, (newTab) => {
 watch(app, () => {
   if (activeTab.value === "files") {
     loadMounts();
+  }
+});
+
+onMounted(() => {
+  if (appStore.apps.length === 0) {
+    appStore.loadApps(csrfToken.value);
   }
 });
 </script>
