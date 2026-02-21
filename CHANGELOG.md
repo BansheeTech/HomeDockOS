@@ -1,6 +1,12 @@
 # CHANGELOG
 
-- **2.1.0.488** (Latest): Default credentials for apps, UI/UX improvements, Packager UI redesign, and share improvements.
+- **2.1.0.489** (Latest): Security patches for Werkzeug and Flask.
+  - **Patched Werkzeug CVE-2026-27199** (opened 7 hours ago) by upgrading `werkzeug` (pip) to 3.1.6+, fixing a moderate severity vulnerability where `safe_join` failed to filter **Windows** (🙉) special device names (e.g., `NUL`) when preceded by other path segments, allowing `send_from_directory` to open device files and hang indefinitely on Windows.
+  - **Patched Flask CVE-2026-27205** (opened 7 hours ago) by upgrading `flask` (pip) to 3.1.3+, fixing a low severity vulnerability where certain forms of session access (e.g., using the `in` operator) did not trigger the `Vary: Cookie` response header, potentially allowing caching proxies to serve session-specific responses to other users. Don't ship on Friday... But what about Saturday?
+
+---
+
+- **2.1.0.488**: Default credentials for apps, UI/UX improvements, Packager UI redesign, and share improvements.
   - Added **Default Credentials** support: apps that ship with hardcoded login credentials (e.g., admin/admin123) now display them with copy-to-clipboard in the App Store install screen, with a reminder to change them after first sign-in. This works for both built-in App Store apps and `.hds` packages.
   - Default credentials also appear in the **Properties** panel of installed apps in the Desktop (`Right click > Properties`), so you can check them anytime without having to look them up elsewhere.
   - Added **Default Credentials toggle** in the Package Generator, letting developers and packagers specify the default username and password when creating an `.hds` package.
@@ -18,8 +24,6 @@
   - **qBittorrent** now supports custom username and password at install time via PBKDF2 hash generation in the container entrypoint, quite hacky, perfectly working.
   - Added **GhostInk** to the App Store, technically platform-agnostic, but the app is so full of hidden-in-emojis HomeDock OS shout-outs that adding it elsewhere would feel awkward heh.
     > **TL;DR:** **Sphynx**, our up and coming built-in inverse proxy entirely written in Python + aiohttp, has reached a very (very very lol) advanced stage, it will be released as a pip package under aGPLv3 license. It's what will make Docker apps run seamlessly inside Prism Window Manager, with localStorage isolation via IndexedDB KVs, path rewriting, and no need to open ports anymore, with a ~97% success rate in testing. If you'd like to beta test it open an issue.
-
----
 
 - **2.1.0.486**: Security patch for axios.
   - **Patched CVE-2026-25639** (Denial of Service via `__proto__` key in axios `mergeConfig` **opened 5 minutes ago**) by upgrading `axios` (npm) to 1.13.5+, fixing a high severity vulnerability where `JSON.parse()`-derived config objects with `__proto__` as own property caused a TypeError crash in `mergeConfig`, enabling DoS on any backend passing user-controlled JSON to axios.

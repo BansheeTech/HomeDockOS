@@ -1,5 +1,5 @@
 # last_update_hash: null
-Flask==3.1.2
+Flask==3.1.3
 Flask-Login==0.6.3
 Flask-Compress==1.23
 docker==7.1.0
@@ -10,7 +10,7 @@ bcrypt==5.0.0
 cython==3.2.0
 colorama==0.4.6
 cryptography==46.0.5
-Werkzeug==3.1.5
+Werkzeug==3.1.6
 configparser==7.2.0
 psutil==7.1.3
 zeroconf==0.148.0
