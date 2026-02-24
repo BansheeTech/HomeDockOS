@@ -1,10 +1,13 @@
 # CHANGELOG
 
-- **2.1.0.489** (Latest): Security patches for Werkzeug and Flask.
-  - **Patched Werkzeug CVE-2026-27199** (opened 7 hours ago) by upgrading `werkzeug` (pip) to 3.1.6+, fixing a moderate severity vulnerability where `safe_join` failed to filter **Windows** (🙉) special device names (e.g., `NUL`) when preceded by other path segments, allowing `send_from_directory` to open device files and hang indefinitely on Windows.
-  - **Patched Flask CVE-2026-27205** (opened 7 hours ago) by upgrading `flask` (pip) to 3.1.3+, fixing a low severity vulnerability where certain forms of session access (e.g., using the `in` operator) did not trigger the `Vary: Cookie` response header, potentially allowing caching proxies to serve session-specific responses to other users. Don't ship on Friday... But what about Saturday?
+- **2.1.0.490** (Latest): Security patch for port routing configuration injection.
+  - **Fixed Configuration Injection via Newline in Port Routing `container_id`** (reported by **Jupiter Belic**) by sanitizing the `container_id` parameter in `hd_UIDashboardPortRouting.py` through `sanitize_container_name()`, which strips any character outside `[a-zA-Z0-9_-]`. Docker itself already enforces a regex on container names at creation time, but as defense in depth we now also sanitize on our side before the value reaches any internal logic.
 
 ---
+
+- **2.1.0.489**: Security patches for Werkzeug and Flask.
+  - **Patched Werkzeug CVE-2026-27199** (opened 7 hours ago) by upgrading `werkzeug` (pip) to 3.1.6+, fixing a moderate severity vulnerability where `safe_join` failed to filter **Windows** (🙉) special device names (e.g., `NUL`) when preceded by other path segments, allowing `send_from_directory` to open device files and hang indefinitely on Windows.
+  - **Patched Flask CVE-2026-27205** (opened 7 hours ago) by upgrading `flask` (pip) to 3.1.3+, fixing a low severity vulnerability where certain forms of session access (e.g., using the `in` operator) did not trigger the `Vary: Cookie` response header, potentially allowing caching proxies to serve session-specific responses to other users. Don't ship on Friday... But what about Saturday?
 
 - **2.1.0.488**: Default credentials for apps, UI/UX improvements, Packager UI redesign, and share improvements.
   - Added **Default Credentials** support: apps that ship with hardcoded login credentials (e.g., admin/admin123) now display them with copy-to-clipboard in the App Store install screen, with a reminder to change them after first sign-in. This works for both built-in App Store apps and `.hds` packages.

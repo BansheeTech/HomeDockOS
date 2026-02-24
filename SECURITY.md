@@ -11,6 +11,10 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
+- `✦ Configuration Injection via Newline in Port Routing container_id`
+
+  - **Reported by Jupiter Belic** – Fixed in v2.1.0.490
+
 - `✦ Possible Self-DDoS by Enumerating Thousands of Files on Drop Zone`
 
   - **Internally Discovered** – Fixed in v2.0.4.212

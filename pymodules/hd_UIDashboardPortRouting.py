@@ -13,6 +13,7 @@ from flask_login import login_required
 
 from pymodules.hd_ThreadAutoPortRouting import update_event
 from pymodules.hd_FunctionsGlobals import current_directory
+from pymodules.hd_FunctionsSanitize import sanitize_container_name
 
 
 @login_required
@@ -20,7 +21,7 @@ def port_route_function():
     update_event.clear()
 
     data = request.json
-    container_id = data.get("container_id")
+    container_id = sanitize_container_name(data.get("container_id"))
     ports_list = data.get("ports_list")
 
     if ports_list in ["hostmode", "disabled"]:
