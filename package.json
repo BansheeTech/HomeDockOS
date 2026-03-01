@@ -1,6 +1,6 @@
 {
   "name": "homedock_os",
-  "version": "2.1.0.490",
+  "version": "2.1.0.492",
   "description": "![HomeDock OS Banner](https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-banner-rhino.png)",
   "type": "module",
   "scripts": {
@@ -35,7 +35,8 @@
   "overrides": {
     "brace-expansion": "^2.0.2",
     "lodash": "^4.17.22",
-    "lodash-es": "^4.17.23"
+    "lodash-es": "^4.17.23",
+    "rollup": "^4.59.0"
   },
   "devDependencies": {
     "@types/node": "25.0.10",

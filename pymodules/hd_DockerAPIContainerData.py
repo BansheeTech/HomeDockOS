@@ -13,8 +13,6 @@ import json
 from flask import jsonify, request
 from flask_login import login_required
 
-from urllib.parse import urlparse
-
 from pymodules.hd_FunctionsGlobals import compose_upload_folder, current_directory, user_packages_available_folder
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
 from pymodules.hd_ThreadContainerResourceUsage import cpu_usage, memory_usage, network_rx_bytes, network_tx_bytes
@@ -232,52 +230,36 @@ def get_docker_containers():
                             image_path = f"docker-icons/{base_name}{ext}"
                             break
 
-            base_url = request.headers.get("X-Forwarded-Host", request.url_root)
-            parsed_url = urlparse(base_url)
+            host_display = request.host.split(":")[0]
+            if host_display.startswith("www."):
+                host_display = host_display[4:]
 
-            base_url_without_scheme_or_www = parsed_url.hostname
-            if base_url_without_scheme_or_www.startswith("www."):
-                base_url_without_scheme_or_www = base_url_without_scheme_or_www[4:]
-
-            if not is_valid_hostname(base_url_without_scheme_or_www):
-                service_url = None
-            else:
-                host_header = request.headers.get("Host", base_url_without_scheme_or_www)
-                parsed_host = urlparse(f"//{host_header}")
-                final_host = parsed_host.netloc
-
-                if container.name in ports_config:
-                    ports_list = ports_config[container.name]
-                    if "" in ports_list or "hostmode" in ports_list:
-                        service_url = None
-                    else:
-                        sanitized_port = sanitize_port(ports_list[0])
-                        if sanitized_port:
-                            service_url = f"//{final_host}/app/{sanitized_port}"
-                        else:
-                            service_url = None
+            if container.name in ports_config:
+                ports_list = ports_config[container.name]
+                if "" in ports_list or "hostmode" in ports_list:
+                    service_url = None
                 else:
-                    ports = container.attrs["NetworkSettings"]["Ports"]
-                    ports_list = []
-                    for port in ports:
-                        if ports[port] is not None:
-                            for item in ports[port]:
-                                host_port = sanitize_port(item["HostPort"])
-                                if host_port:
-                                    ports_list.append(host_port)
+                    sanitized_port = sanitize_port(ports_list[0])
+                    service_url = f"/app/{sanitized_port}" if sanitized_port else None
+            else:
+                ports = container.attrs["NetworkSettings"]["Ports"]
+                ports_list = []
+                for port in ports:
+                    if ports[port] is not None:
+                        for item in ports[port]:
+                            host_port = sanitize_port(item["HostPort"])
+                            if host_port:
+                                ports_list.append(host_port)
 
-                    if ports_list and ports_list[0] not in ["hostmode", ""]:
-                        sanitized_port = sanitize_port(ports_list[0])
-                        if sanitized_port:
-                            service_url = f"//{final_host}/app/{sanitized_port}"
-                        else:
-                            service_url = None
-                    else:
-                        service_url = None
+                if ports_list and ports_list[0] not in ["hostmode", ""]:
+                    sanitized_port = sanitize_port(ports_list[0])
+                    service_url = f"/app/{sanitized_port}" if sanitized_port else None
+                else:
+                    service_url = None
 
             display_name = get_display_name_for_container(container.name)
 
-            basic_data = {"name": container.name, "display_name": display_name, "id": container.short_id, "status": container.status, "image": str(container.image.tags[0]) if container.image.tags else "", "image_path": image_path, "usagePercent": cpu_usage.get(container.name, 0), "memoryUsagePercent": memory_usage.get(container.name, 0), "networkRxBytes": network_rx_bytes.get(container.name, 0), "networkTxBytes": network_tx_bytes.get(container.name, 0), "statusColor": statusColor, "host": base_url_without_scheme_or_www, "composeLink": file_status, "ports": ports_list, "service_url": service_url, "has_update": updates_dict.get(container.name, False)}
+            basic_data = {"name": container.name, "display_name": display_name, "id": container.short_id, "status": container.status, "image": str(container.image.tags[0]) if container.image.tags else "", "image_path": image_path, "usagePercent": cpu_usage.get(container.name, 0), "memoryUsagePercent": memory_usage.get(container.name, 0), "networkRxBytes": network_rx_bytes.get(container.name, 0), "networkTxBytes": network_tx_bytes.get(container.name, 0), "statusColor": statusColor, "host": host_display, "composeLink": file_status, "ports": ports_list, "service_url": service_url, "has_update": updates_dict.get(container.name, False)}
 
             if "HDGroup" in labels:
                 basic_data["HDGroup"] = labels["HDGroup"]
@@ -293,6 +275,7 @@ def get_docker_containers():
     return jsonify(container_data)
 
 
+# HDOS00017
 def is_valid_hostname(hostname):
     pattern = r"^[a-zA-Z0-9.-]*$"
     return re.match(pattern, hostname) is not None

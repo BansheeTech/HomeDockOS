@@ -1,9 +1,17 @@
 # CHANGELOG
 
-- **2.1.0.490** (Latest): Security patch for port routing configuration injection.
-  - **Fixed Configuration Injection via Newline in Port Routing `container_id`** (reported by **Jupiter Belic**) by sanitizing the `container_id` parameter in `hd_UIDashboardPortRouting.py` through `sanitize_container_name()`, which strips any character outside `[a-zA-Z0-9_-]`. Docker itself already enforces a regex on container names at creation time, but as defense in depth we now also sanitize on our side before the value reaches any internal logic.
+- **2.1.0.492** (Latest): Rollup CVE-2026-27606 hotfix, reverse proxy support, auto-port routing fix, and various fixes.
+  - **Patched CVE-2026-27606** (Arbitrary File Write via Path Traversal in Rollup **opened 15 hours ago**) by overriding `rollup` (npm) to 4.59.0+, fixing a high severity vulnerability where `../` path traversal sequences could write files outside the output directory. Transitive dependency via Vite.
+  - Added **Reverse Proxy support** (`reverse_proxy` config option) with a new toggle in Settings > System. When enabled, HomeDock OS wraps the Flask app with Werkzeug's `ProxyFix` middleware (trusting `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`), sets `SESSION_COOKIE_SECURE = True` for TLS termination, and prints the reverse proxy status at boot. Requires restart. It should work with most reverse proxies.
+  - Added **421 Misdirected Request** response in the HTTP redirector when `X-Forwarded-Proto: https` is detected, preventing reverse proxies from accidentally routing already-secure traffic to the HTTP-to-HTTPS redirect server.
+  - **Simplified service URL generation** in container data API: removed complex `urlparse` + `X-Forwarded-Host` hostname resolution in favor of relative paths (`/app/{port}` instead of protocol-relative `//host/app/{port}`), eliminating hostname validation edge cases and making the URLs work naturally behind reverse proxies.
+  - **Fixed auto-port routing** for `network_mode: host` suggested ports we've removed the `check_port_availability()` gate that prevented suggested ports from being assigned when the container wasn't running yet, causing apps with suggested ports (e.g., Home Assistant, Plex, Pi-hole) to lose their any automatic routing config.
+  - Added **default credentials** for Disavow Generator application in the App Store, they were missing when we added them all, or at least... When we tried to add them all lol
 
 ---
+
+- **2.1.0.490**: Security patch for port routing configuration injection.
+  - **Fixed Configuration Injection via Newline in Port Routing `container_id`** (reported by **Jupiter Belic**) by sanitizing the `container_id` parameter in `hd_UIDashboardPortRouting.py` through `sanitize_container_name()`, which strips any character outside `[a-zA-Z0-9_-]`. Docker itself already enforces a regex on container names at creation time, but as defense in depth we now also sanitize on our side before the value reaches any internal logic.
 
 - **2.1.0.489**: Security patches for Werkzeug and Flask.
   - **Patched Werkzeug CVE-2026-27199** (opened 7 hours ago) by upgrading `werkzeug` (pip) to 3.1.6+, fixing a moderate severity vulnerability where `safe_join` failed to filter **Windows** (🙉) special device names (e.g., `NUL`) when preceded by other path segments, allowing `send_from_directory` to open device files and hang indefinitely on Windows.

@@ -24,8 +24,22 @@
   </SettingsGroup>
 
   <SettingsGroup header="SYSTEM BEHAVIOR" footer="Configure how HomeDock OS behaves and manages applications.">
-    <SettingsItem :icon="lanIcon" icon-color="purple" title="Local DNS Access" description="Enable homedock.local access (requires restart)">
+    <SettingsItem :icon="lanIcon" icon-color="purple" title="Local DNS Access" description="Enable homedock.local access">
+      <template #after-description>
+        <Transition name="restart-badge">
+          <span v-if="localDNSChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">Requires Restart</span>
+        </Transition>
+      </template>
       <Switch v-model:checked="homedockLocalValue" name="FormInputHomeDockLocal" id="FormInputHomeDockLocal" />
+    </SettingsItem>
+
+    <SettingsItem :icon="serverNetworkIcon" icon-color="green" title="Reverse Proxy" description="Enable if running behind a reverse proxy">
+      <template #after-description>
+        <Transition name="restart-badge">
+          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">Requires Restart</span>
+        </Transition>
+      </template>
+      <Switch v-model:checked="reverseProxyValue" name="FormInputReverseProxy" id="FormInputReverseProxy" />
     </SettingsItem>
 
     <SettingsItem :icon="chartBellCurveIcon" icon-color="gray" title="Anonymous Usage Data" description="Disable sending anonymous analytics">
@@ -71,6 +85,7 @@ import lanIcon from "@iconify-icons/mdi/lan";
 import alertIcon from "@iconify-icons/mdi/alert";
 import chartBellCurveIcon from "@iconify-icons/mdi/chart-bell-curve-cumulative";
 import cubeOffIcon from "@iconify-icons/mdi/cube-off";
+import serverNetworkIcon from "@iconify-icons/mdi/server-network";
 
 import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
@@ -91,11 +106,16 @@ const emit = defineEmits(["update:modelValue"]);
 const portNumber = ref<number>(props.modelValue.runPort || 80);
 const hostnameValue = ref<string>(props.modelValue.hostname || "get.homedock.cloud");
 const homedockLocalValue = ref<boolean>(props.modelValue.localDNS || false);
+const initialLocalDNS = props.modelValue.localDNS || false;
+const localDNSChanged = computed(() => homedockLocalValue.value !== initialLocalDNS);
 const developmentValue = ref<boolean>(props.modelValue.developmentMode || false);
 const disableUsageDataValue = ref<boolean>(props.modelValue.disableUsageData || false);
 const delOldDataUpdateValue = ref<boolean>(props.modelValue.deleteOldImages || false);
 const delOldDataUninstallValue = ref<boolean>(props.modelValue.deleteOldImagesUninstall || false);
 const deleteOldVolumesUninstall = ref<boolean>(props.modelValue.deleteVolumesUninstall || false);
+const reverseProxyValue = ref<boolean>(props.modelValue.reverseProxy || false);
+const initialReverseProxy = props.modelValue.reverseProxy || false;
+const reverseProxyChanged = computed(() => reverseProxyValue.value !== initialReverseProxy);
 
 const validateInput = (event: KeyboardEvent) => {
   const char = String.fromCharCode(event.keyCode);
@@ -125,10 +145,25 @@ watch(
     deleteOldImages: delOldDataUpdateValue.value,
     deleteOldImagesUninstall: delOldDataUninstallValue.value,
     deleteVolumesUninstall: deleteOldVolumesUninstall.value,
+    reverseProxy: reverseProxyValue.value,
   }),
   (newValue) => {
     emit("update:modelValue", newValue);
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
+
+<style scoped>
+.restart-badge-enter-active {
+  transition: all 0.25s ease-out;
+}
+.restart-badge-leave-active {
+  transition: all 0.2s ease-in;
+}
+.restart-badge-enter-from,
+.restart-badge-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+</style>

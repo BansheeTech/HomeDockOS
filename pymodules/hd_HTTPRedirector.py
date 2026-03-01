@@ -23,6 +23,9 @@ def start_http_redirect_server():
     @redirect_app.route("/", defaults={"path": ""})
     @redirect_app.route("/<path:path>")
     def redirect_to_https(path):
+        if request.headers.get("X-Forwarded-Proto") == "https":
+            abort(421)  # Misdirected Request — proxy should not route HTTPS traffic to HTTP redirector
+
         requested_host = request.host.split(":")[0]
 
         if requested_host in {local_ip, internet_ip, "localhost", "127.0.0.1", "::1", docker_host}:

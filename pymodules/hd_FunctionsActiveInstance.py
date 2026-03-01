@@ -23,6 +23,7 @@ CloudFlareWorker = "https://homedock-os-user.banshee-devs.workers.dev/"
 
 service_thread = None
 stop_service = threading.Event()
+_thread_lock = threading.Lock()
 
 
 def is_connected():
@@ -51,7 +52,7 @@ def generate_uuid():  # 128bit entropy hash
 
 
 def service_heartbeat_loop():
-    global service_thread
+    tid = threading.current_thread().name
     while not stop_service.is_set():
         if is_connected():
             uid = generate_uuid()
@@ -68,22 +69,30 @@ def service_heartbeat_loop():
 
         stop_service.wait(timeout=43200)
 
-    service_thread = None
 
 
 def start_service_daemon():
     global service_thread
-    if service_thread is None or not service_thread.is_alive():
-        stop_service.clear()
-        service_thread = threading.Thread(target=service_heartbeat_loop, daemon=True)
-        service_thread.start()
+    with _thread_lock:
+        if service_thread is None or not service_thread.is_alive():
+            stop_service.clear()
+            service_thread = threading.Thread(target=service_heartbeat_loop, daemon=True)
+            service_thread.start()
+        else:
+            pass
 
 
 def stop_service_daemon():
     global service_thread
-    if service_thread and service_thread.is_alive():
-        stop_service.set()
-        service_thread = None
+    with _thread_lock:
+        if service_thread and service_thread.is_alive():
+            tid = service_thread.name
+            stop_service.set()
+            service_thread.join(timeout=10)
+            alive = service_thread.is_alive() if service_thread else False
+            service_thread = None
+        else:
+            pass
 
 
 def check_service_state(new_config):

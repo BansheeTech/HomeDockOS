@@ -37,6 +37,7 @@ def check_and_generate_config():
             "delete_old_image_containers_after_update": "False",
             "delete_old_image_containers_after_uninstall": "False",
             "delete_internal_data_volumes": "True",
+            "reverse_proxy": "False",
             "default_external_drive": default_external_drive,
             "selected_theme": "default",
             "selected_back": "back1.jpg",
@@ -113,6 +114,10 @@ def check_and_update_config():
             config.set("Config", "2fa_whitelist_hashes", "False")
             missing_options.append("2fa_whitelist_hashes")
 
+        if not config.has_option("Config", "reverse_proxy"):
+            config.set("Config", "reverse_proxy", "False")
+            missing_options.append("reverse_proxy")
+
         if missing_options:
             with open(config_file, "w") as configfile:
                 config.write(configfile)
@@ -155,6 +160,7 @@ def read_config():
         "2fa_secret": config.get("Config", "2fa_secret"),
         "2fa_backup_codes": config.get("Config", "2fa_backup_codes"),
         "2fa_whitelist_hashes": config.get("Config", "2fa_whitelist_hashes", fallback=""),
+        "reverse_proxy": config.getboolean("Config", "reverse_proxy", fallback=False),
     }
 
     return config_dict

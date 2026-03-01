@@ -33,6 +33,7 @@ interface SettingsData {
   delete_old_image_containers_after_update: boolean;
   delete_old_image_containers_after_uninstall: boolean;
   delete_internal_data_volumes: boolean;
+  reverse_proxy: boolean;
   default_external_drive: string;
 }
 
@@ -129,6 +130,7 @@ if (themeData && commonData && settingsData && dashboardData) {
     deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
     deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
     deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
+    reverseProxy: settingsData.reverse_proxy,
     defaultExternalDrive: settingsData.default_external_drive,
     validDrives: Array.isArray(dashboardData.valid_drives) ? dashboardData.valid_drives : [],
   });

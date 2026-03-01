@@ -631,7 +631,8 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Disavow Generator",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "default_credentials": { "username": "user", "password": "passwd" }
   },
   {
     "dependencies": [],

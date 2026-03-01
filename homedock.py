@@ -17,6 +17,7 @@ from flask_compress import Compress
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from hypercorn.middleware import AsyncioWSGIMiddleware
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vite_fusion import register_vite_assets
 
@@ -92,6 +93,7 @@ if __name__ == "__main__":
     local_dns = globalConfig["local_dns"]
     dynamic_dns = globalConfig["dynamic_dns"]
     run_on_development = globalConfig["run_on_development"]
+    reverse_proxy_enabled = globalConfig.get("reverse_proxy", False)
 
     ssl_enabled_var = ssl_enabled()
 
@@ -138,6 +140,8 @@ if __name__ == "__main__":
     print(" * Run on public IP:", internet_ip)
     print(" * Run on Native SSL:", ssl_enabled_var)
     print(" * Run on development mode:", run_on_development)
+    if reverse_proxy_enabled:
+        print(" * Reverse Proxy support:", reverse_proxy_enabled)
     print()
 
     print(" * CPU Type:", running_ARCH)
@@ -197,8 +201,8 @@ if __name__ == "__main__":
     homedock_www.config["SERVER_NAME"] = None
     homedock_www.config["SESSION_TYPE"] = "filesystem"
 
-    if ssl_enabled():
-        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure Flag only for HTTPS
+    if ssl_enabled() or reverse_proxy_enabled:
+        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure Flag for HTTPS or reverse proxy TLS termination
 
     try:
 
@@ -227,7 +231,10 @@ if __name__ == "__main__":
                     redirect_app, redirect_config = start_http_redirect_server()
 
             async def homedock_www_asgi(scope, receive, send):
-                app = AsyncioWSGIMiddleware(homedock_www, max_body_size=1 * 1024 * 1024 * 1024)
+                wsgi_app = homedock_www
+                if reverse_proxy_enabled:
+                    wsgi_app = ProxyFix(homedock_www, x_for=1, x_proto=1, x_host=1, x_port=0, x_prefix=0)
+                app = AsyncioWSGIMiddleware(wsgi_app, max_body_size=1 * 1024 * 1024 * 1024)
                 await ContentSizeLimitMiddleware(app)(scope, receive, send)
 
             async def run_all_servers():

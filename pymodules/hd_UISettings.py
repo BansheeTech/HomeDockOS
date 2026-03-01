@@ -100,6 +100,7 @@ def api_save_settings():
         delete_old_image_containers_after_update = "True" if bool(system_data.get("deleteOldImages", False)) else "False"
         delete_old_image_containers_after_uninstall = "True" if bool(system_data.get("deleteOldImagesUninstall", False)) else "False"
         delete_internal_data_volumes = "True" if bool(system_data.get("deleteVolumesUninstall", False)) else "False"
+        reverse_proxy = "True" if bool(system_data.get("reverseProxy", False)) else "False"
 
         default_external_drive = storage_data.get("externalDrive", "disabled")
         if not is_valid_external_drive(default_external_drive):
@@ -125,6 +126,7 @@ def api_save_settings():
             "delete_old_image_containers_after_update": delete_old_image_containers_after_update,
             "delete_old_image_containers_after_uninstall": delete_old_image_containers_after_uninstall,
             "delete_internal_data_volumes": delete_internal_data_volumes,
+            "reverse_proxy": reverse_proxy,
             "default_external_drive": default_external_drive,
             "selected_theme": selected_theme,
             "selected_back": selected_back,

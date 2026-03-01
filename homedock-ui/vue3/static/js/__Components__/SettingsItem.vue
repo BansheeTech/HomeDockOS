@@ -18,6 +18,7 @@
         <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs leading-2']">
           {{ description }}
         </div>
+        <slot name="after-description"></slot>
       </div>
 
       <div class="flex-shrink-0 flex items-center">
@@ -39,6 +40,7 @@
           <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs mt-0.5 leading-relaxed']">
             {{ description }}
           </div>
+          <slot name="after-description"></slot>
         </div>
       </div>
 

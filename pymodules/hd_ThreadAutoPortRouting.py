@@ -167,7 +167,7 @@ def update_container_ports_config():
                     ports_string = ":".join(ports_list)
                 else:
                     suggested = load_suggested_ports().get(base_name)
-                    if suggested and check_port_availability(str(suggested)):
+                    if suggested:
                         trail = load_suggested_trails().get(base_name, "")
                         ports_string = f"{suggested}/{trail.lstrip('/')}" if trail else str(suggested)
                     else:

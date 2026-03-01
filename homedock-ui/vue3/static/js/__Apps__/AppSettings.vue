@@ -112,6 +112,7 @@ const settingsData = inject<{
   deleteImageOnUpdate: boolean;
   deleteImageOnUninstall: boolean;
   deleteInternalDataVolumes: boolean;
+  reverseProxy: boolean;
   defaultExternalDrive: string;
   validDrives: string[];
 }>("data-settings");
@@ -222,6 +223,7 @@ interface SystemData {
   deleteVolumesUninstall?: boolean;
   localDNS?: boolean;
   disableUsageData?: boolean;
+  reverseProxy?: boolean;
 }
 
 interface StorageData {
@@ -256,6 +258,7 @@ const formData = reactive({
     deleteOldImagesUninstall: settingsData.deleteImageOnUninstall,
     deleteVolumesUninstall: settingsData.deleteInternalDataVolumes,
     localDNS: settingsData.localDNS,
+    reverseProxy: settingsData.reverseProxy,
   } as SystemData,
 
   storage: {
@@ -349,6 +352,7 @@ const handleSubmit = async () => {
           deleteImageOnUpdate: formData.system.deleteOldImages,
           deleteImageOnUninstall: formData.system.deleteOldImagesUninstall,
           deleteInternalDataVolumes: formData.system.deleteVolumesUninstall,
+          reverseProxy: formData.system.reverseProxy,
           defaultExternalDrive: formData.storage.externalDrive,
         });
       }
