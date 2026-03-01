@@ -226,7 +226,7 @@ const handleFinish = async () => {
           "Content-Type": "application/json",
           "X-HomeDock-CSRF-Token": csrfToken.value,
         },
-      }
+      },
     );
 
     if (pcryptResponse.data.status !== "success") {
@@ -247,7 +247,7 @@ const handleFinish = async () => {
           "Content-Type": "application/json",
           "X-HomeDock-CSRF-Token": csrfToken.value,
         },
-      }
+      },
     );
 
     if (loginResponse.data.message) {
@@ -286,7 +286,10 @@ const handleFinish = async () => {
       if (error.response && error.response.data) {
         const { message: backendMessage, redirect_url } = error.response.data;
 
-        if (backendMessage) {
+        if (error.response.status === 403 && window.location.protocol === "http:") {
+          message.error("Login only permitted from a valid HTTPS source.", 5);
+          validationStatus.value = "error";
+        } else if (backendMessage) {
           message.error(backendMessage);
           validationStatus.value = "error";
         }
@@ -344,7 +347,7 @@ const handle2FAVerify = async () => {
           "Content-Type": "application/json",
           "X-HomeDock-CSRF-Token": csrfToken.value,
         },
-      }
+      },
     );
 
     if (response.data.status === "success") {
@@ -494,7 +497,9 @@ const cancel2FA = () => {
 
 /* Animated Attempts */
 .animated-attempts {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .animated-attempts.updated {
@@ -505,7 +510,9 @@ const cancel2FA = () => {
 /* Slide Down Error Transition */
 .slide-down-error-enter-active,
 .slide-down-error-leave-active {
-  transition: height 0.3s ease, opacity 0.3s ease;
+  transition:
+    height 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .slide-down-error-enter-from,

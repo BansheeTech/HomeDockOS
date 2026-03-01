@@ -7,6 +7,8 @@
   - **Simplified service URL generation** in container data API: removed complex `urlparse` + `X-Forwarded-Host` hostname resolution in favor of relative paths (`/app/{port}` instead of protocol-relative `//host/app/{port}`), eliminating hostname validation edge cases and making the URLs work naturally behind reverse proxies.
   - **Fixed auto-port routing** for `network_mode: host` suggested ports we've removed the `check_port_availability()` gate that prevented suggested ports from being assigned when the container wasn't running yet, causing apps with suggested ports (e.g., Home Assistant, Plex, Pi-hole) to lose their any automatic routing config.
   - Added **default credentials** for Disavow Generator application in the App Store, they were missing when we added them all, or at least... When we tried to add them all lol
+  - Added **"Requires Restart" badge** in Settings > System for options that need a HomeDock OS restart to take effect (Local DNS Access, Reverse Proxy). The badge only appears when the value has been changed from its current state, with a smooth fade transition.
+  - **Improved login error feedback** when reverse proxy mode is enabled: accessing HomeDock OS directly via plain HTTP when `reverse_proxy` is enabled now shows "Login only permitted from a valid HTTPS source" instead of failing silently, since `Secure` session cookies can't be sent over unencrypted connections.
 
 ---
 
