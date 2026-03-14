@@ -106,32 +106,9 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/upload_compose_file", "upload_compose_file", CSRF_Protect(upload_compose_file), methods=["POST"])
 
-    from pymodules.hd_UIDashboardThreads import online_status
+    from pymodules.hd_SSEStats import stats_stream
 
-    homedock_www.add_url_rule("/thread/online_status", "online_status", CSRF_Protect(online_status), methods=["GET"])
-
-    from pymodules.hd_UIDashboardThreads import homedock_cpu_temp, homedock_cpu_usage, homedock_ram_usage, homedock_disk_usage, homedock_external_disk_usage
-
-    homedock_www.add_url_rule("/thread/update_cpu_temp", "homedock_cpu_temp", CSRF_Protect(homedock_cpu_temp))
-    homedock_www.add_url_rule("/thread/update_cpu_usage", "homedock_cpu_usage", CSRF_Protect(homedock_cpu_usage))
-    homedock_www.add_url_rule("/thread/update_ram_usage", "homedock_ram_usage", CSRF_Protect(homedock_ram_usage))
-    homedock_www.add_url_rule("/thread/update_disk_usage", "homedock_disk_usage", CSRF_Protect(homedock_disk_usage))
-    homedock_www.add_url_rule("/thread/update_external_disk_usage", "homedock_external_disk_usage", CSRF_Protect(homedock_external_disk_usage))
-
-    from pymodules.hd_UIDashboardThreads import downloaded_data, uploaded_data
-
-    homedock_www.add_url_rule("/thread/downloaded_data", "downloaded_data", CSRF_Protect(downloaded_data))
-    homedock_www.add_url_rule("/thread/uploaded_data", "uploaded_data", CSRF_Protect(uploaded_data))
-
-    from pymodules.hd_UIDashboardThreads import get_containers, active_containers
-
-    homedock_www.add_url_rule("/thread/installed_containers", "get_containers", CSRF_Protect(get_containers))
-    homedock_www.add_url_rule("/thread/active_containers", "active_containers", CSRF_Protect(active_containers))
-
-    from pymodules.hd_UIDashboardThreads import get_uptime, homedock_uptime
-
-    homedock_www.add_url_rule("/thread/system_uptime", "get_uptime", CSRF_Protect(get_uptime))
-    homedock_www.add_url_rule("/thread/homedock_uptime", "homedock_uptime", CSRF_Protect(homedock_uptime))
+    homedock_www.add_url_rule("/stream/stats", "stats_stream", CSRF_Protect(stats_stream))
 
     from pymodules.hd_DockerAPIContainerData import get_docker_containers, get_container_by_port
 

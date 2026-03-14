@@ -238,6 +238,9 @@ if __name__ == "__main__":
                 await ContentSizeLimitMiddleware(app)(scope, receive, send)
 
             async def run_all_servers():
+                from concurrent.futures import ThreadPoolExecutor
+                asyncio.get_running_loop().set_default_executor(ThreadPoolExecutor(max_workers=50))
+
                 stop_event = asyncio.Event()
 
                 loop = asyncio.get_running_loop()

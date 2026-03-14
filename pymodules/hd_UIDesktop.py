@@ -20,12 +20,9 @@ from pymodules.hd_FunctionsMain import get_active_network_interface
 from pymodules.hd_FunctionsMain import get_total_disk, get_configured_external_drives, get_total_external_disk
 from pymodules.hd_ExternalDriveManager import get_valid_external_drives
 
-from pymodules.hd_LogCPUTemp import get_cpu_temp
-from pymodules.hd_LogCPUUsage import get_cpu_usage
-from pymodules.hd_LogRAMUsage import get_ram_usage
-from pymodules.hd_LogNetworkUsage import get_download_data, get_upload_data
-from pymodules.hd_LogDiskUsage import get_disk_usage
-from pymodules.hd_LogExternalDiskUsage import get_external_disk_usage
+from pymodules.hd_DashboardMetrics import get_cpu_temp, get_cpu_usage, get_ram_usage
+from pymodules.hd_DashboardMetrics import get_download_data, get_upload_data
+from pymodules.hd_DashboardMetrics import get_disk_usage, get_external_disk_usage
 from pymodules.hd_EnterpriseLoader import is_enterprise_loaded
 
 

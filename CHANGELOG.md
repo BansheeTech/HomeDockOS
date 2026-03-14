@@ -1,6 +1,18 @@
 # CHANGELOG
 
-- **2.1.0.492** (Latest): Rollup CVE-2026-27606 hotfix, reverse proxy support, auto-port routing fix, and various fixes.
+- **2.1.0.494** (Latest): Security patches for unhead (XSS bypass), dashboard SSE rewrite, and dependency updates.
+  - **Patched unhead CVE-2026-31873** (Bypass of URI Scheme Sanitization in `makeTagSafe` via Case-Sensitivity **opened 44 hours ago**) by upgrading `@unhead/vue` (npm) to 2.1.12+, fixing a low severity vulnerability where `link.href` sanitization was case-sensitive, allowing `JAVASCRIPT:` or `DATA:` URI schemes to bypass the filter since browsers treat them case-insensitively.
+  - **Patched unhead CVE-2026-31860** (XSS bypass in `useHeadSafe` via attribute name injection **opened 44 hours ago**) by upgrading `@unhead/vue` (npm) to 2.1.12+, fixing a moderate severity vulnerability where `data-*` attribute keys containing spaces could break out of the HTML attribute and inject event handlers like `onload`, achieving XSS on SSR-rendered `<head>` tags.
+  - **Replaced dashboard polling with Server-Sent Events (SSE)**: consolidated 11 individual `/thread/*` polling endpoints into a single `/stream/stats` SSE stream. The backend now pushes only changed values as JSON patches every 2 seconds, with an initial snapshot on connect, heartbeat keep-alives, and server-initiated reconnect after 5 minutes. This eliminates ~11 concurrent `setInterval` + `axios.get` loops per browser tab, reducing HTTP request volume by ~90% and delivering real-time updates with lower latency.
+  - **Unified backend metrics modules**: merged 8 separate service files (`hd_LogCPUTemp.py`, `hd_LogCPUUsage.py`, `hd_LogRAMUsage.py`, `hd_LogDiskUsage.py`, `hd_LogExternalDiskUsage.py`, `hd_LogNetworkUsage.py`, `DashboardCPUTemp.ts`, `DashboardCPUUsage.ts`, etc.) and `hd_UIDashboardThreads.py` into two focused modules: `hd_DashboardMetrics.py` (cache + collectors + log samplers) and `hd_SSEStats.py` (SSE stream with singleton `StatsCollector`, per-session client limits, and delta-only broadcasting).
+  - **Frontend store rewritten for SSE**: `useSystemStatsStore` now uses a `ReadableStream` reader with chunked SSE parsing, exponential backoff reconnect with jitter, and `AbortController`-based teardown, replacing the previous per-metric `setInterval` + adaptive polling approach.
+  - Added **`ThreadPoolExecutor(max_workers=50)`** as the default asyncio executor, preventing SSE stream handlers from starving the thread pool under concurrent connections.
+  - Updated **axios** from 1.13.5 to 1.13.6.
+  - Updated **vue** from 3.5.27 to 3.5.30.
+
+---
+
+- **2.1.0.492**: Rollup CVE-2026-27606 hotfix, reverse proxy support, auto-port routing fix, and various fixes.
   - **Patched CVE-2026-27606** (Arbitrary File Write via Path Traversal in Rollup **opened 15 hours ago**) by overriding `rollup` (npm) to 4.59.0+, fixing a high severity vulnerability where `../` path traversal sequences could write files outside the output directory. Transitive dependency via Vite.
   - Added **Reverse Proxy support** (`reverse_proxy` config option) with a new toggle in Settings > System. When enabled, HomeDock OS wraps the Flask app with Werkzeug's `ProxyFix` middleware (trusting `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`), sets `SESSION_COOKIE_SECURE = True` for TLS termination, and prints the reverse proxy status at boot. Requires restart. It should work with most reverse proxies.
   - Added **421 Misdirected Request** response in the HTTP redirector when `X-Forwarded-Proto: https` is detected, preventing reverse proxies from accidentally routing already-secure traffic to the HTTP-to-HTTPS redirect server.
@@ -9,8 +21,6 @@
   - Added **default credentials** for Disavow Generator application in the App Store, they were missing when we added them all, or at least... When we tried to add them all lol
   - Added **"Requires Restart" badge** in Settings > System for options that need a HomeDock OS restart to take effect (Local DNS Access, Reverse Proxy). The badge only appears when the value has been changed from its current state, with a smooth fade transition.
   - **Improved login error feedback** when reverse proxy mode is enabled: accessing HomeDock OS directly via plain HTTP when `reverse_proxy` is enabled now shows "Login only permitted from a valid HTTPS source" instead of failing silently, since `Secure` session cookies can't be sent over unencrypted connections.
-
----
 
 - **2.1.0.490**: Security patch for port routing configuration injection.
   - **Fixed Configuration Injection via Newline in Port Routing `container_id`** (reported by **Jupiter Belic**) by sanitizing the `container_id` parameter in `hd_UIDashboardPortRouting.py` through `sanitize_container_name()`, which strips any character outside `[a-zA-Z0-9_-]`. Docker itself already enforces a regex on container names at creation time, but as defense in depth we now also sanitize on our side before the value reaches any internal logic.
