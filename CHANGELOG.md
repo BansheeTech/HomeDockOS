@@ -1,6 +1,13 @@
 # CHANGELOG
 
-- **2.1.0.494** (Latest): Security patches for unhead (XSS bypass), dashboard SSE rewrite, and dependency updates.
+- **2.1.0.496** (Latest): SSE streaming fix and App Store addition.
+  - **Fixed browser tab freeze after prolonged use**: the dashboard stats stream internally accumulated browser resources on each reconnection cycle (~every 5 minutes), eventually causing the tab to become unresponsive after extended sessions. Replaced the streaming mechanism and fixed reconnection error handling.
+  - Updated **python-on-whales** from 0.80.0 to 0.81.0.
+  - Added **Planchette** to the App Store, a local AI Ouija-style spirit board that talks back. Just your machine and whatever's on the other side 👻
+
+---
+
+- **2.1.0.494**: Security patches for unhead (XSS bypass), dashboard SSE rewrite, and dependency updates.
   - **Patched unhead CVE-2026-31873** (Bypass of URI Scheme Sanitization in `makeTagSafe` via Case-Sensitivity **opened 44 hours ago**) by upgrading `@unhead/vue` (npm) to 2.1.12+, fixing a low severity vulnerability where `link.href` sanitization was case-sensitive, allowing `JAVASCRIPT:` or `DATA:` URI schemes to bypass the filter since browsers treat them case-insensitively.
   - **Patched unhead CVE-2026-31860** (XSS bypass in `useHeadSafe` via attribute name injection **opened 44 hours ago**) by upgrading `@unhead/vue` (npm) to 2.1.12+, fixing a moderate severity vulnerability where `data-*` attribute keys containing spaces could break out of the HTML attribute and inject event handlers like `onload`, achieving XSS on SSR-rendered `<head>` tags.
   - **Replaced dashboard polling with Server-Sent Events (SSE)**: consolidated 11 individual `/thread/*` polling endpoints into a single `/stream/stats` SSE stream. The backend now pushes only changed values as JSON patches every 2 seconds, with an initial snapshot on connect, heartbeat keep-alives, and server-initiated reconnect after 5 minutes. This eliminates ~11 concurrent `setInterval` + `axios.get` loops per browser tab, reducing HTTP request volume by ~90% and delivering real-time updates with lower latency.
@@ -9,8 +16,6 @@
   - Added **`ThreadPoolExecutor(max_workers=50)`** as the default asyncio executor, preventing SSE stream handlers from starving the thread pool under concurrent connections.
   - Updated **axios** from 1.13.5 to 1.13.6.
   - Updated **vue** from 3.5.27 to 3.5.30.
-
----
 
 - **2.1.0.492**: Rollup CVE-2026-27606 hotfix, reverse proxy support, auto-port routing fix, and various fixes.
   - **Patched CVE-2026-27606** (Arbitrary File Write via Path Traversal in Rollup **opened 15 hours ago**) by overriding `rollup` (npm) to 4.59.0+, fixing a high severity vulnerability where `../` path traversal sequences could write files outside the output directory. Transitive dependency via Vite.

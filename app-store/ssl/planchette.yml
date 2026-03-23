@@ -1,0 +1,11 @@
+---
+services:
+  planchette:
+    image: bansheetech/planchette:latest
+    container_name: planchette
+    ports:
+      - "7777:7777"
+    volumes:
+      - [[INSTALL_PATH]]/planchette:/app
+      - [[SSL_CERT_PATH]]:/app/ssl:ro
+    restart: unless-stopped

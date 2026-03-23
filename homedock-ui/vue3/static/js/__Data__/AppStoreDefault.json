@@ -869,8 +869,8 @@
     "type": "Emoji Steganography Tool",
     "icon": "mdi:image",
     "description": "Emoji steganography tool that hides secret text inside emojis using Unicode Tag Characters, keeping secret text inside emojis",
-    "is_new": true,
-    "new_until": "2026-03-10",
+    "is_new": false,
+    "new_until": false,
     "display_name": "GhostInk",
     "screenshot_count": 3
   },
@@ -1760,6 +1760,21 @@
     "new_until": false,
     "display_name": "Piwigo",
     "screenshot_count": 2
+  },
+  {
+    "dependencies": [],
+    "docker_image": "bansheetech/planchette:latest",
+    "picture_path": "docker-icons/planchette.jpg",
+    "is_group": false,
+    "name": "planchette",
+    "category": "AI",
+    "type": "Media Server",
+    "icon": "mdi:hand",
+    "description": "An AI-powered spirit board similar to the classic Ouija board that replies back and runs entirely on your machine",
+    "is_new": true,
+    "new_until": "2026-04-17",
+    "display_name": "Planchette",
+    "screenshot_count": 5
   },
   {
     "dependencies": [],

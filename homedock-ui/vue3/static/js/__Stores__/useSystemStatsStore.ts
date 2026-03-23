@@ -93,80 +93,59 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
     }
   }
 
-  function parseSSE(chunk: string): Array<{ event: string; data: string }> {
-    const frames: Array<{ event: string; data: string }> = [];
-    for (const frame of chunk.split("\n\n")) {
-      if (!frame.trim()) continue;
-      let event = "message";
-      let data = "";
-      for (const line of frame.split("\n")) {
-        if (line.startsWith("event: ")) event = line.slice(7);
-        else if (line.startsWith("data: ")) data = line.slice(6);
-      }
-      if (data) frames.push({ event, data });
-    }
-    return frames;
-  }
-
   function startPolling() {
     if (abortController) return;
     abortController = new AbortController();
 
-    const connect = async () => {
-      try {
-        const response = await axios.get<ReadableStream>("/stream/stats", {
+    const connect = () => {
+      const signal = abortController!.signal;
+      let lastIndex = 0;
+      let buffer = "";
+
+      axios
+        .get("/stream/stats", {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-          signal: abortController!.signal,
-          adapter: "fetch",
-          responseType: "stream",
-        });
+          signal,
+          responseType: "text",
+          onDownloadProgress: (progressEvent) => {
+            const responseText = (progressEvent.event?.target as XMLHttpRequest)?.responseText;
+            if (!responseText) return;
 
-        const stream: ReadableStream = response.data;
-        if (!stream) return;
+            const newData = responseText.substring(lastIndex);
+            lastIndex = responseText.length;
 
-        reconnectDelay = 0;
-        const reader = stream.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
+            const combined = buffer + newData;
+            const parts = combined.split("\n\n");
+            buffer = parts.pop()!;
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const parts = buffer.split("\n\n");
-          buffer = parts.pop()!;
-
-          let serverReconnect = false;
-          for (const { event, data } of parseSSE(parts.join("\n\n"))) {
-            if (event === "snapshot" || event === "patch") {
-              try {
-                applyData(JSON.parse(data));
-              } catch {
-                /* nope */
+            for (const part of parts) {
+              if (!part.trim()) continue;
+              let event = "message";
+              let data = "";
+              for (const line of part.split("\n")) {
+                if (line.startsWith("event: ")) event = line.slice(7);
+                else if (line.startsWith("data: ")) data = line.slice(6);
               }
-            } else if (event === "reconnect") {
-              serverReconnect = true;
+              if (data && (event === "snapshot" || event === "patch")) {
+                try {
+                  applyData(JSON.parse(data));
+                } catch {
+                  /* nope */
+                }
+              }
             }
-          }
-          if (serverReconnect) {
-            reader.cancel();
-            break;
-          }
-        }
-      } catch {
-        if (abortController?.signal.aborted) return;
-      }
-
-      if (abortController && !abortController.signal.aborted) {
-        if (reconnectDelay === 0) {
-          connect();
-          return;
-        }
-        reconnectDelay = Math.min((reconnectDelay || 3000) * 2, 60000);
-        const jitter = reconnectDelay * (0.5 + Math.random() * 0.5);
-        reconnectTimeout = setTimeout(connect, jitter);
-      }
+          },
+        })
+        .then(() => {
+          reconnectDelay = 0;
+          if (!signal.aborted) connect();
+        })
+        .catch(() => {
+          if (signal.aborted) return;
+          reconnectDelay = Math.min((reconnectDelay || 1500) * 2, 60000);
+          const jitter = reconnectDelay * (0.5 + Math.random() * 0.5);
+          reconnectTimeout = setTimeout(connect, jitter);
+        });
     };
 
     connect();
