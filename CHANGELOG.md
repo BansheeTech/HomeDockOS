@@ -3,6 +3,7 @@
 - **2.1.0.498** (Latest): Security patches following our (not) SLA.
   - **Patched picomatch CVE-2026-33671** (ReDoS via extglob quantifiers **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a high severity vulnerability where certain extglob patterns could cause catastrophic regex backtracking, blocking the event loop. Transitive dependency via Vite and Tailwind CSS.
   - **Patched picomatch CVE-2026-33672** (Method Injection in POSIX Character Classes **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a moderate severity vulnerability where crafted POSIX bracket expressions could inject inherited method names into generated regexes, causing incorrect glob matching. Transitive dependency via Vite and Tailwind CSS.
+  - **Patched requests CVE-2026-25645** (Insecure Temp File Reuse in `extract_zipped_paths()` **opened 3 minutes ago**) by upgrading `requests` (pip) to 2.33.0+, fixing a moderate severity vulnerability where predictable temp filenames could be pre-created by a local attacker to substitute malicious files. Standard Requests usage is not affected, only direct `extract_zipped_paths()` calls.
   - Fixed **Planchette** App Store category typo from "Media Server" to "AI Talking Board", because no, a spirit board is not a media server... Or is it? 👻
 
 ---
