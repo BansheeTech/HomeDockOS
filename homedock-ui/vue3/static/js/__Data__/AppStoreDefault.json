@@ -1768,7 +1768,7 @@
     "is_group": false,
     "name": "planchette",
     "category": "AI",
-    "type": "Media Server",
+    "type": "AI Talking Board",
     "icon": "mdi:hand",
     "description": "An AI-powered spirit board similar to the classic Ouija board that replies back and runs entirely on your machine",
     "is_new": true,

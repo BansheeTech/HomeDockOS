@@ -1,11 +1,16 @@
 # CHANGELOG
 
-- **2.1.0.496** (Latest): SSE streaming fix and App Store addition.
+- **2.1.0.498** (Latest): Security patches following our (not) SLA.
+  - **Patched picomatch CVE-2026-33671** (ReDoS via extglob quantifiers **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a high severity vulnerability where certain extglob patterns could cause catastrophic regex backtracking, blocking the event loop. Transitive dependency via Vite and Tailwind CSS.
+  - **Patched picomatch CVE-2026-33672** (Method Injection in POSIX Character Classes **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a moderate severity vulnerability where crafted POSIX bracket expressions could inject inherited method names into generated regexes, causing incorrect glob matching. Transitive dependency via Vite and Tailwind CSS.
+  - Fixed **Planchette** App Store category typo from "Media Server" to "AI Talking Board", because no, a spirit board is not a media server... Or is it? 👻
+
+---
+
+- **2.1.0.496**: SSE streaming fix and App Store addition.
   - **Fixed browser tab freeze after prolonged use**: the dashboard stats stream internally accumulated browser resources on each reconnection cycle (~every 5 minutes), eventually causing the tab to become unresponsive after extended sessions. Replaced the streaming mechanism and fixed reconnection error handling.
   - Updated **python-on-whales** from 0.80.0 to 0.81.0.
   - Added **Planchette** to the App Store, a local AI Ouija-style spirit board that talks back. Just your machine and whatever's on the other side 👻
-
----
 
 - **2.1.0.494**: Security patches for unhead (XSS bypass), dashboard SSE rewrite, and dependency updates.
   - **Patched unhead CVE-2026-31873** (Bypass of URI Scheme Sanitization in `makeTagSafe` via Case-Sensitivity **opened 44 hours ago**) by upgrading `@unhead/vue` (npm) to 2.1.12+, fixing a low severity vulnerability where `link.href` sanitization was case-sensitive, allowing `JAVASCRIPT:` or `DATA:` URI schemes to bypass the filter since browsers treat them case-insensitively.
