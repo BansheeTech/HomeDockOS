@@ -9,7 +9,7 @@ PyYAML==6.0.3
 bcrypt==5.0.0
 cython==3.2.0
 colorama==0.4.6
-cryptography==46.0.5
+cryptography==46.0.6
 Werkzeug==3.1.6
 configparser==7.2.0
 psutil==7.1.3
