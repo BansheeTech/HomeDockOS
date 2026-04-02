@@ -1,21 +1,24 @@
 # CHANGELOG
 
-- **2.1.0.602** (Latest): Security patches following our (not) SLA (yes, again).
+- **2.1.0.604** (Latest): Security patches following our (not) SLA (the trilogy).
+  - **Patched lodash-es CVE-2026-4800** (Code Injection via `_.template` imports **opened 15 hours ago**) by upgrading `lodash-es` (npm) to 4.18.0+, fixing a high severity vulnerability where untrusted input as `options.imports` key names could execute arbitrary code at template compilation time. Transitive dependency via ant-design-vue.
+  - **Patched lodash-es CVE-2026-2950** (Prototype Pollution via `_.unset` and `_.omit` **opened 15 hours ago**) by upgrading `lodash-es` (npm) to 4.18.0+, fixing a moderate severity vulnerability where array-wrapped path segments could bypass prototype pollution protections, allowing deletion of properties from built-in prototypes. Transitive dependency via ant-design-vue.
+  - **Pinned axios to 1.13.6** due to an active supply chain attack on `axios@1.14.1`, which introduces `plain-crypto-js@4.2.1`, a confirmed malicious package that acts as an obfuscated dropper executing shell commands at install time. Version pinned until the incident is resolved... Props for the homeboy @midudev for the hint, what a time to be alive.
+
+---
+
+- **2.1.0.602**: Security patches following our (not) SLA (yes, again).
   - **Patched node-forge CVE-2026-33891** (DoS via Infinite Loop **opened 42 hours ago**) by upgrading `node-forge` (npm) to 1.4.0+, fixing a high severity vulnerability where a zero input to `modInverse()` caused the process to hang indefinitely.
   - **Patched node-forge CVE-2026-33895** (Ed25519 Signature Forgery **opened 42 hours ago**) by upgrading `node-forge` (npm) to 1.4.0+, fixing a high severity vulnerability where Ed25519 verification accepted forged non-canonical signatures.
   - **Patched node-forge CVE-2026-33894** (RSA-PKCS Signature Forgery **opened 42 hours ago**) by upgrading `node-forge` (npm) to 1.4.0+, fixing a high severity vulnerability where RSA signature verification accepted forged signatures for low-exponent keys.
   - **Patched node-forge CVE-2026-33896** (Certificate Chain Verification Bypass **opened 42 hours ago**) by upgrading `node-forge` (npm) to 1.4.0+, fixing a high severity vulnerability where non-CA certificates could act as intermediate CAs when certain extensions were absent.
   - **Patched cryptography CVE-2026-34073** (DNS Name Constraint Bypass **opened 42 hours ago**) by upgrading `cryptography` (pip) to 46.0.6+, fixing a low severity vulnerability where DNS name constraints weren't enforced against peer names during validation.
 
----
-
 - **2.1.0.498**: Security patches following our (not) SLA.
   - **Patched picomatch CVE-2026-33671** (ReDoS via extglob quantifiers **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a high severity vulnerability where certain extglob patterns could cause catastrophic regex backtracking, blocking the event loop. Transitive dependency via Vite and Tailwind CSS.
   - **Patched picomatch CVE-2026-33672** (Method Injection in POSIX Character Classes **opened 3 hours ago**) by upgrading `picomatch` (npm) to 4.0.4+ and 2.3.2+, fixing a moderate severity vulnerability where crafted POSIX bracket expressions could inject inherited method names into generated regexes, causing incorrect glob matching. Transitive dependency via Vite and Tailwind CSS.
   - **Patched requests CVE-2026-25645** (Insecure Temp File Reuse in `extract_zipped_paths()` **opened 3 minutes ago**) by upgrading `requests` (pip) to 2.33.0+, fixing a moderate severity vulnerability where predictable temp filenames could be pre-created by a local attacker to substitute malicious files. Standard Requests usage is not affected, only direct `extract_zipped_paths()` calls.
   - Fixed **Planchette** App Store category typo from "Media Server" to "AI Talking Board", because no, a spirit board is not a media server... Or is it? 👻
-
----
 
 - **2.1.0.496**: SSE streaming fix and App Store addition.
   - **Fixed browser tab freeze after prolonged use**: the dashboard stats stream internally accumulated browser resources on each reconnection cycle (~every 5 minutes), eventually causing the tab to become unresponsive after extended sessions. Replaced the streaming mechanism and fixed reconnection error handling.
