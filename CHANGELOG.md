@@ -1,11 +1,16 @@
 # CHANGELOG
 
-- **2.1.0.604** (Latest): Security patches following our (not) SLA (the trilogy).
+- **2.1.0.606** (Latest): Security patches following our (not) SLA (the saga continues).
+  - **Patched vite CVE-2026-39363** (Arbitrary File Read via Dev Server WebSocket **opened 11 hours ago**) by upgrading `vite` (npm) to 7.3.2+, fixing a high severity vulnerability where `fetchModule` invoked via the HMR WebSocket bypassed `server.fs` access controls, allowing retrieval of arbitrary files on the server.
+  - **Patched 2 additional vite vulnerabilities (missing CVEs)** (`server.fs.deny` bypass via query parameters and path traversal in optimized deps `.map` handling, **opened 11 hours ago**) by upgrading `vite` (npm) to 7.3.2+, fixing high and moderate severity vulnerabilities where `?raw`/`?import&raw` query parameters bypassed `server.fs.deny` rules and `../` segments in `.map` requests escaped the project root.
+    > **TL;DR:** All 3 vulnerabilities target Vite's **dev server** only (`server.fs`, WebSocket HMR, `.map` handling), none of them affect the production build or end users. We patch them anyway because keeping dependencies clean is the right thing to do and we can't ensure what's people doing with the repo at home.
+
+---
+
+- **2.1.0.604**: Security patches following our (not) SLA (the trilogy).
   - **Patched lodash-es CVE-2026-4800** (Code Injection via `_.template` imports **opened 15 hours ago**) by upgrading `lodash-es` (npm) to 4.18.0+, fixing a high severity vulnerability where untrusted input as `options.imports` key names could execute arbitrary code at template compilation time. Transitive dependency via ant-design-vue.
   - **Patched lodash-es CVE-2026-2950** (Prototype Pollution via `_.unset` and `_.omit` **opened 15 hours ago**) by upgrading `lodash-es` (npm) to 4.18.0+, fixing a moderate severity vulnerability where array-wrapped path segments could bypass prototype pollution protections, allowing deletion of properties from built-in prototypes. Transitive dependency via ant-design-vue.
   - **Pinned axios to 1.13.6** due to an active supply chain attack on `axios@1.14.1`, which introduces `plain-crypto-js@4.2.1`, a confirmed malicious package that acts as an obfuscated dropper executing shell commands at install time. Version pinned until the incident is resolved... Props for the homeboy @midudev for the hint, what a time to be alive.
-
----
 
 - **2.1.0.602**: Security patches following our (not) SLA (yes, again).
   - **Patched node-forge CVE-2026-33891** (DoS via Infinite Loop **opened 42 hours ago**) by upgrading `node-forge` (npm) to 1.4.0+, fixing a high severity vulnerability where a zero input to `modInverse()` caused the process to hang indefinitely.
