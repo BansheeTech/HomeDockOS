@@ -1,6 +1,6 @@
 ---
 services:
-  app:
+  robipet:
     image: bansheetech/robipet:latest
     container_name: robipet
     ports:

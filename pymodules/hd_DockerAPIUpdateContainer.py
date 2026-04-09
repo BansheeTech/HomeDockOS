@@ -24,6 +24,15 @@ manager = DockerClientManager.get_instance()
 client = manager.get_client()
 
 
+def _resolve_service(services, container_name):
+    if container_name in services:
+        return container_name
+    for name, config in services.items():
+        if isinstance(config, dict) and config.get("container_name") == container_name:
+            return name
+    return None
+
+
 @login_required
 def update_containers():
     config = read_config()
@@ -65,8 +74,12 @@ def process_container_update(name, client, updated_containers, containers_data, 
     try:
         with open(docker_compose_yml, "r") as file:
             compose_file = yaml.safe_load(file)
-            image_name = compose_file["services"][name]["image"]
+            service_name = _resolve_service(compose_file.get("services", {}), name)
+            image_name = compose_file["services"][service_name]["image"] if service_name else None
     except (FileNotFoundError, KeyError):
+        return
+
+    if not image_name:
         return
 
     try:
@@ -103,7 +116,7 @@ def stop_and_update_container(name, compose_file, old_image_id, delete_old_image
         container.remove()
 
         compose_helper = DockerComposeHelper.get_instance()
-        success, message = compose_helper.up(compose_file=compose_file, detach=True, service_names=[name])
+        success, message = compose_helper.up(compose_file=compose_file, detach=True)
 
         if not success:
             print(f"Error starting container {name}: {message}")
@@ -185,8 +198,12 @@ def check_for_new_images(container_names):
         try:
             with open(docker_compose_yml, "r") as file:
                 compose_file = yaml.safe_load(file)
-            image_name = compose_file["services"][name]["image"]
+            svc = _resolve_service(compose_file.get("services", {}), name)
+            image_name = compose_file["services"][svc]["image"] if svc else None
         except (FileNotFoundError, KeyError):
+            continue
+
+        if not image_name:
             continue
 
         try:

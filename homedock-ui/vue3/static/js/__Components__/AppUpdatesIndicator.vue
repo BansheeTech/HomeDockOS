@@ -54,6 +54,15 @@
                 <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">And {{ remainingCount }} more...</div>
               </div>
             </div>
+
+            <div v-if="updatesCount > 1" class="px-3.5 py-3" :class="themeClasses.installSectionBorder">
+              <button class="flex items-center justify-center gap-1.5 w-full px-3 py-1.5 rounded-md border-none text-[0.72rem] font-semibold uppercase tracking-wide cursor-pointer transition-colors duration-150" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover, themeClasses.installAppName]" @click="updateAll">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14M19 12l-7 7-7-7" />
+                </svg>
+                Update All ({{ updatesCount }})
+              </button>
+            </div>
           </div>
         </Teleport>
       </Transition>
@@ -129,6 +138,14 @@ function updateContainer(containerName: string) {
   updateDockerContainer(app, csrfToken.value);
 }
 
+function updateAll() {
+  closeDropdown();
+  for (const container of containersWithUpdates.value) {
+    const app = desktopStore.dockerApps.find((a) => a.name === container.name);
+    if (app) updateDockerContainer(app, csrfToken.value);
+  }
+}
+
 function toggleDropdown(e: MouseEvent) {
   e.stopPropagation();
   if (!isExpanded.value) {
@@ -157,7 +174,7 @@ watch(
     if (newTrayId !== TRAY_ID && isExpanded.value) {
       isExpanded.value = false;
     }
-  }
+  },
 );
 
 onMounted(() => {

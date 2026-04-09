@@ -1,11 +1,16 @@
 # CHANGELOG
 
-- **2.1.0.606** (Latest): Security patches following our (not) SLA (the saga continues).
+- **2.1.0.608** (Latest): Update All button, container update fix and security patches following our (not) SLA (the never-ending story).
+  - **Patched cryptography CVE-2026-39892** (Buffer Overflow via Non-Contiguous Buffers **opened 14 hours ago**) by upgrading `cryptography` (pip) to 46.0.7+, fixing a moderate severity vulnerability where passing non-contiguous buffers to APIs accepting Python buffers (e.g. `Hash.update()`) could lead to buffer overflows reading past the end of the buffer on Python >3.11.
+  - Added **Update All** button to the container updates tray icon. When two or more container updates are available, a button appears at the bottom of the dropdown to trigger all pending updates at once.
+  - **Fixed container updates when `service_name` and `container_name` differed** in `hd_DockerAPIUpdateContainer.py`. Docker Compose services that define a custom `container_name` would trigger the update correctly but never reappear in the dashboard afterwards, as the container could not be matched back by name post-recreation.
+
+---
+
+- **2.1.0.606**: Security patches following our (not) SLA (the saga continues).
   - **Patched vite CVE-2026-39363** (Arbitrary File Read via Dev Server WebSocket **opened 11 hours ago**) by upgrading `vite` (npm) to 7.3.2+, fixing a high severity vulnerability where `fetchModule` invoked via the HMR WebSocket bypassed `server.fs` access controls, allowing retrieval of arbitrary files on the server.
   - **Patched 2 additional vite vulnerabilities (missing CVEs)** (`server.fs.deny` bypass via query parameters and path traversal in optimized deps `.map` handling, **opened 11 hours ago**) by upgrading `vite` (npm) to 7.3.2+, fixing high and moderate severity vulnerabilities where `?raw`/`?import&raw` query parameters bypassed `server.fs.deny` rules and `../` segments in `.map` requests escaped the project root.
     > **TL;DR:** All 3 vulnerabilities target Vite's **dev server** only (`server.fs`, WebSocket HMR, `.map` handling), none of them affect the production build or end users. We patch them anyway because keeping dependencies clean is the right thing to do and we can't ensure what's people doing with the repo at home.
-
----
 
 - **2.1.0.604**: Security patches following our (not) SLA (the trilogy).
   - **Patched lodash-es CVE-2026-4800** (Code Injection via `_.template` imports **opened 15 hours ago**) by upgrading `lodash-es` (npm) to 4.18.0+, fixing a high severity vulnerability where untrusted input as `options.imports` key names could execute arbitrary code at template compilation time. Transitive dependency via ant-design-vue.
