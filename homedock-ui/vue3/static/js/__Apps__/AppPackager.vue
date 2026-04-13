@@ -192,10 +192,168 @@
             </div>
           </Transition>
 
+          <div class="flex items-center justify-between pt-2">
+            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
+              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
+                <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
+              </div>
+              <span>Add Suggested Port</span>
+            </span>
+            <Switch v-model:checked="hasSuggestedPort" :class="themeClasses.scopeSelector" />
+          </div>
+
+          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
+            <div v-if="hasSuggestedPort" class="space-y-2">
+              <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+                <div class="px-3 py-3">
+                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Port</label>
+                  <Input v-model:value="newPackage.suggested_port" placeholder="e.g., 8080" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                </div>
+              </div>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">For apps using <code class="font-mono">network_mode: host</code> that don't expose ports explicitly. HomeDock OS will use this port for the access button when no port mappings are detected.</p>
+            </div>
+          </Transition>
+
+          <div class="flex items-center justify-between pt-2">
+            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
+              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
+                <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
+              </div>
+              <span>Add Suggested Trail</span>
+            </span>
+            <Switch v-model:checked="hasSuggestedTrail" :class="themeClasses.scopeSelector" />
+          </div>
+
+          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
+            <div v-if="hasSuggestedTrail" class="space-y-2">
+              <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
+                <div class="px-3 py-3">
+                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">URL Trail</label>
+                  <Input v-model:value="newPackage.suggested_trail" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                </div>
+              </div>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">Path suffix appended after the port in the access URL. For apps that don't serve their UI at root — e.g., Pi-hole responds at <code class="font-mono">{port}/admin</code>, Plex at <code class="font-mono">{port}/web</code>.</p>
+            </div>
+          </Transition>
+
           <button @click="createPackage" :disabled="!canCreate || isCreating" :class="['w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center gap-2', canCreate && !isCreating ? `${themeClasses.packagerSuccessButtonBg} ${themeClasses.packagerSuccessButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer` : `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed`]">
             <Icon :icon="isCreating ? loadingIcon : downloadIcon" :class="['w-4 h-4', isCreating ? 'animate-spin' : '']" />
             {{ isCreating ? "Creating Package..." : "Create & Download .hds Package" }}
           </button>
+        </div>
+
+        <div v-else-if="activeTab === 'stores'" key="stores" class="px-4 py-4 space-y-4">
+          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
+            <Icon :icon="storePlusIcon" class="w-4 h-4" />
+            <span>Known Stores</span>
+            <div :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border">
+              <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">External</span>
+            </div>
+          </h3>
+
+          <div class="space-y-2">
+            <div v-for="store in predefinedStores" :key="store.url" @click="!isImportingThirdPartyUrl && ((thirdPartyUrl = store.url), importFromThirdParty())" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, isImportingThirdPartyUrl ? 'opacity-50' : themeClasses.explorerResultItemHover + ' cursor-pointer']" class="rounded-lg border overflow-hidden transition-all duration-200">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.settingsIconBgPurple">
+                  <Icon :icon="storePlusIcon" class="w-5 h-5 text-white" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ store.name }}</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-[10px] mt-0.5 font-mono truncate opacity-60">{{ store.url }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
+                </div>
+              </div>
+            </div>
+
+            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="isImportingThirdPartyUrl ? themeClasses.settingsIconBgPurple : themeClasses.iconHolder">
+                  <Icon :icon="isImportingThirdPartyUrl ? loadingIcon : importIcon" :class="['w-5 h-5', isImportingThirdPartyUrl ? 'text-white animate-spin' : themeClasses.explorerItemIcon]" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <input v-model="thirdPartyUrl" :disabled="isImportingThirdPartyUrl" type="url" placeholder="https://github.com/…/archive/refs/heads/master.zip" :class="[themeClasses.windowTitleTextFocused]" class="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-40 disabled:opacity-50" @keydown.enter="importFromThirdParty" />
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
+                    <template v-if="thirdPartyProgress">{{ thirdPartyProgress }}</template>
+                    <template v-else>Paste any compatible Casa store ZIP URL</template>
+                  </p>
+                </div>
+                <button v-if="thirdPartyUrl.trim() && !isImportingThirdPartyUrl" @click="importFromThirdParty" :class="[themeClasses.settingsIconBgPurple, 'hover:opacity-90']" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-opacity">
+                  <span>Import</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
+            <Icon :icon="fileCodeIcon" class="w-4 h-4" />
+            <span>Migrate Compose</span>
+          </h3>
+
+          <div>
+            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="migrateFileList" name="migrate" accept=".yml,.yaml" :multiple="false" :customRequest="handleMigrateUpload" @change="handleMigrateChange" :showUploadList="false" :maxCount="1" class="compact-dragger-pkg">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
+                  <Icon :icon="isMigratingSingle ? loadingIcon : fileCodeIcon" :class="['w-5 h-5', isMigratingSingle ? 'animate-spin' : '', themeClasses.explorerItemIcon]" />
+                </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
+                    {{ isMigratingSingle ? "Migrating compose..." : "Migrate Casa Compose" }}
+                  </p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
+                    {{ isMigratingSingle ? migrateProgress || "Please wait" : "Drop a compatible .yml compose file here or click to browse" }}
+                  </p>
+                </div>
+                <div class="flex-shrink-0">
+                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
+                </div>
+              </div>
+            </UploadDragger>
+          </div>
+
+          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
+            <Icon :icon="shapeIcon" class="w-4 h-4" />
+            <span>How it works</span>
+          </h3>
+
+          <div class="space-y-2">
+            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #3b82f6, #0f172a)">
+                  <Icon :icon="checkIcon" class="w-5 h-5 text-white" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Automatic Conversion</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Metadata, icons, volumes, networks, and ports are automatically adapted for HomeDock OS. You preview and select which apps to import before anything is installed. Compose files are sanitized to remove fingerprinting and platform-specific extensions.</p>
+                </div>
+              </div>
+            </div>
+
+            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #22c55e, #0f172a)">
+                  <Icon :icon="packageIcon" class="w-5 h-5 text-white" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Package Manager</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Imported apps land in the Package Manager as .hds packages. From there you can install them from the App Store, export individually, or bundle them into .hdstore files to share entire collections with other users or across devices.</p>
+                </div>
+              </div>
+            </div>
+
+            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3">
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #ec4899, #0f172a)">
+                  <Icon :icon="shieldCheckIcon" class="w-5 h-5 text-white" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Open Format</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Both .hds and .hdstore files are standard ZIP archives signed with SHA-256 hashes to prevent tampering. They are not proprietary, you can always unzip them to inspect their contents or recover the original compose files.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div v-else key="manager" class="px-4 py-4 space-y-4">
@@ -419,17 +577,17 @@
                 <div class="flex items-center gap-1.5"><Icon :icon="downloadIcon" class="w-3 h-3 flex-shrink-0" /><span>Back up your curated App Store</span></div>
                 <div class="flex items-center gap-1.5"><Icon :icon="refreshIcon" class="w-3 h-3 flex-shrink-0" /><span>Migrate apps between your devices</span></div>
                 <div class="flex items-center gap-1.5"><Icon :icon="shareIcon" class="w-3 h-3 flex-shrink-0" /><span>Share with any other user</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="packageIcon" class="w-3 h-3 flex-shrink-0" /><span>Up to 300 packages per .hdstore file</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="packageIcon" class="w-3 h-3 flex-shrink-0" /><span>Up to 999 packages per .hdstore file</span></div>
               </div>
               <div class="px-4 pb-3 flex gap-2">
-                <label :class="[isPreviewingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
-                  <Icon :icon="isPreviewingStore ? loadingIcon : importIcon" :class="['w-3.5 h-3.5', isPreviewingStore ? 'animate-spin' : '']" />
-                  <span>{{ isPreviewingStore ? "Reading..." : "Import .hdstore" }}</span>
+                <label :class="[isPreviewingStore || isImportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
+                  <Icon :icon="isPreviewingStore || isImportingStore ? loadingIcon : importIcon" :class="['w-3.5 h-3.5', isPreviewingStore || isImportingStore ? 'animate-spin' : '']" />
+                  <span>{{ isPreviewingStore ? "Reading..." : isImportingStore ? "Importing..." : "Import .hdstore" }}</span>
                   <input
                     type="file"
                     accept=".hdstore"
                     class="hidden"
-                    :disabled="isPreviewingStore"
+                    :disabled="isPreviewingStore || isImportingStore"
                     @change="
                       (e: Event) => {
                         const f = (e.target as HTMLInputElement).files?.[0];
@@ -439,9 +597,9 @@
                     "
                   />
                 </label>
-                <button v-if="externalApps.filter((a) => a.is_valid).length > 0" @click="showExportStoreDialog = true" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
-                  <Icon :icon="exportIcon" class="w-3.5 h-3.5" />
-                  <span>Export .hdstore</span>
+                <button v-if="externalApps.filter((a) => a.is_valid).length > 0" @click="showExportStoreDialog = true" :disabled="isExportingStore" :class="[isExportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
+                  <Icon :icon="isExportingStore ? loadingIcon : exportIcon" :class="['w-3.5 h-3.5', isExportingStore ? 'animate-spin' : '']" />
+                  <span>{{ isExportingStore ? "Exporting..." : "Export .hdstore" }}</span>
                 </button>
               </div>
             </div>
@@ -578,18 +736,21 @@
       v-model:visible="showExportStoreDialog"
       type="info"
       title="Export .hdstore App Store Bundle"
-      ok-text="Export Selected"
+      :ok-text="isExportingStore ? 'Exporting...' : 'Export Selected'"
       cancel-text="Cancel"
       :ok-cancel="true"
       :width="500"
+      :ok-disabled="isExportingStore || selectedStoreApps.size === 0"
+      :loading="isExportingStore"
       @ok="exportStore"
       @cancel="
         showExportStoreDialog = false;
         selectedStoreApps = new Set();
       "
+      :mask-closable="!isExportingStore"
     >
       <div class="space-y-3">
-        <p :class="['text-xs', themeClasses.packagerTextMuted]">Select packages to include in the .hdstore bundle (max 300).</p>
+        <p :class="['text-xs', themeClasses.packagerTextMuted]">Select packages to include in the .hdstore bundle (max 999).</p>
 
         <button @click="selectAllStoreApps" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
           {{ selectedStoreApps.size === externalApps.filter((a) => a.is_valid).length ? "Deselect All" : "Select All" }}
@@ -621,10 +782,10 @@
       v-model:visible="showImportStoreDialog"
       type="info"
       title="Import .hdstore App Store Bundle"
-      :ok-text="isImportingStore ? 'Importing...' : importStorePreview ? `Import ${importStorePreview.packages.filter((p: any) => !p.already_exists).length} Package(s)` : 'Import'"
+      :ok-text="isImportingStore ? 'Importing...' : `Import ${importStoreSelectedSlugs.size} Package(s)`"
       cancel-text="Cancel"
       :ok-cancel="true"
-      :ok-disabled="isImportingStore || !importStorePreview || importStorePreview.packages.filter((p: any) => !p.already_exists).length === 0"
+      :ok-disabled="isImportingStore || importStoreSelectedSlugs.size === 0"
       :loading="isImportingStore"
       :width="500"
       :close-on-ok="false"
@@ -634,18 +795,26 @@
         showImportStoreDialog = false;
         importStorePreview = null;
         pendingImportFile = null;
+        importStoreSelectedSlugs = new Set();
       "
     >
       <div v-if="importStorePreview" class="space-y-3">
         <p :class="['text-xs', themeClasses.packagerTextMuted]">
           {{ importStorePreview.package_count }} package(s) found in this bundle.
-          <template v-if="importStorePreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ importStorePreview.packages.filter((p: any) => p.already_exists).length }} already exist and will be skipped. </template>
+          <template v-if="importStorePreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ importStorePreview.packages.filter((p: any) => p.already_exists).length }} already imported and cannot be selected.</template>
         </p>
 
+        <button @click="importStoreToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+          {{ importStoreSelectedSlugs.size === importStorePreview.packages.filter((p: any) => !p.already_exists).length ? "Deselect All" : "Select All" }}
+        </button>
+
         <div class="max-h-64 overflow-y-auto space-y-1.5">
-          <div v-for="pkg in importStorePreview.packages" :key="pkg.filename" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border transition-all duration-150', pkg.already_exists ? 'opacity-50' : '', [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
+          <div v-for="pkg in importStorePreview.packages" :key="pkg.filename" @click="!pkg.already_exists && toggleImportStorePkg(pkg.name)" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border transition-all duration-150', pkg.already_exists ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer', importStoreSelectedSlugs.has(pkg.name) && !pkg.already_exists ? 'border-blue-500/50 bg-blue-500/10' : [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
+            <div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0" :class="pkg.already_exists ? 'opacity-30' : importStoreSelectedSlugs.has(pkg.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder">
+              <Icon v-if="importStoreSelectedSlugs.has(pkg.name)" :icon="checkIcon" class="w-3 h-3 text-white" />
+            </div>
             <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md" :class="themeClasses.iconHolder">
-              <Icon :icon="pkg.already_exists ? checkIcon : packageIcon" :class="['w-4 h-4', themeClasses.explorerItemIcon]" />
+              <Icon :icon="packageIcon" :class="['w-4 h-4', themeClasses.explorerItemIcon]" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
@@ -658,10 +827,75 @@
             </div>
           </div>
         </div>
+
+        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: importStoreSelectedSlugs.size > 0 ? '1fr' : '0fr' }">
+          <div class="overflow-hidden">
+            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ importStoreSelectedSlugs.size }} package(s) selected</p>
+          </div>
+        </div>
       </div>
     </AppDialog>
 
-    <StatusBar :icon="packageIcon" :message="activeTab === 'generator' ? 'Packager' : `${externalApps.length} ${externalApps.length === 1 ? 'package' : 'packages'} available`" :info="activeTab === 'generator' ? (usedDevHooks.length ? `${usedDevHooks.length} DevHooks detected` : 'Ready to create') : `${importedApps.length} imported apps`" :showHelp="true">
+    <AppDialog
+      v-model:visible="showThirdPartyDialog"
+      type="info"
+      title="Import from Third-Party Store"
+      :ok-text="isImportingThirdParty ? 'Importing...' : `Import ${thirdPartySelectedSlugs.size} App(s)`"
+      cancel-text="Cancel"
+      :ok-cancel="true"
+      :ok-disabled="isImportingThirdParty || thirdPartySelectedSlugs.size === 0"
+      :loading="isImportingThirdParty"
+      :width="500"
+      :close-on-ok="false"
+      :mask-closable="!isImportingThirdParty"
+      @ok="confirmThirdPartyImport"
+      @cancel="
+        showThirdPartyDialog = false;
+        thirdPartyPreview = null;
+        thirdPartyCacheId = '';
+        thirdPartyProgress = '';
+        thirdPartySelectedSlugs = new Set();
+      "
+    >
+      <div v-if="thirdPartyPreview" class="space-y-3">
+        <p :class="['text-xs', themeClasses.packagerTextMuted]">
+          {{ thirdPartyPreview.package_count }} app(s) found.
+          <template v-if="thirdPartyPreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ thirdPartyPreview.packages.filter((p: any) => p.already_exists).length }} already imported and cannot be selected.</template>
+        </p>
+
+        <button @click="thirdPartyToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+          {{ thirdPartySelectedSlugs.size === thirdPartyPreview.packages.filter((p: any) => !p.already_exists).length ? "Deselect All" : "Select All" }}
+        </button>
+
+        <div class="max-h-64 overflow-y-auto space-y-1.5">
+          <div v-for="pkg in thirdPartyPreview.packages" :key="pkg.name" @click="!pkg.already_exists && toggleThirdPartyPkg(pkg.name)" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border transition-all duration-150', pkg.already_exists ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer', thirdPartySelectedSlugs.has(pkg.name) && !pkg.already_exists ? 'border-blue-500/50 bg-blue-500/10' : [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
+            <div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0" :class="pkg.already_exists ? 'opacity-30' : thirdPartySelectedSlugs.has(pkg.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder">
+              <Icon v-if="thirdPartySelectedSlugs.has(pkg.name)" :icon="checkIcon" class="w-3 h-3 text-white" />
+            </div>
+            <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md" :class="themeClasses.iconHolder">
+              <Icon :icon="packageIcon" :class="['w-4 h-4', themeClasses.explorerItemIcon]" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ pkg.display_name || pkg.name }}</p>
+                <div v-if="pkg.already_exists" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border flex-shrink-0">
+                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">Exists</span>
+                </div>
+              </div>
+              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || "Unknown" }} &middot; {{ pkg.category || "Uncategorized" }} &middot; {{ pkg.version || "latest" }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: thirdPartySelectedSlugs.size > 0 ? '1fr' : '0fr' }">
+          <div class="overflow-hidden">
+            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ thirdPartySelectedSlugs.size }} app(s) selected</p>
+          </div>
+        </div>
+      </div>
+    </AppDialog>
+
+    <StatusBar :icon="packageIcon" :message="activeTab === 'generator' ? 'Packager' : activeTab === 'stores' ? 'Third-Party Stores' : `${externalApps.length} ${externalApps.length === 1 ? 'package' : 'packages'} available`" :info="activeTab === 'generator' ? (usedDevHooks.length ? `${usedDevHooks.length} DevHooks detected` : 'Ready to create') : activeTab === 'stores' ? 'Casa and Zima Stores' : `${importedApps.length} imported apps`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
@@ -671,6 +905,7 @@
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p v-if="activeTab === 'generator'">Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.</p>
+            <p v-else-if="activeTab === 'stores'">Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.</p>
             <p v-else>Import packages from others or export your already imported apps, share them, keep them private or publish your own .hds files on GitHub. Once exported, all packages are verified with SHA256 hashes to ensure integrity and avoid third party modifications.</p>
           </div>
         </div>
@@ -728,6 +963,8 @@ import storePlusIcon from "@iconify-icons/mdi/store-plus";
 import magnifyIcon from "@iconify-icons/mdi/magnify";
 import closeCircleIcon from "@iconify-icons/mdi/close-circle";
 import accountKeyIcon from "@iconify-icons/mdi/account-key";
+import linkIcon from "@iconify-icons/mdi/link-variant";
+import shieldCheckIcon from "@iconify-icons/mdi/shield-check";
 
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
@@ -736,10 +973,11 @@ const appStore = useAppStore();
 const installationStore = useInstallationStore();
 const desktopStore = useDesktopStore();
 
-const activeTab = ref<"generator" | "manager">("manager");
+const activeTab = ref<"generator" | "manager" | "stores">("manager");
 const segmentedOptions = [
   { value: "manager", payload: { label: "Package Manager", icon: folderMultipleIcon } },
   { value: "generator", payload: { label: "Package Generator", icon: sparklesIcon } },
+  { value: "stores", payload: { label: "Third-Party Stores", icon: linkIcon } },
 ];
 
 const segmentedContainerRef = ref<HTMLElement | null>(null);
@@ -847,6 +1085,8 @@ const iconFileList = ref<any[]>([]);
 const iconPreview = ref<string | null>(null);
 const isCreating = ref(false);
 const hasDefaultCredentials = ref(false);
+const hasSuggestedPort = ref(false);
+const hasSuggestedTrail = ref(false);
 const parsedData = ref<any>({});
 
 const usedDevHooks = computed(() => {
@@ -867,6 +1107,8 @@ const newPackage = ref({
   version: "latest",
   default_username: "",
   default_password: "",
+  suggested_port: "",
+  suggested_trail: "",
 });
 
 const isValidSlug = (slug: string): boolean => {
@@ -1171,6 +1413,138 @@ const copyToClipboard = (text: string) => {
   message.success(`Copied: ${text}`);
 };
 
+const predefinedStores = [
+  { name: "BigBearTechWorld", url: "https://github.com/bigbeartechworld/big-bear-casaos/archive/refs/heads/master.zip" },
+  { name: "TMC Store", url: "https://github.com/mariosemes/CasaOS-TMCstore/archive/refs/heads/main.zip" },
+  { name: "Zima App Store", url: "https://github.com/justserdar/ZimaOS-AppStore/archive/refs/tags/latest-v0.0.8.zip" },
+];
+
+const migrateFileList = ref<any[]>([]);
+const isMigratingSingle = ref(false);
+const migrateProgress = ref("");
+
+const handleMigrateUpload = () => {};
+const handleMigrateChange = (info: any) => {
+  const file = info.file?.originFileObj || info.file;
+  if (!file || isMigratingSingle.value) return;
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const content = reader.result as string;
+    isMigratingSingle.value = true;
+    migrateProgress.value = "Converting...";
+    try {
+      const response = await axios.post("/api/pkg/migrate-compose", { compose_content: content }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+      const data = response.data;
+      if (data.success) {
+        message.success(`Migrated: ${data.app}`);
+        loadExternalApps();
+        loadImportedApps();
+        activeTab.value = "manager";
+      } else {
+        message.error(data.message || "Migration failed");
+      }
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || error?.message || "Migration failed");
+    } finally {
+      isMigratingSingle.value = false;
+      migrateProgress.value = "";
+      migrateFileList.value = [];
+    }
+  };
+  reader.readAsText(file);
+};
+
+const thirdPartyUrl = ref("");
+const isImportingThirdPartyUrl = ref(false);
+const thirdPartyProgress = ref("");
+const showThirdPartyDialog = ref(false);
+const thirdPartyPreview = ref<any>(null);
+const thirdPartyCacheId = ref("");
+const isImportingThirdParty = ref(false);
+const thirdPartySelectedSlugs = ref<Set<string>>(new Set());
+
+const toggleThirdPartyPkg = (slug: string) => {
+  const s = new Set(thirdPartySelectedSlugs.value);
+  if (s.has(slug)) s.delete(slug);
+  else s.add(slug);
+  thirdPartySelectedSlugs.value = s;
+};
+
+const thirdPartyToggleAll = () => {
+  if (!thirdPartyPreview.value) return;
+  const available = thirdPartyPreview.value.packages.filter((p: any) => !p.already_exists);
+  if (thirdPartySelectedSlugs.value.size === available.length) {
+    thirdPartySelectedSlugs.value = new Set();
+  } else {
+    thirdPartySelectedSlugs.value = new Set(available.map((p: any) => p.name));
+  }
+};
+
+const importFromThirdParty = async () => {
+  const url = thirdPartyUrl.value.trim();
+  if (!url || isImportingThirdPartyUrl.value) return;
+
+  if (!url.toLowerCase().endsWith(".zip")) {
+    message.error("URL must point to a .zip archive. For individual compose files, use the Package Generator.");
+    return;
+  }
+
+  isImportingThirdPartyUrl.value = true;
+  thirdPartyProgress.value = "Downloading store archive...";
+  try {
+    const response = await axios.post("/api/pkg/preview-third-party", { url }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+
+    const data = response.data;
+    if (!data.success) {
+      message.error(data.message || "Failed to fetch store");
+      return;
+    }
+
+    thirdPartyProgress.value = `Found ${data.package_count} app(s). Select which ones to import.`;
+    thirdPartyCacheId.value = data.cache_id;
+    thirdPartyPreview.value = data;
+    thirdPartySelectedSlugs.value = new Set(data.packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
+    showThirdPartyDialog.value = true;
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || error?.message || "Failed to fetch store");
+    thirdPartyProgress.value = "";
+  } finally {
+    isImportingThirdPartyUrl.value = false;
+  }
+};
+
+const confirmThirdPartyImport = async () => {
+  if (!thirdPartyPreview.value || !thirdPartyCacheId.value) return;
+
+  const slugs = [...thirdPartySelectedSlugs.value];
+  if (slugs.length === 0) return;
+
+  isImportingThirdParty.value = true;
+  try {
+    const response = await axios.post("/api/pkg/import-third-party", { cache_id: thirdPartyCacheId.value, slugs }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+
+    const data = response.data;
+    if (data.success) {
+      message.success(`Imported ${data.imported} app(s)${data.skipped > 0 ? `, ${data.skipped} skipped` : ""}`);
+      thirdPartyUrl.value = "";
+      thirdPartyProgress.value = "";
+      showThirdPartyDialog.value = false;
+      thirdPartyPreview.value = null;
+      thirdPartyCacheId.value = "";
+      loadExternalApps();
+      loadImportedApps();
+      activeTab.value = "manager";
+    } else {
+      message.error(data.message || "Import failed");
+    }
+  } catch (error: any) {
+    message.error(error?.response?.data?.message || "Import failed");
+  } finally {
+    isImportingThirdParty.value = false;
+  }
+};
+
 const createPackage = async () => {
   if (!canCreate.value) return;
 
@@ -1199,6 +1573,12 @@ const createPackage = async () => {
     if (hasDefaultCredentials.value && newPackage.value.default_username && newPackage.value.default_password) {
       formData.append("default_username", newPackage.value.default_username);
       formData.append("default_password", newPackage.value.default_password);
+    }
+    if (hasSuggestedPort.value && newPackage.value.suggested_port) {
+      formData.append("suggested_port", newPackage.value.suggested_port);
+    }
+    if (hasSuggestedTrail.value && newPackage.value.suggested_trail) {
+      formData.append("suggested_trail", newPackage.value.suggested_trail);
     }
 
     const response = await axios.post("/api/pkg/create", formData, {
@@ -1238,8 +1618,12 @@ const createPackage = async () => {
       version: "latest",
       default_username: "",
       default_password: "",
+      suggested_port: "",
+      suggested_trail: "",
     };
     hasDefaultCredentials.value = false;
+    hasSuggestedPort.value = false;
+    hasSuggestedTrail.value = false;
   } catch (error) {
     console.error("Creation error:", error);
     message.error("Creation failed. Please try again.");
@@ -1429,8 +1813,26 @@ const isPreviewingStore = ref(false);
 const showImportStoreDialog = ref(false);
 const importStorePreview = ref<any>(null);
 const pendingImportFile = ref<File | null>(null);
+const importStoreSelectedSlugs = ref<Set<string>>(new Set());
 
-const MAX_HDSTORE_PACKAGES = 300;
+const toggleImportStorePkg = (slug: string) => {
+  const s = new Set(importStoreSelectedSlugs.value);
+  if (s.has(slug)) s.delete(slug);
+  else s.add(slug);
+  importStoreSelectedSlugs.value = s;
+};
+
+const importStoreToggleAll = () => {
+  if (!importStorePreview.value) return;
+  const available = importStorePreview.value.packages.filter((p: any) => !p.already_exists);
+  if (importStoreSelectedSlugs.value.size === available.length) {
+    importStoreSelectedSlugs.value = new Set();
+  } else {
+    importStoreSelectedSlugs.value = new Set(available.map((p: any) => p.name));
+  }
+};
+
+const MAX_HDSTORE_PACKAGES = 999;
 
 const toggleStoreAppSelection = (slug: string) => {
   const next = new Set(selectedStoreApps.value);
@@ -1515,6 +1917,7 @@ const importStore = async (file: File) => {
 
       importStorePreview.value = { ...response.data, packages };
       pendingImportFile.value = file;
+      importStoreSelectedSlugs.value = new Set(packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
       showImportStoreDialog.value = true;
     } else {
       message.error(response.data.message || "Preview failed");
@@ -1527,12 +1930,13 @@ const importStore = async (file: File) => {
 };
 
 const confirmImportStore = async () => {
-  if (!pendingImportFile.value) return;
+  if (!pendingImportFile.value || importStoreSelectedSlugs.value.size === 0) return;
   isImportingStore.value = true;
 
   try {
     const formData = new FormData();
     formData.append("file", pendingImportFile.value);
+    formData.append("selected_slugs", JSON.stringify([...importStoreSelectedSlugs.value]));
 
     const response = await axios.post("/api/pkg/import-hdstore", formData, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
@@ -1557,6 +1961,7 @@ const confirmImportStore = async () => {
     showImportStoreDialog.value = false;
     importStorePreview.value = null;
     pendingImportFile.value = null;
+    importStoreSelectedSlugs.value = new Set();
   }
 };
 

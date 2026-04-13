@@ -55,16 +55,17 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 </kbd>
 
 <kbd>
-  <img alt="HomeDock OS + Prism Window Manager White" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-1.png" style="max-width:100%;">
+  <img alt="HomeDock OS + Prism Window Manager White" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-1.png" width="100%" style="max-width:100%;">
 </kbd>
 
 <kbd>
-  <img alt="HomeDock OS + Prism Window Manager Aero+" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-2.png" style="max-width:100%;">
+  <img alt="HomeDock OS + Prism Window Manager Noir" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-3.png" width="100%" style="max-width:100%;">
 </kbd>
 
 <kbd>
-  <img alt="HomeDock OS + Prism Window Manager Noir" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-prism-window-manager-3.png" style="max-width:100%;">
+  <img alt="HomeDock OS + Prism Window Manager Aero+" src="https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/goatOS.webp" width="100%" style="max-width:100%;">
 </kbd>
+
 ---
 
 ## Why HomeDock OS?
@@ -94,13 +95,11 @@ Take control of the cloud like never before. **Simplify, enhance, and secure you
 HomeDock OS is designed to be universally compatible across platforms and architectures:
 
 - **Operating Systems**:
-
   - Linux ✔️
   - macOS ✔️
   - Windows ✔️
 
 - **Architectures**:
-
   - x86 ✔️
   - x86_64 ✔️
   - ARM ✔️

@@ -41,7 +41,9 @@ export const useAppStore = defineStore("AppStore", {
         if (externalResponse.status === 200) {
           const externalData = externalResponse.data;
           if (externalData.success && externalData.apps.length > 0) {
-            this.apps = [...this.apps, ...externalData.apps];
+            const existingNames = new Set(this.apps.map((a) => a.name));
+            const uniqueExternal = externalData.apps.filter((a: { name: string }) => !existingNames.has(a.name));
+            this.apps = [...this.apps, ...uniqueExternal];
           }
         }
 

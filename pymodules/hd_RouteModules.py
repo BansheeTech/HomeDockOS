@@ -143,7 +143,7 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/update_containers", "update_containers", CSRF_Protect(update_containers), methods=["POST"])
 
-    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose, export_hdstore, preview_hdstore, import_hdstore
+    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose, export_hdstore, preview_hdstore, import_hdstore, preview_third_party_url, import_third_party_selected, migrate_single_compose
 
     homedock_www.add_url_rule("/api/pkg/list", "list_external_apps", CSRF_Protect(list_external_apps), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/upload", "upload_hds_package", CSRF_Protect(upload_hds_package), methods=["POST"])
@@ -157,6 +157,9 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/pkg/export-hdstore", "export_hdstore", CSRF_Protect(export_hdstore), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/preview-hdstore", "preview_hdstore", CSRF_Protect(preview_hdstore), methods=["POST"])
     homedock_www.add_url_rule("/api/pkg/import-hdstore", "import_hdstore", CSRF_Protect(import_hdstore), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/preview-third-party", "preview_third_party_url", CSRF_Protect(preview_third_party_url), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/import-third-party", "import_third_party_selected", CSRF_Protect(import_third_party_selected), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/migrate-compose", "migrate_single_compose", CSRF_Protect(migrate_single_compose), methods=["POST"])
 
     from pymodules.hd_NotificationHandler import dismiss_notification, get_notifications
 

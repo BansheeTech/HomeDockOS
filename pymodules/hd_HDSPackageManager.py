@@ -16,6 +16,9 @@ import zipfile
 import tempfile
 import datetime
 
+import urllib.request
+import urllib.parse
+
 from typing import Dict, Tuple, Optional, List
 from flask import jsonify, request, send_file
 from flask_login import login_required
@@ -28,7 +31,7 @@ from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_MIMETypeValidation import validate_file_mime
 
 
-MAX_HDSTORE_PACKAGES = 300  # Items
+MAX_HDSTORE_PACKAGES = 999  # Items
 MAX_HDS_PACKAGE_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_COMPOSE_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 MAX_ICON_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -175,7 +178,7 @@ def cleanup_partial_installation(app_slug: str, apps_folder: str) -> None:
                 os.remove(icon_path)
                 break
 
-    except Exception as e:
+    except Exception:
         pass
 
 
@@ -308,6 +311,8 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
             except ValueError as e:
                 raise ValueError(f"Invalid docker-compose.yml inside package: {str(e)}")
 
+            compose_content = _inject_hd_group_labels(compose_content, app_slug)
+
             compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
 
             compose_path_real = os.path.realpath(compose_path)
@@ -340,6 +345,14 @@ def extract_hds_package(hds_path: str, fallback_display_name: str) -> Tuple[bool
 
         manifest["slug"] = app_slug
         manifest["icon_filename"] = f"{app_slug}{icon_ext}"
+
+        try:
+            safe = compose_content.replace("[[", "__DBLBRK__").replace("]]", "__DBLBRK_END__")
+            parsed = yaml.safe_load(safe)
+            if isinstance(parsed, dict) and len(parsed.get("services") or {}) > 1:
+                manifest["is_group"] = True
+        except Exception:
+            pass
 
         metadata_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml.metadata")
         with open(metadata_path, "w") as f:
@@ -554,13 +567,11 @@ def create_hds_from_files():
         if len(icon_bytes) > MAX_ICON_FILE_SIZE:
             return jsonify({"success": False, "message": get_error_message("FILE_TOO_LARGE", max_size=MAX_ICON_FILE_SIZE // (1024 * 1024))}), 400
 
-        # Validar tipo MIME del compose file (debe ser YAML/texto)
         try:
             validate_file_mime(compose_content.encode("utf-8"), compose_file.filename, allowed_types=["text/yaml"])
         except ValueError as e:
             return jsonify({"success": False, "message": f"Invalid compose file type: {str(e)}"}), 400
 
-        # Validar tipo MIME del icono (debe ser imagen: JPG o PNG)
         try:
             validate_file_mime(icon_bytes, icon_file.filename, allowed_types=["image/jpeg", "image/png"])
         except ValueError as e:
@@ -572,12 +583,25 @@ def create_hds_from_files():
         if not validate_category(category):
             return jsonify({"success": False, "message": get_error_message("INVALID_CATEGORY", categories=", ".join(ALLOWED_CATEGORIES))}), 400
 
+        compose_content = _inject_hd_group_labels(compose_content, app_slug)
+
         manifest = {"name": app_slug, "display_name": display_name, "category": category, "type": app_type, "description": description, "docker_image": docker_image, "icon": f"icon{icon_ext}", "author": author, "version": version, "hds_version": HDS_VERSION, "dependencies": [], "is_group": False, "is_new": False, "new_until": False}
 
         default_username = request.form.get("default_username")
         default_password = request.form.get("default_password")
         if default_username and default_password:
             manifest["default_credentials"] = {"username": default_username, "password": default_password}
+
+        suggested_port = request.form.get("suggested_port")
+        if suggested_port:
+            try:
+                manifest["suggested_port"] = int(suggested_port)
+            except ValueError:
+                pass
+
+        suggested_trail = request.form.get("suggested_trail")
+        if suggested_trail:
+            manifest["suggested_trail"] = suggested_trail.strip().lstrip("/")
 
         manifest_content = json.dumps(manifest, indent=2)
 
@@ -1123,12 +1147,23 @@ def import_hdstore():
             if calculated_signature != stored_signature:
                 return jsonify({"success": False, "message": "Store integrity check failed. File may be corrupted or tampered with."}), 400
 
+            selected_slugs_raw = request.form.get("selected_slugs")
+            selected_slugs = None
+            if selected_slugs_raw:
+                try:
+                    selected_slugs = set(json.loads(selected_slugs_raw))
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
             for pkg_entry in packages_list:
                 if not isinstance(pkg_entry, dict):
                     continue
 
                 pkg_filename = pkg_entry.get("filename")
                 if not pkg_filename or not isinstance(pkg_filename, str):
+                    continue
+
+                if selected_slugs is not None and pkg_entry.get("name") not in selected_slugs:
                     continue
 
                 safe_filename = secure_filename(pkg_filename)
@@ -1213,3 +1248,605 @@ def import_hdstore():
     finally:
         if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+MAX_STORE_ZIP_SIZE = 500 * 1024 * 1024  # 500 MB
+
+_PROJECT01_CATEGORY_MAP = {
+    "media": "Media",
+    "music": "Media",
+    "video": "Media",
+    "photo": "Media",
+    "photos": "Media",
+    "gaming": "Gaming",
+    "game": "Gaming",
+    "games": "Gaming",
+    "social": "Social",
+    "communication": "Social",
+    "ai": "AI",
+    "machine learning": "AI",
+    "ml": "AI",
+    "files": "Files & Productivity",
+    "productivity": "Files & Productivity",
+    "storage": "Files & Productivity",
+    "backup": "Files & Productivity",
+    "documents": "Files & Productivity",
+    "networking": "Networking",
+    "network": "Networking",
+    "vpn": "Networking",
+    "dns": "Networking",
+    "proxy": "Networking",
+    "developer tools": "Developer Tools",
+    "development": "Developer Tools",
+    "dev": "Developer Tools",
+    "devtools": "Developer Tools",
+    "web development": "Web Development",
+    "web": "Web Development",
+    "home": "Home & Automation",
+    "automation": "Home & Automation",
+    "home automation": "Home & Automation",
+    "iot": "Home & Automation",
+    "smart home": "Home & Automation",
+}
+
+
+def _inject_hd_group_labels(compose_content: str, app_slug: str) -> str:
+    try:
+        safe = compose_content.replace("[[", "__DBLBRK__").replace("]]", "__DBLBRK_END__")
+        data = yaml.safe_load(safe)
+        if not isinstance(data, dict):
+            return compose_content
+
+        services = data.get("services") or {}
+        if len(services) <= 1:
+            return compose_content
+
+        main_svc_key = None
+        for svc_key, svc in services.items():
+            if svc_key == app_slug or (isinstance(svc, dict) and svc.get("container_name") == app_slug):
+                main_svc_key = svc_key
+                break
+        if not main_svc_key:
+            main_svc_key = next(iter(services))
+
+        for svc_key, svc in services.items():
+            if not isinstance(svc, dict):
+                continue
+            labels = svc.get("labels")
+            if labels is None:
+                labels = {}
+                svc["labels"] = labels
+            if isinstance(labels, dict):
+                labels["HDGroup"] = app_slug
+                labels["HDRole"] = "main" if svc_key == main_svc_key else "dependency"
+            elif isinstance(labels, list):
+                labels.append(f"HDGroup={app_slug}")
+                labels.append(f"HDRole={'main' if svc_key == main_svc_key else 'dependency'}")
+
+        result = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        return result.replace("__DBLBRK__", "[[").replace("__DBLBRK_END__", "]]")
+    except Exception:
+        return compose_content
+
+
+def _map_project01_category(raw_category: str) -> str:
+    key = (raw_category or "").strip().lower()
+    return _PROJECT01_CATEGORY_MAP.get(key, "Files & Productivity")
+
+
+def _fetch_url_bytes(url: str, max_bytes: int = MAX_ICON_FILE_SIZE) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "HomeDockOS-Packager/1.0"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = resp.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        raise ValueError(f"Remote file exceeds {max_bytes // (1024 * 1024)} MB limit")
+    return data
+
+
+# HDOS00018
+_PH_INSTALL_PATH = "__HD_INSTALL_PATH__"
+_PH_LOCAL_IP = "__HD_LOCAL_IP__"
+
+
+def _clean_project01_compose(compose_content: str, app_slug: str) -> str:
+    try:
+        raw = compose_content
+        raw = raw.replace("/DATA/AppData", _PH_INSTALL_PATH)
+        raw = re.sub(r"/DATA/(\w+)", lambda m: f"{_PH_INSTALL_PATH}/{app_slug}/{m.group(1)}", raw)
+        raw = raw.replace("$AppID", app_slug)
+        raw = re.sub(r"\[YOUR_CASAOS_IP\]", _PH_LOCAL_IP, raw)
+
+        data = yaml.safe_load(raw)
+        if not isinstance(data, dict):
+            return compose_content
+
+        p01_meta = data.get("x-casaos") or {}
+        services = data.get("services") or {}
+        main_key = p01_meta.get("main") or (next(iter(services), None))
+
+        data.pop("x-casaos", None)
+        data.pop("networks", None)
+        data.pop("name", None)
+
+        new_services: dict = {}
+        for svc_key, svc in services.items():
+            if not isinstance(svc, dict):
+                new_services[svc_key] = svc
+                continue
+
+            svc.pop("x-casaos", None)
+            svc.pop("networks", None)
+
+            if "ports" in svc and isinstance(svc["ports"], list):
+                normalized = []
+                for p in svc["ports"]:
+                    if isinstance(p, dict):
+                        target = str(p.get("target", ""))
+                        published = str(p.get("published", target))
+                        proto = p.get("protocol", "")
+                        port_str = f"{published}:{target}"
+                        if proto and proto != "tcp":
+                            port_str = f"{port_str}/{proto}"
+                        normalized.append(port_str)
+                    else:
+                        normalized.append(str(p) if p is not None else p)
+                svc["ports"] = normalized
+
+            if "volumes" in svc and isinstance(svc["volumes"], list):
+                norm_vols = []
+                for v in svc["volumes"]:
+                    if isinstance(v, dict) and "source" in v and "target" in v:
+                        vol_str = f"{v['source']}:{v['target']}"
+                        if v.get("read_only"):
+                            vol_str += ":ro"
+                        norm_vols.append(vol_str)
+                    else:
+                        norm_vols.append(v)
+                svc["volumes"] = norm_vols
+
+            for empty_key in ("devices", "cap_add", "command"):
+                if empty_key in svc and svc[empty_key] == []:
+                    del svc[empty_key]
+
+            if svc_key == main_key:
+                svc["container_name"] = app_slug
+                new_services[app_slug] = svc
+            else:
+                new_services[svc_key] = svc
+
+        if main_key and main_key != app_slug:
+            for svc in new_services.values():
+                if not isinstance(svc, dict):
+                    continue
+                dep = svc.get("depends_on")
+                if isinstance(dep, dict) and main_key in dep:
+                    dep[app_slug] = dep.pop(main_key)
+                elif isinstance(dep, list) and main_key in dep:
+                    svc["depends_on"] = [app_slug if d == main_key else d for d in dep]
+
+        data["services"] = new_services
+
+        result = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
+
+        result = result.replace(_PH_INSTALL_PATH, "[[INSTALL_PATH]]")
+        result = result.replace(_PH_LOCAL_IP, "[[HD_LOCAL_IP]]")
+
+        return result
+    except Exception:
+        return compose_content
+
+
+def _build_hds_buffer(app_slug: str, display_name: str, category: str, description: str, docker_image: str, image_tag: str, author: str, compose_content: str, icon_bytes: bytes, icon_ext: str, suggested_port: Optional[int] = None, suggested_trail: Optional[str] = None):
+    dep_names: list = []
+    try:
+        safe = compose_content.replace("[[", "__DBLBRK__").replace("]]", "__DBLBRK_END__")
+        parsed = yaml.safe_load(safe)
+        if isinstance(parsed, dict):
+            for svc_key, svc in (parsed.get("services") or {}).items():
+                cname = svc.get("container_name", svc_key) if isinstance(svc, dict) else svc_key
+                if cname != app_slug:
+                    dep_names.append(cname)
+    except Exception:
+        pass
+
+    manifest = {
+        "name": app_slug,
+        "display_name": display_name,
+        "category": category,
+        "type": "Application",
+        "description": description,
+        "docker_image": docker_image or "unknown:latest",
+        "icon": f"icon{icon_ext}",
+        "author": author,
+        "version": image_tag,
+        "hds_version": HDS_VERSION,
+        "dependencies": dep_names,
+        "is_group": len(dep_names) > 0,
+        "is_new": False,
+        "new_until": False,
+    }
+    if suggested_port:
+        manifest["suggested_port"] = suggested_port
+    if suggested_trail:
+        manifest["suggested_trail"] = suggested_trail
+    compose_content = _inject_hd_group_labels(compose_content, app_slug)
+    manifest_content = json.dumps(manifest, indent=2)
+    signature = calculate_content_hash(manifest_content, icon_bytes, compose_content)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("manifest.json", manifest_content)
+        zf.writestr(f"icon{icon_ext}", icon_bytes)
+        zf.writestr("docker-compose.yml", compose_content)
+        zf.writestr(".hds_signature", signature)
+    buf.seek(0)
+    return buf, manifest
+
+
+def _parse_project01_compose(compose_content: str):
+    try:
+        compose_data = yaml.safe_load(compose_content)
+    except yaml.YAMLError:
+        return None
+    if not isinstance(compose_data, dict):
+        return None
+
+    p01 = compose_data.get("x-casaos") or {}
+    if not p01:
+        return None
+
+    services = compose_data.get("services") or {}
+    main_key = p01.get("main") or (next(iter(services), None))
+    main_service = services.get(main_key, {}) if main_key else {}
+
+    def _loc(field):
+        val = p01.get(field)
+        if isinstance(val, dict):
+            return val.get("en_us") or next(iter(val.values()), "") or ""
+        return str(val) if val else ""
+
+    raw_title = _loc("title") or compose_data.get("name") or main_key or "app"
+    raw_description = _loc("description") or _loc("tagline") or "No description provided."
+    raw_author = p01.get("author") or p01.get("developer") or "Unknown"
+    raw_category = p01.get("category") or ""
+    icon_url = p01.get("icon") or p01.get("thumbnail") or ""
+
+    docker_image = main_service.get("image") or ""
+    if not docker_image and services:
+        docker_image = next(iter(services.values()), {}).get("image", "")
+
+    image_tag = "latest"
+    if ":" in (docker_image or ""):
+        image_tag = docker_image.split(":")[-1]
+
+    suggested_port = None
+    is_host_network = main_service.get("network_mode") == "host"
+    if is_host_network:
+        raw_port_map = str(p01.get("port_map", "")).strip()
+        if raw_port_map:
+            try:
+                suggested_port = int(raw_port_map)
+            except ValueError:
+                pass
+
+    return {
+        "slug": normalize_app_slug(raw_title),
+        "display_name": raw_title.strip(),
+        "description": (raw_description[:127].strip() + "...") if len(raw_description) > 130 else raw_description.strip(),
+        "author": str(raw_author).strip(),
+        "category": _map_project01_category(raw_category),
+        "docker_image": docker_image,
+        "image_tag": image_tag,
+        "icon_url": icon_url,
+        "suggested_port": suggested_port,
+    }
+
+
+def _install_hds_from_buffer(hds_bytes: bytes, filename: str) -> dict:
+    temp_path = None
+    try:
+        os.makedirs(user_packages_hds_folder, exist_ok=True)
+        os.makedirs(user_packages_available_folder, exist_ok=True)
+        os.makedirs(user_packages_images_folder, exist_ok=True)
+
+        temp_path = os.path.join(tempfile.gettempdir(), filename)
+        with open(temp_path, "wb") as f:
+            f.write(hds_bytes)
+
+        is_valid, msg, manifest = validate_hds_package(temp_path)
+        if not is_valid:
+            return {"ok": False, "reason": msg}
+
+        app_slug = manifest.get("name")
+        display_name = manifest.get("display_name") or app_slug
+
+        final_path = os.path.join(user_packages_hds_folder, filename)
+        compose_path = os.path.join(user_packages_available_folder, f"{app_slug}.yml")
+        if os.path.exists(final_path) or os.path.exists(compose_path):
+            return {"ok": False, "reason": "already_exists", "slug": app_slug, "display_name": display_name}
+
+        success, extract_msg, _ = extract_hds_package(temp_path, display_name)
+        if not success:
+            return {"ok": False, "reason": extract_msg}
+
+        shutil.move(temp_path, final_path)
+        temp_path = None
+
+        return {"ok": True, "slug": app_slug, "display_name": display_name}
+
+    except Exception as e:
+        return {"ok": False, "reason": str(e)}
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+_TRANSPARENT_PNG = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01" b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01" b"\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+
+_third_party_cache: Dict[str, dict] = {}
+_THIRD_PARTY_CACHE_TTL = 600  # 10m
+
+
+def _evict_third_party_cache():
+    now = datetime.datetime.now(datetime.timezone.utc).timestamp()
+    expired = [k for k, v in _third_party_cache.items() if now - v["ts"] > _THIRD_PARTY_CACHE_TTL]
+    for k in expired:
+        _third_party_cache.pop(k, None)
+
+
+def _fetch_third_party_apps(url: str) -> List[dict]:
+    apps = []
+
+    if not url.lower().endswith(".zip"):
+        raise ValueError("URL must point to a .zip archive")
+
+    zip_bytes = _fetch_url_bytes(url, MAX_STORE_ZIP_SIZE)
+    if not zipfile.is_zipfile(io.BytesIO(zip_bytes)):
+        raise ValueError("URL did not return a valid ZIP file")
+
+    seen_slugs: set = set()
+
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as store_zip:
+        all_names = set(store_zip.namelist())
+        compose_entries = [name for name in all_names if name.endswith("docker-compose.yml") and not name.startswith("__MACOSX")]
+
+        for compose_entry in compose_entries:
+            if len(apps) >= MAX_HDSTORE_PACKAGES:
+                break
+
+            try:
+                compose_content = store_zip.read(compose_entry).decode("utf-8")
+            except Exception:
+                continue
+
+            meta = _parse_project01_compose(compose_content)
+            if not meta:
+                continue
+
+            app_slug = meta["slug"]
+            if not app_slug or app_slug in seen_slugs:
+                continue
+            seen_slugs.add(app_slug)
+
+            compose_content = _clean_project01_compose(compose_content, app_slug)
+
+            app_dir = compose_entry.rsplit("/", 1)[0] + "/"
+            local_icon = None
+            local_ext = None
+            for ext in ALLOWED_ICON_EXTENSIONS:
+                candidate = app_dir + "icon" + ext
+                if candidate in all_names:
+                    try:
+                        local_icon = store_zip.read(candidate)
+                        local_ext = ext
+                        break
+                    except Exception:
+                        pass
+
+            if local_icon:
+                icon_bytes, icon_ext = local_icon, local_ext
+            else:
+                icon_bytes, icon_ext = _resolve_icon(None, meta["icon_url"])
+
+            apps.append({**meta, "compose_content": compose_content, "icon_bytes": icon_bytes, "icon_ext": icon_ext})
+
+    return apps
+
+
+def _resolve_icon(icon_bytes: Optional[bytes], icon_url: str) -> tuple:
+    icon_ext = ".png"
+    if not icon_bytes and icon_url:
+        try:
+            icon_bytes = _fetch_url_bytes(icon_url, MAX_ICON_FILE_SIZE)
+            ext = os.path.splitext(urllib.parse.urlparse(icon_url).path)[1].lower()
+            if ext in ALLOWED_ICON_EXTENSIONS:
+                icon_ext = ext
+        except Exception:
+            icon_bytes = None
+    if not icon_bytes:
+        icon_bytes = _TRANSPARENT_PNG
+        icon_ext = ".png"
+    return icon_bytes, icon_ext
+
+
+@login_required
+def preview_third_party_url():
+    try:
+        body = request.get_json(silent=True) or {}
+        url = (body.get("url") or "").strip()
+
+        if not url:
+            return jsonify({"success": False, "message": "Missing URL"}), 400
+
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return jsonify({"success": False, "message": "URL must use http or https"}), 400
+
+        _evict_third_party_cache()
+
+        apps = _fetch_third_party_apps(url)
+        if not apps:
+            return jsonify({"success": False, "message": "No valid apps found at this URL"}), 400
+
+        existing_files = set()
+        if os.path.exists(user_packages_available_folder):
+            for f in os.listdir(user_packages_available_folder):
+                if f.endswith(".yml"):
+                    existing_files.add(f.replace(".yml", ""))
+
+        cache_id = hashlib.sha256(f"{url}:{datetime.datetime.now(datetime.timezone.utc).isoformat()}".encode()).hexdigest()[:16]
+        _third_party_cache[cache_id] = {"apps": apps, "ts": datetime.datetime.now(datetime.timezone.utc).timestamp()}
+
+        packages = []
+        for app in apps:
+            packages.append(
+                {
+                    "name": app["slug"],
+                    "display_name": app["display_name"],
+                    "author": app["author"],
+                    "category": app["category"],
+                    "version": app["image_tag"],
+                    "docker_image": app["docker_image"],
+                    "already_exists": app["slug"] in existing_files,
+                }
+            )
+
+        return jsonify(
+            {
+                "success": True,
+                "cache_id": cache_id,
+                "package_count": len(packages),
+                "packages": packages,
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def import_third_party_selected():
+    try:
+        body = request.get_json(silent=True) or {}
+        cache_id = (body.get("cache_id") or "").strip()
+        selected_slugs = body.get("slugs") or []
+
+        if not cache_id or cache_id not in _third_party_cache:
+            return jsonify({"success": False, "message": "Preview expired. Please fetch the URL again."}), 410
+
+        if not selected_slugs:
+            return jsonify({"success": False, "message": "No apps selected"}), 400
+
+        cached = _third_party_cache.pop(cache_id)
+        apps_by_slug = {app["slug"]: app for app in cached["apps"]}
+
+        imported = []
+        skipped = []
+
+        for slug in selected_slugs:
+            app = apps_by_slug.get(slug)
+            if not app:
+                skipped.append({"name": slug, "reason": "Not found in preview"})
+                continue
+
+            try:
+                hds_buf, _ = _build_hds_buffer(
+                    app_slug=app["slug"],
+                    display_name=app["display_name"],
+                    category=app["category"],
+                    description=app["description"],
+                    docker_image=app["docker_image"],
+                    image_tag=app["image_tag"],
+                    author=app["author"],
+                    compose_content=app["compose_content"],
+                    icon_bytes=app["icon_bytes"],
+                    icon_ext=app["icon_ext"],
+                    suggested_port=app.get("suggested_port"),
+                )
+                result = _install_hds_from_buffer(hds_buf.read(), f"{slug}.hds")
+                if result["ok"]:
+                    imported.append(app["display_name"])
+                else:
+                    skipped.append({"name": app["display_name"], "reason": result.get("reason", "unknown")})
+            except Exception as e:
+                skipped.append({"name": slug, "reason": str(e)})
+
+        if not imported and not skipped:
+            return jsonify({"success": False, "message": "Nothing to import"}), 400
+
+        invalidate_external_apps_cache()
+        return jsonify(
+            {
+                "success": True,
+                "imported": len(imported),
+                "skipped": len(skipped),
+                "apps": imported,
+                "skipped_apps": skipped,
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def migrate_single_compose():
+    try:
+        body = request.get_json(silent=True) or {}
+        url = (body.get("url") or "").strip()
+        compose_content = (body.get("compose_content") or "").strip()
+
+        if not url and not compose_content:
+            return jsonify({"success": False, "message": "Missing URL or compose content"}), 400
+
+        if not compose_content:
+            parsed = urllib.parse.urlparse(url)
+            if parsed.scheme not in ("http", "https"):
+                return jsonify({"success": False, "message": "URL must use http or https"}), 400
+
+            try:
+                compose_bytes = _fetch_url_bytes(url, MAX_COMPOSE_FILE_SIZE)
+            except Exception as e:
+                return jsonify({"success": False, "message": f"Could not fetch compose file: {e}"}), 400
+
+            try:
+                compose_content = compose_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                return jsonify({"success": False, "message": "Compose file is not valid UTF-8"}), 400
+
+        meta = _parse_project01_compose(compose_content)
+        if not meta:
+            return jsonify({"success": False, "message": "No compatible metadata found in compose file"}), 400
+
+        compose_content = _clean_project01_compose(compose_content, meta["slug"])
+
+        icon_bytes, icon_ext = _resolve_icon(None, meta["icon_url"])
+
+        hds_buf, _ = _build_hds_buffer(
+            app_slug=meta["slug"],
+            display_name=meta["display_name"],
+            category=meta["category"],
+            description=meta["description"],
+            docker_image=meta["docker_image"],
+            image_tag=meta["image_tag"],
+            author=meta["author"],
+            compose_content=compose_content,
+            icon_bytes=icon_bytes,
+            icon_ext=icon_ext,
+            suggested_port=meta.get("suggested_port"),
+        )
+
+        result = _install_hds_from_buffer(hds_buf.read(), f"{meta['slug']}.hds")
+        if not result["ok"]:
+            if result.get("reason") == "already_exists":
+                return jsonify({"success": False, "message": f"'{result['display_name']}' is already imported"}), 409
+            return jsonify({"success": False, "message": result.get("reason", "Unknown error")}), 500
+
+        invalidate_external_apps_cache()
+        return jsonify({"success": True, "app": result["display_name"]})
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

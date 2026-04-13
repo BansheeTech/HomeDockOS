@@ -9,6 +9,7 @@ import axios from "axios";
 
 import { useAppStore } from "../__Stores__/useAppStore";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { notifyError } from "../__Components__/Notifications.vue";
 
 export const useInstallationStore = defineStore("InstallationStore", () => {
   const csrfToken = useCsrfToken();
@@ -28,6 +29,11 @@ export const useInstallationStore = defineStore("InstallationStore", () => {
       if (response.data) {
         currentlyInstalling.value = response.data.currently_installing;
         queue.value = response.data.queue || [];
+
+        const errors: Record<string, string> = response.data.errors || {};
+        for (const [, errMsg] of Object.entries(errors)) {
+          notifyError(errMsg);
+        }
 
         if (currentlyInstalling.value || queue.value.length > 0) {
           idleCheckCounter.value = 0;

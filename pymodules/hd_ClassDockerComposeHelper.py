@@ -133,4 +133,17 @@ class DockerComposeHelper:
                     return False, f"Error: {result.stderr}"
 
         except Exception as e:
-            return False, f"Error: {e}"
+            stderr_text = ""
+            if hasattr(e, "stderr") and e.stderr:
+                stderr_text = e.stderr.decode("utf-8", errors="replace") if isinstance(e.stderr, bytes) else str(e.stderr)
+            if not stderr_text:
+                try:
+                    retry_cmd = ["docker", "compose", "-f", compose_file, "up", "-d"]
+                    if service_names:
+                        retry_cmd.extend(service_names)
+                    retry = subprocess.run(retry_cmd, capture_output=True, text=True, timeout=30)
+                    if retry.returncode != 0 and retry.stderr:
+                        stderr_text = retry.stderr
+                except Exception:
+                    pass
+            return False, f"Error: {stderr_text}" if stderr_text else f"Error: {e}"

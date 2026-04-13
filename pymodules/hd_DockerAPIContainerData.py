@@ -29,8 +29,10 @@ _suggested_trails_cache = None
 
 
 def invalidate_external_apps_cache():
-    global _app_store_external_cache
+    global _app_store_external_cache, _suggested_ports_cache, _suggested_trails_cache
     _app_store_external_cache = None
+    _suggested_ports_cache = None
+    _suggested_trails_cache = None
 
 
 def load_suggested_ports():
@@ -43,6 +45,18 @@ def load_suggested_ports():
         except Exception as e:
             print(f"Warning: Could not load suggested ports: {e}")
             _suggested_ports_cache = {}
+
+        try:
+            if os.path.exists(user_packages_available_folder):
+                for filename in os.listdir(user_packages_available_folder):
+                    if filename.endswith(".yml.metadata"):
+                        metadata_path = os.path.join(user_packages_available_folder, filename)
+                        with open(metadata_path, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                        if "suggested_port" in meta and meta.get("name"):
+                            _suggested_ports_cache[meta["name"]] = meta["suggested_port"]
+        except Exception:
+            pass
 
     return _suggested_ports_cache
 
@@ -57,6 +71,18 @@ def load_suggested_trails():
         except Exception as e:
             print(f"Warning: Could not load suggested trails: {e}")
             _suggested_trails_cache = {}
+
+        try:
+            if os.path.exists(user_packages_available_folder):
+                for filename in os.listdir(user_packages_available_folder):
+                    if filename.endswith(".yml.metadata"):
+                        metadata_path = os.path.join(user_packages_available_folder, filename)
+                        with open(metadata_path, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                        if "suggested_trail" in meta and meta.get("name"):
+                            _suggested_trails_cache[meta["name"]] = meta["suggested_trail"]
+        except Exception:
+            pass
 
     return _suggested_trails_cache
 

@@ -1,11 +1,33 @@
 # CHANGELOG
 
-- **2.1.0.608** (Latest): Update All button, container update fix and security patches following our (not) SLA (the never-ending story).
+- **2.1.2.32** (Latest): Third-Party Stores, Packager upgrades, installation error feedback, and security patches.
+  - **Patched axios CVE-2026-40175 and CVE-2025-62718** (critical) by upgrading `axios` (npm) to 1.15.0+, fixing a header injection chain that could leak cloud credentials and a `NO_PROXY` hostname normalization bypass that enabled SSRF against loopback services. Also lifts the version pin introduced in 2.1.0.604.
+  - Added **Third-Party Stores** tab to the Packager. Import entire app stores from Casa-compatible and Zima-compatible store community projects by pasting a GitHub ZIP archive URL. Apps are previewed, selectable, and converted to `.hds` packages automatically, metadata, icons, volumes, networks, ports, labels, and architecture are all adapted for HomeDock OS, with full credits to the original maintainers.
+  - Added **Migrate Compose** to the Third-Party Stores tab. Drop or browse a single Casa-compatible `docker-compose.yml` file to convert it into a ready-to-install `.hds` package.
+  - Added **3 predefined third-party stores** (BigBearTechWorld, TMC Store, Zima App Store) as one-click import cards. Click any of them to download, preview, and selectively import hundreds of apps.
+  - Added **suggested_port** and **suggested_trail** fields to the HDS manifest and Package Generator. Apps using `network_mode: host` can now specify which port HomeDock OS should use for the access button, and apps serving their UI at a subpath (e.g., `/admin`, `/web`) can declare it so the dashboard builds the correct URL.
+  - Added **HDGroup/HDRole labels** auto-injection for multi-service composes. When a compose has more than one service, labels are injected so HomeDock OS can uninstall dependencies alongside the main container. Also auto-populates the `dependencies` list and `is_group` flag in the manifest.
+  - Added **Docker project name injection** at install time. If a compose file has no `name:` field, HomeDock OS now injects the app slug as the project name so Docker resources (networks, volumes) are prefixed cleanly instead of using the temporary hash directory name.
+  - Added **installation error notifications**. When an app fails to install (architecture incompatibility, TLS errors, disk space, permissions, etc.), a descriptive notification now appears in the bottom-right corner instead of failing silently. Errors are classified from Docker stderr output.
+  - Added **selectable import** for `.hdstore` bundles. The import dialog now shows checkboxes with Select All / Deselect All, matching the export dialog UX. Apps that already exist are marked and cannot be selected.
+  - Added **Support Badges** to the badge sharing dialog. Developers can now download "**{AppName} works better on HomeDock OS**" badges in dark and light variants, generated in runtime with vector graphics. Badges are organized in an accordion with three sections: App Store, Support, and Branding.
+  - **Branding Badges** are now fully inline, generated as SVG with `<text>` elements and vector logo paths. The static badge SVG files in `/images/badges/` are no longer needed.
+  - **Duplicate prevention** in the App Store. When external apps share the same slug as a native app, the native version takes priority and the external duplicate is filtered out.
+  - **Compose normalization** for third-party imports: long-form `ports` (target/published/protocol dicts), long-form `volumes` (type/source/target dicts), `x-casaos` extensions, networks, empty fields (`devices: []`, `cap_add: []`, `command: []`), comments, and `[[INSTALL_PATH]]` placeholders are all handled correctly through YAML-safe round-tripping.
+  - **Fixed `[[INSTALL_PATH]]` YAML corruption**. Double brackets were misinterpreted as YAML flow sequences during parsing, causing volume paths to break into nested lists. Fixed by using safe placeholders during the YAML round-trip cycle.
+  - **Fixed Docker Compose stderr capture** for error classification. When `python-on-whales` raises a `DockerException` without capturing stderr, the error handler now retries with `subprocess` to capture the real Docker error message. Maybe we should send a PR.
+  - **Increased `.hdstore` package limit** from 300 to 999 packages per bundle.
+  - **Increased third-party store ZIP download limit** from 200 MB to 500 MB.
+  - **Fixed `/DATA/*` volume mounts** from Casa-compatible imports. Paths like `/DATA/Media`, `/DATA/Downloads`, etc. are now rewritten to `[[INSTALL_PATH]]/{appSlug}/...` instead of being left as hardcoded host paths.
+  - **Added "Open Format" info card** to the How it Works section, explaining that `.hds` and `.hdstore` files are standard ZIP archives with SHA-256 signatures, not proprietary formats.
+  - What's narrative control? What's SEO? We ship, six seven!
+
+---
+
+- **2.1.0.608**: Update All button, container update fix and security patches following our (not) SLA (the never-ending story).
   - **Patched cryptography CVE-2026-39892** (Buffer Overflow via Non-Contiguous Buffers **opened 14 hours ago**) by upgrading `cryptography` (pip) to 46.0.7+, fixing a moderate severity vulnerability where passing non-contiguous buffers to APIs accepting Python buffers (e.g. `Hash.update()`) could lead to buffer overflows reading past the end of the buffer on Python >3.11.
   - Added **Update All** button to the container updates tray icon. When two or more container updates are available, a button appears at the bottom of the dropdown to trigger all pending updates at once.
   - **Fixed container updates when `service_name` and `container_name` differed** in `hd_DockerAPIUpdateContainer.py`. Docker Compose services that define a custom `container_name` would trigger the update correctly but never reappear in the dashboard afterwards, as the container could not be matched back by name post-recreation.
-
----
 
 - **2.1.0.606**: Security patches following our (not) SLA (the saga continues).
   - **Patched vite CVE-2026-39363** (Arbitrary File Read via Dev Server WebSocket **opened 11 hours ago**) by upgrading `vite` (npm) to 7.3.2+, fixing a high severity vulnerability where `fetchModule` invoked via the HMR WebSocket bypassed `server.fs` access controls, allowing retrieval of arbitrary files on the server.

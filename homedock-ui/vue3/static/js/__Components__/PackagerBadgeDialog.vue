@@ -8,58 +8,170 @@
     <div v-if="app" class="space-y-4">
       <p :class="['text-xs', themeClasses.packagerTextMuted]">Download badges to share your app. Embed them in your README, GitHub repo, docs, or any website.</p>
 
-      <div ref="scrollRef" class="flex items-start gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
-        <div v-for="badge in badgeVariants" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
-          <div class="rounded-xl overflow-hidden">
-            <svg v-if="badge.type === 'per-app'" xmlns="http://www.w3.org/2000/svg" :width="layout.width" :height="layout.totalHeight" :viewBox="`0 0 ${layout.width} ${layout.totalHeight}`" fill="none">
-              <defs>
-                <clipPath :id="`${badge.key}-outer`"><rect :width="layout.width" :height="layout.totalHeight" :rx="layout.outerRx" /></clipPath>
-                <clipPath :id="`${badge.key}-card`"><rect :width="layout.width" :height="layout.cardHeight" /></clipPath>
-                <clipPath :id="`${badge.key}-icon`"><rect :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :rx="layout.iconRx" /></clipPath>
-                <clipPath :id="`${badge.key}-mini`"><circle :cx="layout.miniCx" :cy="layout.miniCy" :r="layout.miniSize / 2" /></clipPath>
-                <filter :id="`${badge.key}-blur`" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur in="SourceGraphic" stdDeviation="100" />
-                </filter>
-                <linearGradient :id="`${badge.key}-overlay`" x1="1" y1="0" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#000" stop-opacity="0.45" />
-                  <stop offset="50%" stop-color="#000" stop-opacity="0.2" />
-                  <stop offset="100%" stop-color="#000" stop-opacity="0.1" />
-                </linearGradient>
-              </defs>
-              <g :clip-path="`url(#${badge.key}-outer)`">
-                <g :clip-path="`url(#${badge.key}-card)`">
-                  <rect :width="layout.width" :height="layout.cardHeight" fill="#1a1a1a" />
-                  <image :href="iconUrl" :x="-layout.width * 0.3" :y="-layout.cardHeight * 0.3" :width="layout.width * 1.6" :height="layout.cardHeight * 1.6" :filter="`url(#${badge.key}-blur)`" preserveAspectRatio="xMidYMid slice" />
-                  <rect :width="layout.width" :height="layout.cardHeight" :fill="`url(#${badge.key}-overlay)`" />
-                  <rect x="0.5" y="0.5" :width="layout.width - 1" :height="layout.cardHeight - 1" fill="none" stroke="white" stroke-opacity="0.15" />
-                </g>
-                <image :href="iconUrl" :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :clip-path="`url(#${badge.key}-icon)`" />
-                <rect :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :rx="layout.iconRx" fill="none" stroke="white" stroke-opacity="0.2" />
-                <image :href="iconUrl" :x="layout.miniX" y="12" :width="layout.miniSize" :height="layout.miniSize" :clip-path="`url(#${badge.key}-mini)`" />
-                <circle :cx="layout.miniCx" :cy="layout.miniCy" :r="layout.miniSize / 2" fill="none" stroke="white" stroke-opacity="0.15" />
-                <text :x="layout.textX" y="37" fill="white" :font-family="FONT_STACK" :font-size="layout.line1FontSize" font-weight="600">{{ layout.line1Text }}</text>
-                <text :x="layout.textX" y="55" fill="white" fill-opacity="0.7" :font-family="FONT_STACK" :font-size="layout.line2FontSize" font-weight="400">on the HomeDock OS App Store</text>
-                <rect :y="layout.cardHeight" :width="layout.width" :height="layout.skirtHeight" :fill="badge.theme === 'light' ? '#ffffff' : '#111111'" />
-                <line x1="0" :y1="layout.cardHeight" :x2="layout.width" :y2="layout.cardHeight" :stroke="badge.theme === 'light' ? '#000000' : '#ffffff'" stroke-opacity="0.06" />
-                <g :transform="`translate(${layout.skirtGroupX}, ${layout.logoY}) scale(${layout.logoScale})`">
-                  <g :fill="badge.theme === 'light' ? '#000000' : '#ffffff'">
-                    <path v-for="(d, i) in LOGO_PATHS" :key="i" :d="d" />
-                  </g>
-                </g>
-                <text :x="layout.skirtTextX" :y="layout.skirtTextY" :fill="badge.theme === 'light' ? '#000000' : '#ffffff'" :font-family="FONT_STACK" :font-size="layout.skirtFontSize" font-weight="500">{{ layout.skirtText }}</text>
-                <rect x="0.5" y="0.5" :width="layout.width - 1" :height="layout.totalHeight - 1" :rx="layout.outerRx - 0.5" fill="none" :stroke="badge.theme === 'light' ? '#000000' : '#ffffff'" stroke-opacity="0.12" />
-              </g>
-            </svg>
-            <img v-else :src="`/images/badges/app-store-badge-${badge.theme}.svg`" :alt="`HomeDock OS App Store badge ${badge.theme}`" class="h-[112px] w-auto pointer-events-none" draggable="false" />
-          </div>
-          <button @click.stop="downloadBadge(badge.type, badge.theme)" :disabled="downloading" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-            <Icon :icon="downloading ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', downloading ? 'animate-spin' : '']" />
-            <span>{{ badge.label }}</span>
+      <div :class="['rounded-xl border', themeClasses.windowBorder]">
+        <!-- App Store badges -->
+        <div>
+          <button @click.stop="toggleSection('appstore')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
+            <Icon :icon="storeIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
+            <span class="text-xs font-medium">App Store Badges</span>
+            <Icon :icon="activeBadgeSection === 'appstore' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
+          <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'appstore' ? '1fr' : '0fr' }">
+            <div class="overflow-hidden">
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">Badges for users to discover and install your app from the HomeDock OS App Store.</p>
+              <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
+                <div v-for="badge in appStoreBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div class="rounded-xl overflow-hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" :width="layout.width" :height="layout.totalHeight" :viewBox="`0 0 ${layout.width} ${layout.totalHeight}`" fill="none">
+                      <defs>
+                        <clipPath :id="`${badge.key}-outer`"><rect :width="layout.width" :height="layout.totalHeight" :rx="layout.outerRx" /></clipPath>
+                        <clipPath :id="`${badge.key}-card`"><rect :width="layout.width" :height="layout.cardHeight" /></clipPath>
+                        <clipPath :id="`${badge.key}-icon`"><rect :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :rx="layout.iconRx" /></clipPath>
+                        <clipPath :id="`${badge.key}-mini`"><circle :cx="layout.miniCx" :cy="layout.miniCy" :r="layout.miniSize / 2" /></clipPath>
+                        <filter :id="`${badge.key}-blur`" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="100" /></filter>
+                        <linearGradient :id="`${badge.key}-overlay`" x1="1" y1="0" x2="0" y2="0">
+                          <stop offset="0%" stop-color="#000" stop-opacity="0.45" />
+                          <stop offset="50%" stop-color="#000" stop-opacity="0.2" />
+                          <stop offset="100%" stop-color="#000" stop-opacity="0.1" />
+                        </linearGradient>
+                      </defs>
+                      <g :clip-path="`url(#${badge.key}-outer)`">
+                        <g :clip-path="`url(#${badge.key}-card)`">
+                          <rect :width="layout.width" :height="layout.cardHeight" fill="#1a1a1a" />
+                          <image :href="iconUrl" :x="-layout.width * 0.3" :y="-layout.cardHeight * 0.3" :width="layout.width * 1.6" :height="layout.cardHeight * 1.6" :filter="`url(#${badge.key}-blur)`" preserveAspectRatio="xMidYMid slice" />
+                          <rect :width="layout.width" :height="layout.cardHeight" :fill="`url(#${badge.key}-overlay)`" />
+                          <rect x="0.5" y="0.5" :width="layout.width - 1" :height="layout.cardHeight - 1" fill="none" stroke="white" stroke-opacity="0.15" />
+                        </g>
+                        <image :href="iconUrl" :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :clip-path="`url(#${badge.key}-icon)`" />
+                        <rect :x="layout.cardPad" :y="layout.cardPad" :width="layout.iconSize" :height="layout.iconSize" :rx="layout.iconRx" fill="none" stroke="white" stroke-opacity="0.2" />
+                        <image :href="iconUrl" :x="layout.miniX" y="12" :width="layout.miniSize" :height="layout.miniSize" :clip-path="`url(#${badge.key}-mini)`" />
+                        <circle :cx="layout.miniCx" :cy="layout.miniCy" :r="layout.miniSize / 2" fill="none" stroke="white" stroke-opacity="0.15" />
+                        <text :x="layout.textX" y="37" fill="white" :font-family="FONT_STACK" :font-size="layout.line1FontSize" font-weight="600">{{ layout.line1Text }}</text>
+                        <text :x="layout.textX" y="55" fill="white" fill-opacity="0.7" :font-family="FONT_STACK" :font-size="layout.line2FontSize" font-weight="400">on the HomeDock OS App Store</text>
+                        <rect :y="layout.cardHeight" :width="layout.width" :height="layout.skirtHeight" :fill="badge.theme === 'light' ? '#ffffff' : '#111111'" />
+                        <line x1="0" :y1="layout.cardHeight" :x2="layout.width" :y2="layout.cardHeight" :stroke="badge.theme === 'light' ? '#000000' : '#ffffff'" stroke-opacity="0.06" />
+                        <g :transform="`translate(${layout.skirtGroupX}, ${layout.logoY}) scale(${layout.logoScale})`">
+                          <g :fill="badge.theme === 'light' ? '#000000' : '#ffffff'"><path v-for="(d, i) in LOGO_PATHS" :key="i" :d="d" /></g>
+                        </g>
+                        <text :x="layout.skirtTextX" :y="layout.skirtTextY" :fill="badge.theme === 'light' ? '#000000' : '#ffffff'" :font-family="FONT_STACK" :font-size="layout.skirtFontSize" font-weight="500">{{ layout.skirtText }}</text>
+                        <rect x="0.5" y="0.5" :width="layout.width - 1" :height="layout.totalHeight - 1" :rx="layout.outerRx - 0.5" fill="none" :stroke="badge.theme === 'light' ? '#000000' : '#ffffff'" stroke-opacity="0.12" />
+                      </g>
+                    </svg>
+                  </div>
+                  <button @click.stop="downloadBadge('per-app', badge.theme)" :disabled="downloading" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+                    <Icon :icon="downloading ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', downloading ? 'animate-spin' : '']" />
+                    <span>{{ badge.label }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support badges -->
+        <div :class="['border-t', themeClasses.windowBorder]">
+          <button @click.stop="toggleSection('support')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
+            <Icon :icon="shareIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
+            <span class="text-xs font-medium">Support Badges</span>
+            <Icon :icon="activeBadgeSection === 'support' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
+          </button>
+          <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'support' ? '1fr' : '0fr' }">
+            <div class="overflow-hidden">
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">For developers who want to link or credit HomeDock OS in their project's README or website ♥</p>
+              <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
+                <div v-for="badge in supportBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div class="rounded-2xl overflow-hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" :width="supportLayout.width" height="66" :viewBox="`0 0 ${supportLayout.width} 66`">
+                      <defs>
+                        <linearGradient :id="`${badge.key}-bg`" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" :stop-color="badge.theme === 'dark' ? '#221d55' : '#f5f3ff'" />
+                          <stop offset="55%" :stop-color="badge.theme === 'dark' ? '#110f28' : '#ede9fe'" />
+                          <stop offset="100%" :stop-color="badge.theme === 'dark' ? '#0d0d1a' : '#e8e4fc'" />
+                        </linearGradient>
+                        <linearGradient :id="`${badge.key}-pill`" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#6366f1" />
+                          <stop offset="50%" stop-color="#8b5cf6" />
+                          <stop offset="100%" stop-color="#a855f7" />
+                        </linearGradient>
+                        <linearGradient :id="`${badge.key}-border`" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#6366f1" stop-opacity="0.8" />
+                          <stop offset="100%" stop-color="#a855f7" stop-opacity="0.3" />
+                        </linearGradient>
+                        <filter :id="`${badge.key}-glow`">
+                          <feGaussianBlur stdDeviation="2.5" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                        <clipPath :id="`${badge.key}-clip`"><rect :width="supportLayout.width" height="66" rx="18" /></clipPath>
+                      </defs>
+                      <g :clip-path="`url(#${badge.key}-clip)`">
+                        <rect :width="supportLayout.width" height="66" rx="18" :fill="`url(#${badge.key}-bg)`" />
+                        <rect x="11" y="11" width="44" height="44" rx="12" :fill="`url(#${badge.key}-pill)`" :filter="`url(#${badge.key}-glow)`" stroke="rgba(255,255,255,0.35)" stroke-width="1" />
+                        <g :transform="`translate(14, 14) scale(${38 / 702})`">
+                          <g fill="#ffffff"><path v-for="(d, i) in LOGO_PATHS" :key="i" :d="d" /></g>
+                        </g>
+                        <text x="67" y="21" :font-family="SUPPORT_FONT" font-size="10" font-weight="500" :fill="badge.theme === 'dark' ? '#ffffff' : '#1e1b4b'" :fill-opacity="badge.theme === 'dark' ? '0.6' : '1'" letter-spacing="-0.2">{{ displayName }} works better on</text>
+                        <text x="67" y="40" :font-family="SUPPORT_FONT" font-size="19" font-weight="300" :fill="badge.theme === 'dark' ? '#ffffff' : '#7c3aed'" letter-spacing="-1" :filter="`url(#${badge.key}-glow)`">
+                          HomeDock
+                          <tspan font-weight="800">OS</tspan>
+                        </text>
+                        <text x="67" y="53" :font-family="SUPPORT_FONT" font-size="9" font-weight="600" letter-spacing="-0.5">
+                          <tspan :fill="badge.theme === 'dark' ? '#818cf8' : '#6366f1'">Safer</tspan>
+                          <tspan :fill="badge.theme === 'dark' ? '#6366f1' : '#818cf8'">&#xB7; Faster</tspan>
+                          <tspan :fill="badge.theme === 'dark' ? '#4f46e5' : '#a5b4fc'">&#xB7; Multiplatform</tspan>
+                        </text>
+                        <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4m-8-2l8-8m0 0v5m0-5h-5" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" :transform="`translate(${supportLayout.width - 40}, 22) scale(0.9)`" opacity="0.6" />
+                      </g>
+                      <rect x="0.6" y="0.6" :width="supportLayout.width - 1.2" height="64.8" rx="18.4" fill="none" :stroke="`url(#${badge.key}-border)`" stroke-width="1.2" />
+                    </svg>
+                  </div>
+                  <button @click.stop="downloadBadge('support', badge.theme)" :disabled="downloading" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+                    <Icon :icon="downloading ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', downloading ? 'animate-spin' : '']" />
+                    <span>{{ badge.label }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branding badges -->
+        <div :class="['border-t', themeClasses.windowBorder]">
+          <button @click.stop="toggleSection('branding')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
+            <Icon :icon="tagIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
+            <span class="text-xs font-medium">Branding Badges</span>
+            <Icon :icon="activeBadgeSection === 'branding' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
+          </button>
+          <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'branding' ? '1fr' : '0fr' }">
+            <div class="overflow-hidden">
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">Generic HomeDock OS App Store badges without a specific app name.</p>
+              <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
+                <div v-for="badge in brandingBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div class="rounded-xl overflow-hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" :width="brandingLayout.width" height="76" :viewBox="`0 0 ${brandingLayout.width} 76`" fill="none">
+                      <rect :width="brandingLayout.width" height="76" rx="12" :fill="badge.theme === 'dark' ? '#000000' : '#ffffff'" />
+                      <rect x="0.5" y="0.5" :width="brandingLayout.width - 1" height="75" rx="11.5" :stroke="badge.theme === 'dark' ? '#ffffff' : '#000000'" stroke-opacity="0.2" />
+                      <g transform="translate(16, 16) scale(0.0627)">
+                        <g :fill="badge.theme === 'dark' ? '#ffffff' : '#000000'"><path v-for="(d, i) in LOGO_PATHS" :key="i" :d="d" /></g>
+                      </g>
+                      <text x="77" y="30" :font-family="FONT_STACK" font-size="13" font-weight="400" letter-spacing="-0.2" :fill="badge.theme === 'dark' ? '#ffffff' : '#000000'" fill-opacity="0.6">Available on the</text>
+                      <text x="77" y="53" :font-family="FONT_STACK" font-size="19" font-weight="600" letter-spacing="-0.3" :fill="badge.theme === 'dark' ? '#ffffff' : '#000000'">HomeDock OS App Store</text>
+                    </svg>
+                  </div>
+                  <button @click.stop="downloadBadge('generic', badge.theme)" :disabled="downloading" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-150 text-xs">
+                    <Icon :icon="downloading ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', downloading ? 'animate-spin' : '']" />
+                    <span>{{ badge.label }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div :class="['rounded-xl border mt-1', themeClasses.windowBorder]">
+      <div :class="['rounded-xl border', themeClasses.windowBorder]">
         <div>
           <button @click.stop="toggleSection('discord')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="discordIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
@@ -121,6 +233,9 @@ import chevronUpIcon from "@iconify-icons/mdi/chevron-up";
 import emailIcon from "@iconify-icons/mdi/email-outline";
 import discordIcon from "@iconify-icons/mdi/discord";
 import accountGroupIcon from "@iconify-icons/mdi/account-group";
+import storeIcon from "@iconify-icons/mdi/store-outline";
+import shareIcon from "@iconify-icons/mdi/share-variant-outline";
+import tagIcon from "@iconify-icons/mdi/tag-outline";
 
 interface PackageManifest {
   name: string;
@@ -154,8 +269,9 @@ const FONT_STACK = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robo
 const downloading = ref(false);
 const emailCopied = ref(false);
 const activeSection = ref<"discord" | "email" | null>("discord");
+const activeBadgeSection = ref<"appstore" | "support" | "branding" | null>("appstore");
 
-const scrollRef = ref<HTMLElement | null>(null);
+let dragTarget: HTMLElement | null = null;
 const dragging = ref(false);
 const dragStartX = ref(0);
 const dragScrollLeft = ref(0);
@@ -171,12 +287,34 @@ const iconUrl = computed(() => {
 
 const layout = computed(() => computeLayout(displayName.value));
 
-const badgeVariants = computed(() => [
-  { key: `badge-${slug.value}-light`, type: "per-app", theme: "light", label: "Custom Light .png" },
-  { key: `badge-${slug.value}-dark`, type: "per-app", theme: "dark", label: "Custom Dark .png" },
-  { key: "badge-generic-light", type: "generic", theme: "light", label: "Branding Light .png" },
-  { key: "badge-generic-dark", type: "generic", theme: "dark", label: "Branding Dark .png" },
+const SUPPORT_FONT = "-apple-system, SF Pro Text, Inter, sans-serif";
+
+const appStoreBadges = computed(() => [
+  { key: `badge-${slug.value}-dark`, theme: "dark", label: "Dark .png" },
+  { key: `badge-${slug.value}-light`, theme: "light", label: "Light .png" },
 ]);
+
+const supportBadges = computed(() => [
+  { key: `support-${slug.value}-dark`, theme: "dark", label: "Dark .png" },
+  { key: `support-${slug.value}-light`, theme: "light", label: "Light .png" },
+]);
+
+const brandingBadges = computed(() => [
+  { key: "badge-generic-dark", theme: "dark", label: "Dark .png" },
+  { key: "badge-generic-light", theme: "light", label: "Light .png" },
+]);
+
+const supportLayout = computed(() => {
+  const nameW = displayName.value.length * 10 * 0.58;
+  const labelW = " works better on".length * 10 * 0.58;
+  const textW = nameW + labelW;
+  return { width: Math.max(240, Math.ceil(67 + textW + 20)) };
+});
+
+const brandingLayout = computed(() => {
+  const textW = "HomeDock OS App Store".length * 19 * 0.56;
+  return { width: Math.ceil(77 + textW + 20) };
+});
 
 function computeLayout(name: string) {
   const cardPad = 14;
@@ -241,23 +379,28 @@ function computeLayout(name: string) {
 }
 
 const onScrollDown = (e: MouseEvent) => {
-  if (!scrollRef.value) return;
+  dragTarget = e.currentTarget as HTMLElement;
   dragging.value = true;
-  dragStartX.value = e.pageX - scrollRef.value.offsetLeft;
-  dragScrollLeft.value = scrollRef.value.scrollLeft;
+  dragStartX.value = e.pageX - dragTarget.offsetLeft;
+  dragScrollLeft.value = dragTarget.scrollLeft;
 };
 const onScrollMove = (e: MouseEvent) => {
-  if (!dragging.value || !scrollRef.value) return;
+  if (!dragging.value || !dragTarget) return;
   e.preventDefault();
-  const x = e.pageX - scrollRef.value.offsetLeft;
-  scrollRef.value.scrollLeft = dragScrollLeft.value - (x - dragStartX.value);
+  const x = e.pageX - dragTarget.offsetLeft;
+  dragTarget.scrollLeft = dragScrollLeft.value - (x - dragStartX.value);
 };
 const onScrollUp = () => {
   dragging.value = false;
+  dragTarget = null;
 };
 
-const toggleSection = (section: "discord" | "email") => {
-  activeSection.value = activeSection.value === section ? null : section;
+const toggleSection = (section: "discord" | "email" | "appstore" | "support" | "branding") => {
+  if (section === "appstore" || section === "support" || section === "branding") {
+    activeBadgeSection.value = activeBadgeSection.value === section ? null : section;
+  } else {
+    activeSection.value = activeSection.value === section ? null : section;
+  }
 };
 
 const openDiscordChannel = () => {
@@ -369,6 +512,43 @@ const svgToPng = (svgString: string, scale = 4): Promise<Blob> => {
   });
 };
 
+const buildSupportSvgString = (name: string, theme: string) => {
+  const isDark = theme === "dark";
+  const W = supportLayout.value.width;
+
+  const bgStops = isDark ? `<stop offset="0%" stop-color="#221d55"/><stop offset="55%" stop-color="#110f28"/><stop offset="100%" stop-color="#0d0d1a"/>` : `<stop offset="0%" stop-color="#f5f3ff"/><stop offset="55%" stop-color="#ede9fe"/><stop offset="100%" stop-color="#e8e4fc"/>`;
+
+  const line1Fill = isDark ? `fill="#ffffff" fill-opacity="0.6"` : `fill="#1e1b4b" fill-opacity="1"`;
+  const hdFill = isDark ? "#ffffff" : "#7c3aed";
+  const s1 = isDark ? "#818cf8" : "#6366f1";
+  const s2 = isDark ? "#6366f1" : "#818cf8";
+  const s3 = isDark ? "#4f46e5" : "#a5b4fc";
+
+  const logoScale = 38 / 702;
+  const logoFrag = `<g transform="translate(14, 14) scale(${logoScale})"><g fill="#ffffff">${LOGO_PATHS_STR}</g></g>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="66" viewBox="0 0 ${W} 66">
+  <defs>
+    <linearGradient id="sbg" x1="0%" y1="0%" x2="100%" y2="0%">${bgStops}</linearGradient>
+    <linearGradient id="spill" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>
+    <linearGradient id="sborder" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.8"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0.3"/></linearGradient>
+    <filter id="sglow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sclip"><rect width="${W}" height="66" rx="18"/></clipPath>
+    <clipPath id="logoclip"><rect x="11" y="11" width="44" height="44" rx="12"/></clipPath>
+  </defs>
+  <g clip-path="url(#sclip)">
+    <rect width="${W}" height="66" rx="18" fill="url(#sbg)"/>
+    <rect x="11" y="11" width="44" height="44" rx="12" fill="url(#spill)" filter="url(#sglow)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+    ${logoFrag}
+    <text x="67" y="21" font-family="${SUPPORT_FONT}" font-size="10" font-weight="500" ${line1Fill} letter-spacing="-0.2">${escapeXml(name)} works better on</text>
+    <text x="67" y="40" font-family="${SUPPORT_FONT}" font-size="19" font-weight="300" fill="${hdFill}" letter-spacing="-1" filter="url(#sglow)">HomeDock <tspan font-weight="800">OS</tspan></text>
+    <text x="67" y="53" font-family="${SUPPORT_FONT}" font-size="9" font-weight="600" letter-spacing="-0.5"><tspan fill="${s1}">Safer</tspan><tspan fill="${s2}"> · Faster</tspan><tspan fill="${s3}"> · Multiplatform</tspan></text>
+    <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4m-8-2l8-8m0 0v5m0-5h-5" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(${W - 40}, 22) scale(0.9)" opacity="0.6"/>
+  </g>
+  <rect x="0.6" y="0.6" width="${W - 1.2}" height="64.8" rx="18.4" fill="none" stroke="url(#sborder)" stroke-width="1.2"/>
+</svg>`;
+};
+
 const downloadBadge = async (type: string, theme: string) => {
   if (downloading.value) return;
   downloading.value = true;
@@ -377,9 +557,15 @@ const downloadBadge = async (type: string, theme: string) => {
     let svgString: string;
     let filename: string;
 
-    if (type === "generic") {
-      const res = await fetch(`/images/badges/app-store-badge-${theme}.svg`);
-      svgString = await res.text();
+    if (type === "support") {
+      svgString = buildSupportSvgString(displayName.value, theme);
+      filename = `${slug.value}-support-badge-${theme}.png`;
+    } else if (type === "generic") {
+      const isDark = theme === "dark";
+      const bg = isDark ? "#000000" : "#ffffff";
+      const fg = isDark ? "#ffffff" : "#000000";
+      const BW = brandingLayout.value.width;
+      svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="76" viewBox="0 0 ${BW} 76" fill="none"><rect width="${BW}" height="76" rx="12" fill="${bg}"/><rect x="0.5" y="0.5" width="${BW - 1}" height="75" rx="11.5" stroke="${fg}" stroke-opacity="0.2"/><g transform="translate(16, 16) scale(0.0627)"><g fill="${fg}">${LOGO_PATHS_STR}</g></g><text x="77" y="30" font-family="${FONT_STACK}" font-size="13" font-weight="400" letter-spacing="-0.2" fill="${fg}" fill-opacity="0.6">Available on the</text><text x="77" y="53" font-family="${FONT_STACK}" font-size="19" font-weight="600" letter-spacing="-0.3" fill="${fg}">HomeDock OS App Store</text></svg>`;
       filename = `app-store-badge-${theme}.png`;
     } else {
       const iconBase64 = await fetchIconBase64();
