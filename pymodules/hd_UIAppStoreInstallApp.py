@@ -6,7 +6,6 @@ https://www.banshee.pro
 """
 
 import os
-import yaml
 import hashlib
 
 from flask import jsonify, request
@@ -83,22 +82,13 @@ def app_store_install_container():
                     install_queue.pop(0)
                     continue
 
-                # Verify hash matches
                 if not _verify_hash(hash_folder, compose_file):
                     print(f"[AppStore] ERROR: Hash mismatch for: {current_container}")
                     remove_directory_and_contents(hash_folder)
                     install_queue.pop(0)
                     continue
 
-                try:
-                    with open(compose_file, "r", encoding="utf-8") as cf:
-                        compose_data = yaml.safe_load(cf)
-                    if isinstance(compose_data, dict) and "name" not in compose_data:
-                        compose_data["name"] = current_container
-                        with open(compose_file, "w", encoding="utf-8") as cf:
-                            yaml.dump(compose_data, cf, default_flow_style=False, allow_unicode=True, sort_keys=False)
-                except Exception:
-                    pass
+                pass
 
                 compose_helper = DockerComposeHelper.get_instance()
                 success, message = compose_helper.up(compose_file=compose_file, detach=True)

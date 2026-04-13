@@ -1,6 +1,11 @@
 # CHANGELOG
 
-- **2.1.2.32** (Latest): Third-Party Stores, Packager upgrades, installation error feedback, and security patches.
+- **2.1.2.34** (Latest): Hotfix for app installation broken by Docker project name injection.
+  - **Fixed app installation failure** caused by injecting a `name` field into compose files at install time. Docker Compose v1/v2/v3 format rejects unknown root keys like `name`, which broke all installations when the compose fallback used a legacy engine. Removed the injection entirely.
+
+---
+
+- **2.1.2.32**: Third-Party Stores, Packager upgrades, installation error feedback, and security patches.
   - **Patched axios CVE-2026-40175 and CVE-2025-62718** (critical) by upgrading `axios` (npm) to 1.15.0+, fixing a header injection chain that could leak cloud credentials and a `NO_PROXY` hostname normalization bypass that enabled SSRF against loopback services. Also lifts the version pin introduced in 2.1.0.604.
   - Added **Third-Party Stores** tab to the Packager. Import entire app stores from Casa-compatible and Zima-compatible store community projects by pasting a GitHub ZIP archive URL. Apps are previewed, selectable, and converted to `.hds` packages automatically, metadata, icons, volumes, networks, ports, labels, and architecture are all adapted for HomeDock OS, with full credits to the original maintainers.
   - Added **Migrate Compose** to the Third-Party Stores tab. Drop or browse a single Casa-compatible `docker-compose.yml` file to convert it into a ready-to-install `.hds` package.
@@ -21,8 +26,6 @@
   - **Fixed `/DATA/*` volume mounts** from Casa-compatible imports. Paths like `/DATA/Media`, `/DATA/Downloads`, etc. are now rewritten to `[[INSTALL_PATH]]/{appSlug}/...` instead of being left as hardcoded host paths.
   - **Added "Open Format" info card** to the How it Works section, explaining that `.hds` and `.hdstore` files are standard ZIP archives with SHA-256 signatures, not proprietary formats.
   - What's narrative control? What's SEO? We ship, six seven!
-
----
 
 - **2.1.0.608**: Update All button, container update fix and security patches following our (not) SLA (the never-ending story).
   - **Patched cryptography CVE-2026-39892** (Buffer Overflow via Non-Contiguous Buffers **opened 14 hours ago**) by upgrading `cryptography` (pip) to 46.0.7+, fixing a moderate severity vulnerability where passing non-contiguous buffers to APIs accepting Python buffers (e.g. `Hash.update()`) could lead to buffer overflows reading past the end of the buffer on Python >3.11.
