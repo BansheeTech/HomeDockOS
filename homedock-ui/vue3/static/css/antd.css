@@ -994,3 +994,15 @@ input.ant-input-disabled.aero-mode-theme:hover {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   border-radius: 6px !important;
 }
+
+.white-mode-theme.ant-select-multiple .ant-select-selection-placeholder {
+  color: rgb(0, 0, 0) !important;
+}
+
+.dark-mode-theme.ant-select-multiple .ant-select-selection-placeholder {
+  color: rgb(108, 108, 108) !important;
+}
+
+.aero-mode-theme.ant-select-multiple .ant-select-selection-placeholder {
+  color: rgba(154, 154, 154, 0.54) !important;
+}

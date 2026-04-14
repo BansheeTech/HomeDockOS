@@ -14,87 +14,144 @@
 
     <div v-else class="flex flex-col h-full overflow-hidden">
       <div class="flex-1 overflow-y-auto">
-        <div :class="[themeClasses.storeContMainer, themeClasses.aeroExtraScope]" class="px-4 py-4">
-          <div class="flex items-center gap-4 mb-4">
+        <div class="px-5 py-5">
+          <div class="flex items-start gap-5">
             <div class="relative flex-shrink-0 group">
-              <BaseImage draggable="false" :src="app?.picture_path || 'docker-icons/notfound.jpg'" :alt="app?.name" :class="[themeClasses.storeModalImageBack]" class="w-16 h-16 rounded-xl shadow-md transition ring-[1px] duration-200 group-hover:scale-105" />
+              <BaseImage draggable="false" :src="app?.picture_path || 'docker-icons/notfound.jpg'" :alt="app?.name" :class="[themeClasses.storeModalImageBack]" class="w-24 h-24 rounded-2xl shadow-lg transition ring-[1px] duration-200 group-hover:scale-105" />
               <div v-if="sslEnabled" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1 rounded-full -top-1 -right-1 shadow-sm border">
                 <Icon :icon="lockIcon" class="h-2.5 w-2.5" />
-              </div>
-              <div v-if="app?.is_external" class="absolute flex items-center justify-center p-1 rounded-full -bottom-2 -right-2 shadow-md border bg-amber-600 border-gray-100 animate-bounce">
-                <Icon :icon="packageIcon" class="h-4 w-4 text-white" />
               </div>
             </div>
 
             <div class="flex-1 min-w-0">
-              <h1 :class="[themeClasses.storeModalAppName]" class="text-xl md:text-2xl font-bold mb-1">
+              <h1 :class="[themeClasses.storeModalAppName]" class="text-xl md:text-2xl font-bold mb-0.5 truncate">
                 {{ app?.display_name || app?.name }}
               </h1>
-              <div class="flex items-center gap-2 flex-wrap text-xs">
-                <span :class="[themeClasses.storeModalAppType]" class="font-medium">{{ app?.type }}</span>
-                <span :class="[themeClasses.storeModalAppCategory]">•</span>
-                <span :class="[themeClasses.storeModalAppCategory]">{{ app?.category }}</span>
-                <div v-if="app?.is_external" class="flex items-center px-2 py-0.5 rounded-md bg-amber-600 text-white font-medium">
-                  <Icon :icon="packageIcon" class="mr-1 h-3 w-3" />
-                  <span>External Package</span>
-                </div>
-                <div v-if="sslEnabled" :class="[themeClasses.storeTextSSLFlag]" class="flex items-center">
-                  <Icon :icon="lockIcon" class="mr-1 h-3 w-3" />
-                  <span class="font-medium">HTTPS</span>
-                </div>
+              <div class="flex items-center gap-2 text-xs mb-5 sm:mb-4 min-w-0">
+                <span :class="[themeClasses.storeModalAppType]" class="font-medium truncate">{{ app?.type }}</span>
+                <span :class="[themeClasses.storeModalAppCategory]" class="flex-shrink-0">•</span>
+                <span :class="[themeClasses.storeModalAppCategory]" class="truncate">{{ app?.category }}</span>
               </div>
-            </div>
-          </div>
 
-          <div class="action-buttons flex items-center gap-2">
-            <Transition name="button-fade" mode="out-in">
-              <Button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeButtonInstalled]" class="action-button-primary flex items-center justify-center" type="default">
-                <Icon :icon="checkBoldIcon" class="mr-1.5" />
-                Installed
-              </Button>
-              <Button v-else-if="installationStore.currentlyInstalling === app?.name" key="installing" :class="[themeClasses.storeButtonInstalling]" class="action-button-primary flex items-center justify-center" type="default">
-                <Icon :icon="loadingIcon" class="mr-1.5 animate-spin" />
-                Installing...
-              </Button>
-              <Button v-else-if="app?.name && installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeButtonQueued]" class="action-button-primary flex items-center justify-center" type="default">
-                <Icon :icon="queueIcon" class="mr-1.5" />
-                Queued
-              </Button>
-              <Button v-else :disabled="installDisabled" :class="[themeClasses.storeButtonInstall]" key="install" class="action-button-primary flex items-center justify-center" type="primary" @click="handleInstall">
-                <Icon :icon="downloadIcon" class="mr-1.5" />
-                Install
-              </Button>
-            </Transition>
+              <div class="flex items-center gap-2.5">
+                <Transition name="button-fade" mode="out-in">
+                  <button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">Installed</button>
+                  <button v-else-if="installationStore.currentlyInstalling === app?.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+                    <Icon :icon="loadingIcon" class="w-3 h-3 animate-spin" />
+                    Installing
+                  </button>
+                  <button v-else-if="app?.name && installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+                    <Icon :icon="queueIcon" class="w-3 h-3" />
+                    Queued
+                  </button>
+                  <button v-else :disabled="installDisabled" :class="[themeClasses.storeCardGetPill]" key="install" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-40" @click="handleInstall">GET</button>
+                </Transition>
 
-            <a :href="app?.is_external ? 'https://www.homedock.cloud' : `https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" class="flex-shrink-0">
-              <Button :class="[themeClasses.storeLinkHDOSButton]" class="flex items-center" type="dashed">
-                <Icon :icon="earthIcon" class="w-4 h-4" />
-              </Button>
-            </a>
+                <a :href="app?.is_external ? 'https://www.homedock.cloud' : `https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" :class="[themeClasses.storeCardSubtitle]" class="p-2 rounded-full transition-all duration-200 hover:opacity-70">
+                  <Icon :icon="earthIcon" class="w-4 h-4" />
+                </a>
 
-            <div class="flex-shrink-0">
-              <Switch v-model:checked="isAdvancedMode" @change="handleAdvancedModeToggle">
-                <template #checkedChildren>
-                  <span class="flex items-center">
-                    <Icon :icon="emoticonHappyOutlineIcon" class="h-4 w-4" />
-                    <span class="text-transparent">.</span>
-                  </span>
-                </template>
-                <template #unCheckedChildren>
-                  <span class="flex items-center">
-                    <Icon :icon="xmlIcon" class="h-4 w-4" />
-                    <span class="text-transparent">.</span>
-                  </span>
-                </template>
-              </Switch>
+                <Switch v-model:checked="isAdvancedMode" @change="handleAdvancedModeToggle">
+                  <template #checkedChildren>
+                    <span class="flex items-center">
+                      <Icon :icon="emoticonHappyOutlineIcon" class="h-4 w-4" />
+                      <span class="text-transparent">.</span>
+                    </span>
+                  </template>
+                  <template #unCheckedChildren>
+                    <span class="flex items-center">
+                      <Icon :icon="xmlIcon" class="h-4 w-4" />
+                      <span class="text-transparent">.</span>
+                    </span>
+                  </template>
+                </Switch>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="px-4">
-          <div v-if="app?.default_credentials" :class="[themeClasses.installConfigDefaultCredsRow]" class="mb-3 rounded-lg border px-3 py-2.5">
+        <!-- Apple-style Info Bar -->
+        <div class="px-5 mb-4">
+          <div :class="[themeClasses.storeInfoBar]" class="flex items-stretch rounded-xl border overflow-x-auto scrollbar-hide">
+            <template v-if="app?.is_external">
+              <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.source" placement="bottom">
+                <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                  <span class="text-[9px] font-semibold uppercase tracking-wider mb-1 text-amber-500">Source</span>
+                  <Icon :icon="packageIcon" class="w-5 h-5 mb-0.5 flex-shrink-0 text-amber-500" />
+                  <span class="text-[10px] font-semibold text-amber-500 truncate w-full text-center">External</span>
+                </div>
+              </Tooltip>
+              <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+            </template>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.category" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Category</span>
+                <Icon :icon="categoryIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.category }}</span>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.type" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Type</span>
+                <Icon :icon="cubeIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.type }}</span>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.image" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Image</span>
+                <Icon :icon="dockerIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.docker_image?.split("/").pop()?.split(":")[0] }}</span>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.version" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Version</span>
+                <Icon :icon="tagIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.docker_image?.split(":").pop() || "latest" }}</span>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="sslEnabled ? infoTipTexts.securityHttps : infoTipTexts.securityHttp" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Security</span>
+                <Icon :icon="lockIcon" :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ sslEnabled ? "HTTPS" : "HTTP" }}</span>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.deps" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Deps</span>
+                <Icon :icon="cubeIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.dependencies?.length || "None" }}</span>
+              </div>
+            </Tooltip>
+          </div>
+        </div>
+
+        <div class="px-5">
+          <div v-if="app?.default_credentials" :class="[themeClasses.installConfigDefaultCredsRow]" class="mb-4 rounded-xl border px-3 py-2.5">
+            <div class="flex items-center gap-2 mb-2">
+              <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Default Credentials</h3>
+            </div>
             <div class="flex items-center">
-              <Icon :icon="accountKeyIcon" class="h-3.5 w-3.5 flex-shrink-0 mr-2.5" :class="[themeClasses.installConfigDefaultCredsLabel]" />
+              <Icon :icon="shieldAccountIcon" class="h-3.5 w-3.5 flex-shrink-0 mr-2.5" :class="[themeClasses.installConfigDefaultCredsLabel]" />
               <div class="flex items-center gap-4 min-w-0">
                 <div class="flex items-center gap-1.5">
                   <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">User</span>
@@ -123,33 +180,34 @@
             </div>
           </div>
 
-          <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
-            {{ app?.description + "." || "No description available" }}
-          </p>
-
-          <div v-show="screenshots.length > 0" class="mb-0">
-            <div ref="screenshotsContainer" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
-              <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
-                <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[160px] h-[100px] md:w-[200px] md:h-[125px] lg:w-[280px] lg:h-[175px] xl:w-[320px] xl:h-[200px] rounded-lg overflow-hidden border-2 border-transparent transition-all duration-200 hover:scale-[1.01] hover:shadow-lg active:translate-y-0 active:scale-[0.98]">
-                  <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none" />
-                </button>
-              </template>
-            </div>
-          </div>
-
-          <div class="mb-6">
-            <div v-if="dependenciesText" :class="[themeClasses.storeAboutTextDepsScope]" class="text-xs inline-flex items-start px-2.5 py-1.5 rounded-md">
-              <Icon :icon="cubeIcon" class="h-3 w-3 min-h-3 min-w-3 mt-[1px] mr-1.5" />
-              <span>{{ dependenciesText }}</span>
-            </div>
-          </div>
-
           <Transition name="fade-slide" mode="out-in">
-            <div v-if="!isAdvancedMode" key="simple">
-              <div v-if="userName !== undefined || userPassword !== undefined" class="mb-6">
+            <div v-if="!isAdvancedMode" key="simple" class="space-y-4 pb-4">
+              <!-- Screenshots -->
+              <div v-if="screenshots.length > 0">
+                <div ref="screenshotsContainer" class="flex gap-3 overflow-x-auto scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
+                  <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
+                    <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[200px] h-[125px] md:w-[240px] md:h-[150px] lg:w-[300px] lg:h-[188px] xl:w-[340px] xl:h-[213px] rounded-xl overflow-hidden border-2 border-transparent transition-all duration-200 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]">
+                      <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none" />
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Description & Dependencies -->
+              <div>
+                <p :class="[themeClasses.storeAboutTextDescScope]" class="text-sm leading-relaxed mb-3">
+                  {{ app?.description + "." || "No description available" }}
+                </p>
+                <div v-if="dependenciesText" :class="[themeClasses.storeAboutTextDepsScope]" class="text-xs inline-flex items-start px-2.5 py-1.5 rounded-lg">
+                  <Icon :icon="cubeIcon" class="h-3 w-3 min-h-3 min-w-3 mt-[1px] mr-1.5" />
+                  <span>{{ dependenciesText }}</span>
+                </div>
+              </div>
+              <!-- Credentials Card -->
+              <div v-if="userName !== undefined || userPassword !== undefined" :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
-                  <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Access Credentials</h3>
+                  <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Credentials</h3>
                 </div>
                 <div class="space-y-3">
                   <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" placeholder="Username" class="w-full" />
@@ -164,11 +222,11 @@
                     <InputPassword v-else-if="userPassword !== undefined" key="password" ref="passwordInputRef" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" placeholder="Password" class="w-full" />
                   </Transition>
                   <Transition name="fade-slide" mode="out-in">
-                    <div v-if="autoGenHintVisible" key="autogen-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20">
+                    <div v-if="autoGenHintVisible" key="autogen-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
                       <Icon :icon="alertIcon" class="h-3 w-3 text-amber-500 flex-shrink-0" />
                       <p class="text-[10px] font-medium text-amber-600 dark:text-amber-400">This is an auto-generated password. Copy to save it or click the field to set your own.</p>
                     </div>
-                    <div v-else-if="passwordTooShort" key="pwd-min-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 border border-red-500/20">
+                    <div v-else-if="passwordTooShort" key="pwd-min-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
                       <Icon :icon="alertIcon" class="h-3 w-3 text-red-500 flex-shrink-0" />
                       <p class="text-[10px] font-medium text-red-600 dark:text-red-400">Password for {{ app?.display_name }} must be at least {{ app?.pwd_min_required }} characters long.</p>
                     </div>
@@ -176,43 +234,54 @@
                 </div>
               </div>
 
-              <div class="mb-6">
+              <!-- Ports Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
-                    <Icon :icon="portIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Port Mappings</h3>
+                    <Icon :icon="portIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Ports</h3>
                   </div>
-                  <Button :disabled="app?.is_installed" type="link" @click="addPort" size="small"> + Add </Button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addPort">+ Add</button>
                 </div>
                 <div v-if="portMappings.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Host</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Container</span>
-                    <span class="w-8"></span>
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Host</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Container</span>
+                    <span class="w-7"></span>
                   </div>
                   <div v-for="(port, index) in portMappings" :key="'port-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].host" placeholder="8080" />
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].container" placeholder="80" />
-                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removePort(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removePort(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
-                    </Button>
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="flex flex-col items-center py-2 gap-1">
+                  <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
+                  <div class="flex items-center gap-1">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No port mappings</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="This may be a CLI application or configured with Network Mode: Host, which doesn't require explicit port mappings." placement="bottom">
+                      <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
+                    </Tooltip>
                   </div>
                 </div>
               </div>
 
-              <div class="mb-6">
+              <!-- Volumes Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
-                    <Icon :icon="folderIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Volume Mounts</h3>
+                    <Icon :icon="folderIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Volumes</h3>
                   </div>
-                  <Button :disabled="app?.is_installed" type="link" @click="addVolume" size="small"> + Add </Button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addVolume">+ Add</button>
                 </div>
                 <div v-if="volumeMappings.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Host Path</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Container Path</span>
-                    <span class="w-8"></span>
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Host Path</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Container Path</span>
+                    <span class="w-7"></span>
                   </div>
                   <div v-for="(volume, index) in volumeMappings" :key="'volume-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].host" placeholder="/host/path">
@@ -221,17 +290,27 @@
                       </template>
                     </Input>
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].container" placeholder="/container/path" />
-                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removeVolume(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removeVolume(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
-                    </Button>
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="flex flex-col items-center py-2 gap-1">
+                  <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
+                  <div class="flex items-center gap-1">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No volume mounts</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="Not all applications require volume mounts. Some store data internally or are stateless by design." placement="bottom">
+                      <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
+                    </Tooltip>
                   </div>
                 </div>
               </div>
 
-              <div class="mb-6">
+              <!-- Network Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
-                  <Icon :icon="networkIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Network</h3>
+                  <Icon :icon="networkIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Network</h3>
                 </div>
                 <div v-if="networkMappings.length > 0" class="flex items-center gap-2">
                   <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="networkMappings[0].type" class="w-full" @change="handleNetworkTypeChange(0)">
@@ -245,32 +324,46 @@
                 <Input v-if="networkMappings.length > 0 && networkMappings[0].type === 'other'" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="networkMappings[0].customName" placeholder="custom-network-name" class="w-full mt-2" />
               </div>
 
-              <div class="mb-6">
+              <!-- Environment Variables Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
-                    <Icon :icon="envIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Environment Variables</h3>
+                    <Icon :icon="envIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Environment</h3>
                   </div>
-                  <Button :disabled="app?.is_installed" type="link" @click="addEnvVar" size="small"> + Add </Button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addEnvVar">+ Add</button>
                 </div>
                 <div v-if="envVars.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs mb-1">
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Key</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium">Value</span>
-                    <span class="w-8"></span>
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Key</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Value</span>
+                    <span class="w-7"></span>
                   </div>
+
                   <div v-for="(envVar, index) in envVars" :key="'env-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].key" placeholder="VARIABLE_NAME" />
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].value" placeholder="value" />
-                    <Button :class="[themeClasses.storeLinkHDOSButton]" :disabled="app?.is_installed" type="text" size="small" @click="removeEnvVar(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removeEnvVar(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
-                    </Button>
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="flex flex-col items-center py-2 gap-1">
+                  <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
+                  <div class="flex items-center gap-1">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No environment variables</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="Some applications work with default settings and don't need custom environment variables." placement="bottom">
+                      <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
+                    </Tooltip>
                   </div>
                 </div>
               </div>
 
-              <div class="mb-6">
-                <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider mb-3">Restart Policy</h3>
+              <!-- Restart Policy Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Restart Policy</h3>
+                </div>
                 <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="restartPolicy" class="w-full">
                   <SelectOption :class="[themeClasses.scopeSelector]" value="always">Always</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="unless-stopped">Unless Stopped</SelectOption>
@@ -278,10 +371,11 @@
                 </Select>
               </div>
 
-              <div class="mb-6">
+              <!-- Capabilities Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
-                  <Icon :icon="capabilityIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                  <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Capabilities</h3>
+                  <Icon :icon="capabilityIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Capabilities</h3>
                 </div>
                 <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="capabilities" mode="multiple" placeholder="Select capabilities" class="w-full">
                   <SelectOption :class="[themeClasses.scopeSelector]" value="NET_ADMIN">NET_ADMIN (Network administration)</SelectOption>
@@ -304,27 +398,28 @@
                 </Select>
               </div>
 
-              <div class="mb-6">
-                <div class="flex items-center justify-between mb-3">
+              <!-- Privileged Mode Card -->
+              <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
+                <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <Icon :icon="privilegedIcon" class="h-4 w-4" :class="[themeClasses.storeAboutTextScope]" />
-                    <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider">Privileged Mode</h3>
+                    <Icon :icon="privilegedIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Privileged Mode</h3>
                   </div>
+                  <Switch :disabled="app?.is_installed" :checked="privilegedMode" @change="handlePrivilegedModeChange">
+                    <template #checkedChildren>
+                      <span>On</span>
+                    </template>
+                    <template #unCheckedChildren>
+                      <span>Off</span>
+                    </template>
+                  </Switch>
                 </div>
-                <Switch :disabled="app?.is_installed" :checked="privilegedMode" @change="handlePrivilegedModeChange">
-                  <template #checkedChildren>
-                    <span>On</span>
-                  </template>
-                  <template #unCheckedChildren>
-                    <span>Off</span>
-                  </template>
-                </Switch>
               </div>
             </div>
 
-            <div v-else key="advanced" class="mb-2">
-              <h3 :class="[themeClasses.storeAboutTextScope]" class="text-xs font-semibold uppercase tracking-wider mb-3">Advanced Configuration</h3>
-              <textarea :disabled="app?.is_installed" v-model="advancedCompose" :class="[themeClasses.hubTextArea]" class="flex-1 rounded-lg w-full font-mono text-xs resize-none p-3" style="height: 500px"></textarea>
+            <div v-else key="advanced" class="pb-4">
+              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold mb-3">Advanced Configuration</h3>
+              <textarea :disabled="app?.is_installed" v-model="advancedCompose" :class="[themeClasses.hubTextArea]" class="flex-1 rounded-xl w-full font-mono text-xs resize-none p-4" style="height: 500px"></textarea>
             </div>
           </Transition>
         </div>
@@ -387,7 +482,7 @@
 
     <AppDialog v-model:visible="showScreenshotModal" type="info" title="Screenshot Preview" ok-text="Close" :ok-cancel="false" :width="1200" @ok="closeScreenshotModal">
       <div class="flex items-center justify-center min-h-[400px]">
-        <img v-if="screenshots[currentScreenshotModal]" :src="screenshots[currentScreenshotModal]" :alt="`${app?.name} screenshot ${currentScreenshotModal + 1}`" class="max-w-full max-h-[70vh] mx-auto rounded-lg object-contain" />
+        <img v-if="screenshots[currentScreenshotModal]" draggable="false" :src="screenshots[currentScreenshotModal]" :alt="`${app?.name} screenshot ${currentScreenshotModal + 1}`" class="max-w-full max-h-[70vh] mx-auto rounded-lg object-contain select-none" />
       </div>
     </AppDialog>
 
@@ -425,13 +520,12 @@ import { useAppStore } from "../__Stores__/useAppStore";
 import { useInstallationStore } from "../__Stores__/useInstallationStore";
 import { App } from "../__Types__/AppStoreApp";
 
-import { Button, Select, SelectOption, Input, InputPassword, Switch } from "ant-design-vue";
+import { Select, SelectOption, Input, InputPassword, Switch, Tooltip } from "ant-design-vue";
 
 import { notifyError, notifyWarning } from "../__Components__/Notifications.vue";
 
 import { Icon } from "@iconify/vue";
 import downloadIcon from "@iconify-icons/mdi/download";
-import checkBoldIcon from "@iconify-icons/mdi/check-bold";
 import cubeIcon from "@iconify-icons/mdi/cube";
 import xmlIcon from "@iconify-icons/mdi/xml";
 import emoticonHappyOutlineIcon from "@iconify-icons/mdi/emoticon-happy-outline";
@@ -451,6 +545,20 @@ import privilegedIcon from "@iconify-icons/mdi/shield-crown";
 import accountKeyIcon from "@iconify-icons/mdi/account-key";
 import contentCopyIcon from "@iconify-icons/mdi/content-copy";
 import checkIcon from "@iconify-icons/mdi/check";
+import shieldAccountIcon from "@iconify-icons/mdi/shield-account";
+import dockerIcon from "@iconify-icons/mdi/docker";
+import tagIcon from "@iconify-icons/mdi/tag";
+import shapeIcon from "@iconify-icons/mdi/shape";
+import emptyMappingIcon from "@iconify-icons/mdi/package-variant-closed-remove";
+import helpCircleIcon from "@iconify-icons/mdi/help-circle-outline";
+import aiIcon from "@iconify-icons/mdi/robot";
+import devToolsIcon from "@iconify-icons/mdi/toolbox";
+import filesIcon from "@iconify-icons/mdi/file-document-box";
+import gamingIcon from "@iconify-icons/mdi/gamepad";
+import homeAutomationIcon from "@iconify-icons/mdi/home-automation";
+import mediaIcon from "@iconify-icons/mdi/movie-open";
+import socialIcon from "@iconify-icons/mdi/message-text";
+import webDevIcon from "@iconify-icons/mdi/web";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
@@ -537,6 +645,30 @@ const originalAutoGenPassword = ref("");
 const autoGenDisplayMode = ref(false);
 const autoGenHintVisible = ref(false);
 const passwordInputRef = ref<{ $el: HTMLElement } | null>(null);
+const categoryIcons: Record<string, any> = {
+  AI: aiIcon,
+  "Developer Tools": devToolsIcon,
+  "Files & Productivity": filesIcon,
+  Gaming: gamingIcon,
+  "Home & Automation": homeAutomationIcon,
+  Media: mediaIcon,
+  Networking: networkIcon,
+  Social: socialIcon,
+  "Web Development": webDevIcon,
+};
+
+const categoryIcon = computed(() => categoryIcons[app.value?.category || ""] || shapeIcon);
+
+const infoTipTexts: Record<string, string> = {
+  source: "This app comes from a third-party package, not the official HomeDock OS App Store.",
+  category: "The general category this app belongs to in the store.",
+  type: "The specific function or role this app serves.",
+  image: "The Docker image used to run this container.",
+  version: "The image tag or version that will be installed.",
+  securityHttps: "This app supports encrypted HTTPS connections.",
+  securityHttp: "This app runs over unencrypted HTTP.",
+  deps: "Additional apps that will be installed alongside this one.",
+};
 const screenshots = ref<string[]>([]);
 const showScreenshotModal = ref(false);
 const currentScreenshotModal = ref(0);
@@ -964,34 +1096,42 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.action-button-primary {
-  flex: 1;
+.install-pill:hover {
+  transform: scale(1.05);
 }
 
-@container window (min-width: 640px) {
-  .action-button-primary {
-    flex: initial;
-  }
+.info-bar-cell {
+  flex: 1 1 0;
+  min-width: 80px;
 }
 
 /* Transitions > Install Button Status */
 .button-fade-enter-active,
 .button-fade-leave-active {
   transition:
-    opacity 0.25s ease-in-out,
-    transform 0.25s ease-in-out;
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
 }
 
 .button-fade-enter-from,
 .button-fade-leave-to {
   opacity: 0;
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 .button-fade-enter-to,
 .button-fade-leave-from {
   opacity: 1;
   transform: scale(1);
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Transitions > Input Swap (auto-gen preview ↔ real password) */

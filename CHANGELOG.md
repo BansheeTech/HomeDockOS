@@ -1,9 +1,21 @@
 # CHANGELOG
 
-- **2.1.2.34** (Latest): Hotfix for app installation broken by Docker project name injection.
-  - **Fixed app installation failure** caused by injecting a `name` field into compose files at install time. Docker Compose v1/v2/v3 format rejects unknown root keys like `name`, which broke all installations when the compose fallback used a legacy engine. Removed the injection entirely.
+- **2.1.2.106** (Latest): App Store and App Installation Window redesign inspired by Apple App Store style.
+  - **Redesigned App Store listing** from a card grid to Apple-style horizontal rows with larger icons, app info, and compact "GET" pill buttons.
+  - **Redesigned category filters** as smooth filled pills with clean horizontal scroll. Active category highlighted in solid blue.
+  - **Replaced pagination with infinite scroll**. Apps load progressively as you scroll down, with automatic pre-loading for a seamless browsing experience.
+  - **Redesigned Install Config page** with a larger app icon, matching "GET" pill button, and a cleaner header with truncated text for smaller screens.
+  - **Added info bar** to the Install Config page showing Category, Type, Image, Version, Security, and Dependencies at a glance. Each cell shows a tooltip on hover explaining what it means. External apps display an amber "Source" indicator.
+  - **Screenshots are now part of Simple Config mode** and animate in/out when switching to advanced mode. Thumbnails are larger with a saturation effect on hover.
+  - **Configuration sections wrapped in clean cards** with softer titles and inline controls. Privileged Mode toggle moved next to its heading.
+  - **Empty state indicators** for Ports, Volumes, and Environment with a help tooltip explaining why a section may be empty, so users don't think something is broken.
+  - **Polished search dropdown** with larger app icons, inline "NEW" badges, and better layout.
+  - **Extended theme support** across all three themes (Default, Noir, Aero) for every new UI element.
 
 ---
+
+- **2.1.2.34**: Hotfix for app installation broken by Docker project name injection.
+  - **Fixed app installation failure** caused by injecting a `name` field into compose files at install time. Docker Compose v1/v2/v3 format rejects unknown root keys like `name`, which broke all installations when the compose fallback used a legacy engine. Removed the injection entirely.
 
 - **2.1.2.32**: Third-Party Stores, Packager upgrades, installation error feedback, and security patches.
   - **Patched axios CVE-2026-40175 and CVE-2025-62718** (critical) by upgrading `axios` (npm) to 1.15.0+, fixing a header injection chain that could leak cloud credentials and a `NO_PROXY` hostname normalization bypass that enabled SSRF against loopback services. Also lifts the version pin introduced in 2.1.0.604.

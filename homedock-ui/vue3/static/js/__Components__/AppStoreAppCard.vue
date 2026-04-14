@@ -4,66 +4,53 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="[themeClasses.storeContMainer]" class="app-grid-item relative flex-1 border rounded-2xl p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg group">
-    <div class="app-header flex items-center gap-3 relative">
-      <BaseImage @click="onInstall(app)" draggable="false" :src="app.picture_path || 'docker-icons/notfound.jpg'" :alt="app.name" :class="[themeClasses.storeCardImageBack]" class="app-icon w-12 h-12 min-h-12 min-w-12 rounded-xl drop-shadow-md ring-[1px]" />
-      <Icon v-if="installationStore.currentlyInstalling === app.name" :icon="loadingIcon" :class="[themeClasses.storeIconLoadingInstalling]" class="absolute rounded-full top-1 left-1 w-10 h-10 text-current animate-spin" />
+  <div :class="[themeClasses.storeRowHover]" class="app-row group flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 cursor-pointer" @click="onInstall(app)">
+    <!-- App Icon -->
+    <div class="relative flex-shrink-0">
+      <BaseImage draggable="false" :src="app.picture_path || 'docker-icons/notfound.jpg'" :alt="app.name" :class="[themeClasses.storeCardImageBack]" class="app-icon w-16 h-16 min-h-16 min-w-16 rounded-2xl drop-shadow-md ring-[1px]" />
+      <Icon v-if="installationStore.currentlyInstalling === app.name" :icon="loadingIcon" :class="[themeClasses.storeIconLoadingInstalling]" class="absolute rounded-full top-2 left-2 w-12 h-12 text-current animate-spin" />
+    </div>
 
-      <div class="flex flex-col overflow-hidden w-full">
-        <h3 :class="[themeClasses.storeCardTextAppName]" class="app-name font-semibold text-xs">
+    <!-- App Info -->
+    <div class="flex flex-col flex-1 min-w-0 gap-0.5">
+      <div class="flex items-center gap-2">
+        <h3 :class="[themeClasses.storeCardTextAppName]" class="font-semibold text-sm truncate">
           {{ app.display_name || app.name }}
         </h3>
-        <div class="relative">
-          <h4 :class="[themeClasses.storeTypeScope]" class="app-docker_image font-normal uppercasetruncate text-xs will-change-transform transition duration-500 group-hover:opacity-0 group-hover:-translate-y-2">
-            {{ app.type }}
-          </h4>
-          <h5 :class="[themeClasses.storeCardTextRepo]" class="app-type font-normal text-xs absolute top-0 left-0 right-0 opacity-0 will-change-transform transition duration-500 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 truncate ellipsis">
-            {{ app.docker_image }}
-          </h5>
-        </div>
+        <span v-if="isNew(app)" class="flex-shrink-0 text-[10px] font-medium text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded-full">NEW</span>
+        <span v-if="app.is_external" class="flex-shrink-0">
+          <Icon :icon="packageIcon" class="w-3.5 h-3.5 text-amber-500" />
+        </span>
       </div>
+      <div class="relative h-4 overflow-hidden">
+        <p :class="[themeClasses.storeCardSubtitle]" class="text-xs truncate absolute inset-0 transition duration-300 group-hover:opacity-0 group-hover:-translate-y-2">{{ app.type }}</p>
+        <p :class="[themeClasses.storeCardTextRepo]" class="text-xs truncate absolute inset-0 opacity-0 translate-y-2 transition duration-300 group-hover:opacity-100 group-hover:translate-y-0">{{ app.docker_image }}</p>
+      </div>
+      <p :class="[themeClasses.storeDescription]" class="text-xs line-clamp-1 leading-relaxed">{{ app.description }}</p>
     </div>
 
-    <hr :class="[themeClasses.storeSeparator]" class="border-0 h-px mt-2" />
+    <!-- GET / Status Pill -->
+    <div class="flex-shrink-0" @click.stop="onInstall(app)">
+      <Transition name="pill-fade" mode="out-in">
+        <button v-if="app.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">
+          Installed
+        </button>
 
-    <div :class="[themeClasses.storeDescription]" class="app-shortdesc flex items-center leading-3 py-2 px-2 h-14 text-[12px] mt-2 text-balance rounded-xl">
-      {{ app.description }}
+        <button v-else-if="installationStore.currentlyInstalling === app.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="app-pill px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+          <Icon :icon="loadingIcon" class="w-3 h-3 animate-spin" />
+          <span>Installing</span>
+        </button>
+
+        <button v-else-if="installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+          <Icon :icon="queueIcon" class="w-3 h-3" />
+          <span>Queued</span>
+        </button>
+
+        <button v-else key="get" :class="[themeClasses.storeCardGetPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">
+          GET
+        </button>
+      </Transition>
     </div>
-
-    <div v-if="isNew(app)" class="app-new-badge absolute top-2 left-11 p-1 rounded-3xl bg-blue-500 border-[1px] border-gray-100 animate-bounce">
-      <span class="flex items-center"><Icon :icon="newBoxIcon" class="text-current text-white" /></span>
-    </div>
-
-    <!-- External package badge -->
-    <div v-if="app.is_external" class="app-external-badge absolute top-2 right-2 p-1 rounded-3xl bg-amber-600 border-[1px] border-gray-100 shadow-md">
-      <span class="flex items-center"><Icon :icon="packageIcon" class="text-current text-white w-4 h-4" /></span>
-    </div>
-
-    <Transition name="button-fade" mode="out-in">
-      <!-- Installed -->
-      <Button v-if="app.is_installed" key="installed" type="default" size="small" block :class="[themeClasses.storeCardInstalled]" class="app-installed items-center mt-2 !text-center !rounded-2xl px-2 py-1 flex items-center justify-center" @click="onInstall(app)">
-        <Icon :icon="checkBoldIcon" class="mr-1 text-current" />
-        Installed
-      </Button>
-
-      <!-- Installing -->
-      <Button v-else-if="installationStore.currentlyInstalling === app.name" key="installing" type="default" size="small" block :class="[themeClasses.storeCardInstalling]" class="app-installing items-center mt-2 !text-center !rounded-2xl px-2 py-1 flex items-center justify-center" @click="onInstall(app)">
-        <Icon :icon="loadingIcon" class="mr-1 text-current animate-spin" />
-        Installing...
-      </Button>
-
-      <!-- Queued -->
-      <Button v-else-if="installationStore.queue.includes(app.name)" key="queued" type="default" size="small" block :class="[themeClasses.storeCardQueued]" class="app-queued items-center mt-2 !text-center !rounded-2xl px-2 py-1 flex items-center justify-center" @click="onInstall(app)">
-        <Icon :icon="queueIcon" class="mr-1 text-current" />
-        Queued
-      </Button>
-
-      <!-- Install / Default -->
-      <Button v-else type="primary" size="small" block key="install" :class="[themeClasses.storeCardInstall]" class="app-install items-center mt-2 !text-center !rounded-2xl px-2 py-1 flex items-center justify-center" @click="onInstall(app)">
-        <Icon :icon="chevronDoubleDownIcon" class="mr-1 text-current" />
-        Install
-      </Button>
-    </Transition>
   </div>
 </template>
 
@@ -72,12 +59,7 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { useInstallationStore } from "../__Stores__/useInstallationStore";
 
-import { Button } from "ant-design-vue";
-
 import { Icon } from "@iconify/vue";
-import newBoxIcon from "@iconify-icons/mdi/new-box";
-import checkBoldIcon from "@iconify-icons/mdi/check-bold";
-import chevronDoubleDownIcon from "@iconify-icons/mdi/chevron-double-down";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import queueIcon from "@iconify-icons/mdi/queue";
 import packageIcon from "@iconify-icons/mdi/package-variant-closed";
@@ -112,45 +94,40 @@ const isNew = (app: App) => {
 </script>
 
 <style scoped>
-/* Transitions */
-.button-fade-enter-active,
-.button-fade-leave-active {
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+.pill-fade-enter-active,
+.pill-fade-leave-active {
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
-.button-fade-enter-from {
+.pill-fade-enter-from {
   opacity: 0;
+  transform: scale(0.9);
 }
-.button-fade-enter-to {
+.pill-fade-enter-to {
   opacity: 1;
+  transform: scale(1);
 }
-.button-fade-leave-from {
+.pill-fade-leave-from {
   opacity: 1;
+  transform: scale(1);
 }
-.button-fade-leave-to {
+.pill-fade-leave-to {
   opacity: 0;
+  transform: scale(0.9);
 }
 
 .app-icon {
-  transition: all 300ms cubic-bezier(0, 1.7, 1, 1.7);
-  cursor: pointer;
+  transition: all 200ms ease;
 }
 
-.app-icon:hover {
-  scale: 1.2;
-  border-radius: 24px;
+.app-row:hover .app-icon {
+  transform: scale(1.05);
 }
 
-.app-install,
-.app-installed,
-.app-installing,
-.app-queued {
-  transition: all 300ms cubic-bezier(0, 1.7, 1, 1.7);
+.app-pill {
+  transition: all 200ms ease;
 }
 
-.app-install:hover,
-.app-installed:hover,
-.app-installing:hover,
-.app-queued:hover {
-  letter-spacing: 0.1em !important;
+.app-pill:hover {
+  transform: scale(1.05);
 }
 </style>

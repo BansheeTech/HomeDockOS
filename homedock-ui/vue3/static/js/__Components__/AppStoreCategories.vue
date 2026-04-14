@@ -4,22 +4,16 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="overflow-x-auto whitespace-nowrap py-1">
-    <Button type="dashed" @click="selectCategory('')" :class="[themeClasses.storeCategoriesAll, { '!border-blue-500 !text-blue-500': selectedCategory === '' }]" class="px-4 text-[10px] rounded-lg border">
-      <div class="flex items-center">
-        <Icon :icon="allInclusiveIcon" class="mr-1 mb-0.5 h-4 w-4" />
-        Show All
-      </div>
-    </Button>
+  <div class="categories-scroll flex gap-2 overflow-x-auto py-2">
+    <button @click="selectCategory('')" :class="[selectedCategory === '' ? themeClasses.storeCategoryPillActive : themeClasses.storeCategoryPill]" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200">
+      <Icon :icon="allInclusiveIcon" class="h-3.5 w-3.5" />
+      All
+    </button>
 
-    <Button v-for="category in categories" :key="category" @click="selectCategory(category)" :class="[themeClasses.storeCategoriesSelect, { '!border-blue-500 !text-blue-500': selectedCategory === category }]" class="px-4 ml-1 text-[10px] rounded-lg border">
-      <div class="flex items-center">
-        <template v-if="icons[category as Category]">
-          <Icon :icon="icons[category as Category]" class="mr-1 mb-0.5 h-4 w-4" />
-        </template>
-        {{ category }}
-      </div>
-    </Button>
+    <button v-for="category in categories" :key="category" @click="selectCategory(category)" :class="[selectedCategory === category ? themeClasses.storeCategoryPillActive : themeClasses.storeCategoryPill]" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200">
+      <Icon v-if="icons[category as Category]" :icon="icons[category as Category]" class="h-3.5 w-3.5" />
+      {{ category }}
+    </button>
   </div>
 </template>
 
@@ -27,8 +21,6 @@
 import { computed } from "vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
-
-import { Button } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import type { IconifyIcon } from "@iconify/vue";
@@ -75,4 +67,13 @@ const selectCategory = (category: string) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.categories-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categories-scroll::-webkit-scrollbar {
+  display: none;
+}
+</style>

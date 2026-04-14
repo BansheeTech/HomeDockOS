@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div>
+  <div class="mb-3">
     <AutoComplete v-model:value="searchQuery" class="w-full" :popup-class-name="`${themeClasses.scopeSelector} w-10`" :options="autocompleteOptions" @select="handleSelect" @popupScroll="handlePopupScroll">
       <template #option="item">
         <span v-if="item.options">
@@ -15,13 +15,13 @@
           {{ item.label }}
         </span>
         <div v-else class="items-center flex">
-          <span><BaseImage v-if="item.picture_path" :draggable="false" :src="item.picture_path" alt="icon" class="h-6 w-6 min-h-6 min-w-6 rounded-md mr-1" /></span>
-          <span :class="[themeClasses.storeSearchAppName]" class="ml-1">{{ item.label || item.value }}</span>
-          <span v-if="item.is_new" class="ml-1 animate-pulse"><Icon :icon="newBoxIcon" size="20px" color="#348feb" class="ml-1" /></span>
-          <span :class="[themeClasses.storeSearchCategory]" class="ml-1 text-xs truncate ellipsis">{{ item.type }}</span>
+          <span><BaseImage v-if="item.picture_path" :draggable="false" :src="item.picture_path" alt="icon" class="h-8 w-8 min-h-8 min-w-8 rounded-lg mr-2" /></span>
+          <span :class="[themeClasses.storeSearchAppName]" class="ml-1 text-sm">{{ item.label || item.value }}</span>
+          <span v-if="item.is_new" class="ml-1.5 text-[10px] font-medium text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded-full">NEW</span>
+          <span :class="[themeClasses.storeSearchCategory]" class="ml-auto text-xs truncate ellipsis">{{ item.type }}</span>
         </div>
       </template>
-      <InputSearch v-model:value="searchQuery" placeholder="Search for an app..." enter-button="Search" class="w-full text-sm" autocomplete="new-password">
+      <InputSearch v-model:value="searchQuery" placeholder="Search for an app..." enter-button="Search" class="w-full text-sm !rounded-xl" autocomplete="new-password">
         <template #prefix>
           <Icon :icon="appsIcon" class="mx-1 text-stone-400" />
         </template>
@@ -44,7 +44,6 @@ import deleteEmptyIcon from "@iconify-icons/mdi/delete-empty";
 import checkAllIcon from "@iconify-icons/mdi/check-all";
 import squareRoundedBadgeIcon from "@iconify-icons/mdi/square-rounded-badge";
 import appsIcon from "@iconify-icons/mdi/apps";
-import newBoxIcon from "@iconify-icons/mdi/new-box";
 
 import { App } from "../__Types__/AppStoreApp";
 

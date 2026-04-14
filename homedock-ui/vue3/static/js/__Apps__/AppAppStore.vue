@@ -5,8 +5,8 @@
 
 <template>
   <div class="app-appstore flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-auto p-4">
-      <div class="mb-6">
+    <div class="flex-1 overflow-auto p-5">
+      <div class="mb-8">
         <SectionHeader title="Featured Apps" description="You better check these out!" :icon="licenseIcon">
           <template #action>
             <button @click="desktopStore.openSystemApp('packager')" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, themeClasses.windowBorder]" class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all duration-150">

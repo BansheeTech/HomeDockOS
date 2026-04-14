@@ -161,11 +161,24 @@ export const themes: Record<string, Record<string, string>> = {
     storeTypeScope: "text-gray-400",
     storeSeparator: "bg-gray-200",
     storeIconLoadingInstalling: "bg-white/50 text-black/50",
-    storeDescription: "bg-slate-200 text-gray-500",
+    storeDescription: "text-gray-500",
     storeCardInstall: "bg-blue-600 text-white hover:!bg-blue-500",
     storeCardInstalled: "bg-white text-black hover:!bg-gray-50 hover:!text-blue-500 !border-gray-200 hover:!border-blue-500",
     storeCardInstalling: "bg-green-600 text-white hover:!bg-green-500 hover:!text-white !border-green-400",
     storeCardQueued: "bg-gray-600 text-white hover:!bg-gray-500 hover:!text-white !border-gray-400",
+    storeCardGetPill: "bg-blue-100 text-blue-600 hover:bg-blue-200",
+    storeCardInstalledPill: "bg-gray-100 text-gray-500 hover:bg-gray-200",
+    storeCardInstallingPill: "bg-green-100 text-green-600",
+    storeCardQueuedPill: "bg-gray-100 text-gray-400",
+    storeCategoryPill: "bg-gray-100 text-gray-600 hover:bg-gray-200",
+    storeCategoryPillActive: "bg-blue-600 text-white",
+    storeCardSubtitle: "text-gray-400",
+    storeListSeparator: "border-gray-100",
+    storeRowHover: "hover:bg-gray-50",
+    storeInfoBar: "bg-gray-50/80 border-gray-200/60",
+    storeInfoBarLabel: "text-gray-400",
+    storeInfoBarValue: "text-gray-700",
+    storeInfoBarDivider: "bg-gray-200",
     storeButtonInstall: "bg-blue-600 text-white hover:!bg-blue-500 hover:!text-white",
     storeButtonInstalled: "bg-white text-black hover:!bg-gray-50 hover:!text-blue-500 !border-gray-200 hover:!border-blue-500",
     storeButtonInstalling: "bg-green-600 text-white hover:!bg-green-500 hover:!text-white !border-green-400",
@@ -192,7 +205,7 @@ export const themes: Record<string, Record<string, string>> = {
     storePopupSSLFlag: "text-green-500 bg-green-200 border-green-500",
     storeInputSSLFlag: "text-green-500",
 
-    screenshotThumb: "border-transparent opacity-95 hover:opacity-100",
+    screenshotThumb: "border-transparent hover:saturate-150",
 
     externalWarningTitle: "text-gray-900",
     externalWarningText: "text-gray-700",
@@ -222,6 +235,9 @@ export const themes: Record<string, Record<string, string>> = {
     installConfigDefaultCredsCopy: "text-gray-300 hover:text-blue-500",
     installConfigDefaultCredsCopied: "text-green-500",
     installConfigDefaultCredsHint: "text-gray-400",
+    installConfigSectionCard: "bg-gray-50/80 border border-gray-200/60 rounded-xl",
+    installConfigSectionTitle: "text-gray-700",
+    installConfigSectionAddBtn: "text-blue-500 hover:text-blue-600",
 
     hubContMainer: "border-gray-200 bg-gradient-to-b from-gray-100 to-transparent",
     hubCardTextAppName: "text-gray-700",
@@ -946,11 +962,24 @@ export const themes: Record<string, Record<string, string>> = {
     storeTypeScope: "text-zinc-500",
     storeSeparator: "bg-zinc-700",
     storeIconLoadingInstalling: "bg-black/50 text-white/50",
-    storeDescription: "bg-zinc-800 text-zinc-400",
+    storeDescription: "text-zinc-400",
     storeCardInstall: "bg-blue-600 text-white hover:!bg-blue-500",
     storeCardInstalled: "bg-zinc-800 text-white hover:!bg-zinc-700 hover:!text-white !border-zinc-700 hover:!border-zinc-600",
     storeCardInstalling: "bg-green-600 text-white hover:!bg-green-500 hover:!text-white !border-green-400",
     storeCardQueued: "bg-gray-600 text-white hover:!bg-gray-500 hover:!text-white !border-gray-400",
+    storeCardGetPill: "bg-blue-500/15 text-blue-400 hover:bg-blue-500/25",
+    storeCardInstalledPill: "bg-zinc-700/50 text-zinc-400 hover:bg-zinc-700/70",
+    storeCardInstallingPill: "bg-green-500/15 text-green-400",
+    storeCardQueuedPill: "bg-zinc-700/50 text-zinc-500",
+    storeCategoryPill: "bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
+    storeCategoryPillActive: "bg-blue-600 text-white",
+    storeCardSubtitle: "text-zinc-500",
+    storeListSeparator: "border-zinc-800",
+    storeRowHover: "hover:bg-zinc-800/50",
+    storeInfoBar: "bg-zinc-800/40 border-zinc-700/40",
+    storeInfoBarLabel: "text-zinc-500",
+    storeInfoBarValue: "text-zinc-200",
+    storeInfoBarDivider: "bg-zinc-700",
     storeButtonInstall: "bg-blue-600 text-white hover:!bg-blue-500 hover:!text-white",
     storeButtonInstalled: "bg-zinc-800 text-white hover:!bg-zinc-700 hover:!text-white !border-zinc-700 hover:!border-zinc-600",
     storeButtonInstalling: "bg-green-600 text-white hover:!bg-green-500 hover:!text-white !border-green-400",
@@ -977,7 +1006,7 @@ export const themes: Record<string, Record<string, string>> = {
     storePopupSSLFlag: "text-green-200 bg-green-600 border-green-200",
     storeInputSSLFlag: "text-green-200",
 
-    screenshotThumb: "border-transparent opacity-60 hover:opacity-85",
+    screenshotThumb: "border-transparent hover:saturate-150",
 
     externalWarningTitle: "text-zinc-200",
     externalWarningText: "text-zinc-300",
@@ -1007,6 +1036,9 @@ export const themes: Record<string, Record<string, string>> = {
     installConfigDefaultCredsCopy: "text-zinc-600 hover:text-blue-400",
     installConfigDefaultCredsCopied: "text-green-400",
     installConfigDefaultCredsHint: "text-zinc-600",
+    installConfigSectionCard: "bg-zinc-800/40 border border-zinc-700/40 rounded-xl",
+    installConfigSectionTitle: "text-zinc-200",
+    installConfigSectionAddBtn: "text-blue-400 hover:text-blue-300",
 
     hubContMainer: "border-zinc-800 bg-gradient-to-b from-zinc-800 to-transparent",
     hubCardTextAppName: "text-zinc-200",
@@ -1731,11 +1763,24 @@ export const themes: Record<string, Record<string, string>> = {
     storeTypeScope: "text-zinc-500",
     storeSeparator: "bg-zinc-700/50",
     storeIconLoadingInstalling: "bg-black/50 text-white/50",
-    storeDescription: "bg-zinc-800/50 text-zinc-400",
+    storeDescription: "text-zinc-400",
     storeCardInstall: "bg-blue-600/50 text-white hover:!bg-blue-500",
     storeCardInstalled: "bg-zinc-800/50 text-white hover:!bg-zinc-700 hover:!text-white !border-zinc-700/50 hover:!border-zinc-600",
     storeCardInstalling: "bg-green-600/50 text-white hover:!bg-green-500 hover:!text-white !border-green-400/50",
     storeCardQueued: "bg-gray-600/50 text-white hover:!bg-gray-500 hover:!text-white !border-gray-400/50",
+    storeCardGetPill: "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
+    storeCardInstalledPill: "bg-zinc-700/30 text-zinc-400 hover:bg-zinc-700/50",
+    storeCardInstallingPill: "bg-green-500/10 text-green-400",
+    storeCardQueuedPill: "bg-zinc-700/30 text-zinc-500",
+    storeCategoryPill: "bg-zinc-800/50 text-zinc-300 hover:bg-zinc-700/50",
+    storeCategoryPillActive: "bg-blue-600/80 text-white",
+    storeCardSubtitle: "text-zinc-500",
+    storeListSeparator: "border-zinc-700/30",
+    storeRowHover: "hover:bg-zinc-800/30",
+    storeInfoBar: "bg-zinc-800/25 border-zinc-700/25",
+    storeInfoBarLabel: "text-zinc-500",
+    storeInfoBarValue: "text-zinc-200",
+    storeInfoBarDivider: "bg-zinc-700/50",
     storeButtonInstall: "bg-blue-600 text-white hover:!bg-blue-500 hover:!text-white",
     storeButtonInstalled: "bg-zinc-800 text-white hover:!bg-zinc-700 hover:!text-white !border-zinc-700 hover:!border-zinc-600",
     storeButtonInstalling: "bg-green-600 text-white hover:!bg-green-500 hover:!text-white !border-green-400",
@@ -1762,7 +1807,7 @@ export const themes: Record<string, Record<string, string>> = {
     storePopupSSLFlag: "text-green-300 bg-green-600/80 border-green-300",
     storeInputSSLFlag: "text-green-300",
 
-    screenshotThumb: "border-transparent opacity-60 hover:opacity-85",
+    screenshotThumb: "border-transparent hover:saturate-150",
 
     externalWarningTitle: "text-zinc-200",
     externalWarningText: "text-zinc-300",
@@ -1792,6 +1837,9 @@ export const themes: Record<string, Record<string, string>> = {
     installConfigDefaultCredsCopy: "text-zinc-600 hover:text-blue-400",
     installConfigDefaultCredsCopied: "text-green-400",
     installConfigDefaultCredsHint: "text-zinc-400",
+    installConfigSectionCard: "bg-zinc-800/25 border border-zinc-700/25 rounded-xl",
+    installConfigSectionTitle: "text-zinc-200",
+    installConfigSectionAddBtn: "text-blue-400 hover:text-blue-300",
 
     hubContMainer: "border-zinc-700/50 bg-gradient-to-b from-zinc-800/50 to-transparent",
     hubCardTextAppName: "text-zinc-200",
@@ -2359,10 +2407,13 @@ export const themes: Record<string, Record<string, string>> = {
 };
 
 function mergeWithDefault(theme: Record<string, string>): Record<string, string> {
-  return Object.keys(themes.default).reduce((merged, key) => {
-    merged[key] = theme[key] || themes.default[key];
-    return merged;
-  }, {} as Record<string, string>);
+  return Object.keys(themes.default).reduce(
+    (merged, key) => {
+      merged[key] = theme[key] || themes.default[key];
+      return merged;
+    },
+    {} as Record<string, string>,
+  );
 }
 
 export function getThemeClasses(themeName: string): Record<string, string> {

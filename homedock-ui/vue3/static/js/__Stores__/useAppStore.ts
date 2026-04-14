@@ -26,6 +26,7 @@ export const useAppStore = defineStore("AppStore", {
     selectedCategory: "",
     currentPage: 1,
     appsPerPage: 15,
+    visibleCount: 20,
   }),
   actions: {
     async loadApps(csrfToken: string) {
@@ -76,10 +77,15 @@ export const useAppStore = defineStore("AppStore", {
     setSearchQuery(query: string) {
       this.searchQuery = query;
       this.currentPage = 1;
+      this.visibleCount = 20;
     },
     setCategoryFilter(category: string) {
       this.selectedCategory = category;
       this.currentPage = 1;
+      this.visibleCount = 20;
+    },
+    loadMore() {
+      this.visibleCount += 15;
     },
 
     updateAppInstallationStatus(appName: string, isInstalled: boolean) {
@@ -138,6 +144,46 @@ export const useAppStore = defineStore("AppStore", {
       });
 
       return filtered.length;
+    },
+
+    infiniteApps: (state) => {
+      const lowerQuery = state.searchQuery.toLowerCase();
+      const installationStore = useInstallationStore();
+      const { currentlyInstalling, queue } = installationStore;
+
+      const filtered = state.apps.filter((app) => {
+        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
+        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
+        return matchesQuery && matchesCategory;
+      });
+
+      const prioritized = filtered.map((app) => {
+        let priority = 4;
+        if (app.is_new) priority = 0;
+        else if (currentlyInstalling === app.name) priority = 1;
+        else if (queue.includes(app.name)) priority = 2;
+        else if (app.is_installed) priority = 3;
+
+        const appNotHash = generateNotHash(`${app.name}-${app.description}`);
+        return { ...app, priority, appNotHash };
+      });
+
+      prioritized.sort((a, b) => {
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return a.appNotHash.localeCompare(b.appNotHash);
+      });
+
+      return prioritized.slice(0, state.visibleCount);
+    },
+
+    hasMore: (state) => {
+      const lowerQuery = state.searchQuery.toLowerCase();
+      const total = state.apps.filter((app) => {
+        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
+        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
+        return matchesQuery && matchesCategory;
+      }).length;
+      return state.visibleCount < total;
     },
 
     sortedApps: (state) =>
