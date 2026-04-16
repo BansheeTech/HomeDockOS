@@ -9,7 +9,7 @@
   <ScrollBarThemeLoader />
   <TopComment />
   <SplashScreen />
-  <StaticOscillatingLines />
+  <StaticOscillatingLines :isSuccess="isLoginSuccessful" :isError="loginError" :isChecking="!loginError && !isLoginSuccessful" />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
       <div :class="[themeClasses.scopeSelector, themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
@@ -178,6 +178,17 @@ const csrfToken = ref<string | null>(document.querySelector('meta[name="homedock
 const validationStatus = ref<"error" | "warning" | undefined>(undefined);
 const remainingAttempts = ref<number | null>(null);
 const isLoginSuccessful = ref<boolean>(false);
+const loginError = ref<boolean>(false);
+let loginErrorTimer: ReturnType<typeof setTimeout> | null = null;
+
+const flashLoginError = () => {
+  loginError.value = true;
+  if (loginErrorTimer) clearTimeout(loginErrorTimer);
+  loginErrorTimer = setTimeout(() => {
+    loginError.value = false;
+  }, 2000);
+};
+
 const { themeClasses } = useTheme();
 
 const requires2FA = ref<boolean>(false);
@@ -270,6 +281,7 @@ const handleFinish = async () => {
 
         message.error(loginResponse.data.message);
         validationStatus.value = "error";
+        flashLoginError();
       }
     } else {
       message.error("Unexpected error, please contact support.");
@@ -289,9 +301,11 @@ const handleFinish = async () => {
         if (error.response.status === 403 && window.location.protocol === "http:") {
           message.error("Login only permitted from a valid HTTPS source.", 5);
           validationStatus.value = "error";
+          flashLoginError();
         } else if (backendMessage) {
           message.error(backendMessage);
           validationStatus.value = "error";
+          flashLoginError();
         }
 
         if (error.response.data.remaining_attempts !== undefined) {
@@ -365,6 +379,7 @@ const handle2FAVerify = async () => {
   } catch (error) {
     if (error instanceof AxiosError && error.response?.data) {
       message.error(error.response.data.error || "Invalid verification code");
+      flashLoginError();
       if (error.response.status === 429 || error.response.status === 403) {
         cancel2FA();
       }

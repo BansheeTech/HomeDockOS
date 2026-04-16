@@ -98,20 +98,12 @@ if (themeData && commonData && settingsData && dashboardData) {
   });
   app.provide("data-theme", reactiveTheme);
 
-  const wallpaperTimestamp = reactive({
-    value: Date.now(),
-  });
-  app.provide("wallpaper-timestamp", wallpaperTimestamp);
-
   const updateTheme = (newTheme: { selectedTheme?: string; selectedBack?: string }) => {
     if (newTheme.selectedTheme !== undefined) {
       reactiveTheme.selectedTheme = newTheme.selectedTheme;
     }
     if (newTheme.selectedBack !== undefined) {
       reactiveTheme.selectedBack = newTheme.selectedBack;
-      if (newTheme.selectedBack.startsWith("_back_custom")) {
-        wallpaperTimestamp.value = Date.now();
-      }
     }
   };
   app.provide("update-theme", updateTheme);

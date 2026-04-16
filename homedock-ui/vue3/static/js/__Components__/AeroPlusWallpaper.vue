@@ -8,19 +8,36 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, computed, ref } from "vue";
+import { inject, computed, ref, watch } from "vue";
 
 const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
-const wallpaperTimestamp = inject<{ value: number }>("wallpaper-timestamp", ref(Date.now()));
 
 const isVisible = computed(() => themeData?.selectedTheme === "aeroplus");
+const wallpaperHash = ref("");
+
+watch(
+  () => themeData?.selectedBack,
+  async (back) => {
+    if (!back?.startsWith("_back_custom")) {
+      wallpaperHash.value = "";
+      return;
+    }
+    const res = await fetch(`/images/user-wallpaper/${back}`);
+    if (!res.ok) return;
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    let h = 5381;
+    for (let i = 0; i < bytes.length; i++) h = ((h * 33) ^ bytes[i]) >>> 0;
+    wallpaperHash.value = h.toString(16);
+  },
+  { immediate: true },
+);
 
 const backgroundStyle = computed(() => {
   let wallpaperUrl = "/images/back1.jpg";
 
   if (themeData?.selectedBack) {
     if (themeData.selectedBack.startsWith("_back_custom")) {
-      wallpaperUrl = `/images/user-wallpaper/${themeData.selectedBack}?t=${wallpaperTimestamp.value}`;
+      wallpaperUrl = `/images/user-wallpaper/${themeData.selectedBack}${wallpaperHash.value ? `?h=${wallpaperHash.value}` : ""}`;
     } else {
       wallpaperUrl = `/images/wallpapers/${themeData.selectedBack}`;
     }
