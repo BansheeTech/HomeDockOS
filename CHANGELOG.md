@@ -1,6 +1,25 @@
 # CHANGELOG
 
-- **2.1.2.106** (Latest): App Store and App Installation Window redesign inspired by Apple App Store style.
+- **2.1.2.110** (Latest): Virtual scroll, screenshot window bars, polish, and DropZone encryption upgrade.
+  - **Upgraded DropZone encryption to dzkey_v3 (HKDF)**. Replaced PBKDF2 (1.2M iterations) with HKDF for key derivation. Since the base key is already a cryptographically strong `os.urandom(32)` secret, PBKDF2's slow-by-design iterations added no security value, HKDF is the correct KDF for high-entropy inputs. Instantaneous derivation with identical security, eliminating the need for derived key caching, TTL timers, and any possible ou-of-the-box threading. HKDF `info` field now includes a purpose-scoped context string (`dropzone/file-encryption/v3/`) to prevent key collisions if multiple derivations share the same base secret. Transparent migration from v2 (PBKDF2/GCM) and v1 (PBKDF2/CBC) on first file access.
+  - **Atomic file writes in DropZone**. Encrypted files are now written to a `.tmp` file first, then atomically replaced via `os.replace()`, preventing data loss if the process crashes mid-write.
+  - **Virtual scroll for the App Store listing**. Only visible rows are rendered in the DOM, fixing crashes on iPhone and improving performance across all devices when browsing large app catalogs.
+  - **Screenshot thumbnails now display a window title bar** with traffic light dots matching the style used on our website. Themed for all three visual modes.
+  - **Default Credentials section** now has a visible title header consistent with Ports, Volumes, and other config sections.
+  - **Category icons in the info bar** now match the icons used in the App Store category filters instead of a generic shape.
+  - **Help tooltips on empty config sections** (Ports, Volumes, Environment) explaining why a section may be empty, so users know it's not an error.
+  - **Smoother category transitions**. Switching categories fades the entire list at once instead of animating each card individually, reducing layout thrashing.
+  - **Redesigned App Loading screen**. App name badge with frosted glass pill and container icon, step indicators (Connecting → Verifying → Launching) with animated progression, and a "Try Again" button when connection fails. Oscillating background lines now react to connection state, dispersing on success, turning red and thickening on error, and resetting on retry.
+  - **App display name from store** in the loading screen. Shows the real app name (e.g. "Open WebUI") instead of the container slug.
+  - **Fixed icon priority in dashboard**. Native app icons (`docker-icons/`) now take precedence over external package icons (`user-images/`), preventing imported packages from overriding system app icons.
+  - **Fixed App Store icon swapping on resize**. Virtual scroll rows now use app-name-based keys instead of numeric indices, preventing Vue from recycling DOM nodes with stale icons when column count changes.
+  - **Faster App Store initial load**. External apps and container status are now fetched in parallel via `Promise.all`, and the app list is only rendered once with its final state (new/installed badges), eliminating the visual reordering flash.
+  - **App icon resolution with fallback**. Icons in the loading screen are resolved via HEAD requests trying `docker-icons/` first (native apps), then `user-images/` (external packages), with `.jpg`, `.jpeg`, `.png` extension probing.
+  - **Port scanning indicator on desktop icons**. Containers that are running but still waiting for port detection now show a subtle animated loading bar overlay on their icon, on both desktop and mobile. Detects scanning state via duplicate ports (raw Docker data) or `disabled` flag, and excludes `hostmode` containers.
+
+---
+
+- **2.1.2.106**: App Store and App Installation Window redesign inspired by Apple App Store style.
   - **Redesigned App Store listing** from a card grid to Apple-style horizontal rows with larger icons, app info, and compact "GET" pill buttons.
   - **Redesigned category filters** as smooth filled pills with clean horizontal scroll. Active category highlighted in solid blue.
   - **Replaced pagination with infinite scroll**. Apps load progressively as you scroll down, with automatic pre-loading for a seamless browsing experience.
@@ -11,8 +30,6 @@
   - **Empty state indicators** for Ports, Volumes, and Environment with a help tooltip explaining why a section may be empty, so users don't think something is broken.
   - **Polished search dropdown** with larger app icons, inline "NEW" badges, and better layout.
   - **Extended theme support** across all three themes (Default, Noir, Aero) for every new UI element.
-
----
 
 - **2.1.2.34**: Hotfix for app installation broken by Docker project name injection.
   - **Fixed app installation failure** caused by injecting a `name` field into compose files at install time. Docker Compose v1/v2/v3 format rejects unknown root keys like `name`, which broke all installations when the compose fallback used a legacy engine. Removed the injection entirely.

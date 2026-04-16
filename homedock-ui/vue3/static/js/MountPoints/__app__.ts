@@ -17,6 +17,7 @@ interface PortData {
   selected_port: string;
   selected_path: string;
   selected_app_slug: string;
+  selected_app_display_name: string;
 }
 
 function parseBase64Data(id: string): any {
@@ -51,6 +52,7 @@ if (themeData && portData) {
       selectedPort: portData.selected_port,
       selectedPath: portData.selected_path,
       appSlug: portData.selected_app_slug,
+      appDisplayName: portData.selected_app_display_name,
     });
 
     const faviconHeadAdder = createHead();

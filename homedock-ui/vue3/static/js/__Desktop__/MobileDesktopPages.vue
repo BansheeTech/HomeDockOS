@@ -27,6 +27,7 @@
                   <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
                 </div>
               </Transition>
+              <PortScanningOverlay :visible="getAppStatus(item) === 'running' && isPortScanning(item) && !isAppProcessing(item)" />
               <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(getAppStatus(item)), themeClasses.desktopStatusBadgeBorder, getAppStatus(item) === 'running' && 'status-pulse']"></div>
             </div>
             <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-20 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ (item as any).display_name || item.name }}</span>
@@ -59,6 +60,7 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import BaseImage from "../__Components__/BaseImage.vue";
+import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
 import PageIndicator from "./PageIndicator.vue";
 
@@ -466,6 +468,15 @@ function getStatusBadgeClass(status: string): string {
   return statusClasses[status] || themeClasses.value.statusBadgeCreated;
 }
 
+function isPortScanning(item: any): boolean {
+  const ports = item.ports;
+  if (!ports || ports.length === 0) return false;
+  if (ports.includes("disabled")) return true;
+  if (ports.includes("hostmode")) return false;
+  const unique = new Set(ports);
+  return unique.size !== ports.length;
+}
+
 function getContainerClasses(app: any): string {
   const statusClasses: Record<string, string> = {
     running: "",
@@ -574,7 +585,7 @@ function handlePageTouchStart(e: TouchEvent) {
           cancelable: true,
           clientX: touch.clientX,
           clientY: touch.clientY,
-        })
+        }),
       );
 
       if (navigator.vibrate) {
@@ -1218,7 +1229,10 @@ watch([isPortrait, isLandscape], () => {
 }
 
 .icon-appear-move {
-  transition: left 0.4s ease, top 0.4s ease, transform 0.4s ease;
+  transition:
+    left 0.4s ease,
+    top 0.4s ease,
+    transform 0.4s ease;
 }
 
 .opacity-fade-enter-active,

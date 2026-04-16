@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
+import { defineComponent, ref, watch, onMounted, onBeforeUnmount } from "vue";
 
 interface Point {
   x: number;
@@ -18,6 +18,22 @@ interface Point {
   targetY: number;
 }
 
+interface LineState {
+  yOffset: number;
+  targetYOffset: number;
+  opacity: number;
+  targetOpacity: number;
+  r: number;
+  g: number;
+  b: number;
+  targetR: number;
+  targetG: number;
+  targetB: number;
+  widthScale: number;
+  targetWidthScale: number;
+  survivor: boolean;
+}
+
 export default defineComponent({
   name: "StaticOscillatingLines",
   props: {
@@ -25,11 +41,15 @@ export default defineComponent({
     amplitude: { type: Number, default: 200 },
     pointsPerLine: { type: Number, default: 6 },
     lineWidth: { type: Number, default: 75 },
+    isSuccess: { type: Boolean, default: false },
+    isError: { type: Boolean, default: false },
+    isChecking: { type: Boolean, default: true },
   },
   setup(props) {
     const canvas = ref<HTMLCanvasElement | null>(null);
     const ctx = ref<CanvasRenderingContext2D | null>(null);
     const lines = ref<Point[][]>([]);
+    const lineStates = ref<LineState[]>([]);
     const numLines = props.numLines;
     const pointsPerLine = props.pointsPerLine;
     const amplitude = props.amplitude;
@@ -37,10 +57,14 @@ export default defineComponent({
     const opacity = ref(0);
     const opacityIncrement = 0.03;
 
+    const errorSurvivorCount = 3;
+
     const mouse = ref({ x: -1000, y: -1000 });
     const mouseRadius = 650;
     const mouseStrength = 500;
     const smoothing = 0.04;
+    const stateEase = 0.025;
+    const colorEase = 0.04;
 
     const handleMouseMove = (e: MouseEvent) => {
       mouse.value.x = e.clientX;
@@ -62,6 +86,91 @@ export default defineComponent({
       const force = (1 - distance / mouseRadius) * mouseStrength;
       return dy > 0 ? -force : force;
     };
+
+    const initLineStates = () => {
+      lineStates.value = [];
+      for (let i = 0; i < numLines; i++) {
+        lineStates.value.push({
+          yOffset: 0,
+          targetYOffset: 0,
+          opacity: 1,
+          targetOpacity: 1,
+          r: 11,
+          g: 11,
+          b: 11,
+          targetR: 11,
+          targetG: 11,
+          targetB: 11,
+          widthScale: 1,
+          targetWidthScale: 1,
+          survivor: false,
+        });
+      }
+    };
+
+    const disperseAll = () => {
+      const h = canvas.value?.height || window.innerHeight;
+      lineStates.value.forEach((s, i) => {
+        const direction = i < numLines / 2 ? -1 : 1;
+        s.targetYOffset = direction * h;
+        s.targetOpacity = 0;
+        s.survivor = false;
+      });
+    };
+
+    const disperseWithSurvivors = () => {
+      const h = canvas.value?.height || window.innerHeight;
+      const centerIndex = Math.floor(numLines / 2);
+      const survivorStart = Math.max(0, centerIndex - Math.floor(errorSurvivorCount / 2));
+
+      lineStates.value.forEach((s, i) => {
+        if (i >= survivorStart && i < survivorStart + errorSurvivorCount) {
+          s.survivor = true;
+          s.targetYOffset = 0;
+          s.targetOpacity = 1;
+          s.targetR = 185;
+          s.targetG = 28;
+          s.targetB = 28;
+          s.targetWidthScale = 2.5;
+        } else {
+          s.survivor = false;
+          const direction = i < centerIndex ? -1 : 1;
+          s.targetYOffset = direction * h;
+          s.targetOpacity = 0;
+        }
+      });
+    };
+
+    const resetLines = () => {
+      lineStates.value.forEach((s) => {
+        s.targetYOffset = 0;
+        s.targetOpacity = 1;
+        s.targetR = 11;
+        s.targetG = 11;
+        s.targetB = 11;
+        s.targetWidthScale = 1;
+        s.survivor = false;
+      });
+    };
+
+    watch(
+      () => props.isSuccess,
+      (val) => {
+        if (val) disperseAll();
+      },
+    );
+    watch(
+      () => props.isError,
+      (val) => {
+        if (val) disperseWithSurvivors();
+      },
+    );
+    watch(
+      () => props.isChecking,
+      (val) => {
+        if (val) resetLines();
+      },
+    );
 
     const updateCanvasSize = () => {
       if (canvas.value) {
@@ -93,11 +202,11 @@ export default defineComponent({
       return { x, y };
     };
 
-    const drawLine = (points: Point[]) => {
+    const drawLine = (points: Point[], state: LineState) => {
       if (!ctx.value || points.length < 2) return;
 
       ctx.value.beginPath();
-      ctx.value.moveTo(points[0].x, points[0].currentY);
+      ctx.value.moveTo(points[0].x, points[0].currentY + state.yOffset);
 
       const resolution = 20;
 
@@ -110,14 +219,15 @@ export default defineComponent({
         for (let j = 1; j <= resolution; j++) {
           const t = j / resolution;
           const point = catmullRomSpline(p0, p1, p2, p3, t);
-          ctx.value.lineTo(point.x, point.y);
+          ctx.value.lineTo(point.x, point.y + state.yOffset);
         }
       }
 
-      ctx.value.lineWidth = props.lineWidth;
+      ctx.value.lineWidth = props.lineWidth * state.widthScale;
       ctx.value.lineCap = "round";
       ctx.value.lineJoin = "round";
-      ctx.value.strokeStyle = `rgba(11, 11, 11, ${opacity.value})`;
+      const finalOpacity = Math.min(opacity.value, 0.3) * state.opacity;
+      ctx.value.strokeStyle = `rgba(${Math.round(state.r)}, ${Math.round(state.g)}, ${Math.round(state.b)}, ${finalOpacity})`;
       ctx.value.stroke();
     };
 
@@ -129,7 +239,19 @@ export default defineComponent({
           opacity.value += opacityIncrement;
         }
 
-        for (const line of lines.value) {
+        for (let i = 0; i < lines.value.length; i++) {
+          const line = lines.value[i];
+          const state = lineStates.value[i];
+
+          if (state) {
+            state.yOffset += (state.targetYOffset - state.yOffset) * stateEase;
+            state.opacity += (state.targetOpacity - state.opacity) * stateEase;
+            state.r += (state.targetR - state.r) * colorEase;
+            state.g += (state.targetG - state.g) * colorEase;
+            state.b += (state.targetB - state.b) * colorEase;
+            state.widthScale += (state.targetWidthScale - state.widthScale) * stateEase;
+          }
+
           for (const point of line) {
             point.phase += speed;
             const baseY = point.yBase + amplitude * Math.sin(point.phase);
@@ -137,7 +259,8 @@ export default defineComponent({
             point.targetY = baseY + mouseEffect;
             point.currentY += (point.targetY - point.currentY) * smoothing;
           }
-          drawLine(line);
+
+          drawLine(line, state || { yOffset: 0, opacity: 1, r: 11, g: 11, b: 11, targetYOffset: 0, targetOpacity: 1, targetR: 11, targetG: 11, targetB: 11, survivor: false });
         }
 
         requestAnimationFrame(animate);
@@ -148,6 +271,7 @@ export default defineComponent({
       if (canvas.value) {
         ctx.value = canvas.value.getContext("2d");
         updateCanvasSize();
+        initLineStates();
 
         for (let i = 0; i < numLines; i++) {
           const yBase = (canvas.value.height / (numLines + 1)) * (i + 1);

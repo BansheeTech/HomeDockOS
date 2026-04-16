@@ -184,10 +184,23 @@
             <div v-if="!isAdvancedMode" key="simple" class="space-y-4 pb-4">
               <!-- Screenshots -->
               <div v-if="screenshots.length > 0">
-                <div ref="screenshotsContainer" class="flex gap-3 overflow-x-auto scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
+                <div ref="screenshotsContainer" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
                   <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
-                    <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[200px] h-[125px] md:w-[240px] md:h-[150px] lg:w-[300px] lg:h-[188px] xl:w-[340px] xl:h-[213px] rounded-xl overflow-hidden border-2 border-transparent transition-all duration-200 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]">
-                      <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none" />
+                    <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[240px] md:w-[300px] lg:w-[360px] xl:w-[400px] rounded-xl overflow-hidden shadow-md border transition-all duration-300 group/ss">
+                      <div :class="[themeClasses.screenshotWindowBar]" class="h-7 flex items-center px-3 border-b">
+                        <div class="relative w-full">
+                          <div class="absolute left-0 top-1/2 -translate-y-1/2 flex gap-1.5">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                          </div>
+                          <span :class="[themeClasses.screenshotWindowTitle]" class="block text-[10px] text-center transition-opacity duration-300 group-hover/ss:opacity-0">HomeDock OS</span>
+                          <span :class="[themeClasses.screenshotWindowTitleHover]" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] pointer-events-none select-none opacity-0 transition-opacity duration-300 group-hover/ss:opacity-100">{{ app?.display_name || app?.name }}</span>
+                        </div>
+                      </div>
+                      <div :class="[themeClasses.screenshotImageBg]" class="aspect-video">
+                        <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none transition duration-300 hover:saturate-150" />
+                      </div>
                     </button>
                   </template>
                 </div>

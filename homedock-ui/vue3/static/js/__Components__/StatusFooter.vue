@@ -22,7 +22,7 @@
               <div v-if="isSuccess" class="absolute inset-1 animate-ping">
                 <div class="w-full h-full bg-green-400 rounded-2xl opacity-75"></div>
               </div>
-              <BaseImage draggable="false" class="relative w-[3.25rem] h-[3.25rem] rounded-xl object-cover shadow-lg" :src="`docker-icons/${appSlug}.jpg`" :alt="`${appSlug} icon`" @error="appIconLoaded = false" />
+              <BaseImage draggable="false" class="relative w-[3.25rem] h-[3.25rem] rounded-xl object-cover shadow-lg" :src="footerIconSrc" :alt="`${appSlug} icon`" />
             </div>
           </Transition>
         </div>
@@ -57,6 +57,7 @@ const { themeClasses } = useTheme();
 
 const appIconLoaded = ref(false);
 const showIcons = ref(false);
+const footerIconSrc = ref("");
 
 const props = defineProps({
   isSuccess: {
@@ -89,7 +90,7 @@ watch(
   () => props.appSlug,
   () => {
     appIconLoaded.value = false;
-  }
+  },
 );
 
 onMounted(() => {
@@ -98,22 +99,34 @@ onMounted(() => {
   }, 50);
 
   if (props.appSlug) {
-    const img = new Image();
-    img.onload = () => {
-      appIconLoaded.value = true;
-    };
-    img.onerror = () => {
-      appIconLoaded.value = false;
-    };
-    img.src = `/images/docker-icons/${props.appSlug}.jpg`;
+    resolveIcon(props.appSlug);
   }
 });
+
+const resolveIcon = async (slug: string) => {
+  const extensions = [".jpg", ".jpeg", ".png"];
+  const prefixes = ["docker-icons/", "user-images/"];
+
+  for (const prefix of prefixes) {
+    for (const ext of extensions) {
+      const path = `${prefix}${slug}${ext}`;
+      try {
+        const res = await fetch(`/images/${path}`, { method: "HEAD" });
+        if (res.ok) {
+          footerIconSrc.value = path;
+          appIconLoaded.value = true;
+          return;
+        }
+      } catch {}
+    }
+  }
+};
 
 watch(
   () => props.isError,
   (newError) => {
     showIcons.value = !newError;
-  }
+  },
 );
 
 const statusIndicatorColor = computed(() => {
@@ -140,7 +153,9 @@ const statusIndicatorColor = computed(() => {
 /* Logo Failed Load Dissappear Animation */
 .fade-bounce-enter-active,
 .fade-bounce-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
 }
 .fade-bounce-enter-from,
 .fade-bounce-leave-to {

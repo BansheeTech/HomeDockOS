@@ -174,13 +174,6 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])
 
-    from pymodules.hd_UIUtilsNotepad import notepad_list_notes, notepad_get_note, notepad_save_note, notepad_delete_note
-
-    homedock_www.add_url_rule("/api/utils/notepad/list", "notepad_list_notes", CSRF_Protect(notepad_list_notes), methods=["GET"])
-    homedock_www.add_url_rule("/api/utils/notepad/get", "notepad_get_note", CSRF_Protect(notepad_get_note), methods=["GET"])
-    homedock_www.add_url_rule("/api/utils/notepad/save", "notepad_save_note", CSRF_Protect(notepad_save_note), methods=["POST"])
-    homedock_www.add_url_rule("/api/utils/notepad/delete", "notepad_delete_note", CSRF_Protect(notepad_delete_note), methods=["POST"])
-
     from pymodules.hd_UIStorage import list_files as storage_list_files, upload_file as storage_upload_file, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files
 
     homedock_www.add_url_rule("/api/storage/files", "storage_list_files", CSRF_Protect(storage_list_files), methods=["GET"])

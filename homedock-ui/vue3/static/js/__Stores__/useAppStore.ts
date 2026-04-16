@@ -30,28 +30,23 @@ export const useAppStore = defineStore("AppStore", {
   }),
   actions: {
     async loadApps(csrfToken: string) {
-      this.apps = AppStoreDefault;
-
       try {
-        const externalResponse = await axios.get("/api/pkg/external-apps", {
-          headers: {
-            "X-HomeDock-CSRF-Token": csrfToken,
-          },
-        });
+        let allApps: App[] = [...AppStoreDefault];
 
-        if (externalResponse.status === 200) {
+        const [externalResponse, fetchedContainers] = await Promise.all([axios.get("/api/pkg/external-apps", { headers: { "X-HomeDock-CSRF-Token": csrfToken } }).catch(() => null), fetchContainers(csrfToken)]);
+
+        if (externalResponse && externalResponse.status === 200) {
           const externalData = externalResponse.data;
           if (externalData.success && externalData.apps.length > 0) {
-            const existingNames = new Set(this.apps.map((a) => a.name));
+            const existingNames = new Set(allApps.map((a) => a.name));
             const uniqueExternal = externalData.apps.filter((a: { name: string }) => !existingNames.has(a.name));
-            this.apps = [...this.apps, ...uniqueExternal];
+            allApps = [...allApps, ...uniqueExternal];
           }
         }
 
-        const fetchedContainers = await fetchContainers(csrfToken);
         const installedAppNames = fetchedContainers.map((app: { name: string }) => app.name);
 
-        this.apps = this.apps.map((app) => {
+        this.apps = allApps.map((app) => {
           const isStillNew = typeof app.new_until === "string" && new Date(app.new_until) >= new Date();
 
           return {
@@ -65,6 +60,7 @@ export const useAppStore = defineStore("AppStore", {
         await this.initalInstallationPolling(csrfToken);
       } catch (error) {
         console.error("Error loading apps:", error);
+        this.apps = AppStoreDefault;
       }
     },
     async initalInstallationPolling(csrfToken: string) {

@@ -40,6 +40,7 @@
                 <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
               </div>
             </Transition>
+            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !app.isProcessing" />
             <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder, app.status === 'running' && 'status-pulse']"></div>
           </div>
           <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ app.display_name || app.name }}</span>
@@ -99,6 +100,7 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { fetchContainers, startContainerPolling, stopContainerPolling } from "../__Services__/DockerAPIFetchContainerData";
 
 import BaseImage from "../__Components__/BaseImage.vue";
+import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
@@ -536,6 +538,14 @@ function handleSystemIconTouchEnd(e: TouchEvent) {
   window.removeEventListener("touchmove", handleSystemIconTouchMove);
   window.removeEventListener("touchend", handleSystemIconTouchEnd);
   draggedSystemIcon.value = null;
+}
+
+function isPortScanning(app: DockerApp): boolean {
+  if (!app.ports || app.ports.length === 0) return false;
+  if (app.ports.includes("disabled")) return true;
+  if (app.ports.includes("hostmode")) return false;
+  const unique = new Set(app.ports);
+  return unique.size !== app.ports.length;
 }
 
 function getContainerClasses(app: DockerApp): string {
@@ -1425,7 +1435,7 @@ watch(
     if (filteredApps.length === 0) {
       desktopStore.loadDockerApps([]);
     }
-  }
+  },
 );
 
 watch(
@@ -1434,7 +1444,7 @@ watch(
     if (count > 0) {
       initializeGridPositions();
     }
-  }
+  },
 );
 
 const externalDragMousePos = ref({ x: 0, y: 0 });
@@ -1492,7 +1502,7 @@ watch(
       document.removeEventListener("mousemove", handleExternalDragMove, true);
       document.removeEventListener("mouseup", handleExternalDragDrop, true);
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -1521,7 +1531,7 @@ watch(
   () => {
     calculateGridSettings();
     initializeGridPositions();
-  }
+  },
 );
 
 onUnmounted(() => {
@@ -1567,11 +1577,15 @@ onUnmounted(() => {
 }
 
 .corner-hint-fade-enter-active {
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+  transition:
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
 }
 
 .corner-hint-fade-leave-active {
-  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+  transition:
+    opacity 0.3s ease-in,
+    transform 0.3s ease-in;
 }
 
 .corner-hint-fade-enter-from {
@@ -1642,7 +1656,10 @@ onUnmounted(() => {
 }
 
 .icon-appear-move {
-  transition: left 0.4s ease, top 0.4s ease, transform 0.4s ease;
+  transition:
+    left 0.4s ease,
+    top 0.4s ease,
+    transform 0.4s ease;
 }
 
 /* Animations */

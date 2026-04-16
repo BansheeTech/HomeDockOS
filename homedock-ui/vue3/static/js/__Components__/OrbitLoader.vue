@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="fixed inset-0 flex items-center justify-center z-50">
+  <div class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
     <div class="relative flex items-center justify-center w-56 h-56">
       <canvas ref="canvas" class="absolute inset-0 w-full h-full pointer-events-none z-50"></canvas>
 

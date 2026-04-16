@@ -229,32 +229,29 @@ def get_docker_containers():
             sanitized_name = sanitize_container_name(container.name)
             image_path = "docker-icons/notfound.jpg"  # Default
 
-            app_store, external_apps = load_app_store_data()
+            for ext in [".jpg", ".jpeg", ".png"]:
+                os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{sanitized_name}{ext}")
+                if os.path.exists(os_image_path):
+                    image_path = f"docker-icons/{sanitized_name}{ext}"
+                    break
 
-            if sanitized_name in external_apps:
-                if isinstance(external_apps[sanitized_name], dict):
-                    image_path = external_apps[sanitized_name]["picture_path"]
-
-            elif "_" in sanitized_name:
+            if image_path == "docker-icons/notfound.jpg" and "_" in sanitized_name:
                 base_name = sanitized_name.split("_")[0]
-                if base_name in external_apps:
-                    if isinstance(external_apps[base_name], dict):
-                        image_path = external_apps[base_name]["picture_path"]
-
-            if image_path == "docker-icons/notfound.jpg":
                 for ext in [".jpg", ".jpeg", ".png"]:
-                    os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{sanitized_name}{ext}")
+                    os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{base_name}{ext}")
                     if os.path.exists(os_image_path):
-                        image_path = f"docker-icons/{sanitized_name}{ext}"
+                        image_path = f"docker-icons/{base_name}{ext}"
                         break
 
-                if image_path == "docker-icons/notfound.jpg" and "_" in sanitized_name:
+            if image_path == "docker-icons/notfound.jpg":
+                app_store, external_apps = load_app_store_data()
+
+                if sanitized_name in external_apps and isinstance(external_apps[sanitized_name], dict):
+                    image_path = external_apps[sanitized_name]["picture_path"]
+                elif "_" in sanitized_name:
                     base_name = sanitized_name.split("_")[0]
-                    for ext in [".jpg", ".jpeg", ".png"]:
-                        os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{base_name}{ext}")
-                        if os.path.exists(os_image_path):
-                            image_path = f"docker-icons/{base_name}{ext}"
-                            break
+                    if base_name in external_apps and isinstance(external_apps[base_name], dict):
+                        image_path = external_apps[base_name]["picture_path"]
 
             host_display = request.host.split(":")[0]
             if host_display.startswith("www."):

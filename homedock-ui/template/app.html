@@ -24,7 +24,7 @@
     </script>
 
     <script id="data-port" type="application/json">
-      {{ { "selected_port": port, "selected_path": subpath, "selected_app_slug": app_slug } | b64encode }}
+      {{ { "selected_port": port, "selected_path": subpath, "selected_app_slug": app_slug, "selected_app_display_name": app_display_name } | b64encode }}
     </script>
 
     {{ vitejs("__app__") | safe }}
