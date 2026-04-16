@@ -10,24 +10,34 @@
 <script lang="ts" setup>
 import { inject, computed, ref, watch } from "vue";
 
+const HASH_STORAGE_KEY = "wallpaperHash";
+
 const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
 
 const isVisible = computed(() => themeData?.selectedTheme === "aeroplus");
-const wallpaperHash = ref("");
+const wallpaperHash = ref(localStorage.getItem(HASH_STORAGE_KEY) || "");
+
+function djb2(bytes: Uint8Array): string {
+  let h = 5381;
+  for (let i = 0; i < bytes.length; i++) h = ((h * 33) ^ bytes[i]) >>> 0;
+  return h.toString(16);
+}
 
 watch(
   () => themeData?.selectedBack,
   async (back) => {
     if (!back?.startsWith("_back_custom")) {
       wallpaperHash.value = "";
+      localStorage.removeItem(HASH_STORAGE_KEY);
       return;
     }
     const res = await fetch(`/images/user-wallpaper/${back}`);
     if (!res.ok) return;
-    const bytes = new Uint8Array(await res.arrayBuffer());
-    let h = 5381;
-    for (let i = 0; i < bytes.length; i++) h = ((h * 33) ^ bytes[i]) >>> 0;
-    wallpaperHash.value = h.toString(16);
+    const newHash = djb2(new Uint8Array(await res.arrayBuffer()));
+    if (newHash !== wallpaperHash.value) {
+      wallpaperHash.value = newHash;
+      localStorage.setItem(HASH_STORAGE_KEY, newHash);
+    }
   },
   { immediate: true },
 );
