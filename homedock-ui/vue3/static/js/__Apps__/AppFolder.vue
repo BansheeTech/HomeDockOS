@@ -31,6 +31,7 @@
                 <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
               </div>
             </Transition>
+            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !app.isProcessing" />
             <div :class="['status-badge', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder, { 'status-pulse': app.status === 'running' }]"></div>
           </div>
           <span class="app-name" :class="[themeClasses.desktopIconText]">{{ app.display_name || app.name }}</span>
@@ -78,6 +79,7 @@ import SelectionBox from "../__Components__/SelectionBox.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
 
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer, uninstallContainer, updateContainer } from "../__Services__/DockerActions";
 
@@ -300,6 +302,14 @@ function getIconStyle(index: number): Record<string, string> {
 function calculateMaxCols() {
   const containerWidth = containerRef.value?.clientWidth || window.innerWidth;
   maxCols.value = Math.max(1, Math.floor((containerWidth - ICON_PADDING.value * 2) / GRID_SIZE_X.value));
+}
+
+function isPortScanning(app: DockerApp): boolean {
+  if (!app.ports || app.ports.length === 0) return false;
+  if (app.ports.includes("disabled")) return true;
+  if (app.ports.includes("hostmode")) return false;
+  const unique = new Set(app.ports);
+  return unique.size !== app.ports.length;
 }
 
 function getContainerClasses(app: DockerApp): string {

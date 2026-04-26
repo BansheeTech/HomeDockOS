@@ -8,26 +8,28 @@ import { ref, computed } from "vue";
 import axios from "axios";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
-export type FileExplorerLocation = "storage" | "dropzone" | "appdrive" | "favorites" | "recents" | "systemapps" | "utilities";
+export type FileExplorerLocation = "storage" | "dropzone" | "appdrive" | "disksplus" | "favorites" | "recents" | "systemapps" | "utilities";
 
 export interface FavoriteItem {
-  location: "storage" | "dropzone" | "appdrive";
+  location: "storage" | "dropzone" | "appdrive" | "disksplus";
   path: string;
   name: string;
   is_directory: boolean;
   added_at: number;
   container?: string;
   mount_index?: number;
+  disk?: string;
 }
 
 export interface RecentItem {
-  location: "storage" | "dropzone" | "appdrive";
+  location: "storage" | "dropzone" | "appdrive" | "disksplus";
   path: string;
   name: string;
   is_directory: boolean;
   accessed_at: number;
   container?: string;
   mount_index?: number;
+  disk?: string;
 }
 
 export const useFileExplorerStore = defineStore("FileExplorerStore", () => {
@@ -147,7 +149,7 @@ export const useFileExplorerStore = defineStore("FileExplorerStore", () => {
         {},
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
       recents.value = [];
       lastRecentsUpdate.value = Date.now();

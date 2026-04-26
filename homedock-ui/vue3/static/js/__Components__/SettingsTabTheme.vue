@@ -75,6 +75,8 @@ import { ref, watch, inject, onMounted, nextTick } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
+import type { ThemeData } from "../__Types__/ThemeData";
+
 import { RadioGroup, RadioButton, Upload, message } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
@@ -91,7 +93,7 @@ const UploadDragger = Upload.Dragger;
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 
-const updateTheme = inject<(newTheme: { selectedTheme?: string; selectedBack?: string }) => void>("update-theme");
+const updateTheme = inject<(newTheme: Partial<ThemeData>) => void>("update-theme");
 
 const props = defineProps({
   modelValue: {
@@ -102,19 +104,19 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "wallpaper-pending"]);
 
-const themeValue = ref<string>(props.modelValue.selectedTheme || "default");
-const wallValue = ref<string>(props.modelValue.selectedBack || "back1.jpg");
+const themeValue = ref<string>(props.modelValue.selected_theme || "default");
+const wallValue = ref<string>(props.modelValue.selected_back || "back1.jpg");
 
 watch(
   () => ({
-    selectedTheme: themeValue.value,
-    selectedBack: wallValue.value,
+    selected_theme: themeValue.value,
+    selected_back: wallValue.value,
   }),
   (newValue) => {
     if (updateTheme) {
       updateTheme({
-        selectedTheme: newValue.selectedTheme,
-        selectedBack: newValue.selectedBack,
+        selected_theme: newValue.selected_theme,
+        selected_back: newValue.selected_back,
       });
     }
 

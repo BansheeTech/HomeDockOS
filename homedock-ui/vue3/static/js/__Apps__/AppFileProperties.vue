@@ -60,6 +60,14 @@
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Container</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ containerName }}</span>
                   </div>
+                  <div v-if="diskLabel" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Disk</span>
+                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ diskLabel }}</span>
+                  </div>
+                  <div v-if="diskMountpoint" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Mountpoint</span>
+                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ diskMountpoint }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -213,6 +221,8 @@ interface Props {
   location?: string;
   path?: string;
   container?: string;
+  diskLabel?: string;
+  diskMountpoint?: string;
 }
 
 const props = defineProps<Props>();
@@ -224,7 +234,9 @@ const activeTab = ref("general");
 const fileData = computed(() => props.file || null);
 const location = computed(() => props.location || "storage");
 const filePath = computed(() => props.path || "");
-const containerName = computed(() => props.container || "");
+const containerName = computed(() => (location.value === "appdrive" ? props.container || "" : ""));
+const diskLabel = computed(() => (location.value === "disksplus" ? props.diskLabel || "" : ""));
+const diskMountpoint = computed(() => (location.value === "disksplus" ? props.diskMountpoint || "" : ""));
 
 const displayName = computed(() => {
   if (!fileData.value) return "";
@@ -338,6 +350,7 @@ const locationLabel = computed(() => {
     storage: "Storage",
     dropzone: "Drop Zone (Encrypted)",
     appdrive: "App Drive",
+    disksplus: "Disks+",
     favorites: "Favorites",
     recents: "Recents",
     systemapps: "System Apps",

@@ -18,6 +18,7 @@ from pymodules.hd_FunctionsGlobals import (
     user_packages_available_folder,
     user_packages_wallpaper_folder,
     user_packages_install_folder,
+    user_packages_calendar_folder,
 )
 
 
@@ -29,6 +30,7 @@ def init_all_directories():
     os.makedirs(user_packages_available_folder, exist_ok=True)
     os.makedirs(user_packages_wallpaper_folder, exist_ok=True)
     os.makedirs(user_packages_install_folder, exist_ok=True)
+    os.makedirs(user_packages_calendar_folder, exist_ok=True)
 
     os.makedirs(user_storage_folder, exist_ok=True)
     os.makedirs(dropzone_folder, exist_ok=True)
@@ -39,7 +41,7 @@ def init_all_directories():
     migrate_dropzone_data()
 
 
-DEFAULT_USER_STORAGE_FOLDERS = ["Notes", "Documents", "Photos", "Videos", "Music", "Downloads"]
+DEFAULT_USER_STORAGE_FOLDERS = ["Notes", "Documents", "Photos", "Videos", "Music", "Downloads", "Sources"]
 
 
 def init_user_storage(user_dir: str):

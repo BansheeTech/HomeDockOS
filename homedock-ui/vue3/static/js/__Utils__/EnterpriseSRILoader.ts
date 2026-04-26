@@ -24,8 +24,8 @@ import type { NotificationInstance } from "ant-design-vue/es/notification";
 type AntdComponents = {
   message: MessageInstance;
   notification: NotificationInstance;
-  Button: typeof import("ant-design-vue/es/button")["default"];
-  Switch: typeof import("ant-design-vue/es/switch")["default"];
+  Button: (typeof import("ant-design-vue/es/button"))["default"];
+  Switch: (typeof import("ant-design-vue/es/switch"))["default"];
 };
 
 let antdComponents: AntdComponents | null = null;
@@ -62,8 +62,8 @@ export interface EnterpriseDeps {
   antd: AntdComponents;
   app: {
     csrfToken: { value: string };
-    theme: { selectedTheme: string; selectedBack: string };
-    updateTheme: (theme: { selectedTheme?: string; selectedBack?: string }) => void;
+    theme: { selected_theme: string; selected_back: string };
+    updateTheme: (theme: { selected_theme?: string; selected_back?: string }) => void;
     getThemeClasses: () => Record<string, string>;
   };
 }
@@ -101,8 +101,8 @@ interface EnterpriseModuleEntry {
 
 interface AppContext {
   csrfToken: { value: string };
-  theme: { selectedTheme: string; selectedBack: string };
-  updateTheme: (theme: { selectedTheme?: string; selectedBack?: string }) => void;
+  theme: { selected_theme: string; selected_back: string };
+  updateTheme: (theme: { selected_theme?: string; selected_back?: string }) => void;
 }
 
 const loadedScripts = new Set<string>();
@@ -292,7 +292,7 @@ async function buildDeps(): Promise<EnterpriseDeps> {
       csrfToken: appContext.csrfToken,
       theme: appContext.theme,
       updateTheme: appContext.updateTheme,
-      getThemeClasses: () => getThemeClasses(appContext!.theme.selectedTheme),
+      getThemeClasses: () => getThemeClasses(appContext!.theme.selected_theme),
     },
   };
 }

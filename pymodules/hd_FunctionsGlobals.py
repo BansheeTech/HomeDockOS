@@ -11,7 +11,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "2.1.2.114"
+version = "2.1.4.682"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()
@@ -28,6 +28,7 @@ user_packages_available_folder = os.path.join(user_packages_folder, "_available"
 user_packages_wallpaper_folder = os.path.join(user_packages_folder, "_user_wallpaper")
 user_packages_install_folder = os.path.join(user_packages_folder, "_install")
 
+user_packages_calendar_folder = os.path.join(user_packages_folder, "_calendar")
 user_storage_folder = os.path.join(user_packages_folder, "_storage")
 dropzone_folder = os.path.join(user_storage_folder, "_dropzone")
 storage_folder = os.path.join(user_storage_folder, "_storage")

@@ -358,7 +358,9 @@ import LogoIcon from "../__Components__/LogoIcon.vue";
 import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 import EnterpriseSlotReplacer from "../__Components__/EnterpriseSlotReplacer.vue";
 
-const commonData = inject<{ version: string }>("data-common");
+import type { CommonData } from "../__Types__/CommonData";
+
+const commonData = inject<CommonData | null>("data-common", null);
 
 if (!commonData) {
   throw new Error("Common data is missing!");

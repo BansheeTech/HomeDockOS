@@ -53,7 +53,9 @@ def validate_safe_path(base_dir, user_provided_path):
     requested_path = os.path.join(base_dir, user_provided_path)
     requested_path = os.path.realpath(os.path.abspath(requested_path))
 
-    if requested_path != base_dir and not requested_path.startswith(base_dir + os.sep):
+    base_prefix = base_dir if base_dir.endswith(os.sep) else base_dir + os.sep
+
+    if requested_path != base_dir and not requested_path.startswith(base_prefix):
         raise ValueError("Nope! Nope! Nopety nope nope! (path escape not allowed)")
 
     try:
@@ -109,7 +111,9 @@ def validate_no_symlinks(path, base_dir):
 
     base_dir_real = os.path.realpath(base_dir)
 
-    if real_path != base_dir_real and not real_path.startswith(base_dir_real + os.sep):
+    base_prefix = base_dir_real if base_dir_real.endswith(os.sep) else base_dir_real + os.sep
+
+    if real_path != base_dir_real and not real_path.startswith(base_prefix):
         raise ValueError("Path points outside allowed directory")
 
     current = path

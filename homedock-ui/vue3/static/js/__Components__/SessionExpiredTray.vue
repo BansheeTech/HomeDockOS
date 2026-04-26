@@ -159,7 +159,7 @@ watch(
     if (newTrayId !== TRAY_ID && isExpanded.value) {
       isExpanded.value = false;
     }
-  }
+  },
 );
 
 function redirectToLogin() {
@@ -220,6 +220,13 @@ onMounted(() => {
         }
 
         if (status === 401) {
+          try {
+            const requestUrl = (error.config?.url as string) || "";
+            if (requestUrl.indexOf("/api/disksplus/") !== -1) {
+              return Promise.reject(error);
+            }
+          } catch {}
+
           if (!sessionExpired.value) {
             sessionExpired.value = true;
             expiredTime.value = new Date();
@@ -290,7 +297,7 @@ onMounted(() => {
         }
       } catch {}
       return Promise.reject(error);
-    }
+    },
   );
 
   document.addEventListener("click", handleClickOutside);

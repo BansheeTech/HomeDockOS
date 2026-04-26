@@ -12,6 +12,11 @@ const UtilsNotepad = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const UtilsCode = defineAsyncComponent({
+  loader: () => import("../__Apps__/UtilsCode.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 const UtilsCalculator = defineAsyncComponent({
   loader: () => import("../__Apps__/UtilsCalculator.vue"),
   loadingComponent: WindowLoading,
@@ -37,13 +42,20 @@ const UtilsMediaPlayer = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const UtilsCalendar = defineAsyncComponent({
+  loader: () => import("../__Apps__/UtilsCalendar.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 
 import fileDocumentOutlineIcon from "@iconify-icons/mdi/file-document-outline";
+import codeTagsIcon from "@iconify-icons/mdi/code-tags";
 import calculatorIcon from "@iconify-icons/mdi/calculator";
 import imageOutlineIcon from "@iconify-icons/mdi/image-outline";
 import filePdfBoxIcon from "@iconify-icons/mdi/file-pdf-box";
 import brushIcon from "@iconify-icons/mdi/brush";
 import movieOutlineIcon from "@iconify-icons/mdi/movie-outline";
+import calendarMonthIcon from "@iconify-icons/mdi/calendar-month";
 
 export const UTILITIES_APPS: SystemApp[] = [
   {
@@ -52,6 +64,25 @@ export const UTILITIES_APPS: SystemApp[] = [
     description: "Create and edit text files",
     icon: fileDocumentOutlineIcon,
     component: UtilsNotepad,
+    defaultWidth: 800,
+    defaultHeight: 600,
+    minWidth: 400,
+    minHeight: 350,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "utilities",
+    showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
+  },
+  {
+    id: "code",
+    name: "Code",
+    description: "Code editor with syntax highlighting",
+    icon: codeTagsIcon,
+    component: UtilsCode,
     defaultWidth: 800,
     defaultHeight: 600,
     minWidth: 400,
@@ -147,6 +178,25 @@ export const UTILITIES_APPS: SystemApp[] = [
     description: "Play video and audio files",
     icon: movieOutlineIcon,
     component: UtilsMediaPlayer,
+    defaultWidth: 800,
+    defaultHeight: 600,
+    minWidth: 400,
+    minHeight: 600,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "utilities",
+    showInStartMenu: false,
+    showInExplorerApp: false,
+    showInMyHomeApp: false,
+  },
+  {
+    id: "calendar",
+    name: "Calendar",
+    description: "Calendar and world clock",
+    icon: calendarMonthIcon,
+    component: UtilsCalendar,
     defaultWidth: 800,
     defaultHeight: 600,
     minWidth: 400,

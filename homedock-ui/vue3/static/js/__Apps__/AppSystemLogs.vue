@@ -36,12 +36,12 @@
         </div>
 
         <div>
-          <SectionHeader title="System Disk Usage" description="In-depth System Disk insights" :icon="microSdIcon" />
+          <SectionHeader :title="systemDiskChartTitle" description="In-depth System Disk insights" :icon="microSdIcon" />
           <ChartDetails apiEndpoint="/api/system-logs/serve_disk_usage" :csrfToken="csrfToken" :streamLines="1" :streamData="['avg']" :streamStyle="['solid']" leftLegend="%" :streamFill="[1]" />
         </div>
 
         <div v-if="!externalDiskDisabled">
-          <SectionHeader title="External Disk Usage" description="In-depth external disk insights" :icon="hardDiskIcon" />
+          <SectionHeader :title="trackedDiskChartTitle" description="In-depth tracked external disk insights" :icon="hardDiskIcon" />
           <ChartDetails apiEndpoint="/api/system-logs/serve_external_disk_usage" :csrfToken="csrfToken" :streamData="['avg']" :streamStyle="['solid']" leftLegend="%" :streamFill="[1]" />
         </div>
       </div>
@@ -68,7 +68,7 @@
 import { computed } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 
 import SectionHeader from "../__Components__/SectionHeader.vue";
 import LoginAttempts from "../__Components__/LoginAttempts.vue";
@@ -87,24 +87,23 @@ import accountAlertIcon from "@iconify-icons/mdi/account-alert";
 import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
 
 const csrfToken = useCsrfToken();
-const systemStatsStore = useSystemStatsStore();
+const diskStore = useDisksPlusStore();
 
 const { themeClasses } = useTheme();
 
-const externalDiskDisabled = computed(() => {
-  const externalDisk = systemStatsStore.externalDefaultDisk;
-  const externalTotal = systemStatsStore.externalDiskTotal;
-
-  if (!externalDisk || externalDisk === "disabled") {
-    return true;
-  }
-
-  if (!externalTotal || externalTotal === "0") {
-    return true;
-  }
-
-  return false;
+const systemDiskChartTitle = computed(() => {
+  const label = diskStore.osDisk?.label?.trim();
+  if (label) return `${label} Usage`;
+  return "System Disk Usage";
 });
+
+const trackedDiskChartTitle = computed(() => {
+  const label = diskStore.trackedExternalDisk?.label?.trim();
+  if (label) return `${label} Usage`;
+  return "Tracked Disk Usage";
+});
+
+const externalDiskDisabled = computed(() => !diskStore.isTrackedExternalDiskActive);
 </script>
 
 <style scoped>

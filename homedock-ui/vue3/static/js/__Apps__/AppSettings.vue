@@ -27,7 +27,7 @@
               <SettingsTabSystem v-model="formData.system" />
             </div>
             <div v-else-if="activeKey === '3'" key="3" class="tab-content">
-              <SettingsTabStorage v-model="formData.storage" :validDrives="validDrives" />
+              <SettingsTabStorage v-model="formData.storage" />
             </div>
             <div v-else-if="activeKey === '4'" key="4" class="tab-content">
               <SettingsTabTheme ref="themeTabRef" v-model="formData.theme" />
@@ -96,27 +96,16 @@ import StatusBar from "../__Components__/StatusBar.vue";
 import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 
-const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
-const updateTheme = inject<(newTheme: { selectedTheme?: string; selectedBack?: string }) => void>("update-theme");
+import type { ThemeData } from "../__Types__/ThemeData";
+import type { SettingsData } from "../__Types__/SettingsData";
+
+const themeData = inject<ThemeData | null>("data-theme", null);
+const updateTheme = inject<(newTheme: Partial<ThemeData>) => void>("update-theme");
 const updateCsrfToken = inject<(newToken: string) => void>("update-csrf-token");
-const updateSettings = inject<(newSettings: any) => void>("update-settings");
-const settingsData = inject<{
-  userName: string;
-  runPort: number;
-  dynamicDNS: string;
-  localDNS: boolean;
-  runOnDev: boolean;
-  disableUsageData: boolean;
-  deleteImageOnUpdate: boolean;
-  deleteImageOnUninstall: boolean;
-  deleteInternalDataVolumes: boolean;
-  reverseProxy: boolean;
-  defaultExternalDrive: string;
-  validDrives: string[];
-}>("data-settings");
-const dashboardData = inject<any>("data-dashboard");
+const updateSettings = inject<(newSettings: Partial<SettingsData>) => void>("update-settings");
+const settingsData = inject<SettingsData | null>("data-settings", null);
 
 const csrfToken = useCsrfToken();
 
@@ -125,7 +114,7 @@ if (!settingsData) throw new Error("Settings data is missing!");
 
 const { themeClasses } = useTheme();
 const windowStore = useWindowStore();
-const systemStatsStore = useSystemStatsStore();
+const disksPlusStore = useDisksPlusStore();
 
 const activeKey = ref("1");
 const segmentedOptions = [
@@ -188,95 +177,89 @@ watch(activeKey, (val) => {
   });
 });
 
-const validDrives = computed(() => {
-  return settingsData?.validDrives || [];
-});
-
 const themeDisplayName = computed(() => {
   const themeMap: Record<string, string> = {
     default: "Default",
     noir: "Noir",
     aeroplus: "Aero+",
   };
-  return themeMap[formData.theme.selectedTheme || "default"] || "Default";
+  return themeMap[formData.theme.selected_theme || "default"] || "Default";
 });
 
 const isFormValid = computed(() => {
-  const userValid = !(!formData.user.username || !/^[a-zA-Z0-9]+$/.test(formData.user.username) || formData.user.username.length > 30 || (formData.user.changePassword && ((formData.user.password?.length ?? 0) < 6 || formData.user.password !== formData.user.confirmPassword)));
-  const systemValid = !isNaN(formData.system.runPort ?? 0) && (formData.system.runPort ?? 0) >= 80 && (formData.system.runPort ?? 0) <= 65535;
+  const userValid = !(!formData.user.user_name || !/^[a-zA-Z0-9]+$/.test(formData.user.user_name) || formData.user.user_name.length > 30 || (formData.user.change_password && ((formData.user.password?.length ?? 0) < 6 || formData.user.password !== formData.user.confirm_password)));
+  const systemValid = !isNaN(formData.system.run_port ?? 0) && (formData.system.run_port ?? 0) >= 80 && (formData.system.run_port ?? 0) <= 65535;
   return userValid && systemValid;
 });
 
-interface UserData {
-  username?: string;
-  changePassword?: boolean;
+interface UserFormData {
+  user_name?: string;
+  change_password?: boolean;
   password?: string;
-  confirmPassword?: string;
+  confirm_password?: string;
 }
 
-interface SystemData {
-  runPort?: number;
-  hostname?: string;
-  developmentMode?: boolean;
-  deleteOldImages?: boolean;
-  deleteOldImagesUninstall?: boolean;
-  deleteVolumesUninstall?: boolean;
-  localDNS?: boolean;
-  disableUsageData?: boolean;
-  reverseProxy?: boolean;
+interface SystemFormData {
+  run_port?: number;
+  dynamic_dns?: string;
+  run_on_development?: boolean;
+  delete_old_image_containers_after_update?: boolean;
+  delete_old_image_containers_after_uninstall?: boolean;
+  delete_internal_data_volumes?: boolean;
+  local_dns?: boolean;
+  disable_usage_data?: boolean;
+  reverse_proxy?: boolean;
 }
 
-interface StorageData {
-  externalDrive?: string;
-  validDrives?: string[];
-}
-
-interface ThemeData {
-  selectedTheme?: string;
-  selectedBack?: string;
+interface StorageFormData {
+  default_external_drive?: string;
+  require_protected_paths_password?: boolean;
+  disksplus_session_timeout_minutes?: number;
 }
 
 const originalTheme = {
-  selectedTheme: themeData!.selectedTheme,
-  selectedBack: themeData!.selectedBack,
+  selected_theme: themeData!.selected_theme,
+  selected_back: themeData!.selected_back,
 };
 
 const formData = reactive({
   user: {
-    username: settingsData.userName,
-    changePassword: false,
+    user_name: settingsData.user_name,
+    change_password: false,
     password: "",
-    confirmPassword: "",
-  } as UserData,
+    confirm_password: "",
+  } as UserFormData,
 
   system: {
-    runPort: settingsData.runPort,
-    hostname: settingsData.dynamicDNS,
-    developmentMode: settingsData.runOnDev,
-    disableUsageData: settingsData.disableUsageData,
-    deleteOldImages: settingsData.deleteImageOnUpdate,
-    deleteOldImagesUninstall: settingsData.deleteImageOnUninstall,
-    deleteVolumesUninstall: settingsData.deleteInternalDataVolumes,
-    localDNS: settingsData.localDNS,
-    reverseProxy: settingsData.reverseProxy,
-  } as SystemData,
+    run_port: settingsData.run_port,
+    dynamic_dns: settingsData.dynamic_dns,
+    run_on_development: settingsData.run_on_development,
+    disable_usage_data: settingsData.disable_usage_data,
+    delete_old_image_containers_after_update: settingsData.delete_old_image_containers_after_update,
+    delete_old_image_containers_after_uninstall: settingsData.delete_old_image_containers_after_uninstall,
+    delete_internal_data_volumes: settingsData.delete_internal_data_volumes,
+    local_dns: settingsData.local_dns,
+    reverse_proxy: settingsData.reverse_proxy,
+  } as SystemFormData,
 
   storage: {
-    externalDrive: settingsData.defaultExternalDrive,
-  } as StorageData,
+    default_external_drive: settingsData.default_external_drive,
+    require_protected_paths_password: settingsData.require_protected_paths_password,
+    disksplus_session_timeout_minutes: settingsData.disksplus_session_timeout_minutes,
+  } as StorageFormData,
 
   theme: {
-    selectedTheme: themeData.selectedTheme,
-    selectedBack: themeData.selectedBack,
-  } as ThemeData,
+    selected_theme: themeData.selected_theme,
+    selected_back: themeData.selected_back,
+  } as Partial<ThemeData>,
 });
 
 onBeforeUnmount(() => {
   tabObserver?.disconnect();
-  if (updateTheme && (formData.theme.selectedTheme !== originalTheme.selectedTheme || formData.theme.selectedBack !== originalTheme.selectedBack)) {
+  if (updateTheme && (formData.theme.selected_theme !== originalTheme.selected_theme || formData.theme.selected_back !== originalTheme.selected_back)) {
     updateTheme({
-      selectedTheme: originalTheme.selectedTheme,
-      selectedBack: originalTheme.selectedBack,
+      selected_theme: originalTheme.selected_theme,
+      selected_back: originalTheme.selected_back,
     });
   }
 });
@@ -301,7 +284,7 @@ const handleSubmit = async () => {
     }
   }
 
-  const usernameChanged = formData.user.username !== settingsData.userName;
+  const usernameChanged = formData.user.user_name !== settingsData.user_name;
 
   const encryptedPayload = await encryptForServer(
     {
@@ -338,26 +321,28 @@ const handleSubmit = async () => {
     } else {
       notifySuccess("Settings saved successfully!", "Your settings were securely encrypted before being saved to ensure their safety.", themeClasses.value.scopeSelector);
 
-      originalTheme.selectedTheme = formData.theme.selectedTheme || "";
-      originalTheme.selectedBack = formData.theme.selectedBack || "";
+      originalTheme.selected_theme = formData.theme.selected_theme || "";
+      originalTheme.selected_back = formData.theme.selected_back || "";
 
       if (updateSettings) {
         updateSettings({
-          userName: formData.user.username,
-          runPort: formData.system.runPort,
-          dynamicDNS: formData.system.hostname,
-          localDNS: formData.system.localDNS,
-          runOnDev: formData.system.developmentMode,
-          disableUsageData: formData.system.disableUsageData,
-          deleteImageOnUpdate: formData.system.deleteOldImages,
-          deleteImageOnUninstall: formData.system.deleteOldImagesUninstall,
-          deleteInternalDataVolumes: formData.system.deleteVolumesUninstall,
-          reverseProxy: formData.system.reverseProxy,
-          defaultExternalDrive: formData.storage.externalDrive,
+          user_name: formData.user.user_name,
+          run_port: formData.system.run_port,
+          dynamic_dns: formData.system.dynamic_dns,
+          local_dns: formData.system.local_dns,
+          run_on_development: formData.system.run_on_development,
+          disable_usage_data: formData.system.disable_usage_data,
+          delete_old_image_containers_after_update: formData.system.delete_old_image_containers_after_update,
+          delete_old_image_containers_after_uninstall: formData.system.delete_old_image_containers_after_uninstall,
+          delete_internal_data_volumes: formData.system.delete_internal_data_volumes,
+          reverse_proxy: formData.system.reverse_proxy,
+          default_external_drive: formData.storage.default_external_drive,
+          require_protected_paths_password: formData.storage.require_protected_paths_password,
+          disksplus_session_timeout_minutes: formData.storage.disksplus_session_timeout_minutes,
         });
       }
 
-      systemStatsStore.externalDefaultDisk = formData.storage.externalDrive || "disabled";
+      disksPlusStore.fetchStatus();
 
       savingLoading.value = false;
     }

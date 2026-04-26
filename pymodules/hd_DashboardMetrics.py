@@ -7,6 +7,7 @@ https://www.banshee.pro
 
 import os
 import time
+import json
 import psutil
 
 from datetime import datetime
@@ -21,10 +22,10 @@ from pymodules.hd_FunctionsMain import (
     get_server_uptime,
     get_configured_external_drives,
 )
-from pymodules.hd_ExternalDriveManager import get_external_drive_info
+from pymodules.hd_ExternalDriveManager import get_all_disks_summary, get_external_drive_info, get_os_root_mountpoint
 
 
-# ─── Cache ───────────────────────────────────────────────────────────────
+# __CACHE__
 
 _cache = {}
 
@@ -33,7 +34,7 @@ def get_cached(key, default=None):
     return _cache.get(key, default)
 
 
-# ─── Metric Collectors ───────────────────────────────────────────────────
+# __METRIC_COLLECTORS__
 
 _cpu_error_shown = False
 _common_sensors = ["coretemp", "cpu_thermal", "k10temp", "TC0P", "TC0H"]
@@ -76,8 +77,14 @@ def get_ram_usage():
 
 def get_disk_usage():
     try:
-        path = "/" if os.name == "posix" else "C:\\"
-        return round(psutil.disk_usage(path).percent, 2)
+        path = get_os_root_mountpoint()
+        usage = psutil.disk_usage(path)
+        total = int(usage.total)
+        free = int(usage.free)
+        used = max(int(usage.used), total - free)
+        if total <= 0:
+            return 0.0
+        return round((used / total) * 100, 2)
     except Exception as e:
         print("Error obtaining disk usage: ", e)
         return None
@@ -113,7 +120,7 @@ def get_upload_data(interface_name):
         return {"sent": None}
 
 
-# ─── Cache Threads ───────────────────────────────────────────────────────
+# __CACHE_THREADS__
 
 _interface_name = get_active_network_interface()
 
@@ -132,6 +139,25 @@ def _start_cache_thread(key, fn, interval):
 
 _cache["uptime_data"] = actual_uptime()
 
+_prev_disk_fingerprint = set()
+
+
+def _refresh_disks_summary():
+    global _prev_disk_fingerprint
+    try:
+        parts = psutil.disk_partitions(all=False)
+        fingerprint = frozenset((p.device, p.mountpoint) for p in parts)
+    except Exception:
+        return _cache.get("disks_summary", "[]")
+    if fingerprint != _prev_disk_fingerprint:
+        _prev_disk_fingerprint = fingerprint
+        try:
+            _cache["disks_summary"] = json.dumps(get_all_disks_summary())
+        except Exception:
+            pass
+    return _cache.get("disks_summary", "[]")
+
+
 _start_cache_thread("cpu_temp", get_cpu_temp, 2)
 _start_cache_thread("cpu_usage", get_cpu_usage, 2)
 _start_cache_thread("ram_usage", get_ram_usage, 3)
@@ -143,9 +169,10 @@ _start_cache_thread("total_containers", get_total_containers, 3)
 _start_cache_thread("active_containers", get_active_containers, 3)
 _start_cache_thread("uptime_data", actual_uptime, 5)
 _start_cache_thread("homedock_uptime", get_server_uptime, 5)
+_start_cache_thread("disks_summary", _refresh_disks_summary, 5)
 
 
-# ─── Log Sampling ────────────────────────────────────────────────────────
+# __LOG_SAMPLING__
 
 HOURS_TO_KEEP = 48
 VALUES_PER_HOUR = 12

@@ -6,78 +6,93 @@ https://www.banshee.pro
 """
 
 import os
-import psutil
+
+from pymodules.hd_FunctionsDiskEnum import enumerate_disks, find_disk_by_device
 from pymodules.hd_FunctionsGlobals import running_OS
 
 
-def get_valid_external_drives():
-    valid_drives = []
-
+def _gb(bytes_value):
     try:
-        partitions = psutil.disk_partitions()
+        return round(bytes_value / (1024**3), 2)
+    except Exception:
+        return 0
 
-        for partition in partitions:
-            device = partition.device
-            mountpoint = partition.mountpoint
 
-            if running_OS == "Linux":
-                if "sd" in device:
-                    if mountpoint and os.path.exists(mountpoint):
-                        valid_drives.append(device)
+def get_os_root_mountpoint():
+    if os.name == "posix":
+        if running_OS == "Darwin" and os.path.isdir("/System/Volumes/Data"):
+            return "/System/Volumes/Data"
+        return "/"
+    return "C:\\"
 
-            elif running_OS == "Darwin":
-                if device.startswith("/dev/disk") and not device.startswith("/dev/disk0") and not device.startswith("/dev/disk1"):
-                    if mountpoint and mountpoint.startswith("/Volumes/"):
-                        valid_drives.append(device)
 
-            elif running_OS == "Windows":
-                if device != "C:\\" and mountpoint:
-                    valid_drives.append(device)
+def get_all_disks_summary():
+    disks = enumerate_disks()
+    os_root = get_os_root_mountpoint()
+    summary = []
+    for d in disks:
+        summary.append(
+            {
+                "id": d["id"],
+                "device": d["device"],
+                "mountpoint": d["mountpoint"],
+                "label": d["label"],
+                "fstype": d["fstype"],
+                "total_gb": _gb(d["total"]),
+                "used_gb": _gb(d["used"]),
+                "free_gb": _gb(d["free"]),
+                "usage_percent": d["percent"],
+                "media_type": d["media_type"],
+                "removable": d["removable"],
+                "internal": d["internal"],
+                "is_system": d.get("mountpoint") in (os_root, "/"),
+            }
+        )
+    return summary
 
-    except Exception as e:
-        print(f"Error detecting external drives: {e}")
 
-    return valid_drives
+def get_valid_external_drives():
+    os_root = get_os_root_mountpoint()
+    drives = []
+    for d in enumerate_disks():
+        mp = d.get("mountpoint", "")
+        if mp in (os_root, "/"):
+            continue
+        device = d.get("device")
+        if device and device not in drives:
+            drives.append(device)
+    return drives
 
 
 def get_default_external_drive():
-    valid_drives = get_valid_external_drives()
-
-    if valid_drives:
-        return valid_drives[0]
-    else:
-        return "disabled"
+    drives = get_valid_external_drives()
+    return drives[0] if drives else "disabled"
 
 
 def is_valid_external_drive(device_path):
     if not device_path or device_path == "disabled":
         return False
-
-    valid_drives = get_valid_external_drives()
-    return device_path in valid_drives
+    disk = find_disk_by_device(device_path)
+    if disk is None:
+        return False
+    os_root = get_os_root_mountpoint()
+    if disk.get("mountpoint") in (os_root, "/"):
+        return False
+    return True
 
 
 def get_external_drive_info(device_path):
     if not device_path or device_path == "disabled":
         return None
-
-    try:
-        partitions = psutil.disk_partitions()
-
-        for partition in partitions:
-            if partition.device == device_path:
-                try:
-                    usage = psutil.disk_usage(partition.mountpoint)
-                    total_gb = round(usage.total / (1024**3), 2)
-                    used_gb = round(usage.used / (1024**3), 2)
-                    free_gb = round(usage.free / (1024**3), 2)
-                    usage_percent = round((usage.used / usage.total) * 100, 1)
-                except:
-                    total_gb = used_gb = free_gb = usage_percent = 0
-
-                return {"device": partition.device, "mountpoint": partition.mountpoint, "fstype": partition.fstype, "total_gb": total_gb, "used_gb": used_gb, "free_gb": free_gb, "usage_percent": usage_percent}
-
-    except Exception as e:
-        print(f"Error getting external drive info for {device_path}: {e}")
-
-    return None
+    disk = find_disk_by_device(device_path)
+    if disk is None:
+        return None
+    return {
+        "device": disk["device"],
+        "mountpoint": disk["mountpoint"],
+        "fstype": disk["fstype"],
+        "total_gb": _gb(disk["total"]),
+        "used_gb": _gb(disk["used"]),
+        "free_gb": _gb(disk["free"]),
+        "usage_percent": disk["percent"],
+    }

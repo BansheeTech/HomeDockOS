@@ -5,6 +5,8 @@
 
 import { inject, computed } from "vue";
 
+import type { ThemeData } from "../__Types__/ThemeData";
+
 export const themes: Record<string, Record<string, string>> = {
   default: {
     scopeSelector: "white-mode-theme",
@@ -378,6 +380,35 @@ export const themes: Record<string, Record<string, string>> = {
     sliderBg: "bg-gray-300",
     utilityToolbarBorder: "border-gray-500/20",
     utilityDivider: "bg-gray-500/30",
+
+    notepadBadgeBg: "bg-gray-200/90",
+    notepadBadgeText: "text-gray-700",
+    notepadBadgeIcon: "text-emerald-600",
+    notepadCaret: "#374151",
+    notepadHljsBase: "#24292e",
+    notepadHljsKeyword: "#d73a49",
+    notepadHljsString: "#032f62",
+    notepadHljsNumber: "#005cc5",
+    notepadHljsComment: "#6a737d",
+    notepadHljsFunction: "#6f42c1",
+    notepadHljsTitle: "#6f42c1",
+    notepadHljsParams: "#24292e",
+    notepadHljsBuiltIn: "#005cc5",
+    notepadHljsType: "#005cc5",
+    notepadHljsLiteral: "#005cc5",
+    notepadHljsAttr: "#e36209",
+    notepadHljsVariable: "#e36209",
+    notepadHljsTag: "#22863a",
+    notepadHljsName: "#22863a",
+    notepadHljsAttribute: "#6f42c1",
+    notepadHljsSelector: "#d73a49",
+    notepadHljsRegexp: "#032f62",
+    notepadHljsMeta: "#735c0f",
+    notepadHljsOperator: "#24292e",
+    notepadHljsProperty: "#005cc5",
+    notepadExtimgBg: "rgba(0, 0, 0, 0.04)",
+    notepadExtimgBorder: "rgba(0, 0, 0, 0.1)",
+    notepadExtimgLabel: "rgba(0, 0, 0, 0.45)",
 
     taskbarBg: "bg-white/95 backdrop-blur-[20px] saturate-150",
     taskbarBorder: "border-t border-gray-200",
@@ -1192,6 +1223,35 @@ export const themes: Record<string, Record<string, string>> = {
     utilityToolbarBorder: "border-zinc-500/30",
     utilityDivider: "bg-zinc-500/40",
 
+    notepadBadgeBg: "bg-zinc-800/90",
+    notepadBadgeText: "text-zinc-300",
+    notepadBadgeIcon: "text-emerald-400",
+    notepadCaret: "#e5e7eb",
+    notepadHljsBase: "#d4d4d4",
+    notepadHljsKeyword: "#c586c0",
+    notepadHljsString: "#ce9178",
+    notepadHljsNumber: "#b5cea8",
+    notepadHljsComment: "#6a9955",
+    notepadHljsFunction: "#dcdcaa",
+    notepadHljsTitle: "#dcdcaa",
+    notepadHljsParams: "#9cdcfe",
+    notepadHljsBuiltIn: "#4ec9b0",
+    notepadHljsType: "#4ec9b0",
+    notepadHljsLiteral: "#569cd6",
+    notepadHljsAttr: "#9cdcfe",
+    notepadHljsVariable: "#9cdcfe",
+    notepadHljsTag: "#569cd6",
+    notepadHljsName: "#569cd6",
+    notepadHljsAttribute: "#9cdcfe",
+    notepadHljsSelector: "#d7ba7d",
+    notepadHljsRegexp: "#d16969",
+    notepadHljsMeta: "#569cd6",
+    notepadHljsOperator: "#d4d4d4",
+    notepadHljsProperty: "#9cdcfe",
+    notepadExtimgBg: "rgba(255, 255, 255, 0.04)",
+    notepadExtimgBorder: "rgba(255, 255, 255, 0.08)",
+    notepadExtimgLabel: "rgba(255, 255, 255, 0.45)",
+
     taskbarBg: "bg-black/80 backdrop-blur-[20px] saturate-150",
     taskbarBorder: "border-t border-white/10",
     taskbarIconBgHover: "hover:bg-white/10",
@@ -2005,6 +2065,35 @@ export const themes: Record<string, Record<string, string>> = {
     utilityToolbarBorder: "border-white/5",
     utilityDivider: "bg-white/30",
 
+    notepadBadgeBg: "bg-white/10 backdrop-blur-sm",
+    notepadBadgeText: "text-white/80",
+    notepadBadgeIcon: "text-emerald-400",
+    notepadCaret: "#d4d4d4",
+    notepadHljsBase: "#d4d4d4",
+    notepadHljsKeyword: "#c586c0",
+    notepadHljsString: "#ce9178",
+    notepadHljsNumber: "#b5cea8",
+    notepadHljsComment: "#6a9955",
+    notepadHljsFunction: "#dcdcaa",
+    notepadHljsTitle: "#dcdcaa",
+    notepadHljsParams: "#9cdcfe",
+    notepadHljsBuiltIn: "#4ec9b0",
+    notepadHljsType: "#4ec9b0",
+    notepadHljsLiteral: "#569cd6",
+    notepadHljsAttr: "#9cdcfe",
+    notepadHljsVariable: "#9cdcfe",
+    notepadHljsTag: "#569cd6",
+    notepadHljsName: "#569cd6",
+    notepadHljsAttribute: "#9cdcfe",
+    notepadHljsSelector: "#d7ba7d",
+    notepadHljsRegexp: "#d16969",
+    notepadHljsMeta: "#569cd6",
+    notepadHljsOperator: "#d4d4d4",
+    notepadHljsProperty: "#9cdcfe",
+    notepadExtimgBg: "rgba(255, 255, 255, 0.04)",
+    notepadExtimgBorder: "rgba(255, 255, 255, 0.08)",
+    notepadExtimgLabel: "rgba(255, 255, 255, 0.45)",
+
     taskbarBg: "bg-black/80 backdrop-blur-xl saturate-200",
     taskbarBorder: "border-t border-white/10",
     taskbarIconBgHover: "hover:bg-white/10",
@@ -2459,18 +2548,18 @@ export function getThemeClasses(themeName: string): Record<string, string> {
 }
 
 export function useTheme() {
-  const themeConfig = inject("data-theme") as { selectedTheme: string };
+  const themeConfig = inject<ThemeData | null>("data-theme", null);
 
   if (!themeConfig) {
     throw new Error("ThemeConfig is not provided. Make sure `data-theme` is available.");
   }
 
   const themeClasses = computed(() => {
-    return getThemeClasses(themeConfig.selectedTheme);
+    return getThemeClasses(themeConfig.selected_theme);
   });
 
   return {
-    selectedTheme: themeConfig.selectedTheme,
+    selected_theme: themeConfig.selected_theme,
     themeClasses,
   };
 }

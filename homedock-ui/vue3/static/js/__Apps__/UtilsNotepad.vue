@@ -113,6 +113,29 @@
                 <span>Word Wrap</span>
               </div>
             </MenuItem>
+            <template v-if="isMarkdownFile">
+              <MenuDivider />
+              <MenuItem key="md-edit" @click="previewMode = 'edit'">
+                <div class="flex items-center gap-2">
+                  <Icon :icon="previewMode === 'edit' ? checkIcon : pencilIcon" class="w-4 h-4" />
+                  <span>Edit</span>
+                </div>
+              </MenuItem>
+              <MenuItem key="md-split" @click="previewMode = 'split'">
+                <div class="flex items-center gap-2">
+                  <Icon :icon="previewMode === 'split' ? checkIcon : viewSplitVerticalIcon" class="w-4 h-4" />
+                  <span>Live Preview</span>
+                  <span class="ml-auto text-[10px] opacity-50">Ctrl+L</span>
+                </div>
+              </MenuItem>
+              <MenuItem key="md-preview" @click="previewMode = 'preview'">
+                <div class="flex items-center gap-2">
+                  <Icon :icon="previewMode === 'preview' ? checkIcon : eyeIcon" class="w-4 h-4" />
+                  <span>Preview</span>
+                  <span class="ml-auto text-[10px] opacity-50">Ctrl+P</span>
+                </div>
+              </MenuItem>
+            </template>
           </Menu>
         </template>
       </Dropdown>
@@ -120,12 +143,11 @@
 
     <div v-if="tabs.length > 1" class="flex items-center border-b overflow-x-auto" :class="themeClasses.utilityToolbarBorder">
       <div class="flex items-center min-w-0">
-        <div v-for="tab in tabs" :key="tab.id" @click="activeTabId = tab.id" @auxclick.middle.prevent="tabs.length > 1 && closeTab(tab.id)" :class="['group flex items-center gap-1.5 px-3 py-1.5 text-xs cursor-pointer border-r transition-colors min-w-0 max-w-[200px]', themeClasses.utilityToolbarBorder, activeTabId === tab.id ? 'bg-blue-500/20 border-blue-500/30' : 'hover:bg-white/5 border-transparent']" :title="getTabTooltip(tab)">
+        <div v-for="tab in tabs" :key="tab.id" @click="activeTabId = tab.id" @auxclick.middle.prevent="tabs.length > 1 && closeTab(tab.id)" :class="['group flex items-center gap-1 px-2 py-1.5 text-xs cursor-pointer border-r transition-colors min-w-0 max-w-[160px] overflow-hidden', themeClasses.utilityToolbarBorder, activeTabId === tab.id ? 'bg-blue-500/20 border-blue-500/30' : 'hover:bg-white/5 border-transparent']" :title="getTabTooltip(tab)">
           <Icon :icon="getStorageIcon(tab)" :class="['w-3 h-3 flex-shrink-0', getStorageIconColor(tab)]" :title="getStorageLabel(tab)" />
-          <Icon :icon="tab.externalFile ? fileCodeIcon : textFileIcon" :class="['w-3.5 h-3.5 flex-shrink-0 opacity-60', themeClasses.windowText]" />
-          <span :class="[themeClasses.windowText]" class="truncate"> {{ tab.title }}{{ tab.isModified ? " *" : "" }} </span>
-          <button v-if="tabs.length > 1" @click.stop="closeTab(tab.id)" :class="[themeClasses.windowButtonBgHover]" class="ml-1 p-0.5 rounded opacity-60 hover:opacity-100 flex-shrink-0 transition-opacity">
-            <Icon :icon="closeIcon" :class="['w-3 h-3', themeClasses.windowText]" />
+          <span :class="[themeClasses.windowText]" class="truncate flex-1 min-w-0">{{ tab.title }}{{ tab.isModified ? " *" : "" }}</span>
+          <button v-if="tabs.length > 1" @click.stop="closeTab(tab.id)" :class="[themeClasses.windowButtonBgHover]" class="p-0.5 rounded opacity-0 group-hover:opacity-60 hover:!opacity-100 flex-shrink-0 transition-opacity">
+            <Icon :icon="closeIcon" :class="['w-2.5 h-2.5', themeClasses.windowText]" />
           </button>
         </div>
       </div>
@@ -147,8 +169,33 @@
       </div>
     </Transition>
 
-    <div class="flex-1 overflow-hidden p-2">
-      <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowText, themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre overflow-x-auto']" class="w-full h-full resize-none p-3 font-mono leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" spellcheck="false"></textarea>
+    <div class="flex-1 overflow-hidden p-2 relative" :style="cssVars">
+      <Transition name="lang-badge">
+        <div v-if="isMarkdownFile" :key="'md-' + previewMode" @click="cyclePreviewMode" :class="[themeClasses.notepadBadgeBg, 'cursor-pointer hover:opacity-80']" class="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-opacity">
+          <Icon :icon="previewModeBadgeIcon" :class="[themeClasses.notepadBadgeIcon]" class="w-3.5 h-3.5" />
+          <span :class="[themeClasses.notepadBadgeText]" class="text-[11px] font-medium">{{ previewModeBadgeLabel }}</span>
+        </div>
+      </Transition>
+
+      <!-- Full preview -->
+      <div v-if="isMarkdownFile && previewMode === 'preview'" class="w-full h-full overflow-auto rounded-lg border p-4" :class="[themeClasses.windowBorder]">
+        <div class="notepad-markdown-preview prose prose-sm prose-invert max-w-none select-text" :class="[themeClasses.windowText]" :style="{ fontSize: fontSize + 'px', ...cssVars, userSelect: 'text', cursor: 'text' }" v-html="renderedMarkdown"></div>
+      </div>
+
+      <!-- Split view: editor + live preview -->
+      <div v-else-if="isMarkdownFile && previewMode === 'split'" class="flex gap-2 w-full h-full">
+        <div class="relative w-1/2 h-full flex-shrink-0">
+          <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowText, themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap overflow-x-hidden' : 'whitespace-pre overflow-x-auto']" class="w-full h-full resize-none p-3 leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" @scroll="syncSplitScroll('editor')" spellcheck="false"></textarea>
+        </div>
+        <div ref="splitPreviewRef" class="w-1/2 h-full overflow-auto rounded-lg border p-4" :class="[themeClasses.windowBorder]" @scroll="syncSplitScroll('preview')">
+          <div class="notepad-markdown-preview prose prose-sm prose-invert max-w-none select-text" :class="[themeClasses.windowText]" :style="{ fontSize: fontSize + 'px', ...cssVars, userSelect: 'text', cursor: 'text' }" v-html="renderedMarkdown"></div>
+        </div>
+      </div>
+
+      <!-- Editor only -->
+      <div v-else class="relative w-full h-full">
+        <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowText, themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap overflow-x-hidden' : 'whitespace-pre overflow-x-auto']" class="w-full h-full resize-none p-3 leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" spellcheck="false"></textarea>
+      </div>
     </div>
 
     <StatusBar :icon="statusIcon" :message="statusMessage" :info="statusInfo">
@@ -159,7 +206,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Notepad</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>A simple text editor with support for multiple storage locations.</p>
+            <p>A text editor with Markdown preview.</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="notebookIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
@@ -172,6 +219,10 @@
               <div class="flex items-start gap-2">
                 <Icon :icon="cubeScanIcon" class="w-3.5 h-3.5 mt-0.5 text-purple-500 flex-shrink-0" />
                 <p><strong>App Drive:</strong> Files opened from App Drive are saved back to the container's storage.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 mt-0.5 text-orange-500 flex-shrink-0" />
+                <p><strong>Disks+:</strong> Files opened from a mounted disk are saved back to that disk.</p>
               </div>
             </div>
             <p class="opacity-70">The colored icon on each tab indicates where that file will be saved.</p>
@@ -243,8 +294,10 @@
 
 <script lang="ts" setup>
 import axios from "axios";
+import DOMPurify from "dompurify";
+import { marked } from "marked";
 
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 
 import { Dropdown, Menu, MenuItem, MenuDivider } from "ant-design-vue";
 
@@ -262,17 +315,21 @@ import checkIcon from "@iconify-icons/mdi/check";
 import wrapIcon from "@iconify-icons/mdi/wrap";
 import closeIcon from "@iconify-icons/mdi/close";
 import textFileIcon from "@iconify-icons/mdi/file-document";
-import fileCodeIcon from "@iconify-icons/mdi/file-code";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import plusIcon from "@iconify-icons/mdi/plus";
 import cubeIcon from "@iconify-icons/mdi/cube";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
+import harddiskIcon from "@iconify-icons/mdi/harddisk";
 import notebookIcon from "@iconify-icons/mdi/notebook";
 import exitIcon from "@iconify-icons/mdi/exit-to-app";
+import eyeIcon from "@iconify-icons/mdi/eye";
+import viewSplitVerticalIcon from "@iconify-icons/mdi/view-split-vertical";
+import pencilIcon from "@iconify-icons/mdi/pencil";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
@@ -282,9 +339,10 @@ import { notifyError, notifySuccess } from "../__Components__/Notifications.vue"
 interface ExternalFile {
   path: string;
   content: string;
-  source: "appdrive" | "dropzone" | "storage";
+  source: "appdrive" | "dropzone" | "storage" | "disksplus";
   container?: string;
   mountIndex?: number;
+  disk?: string;
 }
 
 interface StorageNote {
@@ -316,6 +374,7 @@ const props = defineProps<Props>();
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
+const disksPlusStore = useDisksPlusStore();
 
 function generateTabId(): string {
   return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
@@ -349,15 +408,38 @@ const activeTabContent = computed({
 });
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
+const splitPreviewRef = ref<HTMLElement | null>(null);
+
+let isSyncingScroll = false;
+function syncSplitScroll(source: "editor" | "preview") {
+  if (isSyncingScroll) return;
+  isSyncingScroll = true;
+  const editor = textareaRef.value;
+  const preview = splitPreviewRef.value;
+  if (!editor || !preview) {
+    isSyncingScroll = false;
+    return;
+  }
+  if (source === "editor") {
+    const pct = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
+    preview.scrollTop = pct * (preview.scrollHeight - preview.clientHeight);
+  } else {
+    const pct = preview.scrollTop / (preview.scrollHeight - preview.clientHeight || 1);
+    editor.scrollTop = pct * (editor.scrollHeight - editor.clientHeight);
+  }
+  requestAnimationFrame(() => {
+    isSyncingScroll = false;
+  });
+}
 
 const showFindReplace = ref(false);
 const findText = ref("");
 const replaceText = ref("");
 
-const fontSize = ref(10);
+const fontSize = ref(12);
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 24;
-const DEFAULT_FONT_SIZE = 10;
+const DEFAULT_FONT_SIZE = 12;
 
 const wordWrap = ref(true);
 
@@ -377,6 +459,106 @@ const pendingSaveAction = ref<(() => Promise<void>) | null>(null);
 
 const showWindowCloseDialog = ref(false);
 
+const previewMode = ref<"edit" | "preview" | "split">("edit");
+const MARKDOWN_EXTS = ["md", "markdown", "mdown", "mkd", "mkdn", "mdx"];
+
+const EXTIMG_ICON_MASK = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="none"/><path fill="black" d="M.002 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2zm1 9v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71l-2.66-1.772a.5.5 0 0 0-.63.062zm5-6.5a1.5 1.5 0 1 0-3 0a1.5 1.5 0 0 0 3 0"/></svg>') + '")';
+
+const purify = DOMPurify();
+
+purify.addHook("afterSanitizeAttributes", (node) => {
+  if (node.tagName === "IMG") {
+    const src = node.getAttribute("src") || "";
+    const isSafe = !src || /^data:/i.test(src) || src.startsWith(window.location.origin + "/");
+    if (!isSafe) {
+      const banner = document.createElement("span");
+      banner.className = "notepad-extimg-banner";
+      const icon = document.createElement("span");
+      icon.className = "notepad-extimg-banner-icon";
+      banner.appendChild(icon);
+      banner.appendChild(document.createTextNode("Images are blocked"));
+      node.replaceWith(banner);
+      return;
+    }
+  }
+  if (node.tagName === "A") {
+    const href = node.getAttribute("href") || "";
+    const isExternalUrl = /^https?:\/\//i.test(href) && !href.startsWith(window.location.origin);
+    const isAnchor = href.startsWith("#") && href !== "#";
+    const isMailto = /^mailto:/i.test(href);
+    if (!isExternalUrl && !isAnchor && !isMailto) {
+      const span = document.createElement("span");
+      span.className = "notepad-extlink-dead";
+      while (node.firstChild) span.appendChild(node.firstChild);
+      node.replaceWith(span);
+      return;
+    }
+    node.setAttribute("target", "_blank");
+    node.setAttribute("rel", "noopener noreferrer");
+  }
+});
+
+function sanitizeHtml(html: string): string {
+  return purify.sanitize(html, {
+    ADD_TAGS: ["span"],
+    ADD_ATTR: ["target", "rel", "class"],
+  });
+}
+
+function getFileExtension(tab: Tab): string {
+  const name = tab.externalFile?.path || tab.originalFilename || tab.title;
+  const parts = name.toLowerCase().split(".");
+  return parts.length > 1 ? parts[parts.length - 1] : "";
+}
+
+const isMarkdownFile = computed(() => MARKDOWN_EXTS.includes(getFileExtension(activeTab.value)));
+
+function cyclePreviewMode() {
+  const modes: Array<"edit" | "preview" | "split"> = ["edit", "preview", "split"];
+  const idx = modes.indexOf(previewMode.value);
+  previewMode.value = modes[(idx + 1) % modes.length];
+}
+
+const previewModeBadgeIcon = computed(() => {
+  if (previewMode.value === "edit") return eyeIcon;
+  if (previewMode.value === "preview") return viewSplitVerticalIcon;
+  return pencilIcon;
+});
+
+const previewModeBadgeLabel = computed(() => {
+  if (previewMode.value === "edit") return "Preview";
+  if (previewMode.value === "preview") return "Live Preview";
+  return "Edit";
+});
+
+const markedRenderer = new marked.Renderer();
+markedRenderer.code = function ({ text, lang }: { text: string; lang?: string }) {
+  const langClass = lang ? ` class="language-${lang}"` : "";
+  return `<pre><code${langClass}>${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+};
+markedRenderer.link = function ({ href, title, text }: { href: string; title?: string | null; text: string }) {
+  const safeHref = href && /^(https?:\/\/|mailto:|#)/.test(href) ? href : "#";
+  const titleAttr = title ? ` title="${title}"` : "";
+  return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+};
+
+const renderedMarkdown = computed(() => {
+  if (!isMarkdownFile.value || previewMode.value === "edit") return "";
+  const raw = marked.parse(activeTab.value?.content || "", {
+    breaks: true,
+    gfm: true,
+    renderer: markedRenderer,
+  }) as string;
+  return sanitizeHtml(raw);
+});
+
+const cssVars = computed(() => ({
+  "--extimg-bg": themeClasses.value.notepadExtimgBg,
+  "--extimg-border": themeClasses.value.notepadExtimgBorder,
+  "--extimg-label": themeClasses.value.notepadExtimgLabel,
+  "--extimg-icon": EXTIMG_ICON_MASK,
+}));
+
 const lineCount = computed(() => (activeTab.value?.content || "").split("\n").length);
 const wordCount = computed(() => {
   const text = (activeTab.value?.content || "").trim();
@@ -390,6 +572,7 @@ const statusIcon = computed(() => {
   if (tab?.externalFile) {
     if (tab.externalFile.source === "appdrive") return cubeScanIcon;
     if (tab.externalFile.source === "storage") return folderIcon;
+    if (tab.externalFile.source === "disksplus") return harddiskIcon;
     return cubeIcon; // dropzone
   }
   return notebookIcon;
@@ -399,6 +582,7 @@ const statusMessage = computed(() => {
   if (tab?.externalFile) {
     if (tab.externalFile.source === "appdrive") return "Editing on App Drive";
     if (tab.externalFile.source === "storage") return "Editing on Storage";
+    if (tab.externalFile.source === "disksplus") return "Editing on Disks+";
     return "Editing on Drop Zone";
   }
   return "Editing in Notes";
@@ -417,6 +601,7 @@ function getStorageIcon(tab: Tab) {
   if (!tab.externalFile) return notebookIcon;
   if (tab.externalFile.source === "appdrive") return cubeScanIcon;
   if (tab.externalFile.source === "storage") return folderIcon;
+  if (tab.externalFile.source === "disksplus") return harddiskIcon;
   return cubeIcon;
 }
 
@@ -424,6 +609,7 @@ function getStorageIconColor(tab: Tab): string {
   if (!tab.externalFile) return "text-green-500";
   if (tab.externalFile.source === "appdrive") return "text-purple-500";
   if (tab.externalFile.source === "storage") return "text-green-500";
+  if (tab.externalFile.source === "disksplus") return "text-orange-500";
   return "text-blue-500";
 }
 
@@ -431,6 +617,7 @@ function getStorageLabel(tab: Tab): string {
   if (!tab.externalFile) return "Notes";
   if (tab.externalFile.source === "appdrive") return "App Drive";
   if (tab.externalFile.source === "storage") return "Storage";
+  if (tab.externalFile.source === "disksplus") return "Disks+";
   return "Drop Zone";
 }
 
@@ -443,6 +630,7 @@ function getTabTooltip(tab: Tab): string {
     appdrive: "App Drive",
     storage: "Storage",
     dropzone: "Drop Zone",
+    disksplus: "Disks+",
   };
   const source = sourceNames[tab.externalFile.source] || "Unknown";
   return `${tab.title}\nPath: ${tab.externalFile.path}\nSaved to: ${source}`;
@@ -778,6 +966,26 @@ async function handleSaveToExternal() {
       await axios.post("/api/appdrive/upload", formData, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
+    } else if (ext.source === "disksplus") {
+      if (!ext.disk) {
+        notifyError("Disks+ save failed: missing disk id");
+        return;
+      }
+      const formData = new FormData();
+      const blob = new Blob([tab.content], { type: "text/plain" });
+      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
+      formData.append("disk", ext.disk);
+
+      const pathParts = ext.path.split("/");
+      pathParts.pop();
+      if (pathParts.length > 0) {
+        formData.append("path", pathParts.join("/"));
+      }
+
+      await axios.post("/api/disksplus/upload", formData, {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      });
+      disksPlusStore.slideSession();
     }
 
     tab.originalContent = tab.content;
@@ -786,6 +994,7 @@ async function handleSaveToExternal() {
       appdrive: "App Drive",
       storage: "Storage",
       dropzone: "Drop Zone",
+      disksplus: "Disks+",
     };
     const storageName = sourceNames[ext.source] || "Unknown";
     notifySuccess("File saved", `Saved to ${storageName}: ${ext.path}`, themeClasses.value.scopeSelector);
@@ -970,6 +1179,18 @@ function handleKeydown(e: KeyboardEvent) {
         e.preventDefault();
         toggleFindReplace();
         break;
+      case "p":
+        e.preventDefault();
+        if (isMarkdownFile.value) {
+          previewMode.value = previewMode.value === "preview" ? "edit" : "preview";
+        }
+        break;
+      case "l":
+        e.preventDefault();
+        if (isMarkdownFile.value) {
+          previewMode.value = previewMode.value === "split" ? "edit" : "split";
+        }
+        break;
       case "w":
         e.preventDefault();
         if (tabs.value.length > 1) {
@@ -999,6 +1220,12 @@ watch(showOpenDialog, (isOpen) => {
   }
 });
 
+watch(activeTabId, () => {
+  nextTick(() => {
+    previewMode.value = isMarkdownFile.value ? "preview" : "edit";
+  });
+});
+
 function openExternalFileAsTab(extFile: ExternalFile) {
   const fileName = extFile.path.split("/").pop() || "File";
 
@@ -1021,6 +1248,11 @@ function openExternalFileAsTab(extFile: ExternalFile) {
 
   tabs.value.push(newTab);
   activeTabId.value = newTab.id;
+
+  const ext = fileName.toLowerCase().split(".").pop() || "";
+  if (MARKDOWN_EXTS.includes(ext)) {
+    previewMode.value = "preview";
+  }
 }
 
 function handleIncomingFile(event: CustomEvent) {
@@ -1131,6 +1363,9 @@ onMounted(() => {
   }
 
   updateWindowTitle();
+  nextTick(() => {
+    if (isMarkdownFile.value) previewMode.value = "preview";
+  });
 
   if (props._windowId) {
     window.addEventListener(`homedock:open-file-${props._windowId}`, handleIncomingFile as EventListener);
@@ -1149,6 +1384,11 @@ onUnmounted(() => {
 <style scoped>
 .utils-notepad {
   background: inherit;
+}
+
+.utils-notepad textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  line-height: 1.625 !important;
 }
 
 .utils-notepad textarea::-webkit-scrollbar {
@@ -1172,5 +1412,151 @@ onUnmounted(() => {
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+.lang-badge-enter-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lang-badge-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.lang-badge-enter-from {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.9);
+}
+
+.lang-badge-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Markdown preview styles — :deep() needed for v-html content */
+.notepad-markdown-preview :deep(h1) {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.2em;
+}
+.notepad-markdown-preview :deep(h2) {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0.5em 0 0.3em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 0.15em;
+}
+.notepad-markdown-preview :deep(h3) {
+  font-size: 1.15em;
+  font-weight: 600;
+  margin: 0.5em 0 0.2em;
+}
+.notepad-markdown-preview :deep(h4),
+.notepad-markdown-preview :deep(h5),
+.notepad-markdown-preview :deep(h6) {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+}
+.notepad-markdown-preview :deep(p) {
+  margin: 0.4em 0;
+  line-height: 1.6;
+}
+.notepad-markdown-preview :deep(ul) {
+  margin: 0.3em 0;
+  padding-left: 1.5em;
+  list-style-type: disc;
+}
+.notepad-markdown-preview :deep(ol) {
+  margin: 0.3em 0;
+  padding-left: 1.5em;
+  list-style-type: decimal;
+}
+.notepad-markdown-preview :deep(li) {
+  margin: 0.15em 0;
+}
+.notepad-markdown-preview :deep(code) {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+  font-size: 0.88em;
+  font-family: ui-monospace, monospace;
+}
+.notepad-markdown-preview :deep(pre) {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 0.8em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+.notepad-markdown-preview :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  font-size: 0.85em;
+}
+.notepad-markdown-preview :deep(blockquote) {
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
+  margin: 0.5em 0;
+  padding: 0.3em 0.8em;
+  opacity: 0.85;
+}
+.notepad-markdown-preview :deep(a) {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+.notepad-markdown-preview :deep(.notepad-extlink-dead) {
+  color: #60a5fa;
+  text-decoration: underline;
+  cursor: default;
+}
+.notepad-markdown-preview :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0;
+}
+.notepad-markdown-preview :deep(th),
+.notepad-markdown-preview :deep(td) {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35em 0.6em;
+  text-align: left;
+}
+.notepad-markdown-preview :deep(th) {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+.notepad-markdown-preview :deep(hr) {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0.8em 0;
+}
+.notepad-markdown-preview :deep(img) {
+  max-width: 100%;
+  border-radius: 4px;
+}
+.notepad-markdown-preview :deep(.notepad-extimg-banner) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  background: var(--extimg-bg);
+  border: 1px solid var(--extimg-border);
+  color: var(--extimg-label);
+}
+.notepad-markdown-preview :deep(.notepad-extimg-banner-icon) {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  background-color: var(--extimg-label);
+  -webkit-mask-image: var(--extimg-icon);
+  mask-image: var(--extimg-icon);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 </style>

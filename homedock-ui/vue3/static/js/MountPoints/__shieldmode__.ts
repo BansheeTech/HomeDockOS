@@ -6,37 +6,36 @@
 import { createApp } from "vue";
 import { createHead } from "@unhead/vue/client";
 
-import Limited from "../__Layouts__/ShieldMode.vue";
+import ShieldMode from "../__Layouts__/ShieldMode.vue";
 
-interface ThemeData {
-  selected_theme: string;
-  selected_back: string;
+import type { ThemeData } from "../__Types__/ThemeData";
+
+function parseBase64Data(id: string): any {
+  const element = document.getElementById(id)?.textContent;
+  if (element) {
+    try {
+      const jsonData = atob(element);
+      return JSON.parse(jsonData);
+    } catch (error) {
+      console.error(`Error parsing data from element #${id}:`, error);
+    }
+  } else {
+    console.error(`Element with ID '${id}' not found or is empty.`);
+  }
+  return null;
 }
 
-const base64Data = document.getElementById("data-theme")?.textContent;
+const themeData = parseBase64Data("data-theme") as ThemeData | null;
 
-if (base64Data) {
-  const jsonData = atob(base64Data);
+if (themeData) {
+  const app = createApp(ShieldMode);
 
-  let themeData: ThemeData;
+  app.provide("data-theme", themeData);
 
-  try {
-    themeData = JSON.parse(jsonData) as ThemeData;
+  const faviconHeadAdder = createHead();
+  app.use(faviconHeadAdder);
 
-    const app = createApp(Limited);
-
-    app.provide("data-theme", {
-      selectedTheme: themeData.selected_theme,
-      selectedBack: themeData.selected_back,
-    });
-
-    const faviconHeadAdder = createHead();
-    app.use(faviconHeadAdder);
-
-    app.mount("#app-shieldmode-root");
-  } catch (error) {
-    console.error("Error parsing data-theme objects:", error);
-  }
+  app.mount("#app-shieldmode-root");
 } else {
-  console.error("The element 'data-theme' wasn't found or it's empty.");
+  console.error("Required data is missing or invalid. Cannot initialize ShieldMode.");
 }

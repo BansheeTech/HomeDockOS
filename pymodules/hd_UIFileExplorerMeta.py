@@ -78,15 +78,18 @@ def add_favorite():
     if not location or not name:
         return jsonify({"error": "Location and name are required"}), 400
 
-    if location not in ["storage", "dropzone", "appdrive"]:
+    if location not in ["storage", "dropzone", "appdrive", "disksplus"]:
         return jsonify({"error": "Invalid location"}), 400
 
     favorites_path = get_favorites_path(user_name)
     favorites = load_json_file(favorites_path, [])
 
+    disk_id = (data.get("disk") or "").strip() if location == "disksplus" else ""
+
     for fav in favorites:
         if fav.get("location") == location and fav.get("path") == path and fav.get("name") == name:
-            return jsonify({"error": "Item already in favorites"}), 409
+            if location != "disksplus" or fav.get("disk", "") == disk_id:
+                return jsonify({"error": "Item already in favorites"}), 409
 
     if len(favorites) >= MAX_FAVORITES:
         return jsonify({"error": f"Maximum of {MAX_FAVORITES} favorites allowed"}), 400
@@ -102,6 +105,9 @@ def add_favorite():
     if location == "appdrive":
         favorite_item["container"] = data.get("container", "")
         favorite_item["mount_index"] = data.get("mount_index", 0)
+
+    if location == "disksplus":
+        favorite_item["disk"] = disk_id
 
     favorites.append(favorite_item)
 
@@ -165,13 +171,22 @@ def add_recent():
     if not location or not name:
         return jsonify({"error": "Location and name are required"}), 400
 
-    if location not in ["storage", "dropzone", "appdrive"]:
+    if location not in ["storage", "dropzone", "appdrive", "disksplus"]:
         return jsonify({"error": "Invalid location"}), 400
 
     recents_path = get_recents_path(user_name)
     recents = load_json_file(recents_path, [])
 
-    recents = [r for r in recents if not (r.get("location") == location and r.get("path") == path and r.get("name") == name)]
+    disk_id = (data.get("disk") or "").strip() if location == "disksplus" else ""
+
+    def _same(rec):
+        if rec.get("location") != location or rec.get("path") != path or rec.get("name") != name:
+            return False
+        if location == "disksplus":
+            return rec.get("disk", "") == disk_id
+        return True
+
+    recents = [r for r in recents if not _same(r)]
 
     recent_item = {
         "location": location,
@@ -184,6 +199,9 @@ def add_recent():
     if location == "appdrive":
         recent_item["container"] = data.get("container", "")
         recent_item["mount_index"] = data.get("mount_index", 0)
+
+    if location == "disksplus":
+        recent_item["disk"] = disk_id
 
     recents.insert(0, recent_item)
 

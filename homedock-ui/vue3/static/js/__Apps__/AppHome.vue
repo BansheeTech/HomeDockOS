@@ -19,20 +19,23 @@
                 <Icon :icon="cloudIcon" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
               </div>
               <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">Cloud Storage</h3>
-                <p class="text-xs" :class="themeClasses.statSubtleText">System disk</p>
+                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.label || "OS Disk" }}</h3>
+                <p class="text-xs" :class="themeClasses.statSubtleText">{{ osDiskSubtitle }}</p>
               </div>
-              <div class="text-right">
-                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ systemDiskInfo.percentage }}%</div>
+              <div class="flex items-center gap-2">
+                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.usage_percent ?? 0 }}%</div>
+                <button v-if="diskStore.osDisk" @click="openDiskInExplorer(diskStore.osDisk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" title="Open in File Explorer">
+                  <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
+                </button>
               </div>
             </div>
             <div class="relative w-full h-2 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-              <div class="absolute inset-0 h-full bg-blue-500 transition-all duration-150" :style="{ width: systemDiskInfo.percentage + '%' }"></div>
+              <div class="absolute inset-0 h-full bg-blue-500 transition-all duration-150" :style="{ width: (diskStore.osDisk?.usage_percent ?? 0) + '%' }"></div>
               <div class="absolute inset-0 h-full bg-green-500 transition-all duration-150" :style="{ width: encryptedStoragePercentage + '%' }"></div>
             </div>
             <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ systemDiskInfo.usedFormatted }} used</span>
-              <span>{{ systemDiskInfo.totalFormatted }} total</span>
+              <span>{{ formatDiskSize(diskStore.osDisk?.used_gb ?? 0) }} used</span>
+              <span>{{ formatDiskSize(diskStore.osDisk?.total_gb ?? 0) }} total</span>
             </div>
             <div @click="openStorage" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.25rem">
               <div class="flex items-center gap-2">
@@ -50,25 +53,31 @@
             </div>
           </div>
 
-          <div v-if="externalDiskAvailable" class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
+          <div v-for="disk in disksForHome" :key="disk.id" class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0">
-                <Icon :icon="externalDiskIcon" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
+                <Icon :icon="iconForMediaType(disk.media_type)" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
               </div>
               <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">External Storage</h3>
-                <p class="text-xs" :class="themeClasses.statSubtleText">External disk</p>
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-sm font-semibold truncate" :class="themeClasses.statInnerText">{{ disk.label || disk.device }}</h3>
+                  <Icon v-if="disk.device === externalDefaultDisk" :icon="pinIcon" class="w-3 h-3 flex-shrink-0 opacity-70" :class="themeClasses.explorerItemIcon" title="Tracked external disk" />
+                </div>
+                <p class="text-xs" :class="themeClasses.statSubtleText">{{ subtitleForDisk(disk) }}</p>
               </div>
-              <div class="text-right">
-                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ externalDiskInfo.percentage }}%</div>
+              <div class="flex items-center gap-2">
+                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ disk.usage_percent }}%</div>
+                <button @click="openDiskInExplorer(disk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" title="Open in File Explorer">
+                  <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
+                </button>
               </div>
             </div>
             <div class="w-full h-2 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-              <div class="h-full bg-green-500 transition-all duration-150" :style="{ width: externalDiskInfo.percentage + '%' }"></div>
+              <div class="h-full bg-green-500 transition-all duration-150" :style="{ width: disk.usage_percent + '%' }"></div>
             </div>
             <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ externalDiskInfo.usedFormatted }} used</span>
-              <span>{{ externalDiskInfo.totalFormatted }} total</span>
+              <span>{{ formatDiskSize(disk.used_gb) }} used</span>
+              <span>{{ formatDiskSize(disk.total_gb) }} total</span>
             </div>
           </div>
         </div>
@@ -175,39 +184,33 @@
       </div>
 
       <div class="mb-6">
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2" :class="themeClasses.explorerGroupHeader">
+        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="appsIcon" class="w-4 h-4" />
           <span>System Applications</span>
         </h3>
 
-        <div class="flex flex-col gap-1">
-          <div v-for="app in systemApps" :key="app.id" @click="app.id !== 'apphome' && openApp(app)" class="group flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all duration-150" :class="[themeClasses.explorerResultItem, app.id !== 'apphome' ? [themeClasses.explorerResultItemHover, 'cursor-pointer'] : 'opacity-50']">
-            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-              <Icon :icon="app.icon" class="w-5 h-5" :class="themeClasses.explorerItemIcon" />
+        <div class="app-launchpad-grid" :style="launchpadGridStyle">
+          <div v-for="app in systemApps" :key="app.id" @click="app.id !== 'apphome' && openApp(app)" class="app-launchpad-item group" :class="app.id !== 'apphome' ? 'cursor-pointer' : 'opacity-40 cursor-default'">
+            <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
+              <Icon :icon="app.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-xs font-medium truncate" :class="themeClasses.explorerItemName">{{ app.name }}</div>
-            </div>
-            <Icon v-if="app.id !== 'apphome'" :icon="chevronRightIcon" class="w-4 h-4 opacity-40 group-hover:opacity-70 transition-opacity" :class="themeClasses.explorerItemIcon" />
+            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ app.name }}</span>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2" :class="themeClasses.explorerGroupHeader">
+        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="toolboxOutlineIcon" class="w-4 h-4" />
           <span>Utilities</span>
         </h3>
 
-        <div class="flex flex-col gap-1">
-          <div v-for="util in utilitiesApps" :key="util.id" @click="openApp(util)" class="group flex items-center gap-3 px-2.5 py-2 rounded-lg cursor-pointer transition-all duration-150" :class="[themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]">
-            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-              <Icon :icon="util.icon" class="w-5 h-5" :class="themeClasses.explorerItemIcon" />
+        <div class="app-launchpad-grid" :style="launchpadGridStyle">
+          <div v-for="util in utilitiesApps" :key="util.id" @click="openApp(util)" class="app-launchpad-item group cursor-pointer">
+            <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
+              <Icon :icon="util.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-xs font-medium truncate" :class="themeClasses.explorerItemName">{{ util.name }}</div>
-            </div>
-            <Icon :icon="chevronRightIcon" class="w-4 h-4 opacity-40 group-hover:opacity-70 transition-opacity" :class="themeClasses.explorerItemIcon" />
+            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ util.name }}</span>
           </div>
         </div>
       </div>
@@ -223,7 +226,7 @@
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>My Home is your central hub for accessing system information and applications. Monitor storage, performance, network activity, and system health at a glance.</p>
-            <p><strong>Storage:</strong> Cloud Storage shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.</p>
+            <p><strong>Storage:</strong> OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.</p>
             <p><strong>System Overview:</strong> Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.</p>
           </div>
         </div>
@@ -244,18 +247,25 @@ import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { getExplorerApps } from "../__Config__/WindowDefaultDetails";
 
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
+
+import type { DiskData } from "../__Types__/DiskData";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 
 import { Icon } from "@iconify/vue";
 import cloudIcon from "@iconify-icons/mdi/cloud";
-import externalDiskIcon from "@iconify-icons/mdi/usb-flash-drive";
+import usbFlashIcon from "@iconify-icons/mdi/usb-flash-drive";
+import harddiskPlusIcon from "@iconify-icons/mdi/harddisk-plus";
+import discIcon from "@iconify-icons/mdi/disc";
+import sdIcon from "@iconify-icons/mdi/sd";
 import lockIcon from "@iconify-icons/mdi/lock";
 import folderIcon from "@iconify-icons/mdi/folder";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
+import pinIcon from "@iconify-icons/mdi/pin";
 import appsIcon from "@iconify-icons/mdi/apps";
 import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
-import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
+
 import homeIcon from "@iconify-icons/mdi/home";
 import cpuIcon from "@iconify-icons/mdi/speedometer";
 import downloadIcon from "@iconify-icons/mdi/download";
@@ -263,6 +273,7 @@ import uploadIcon from "@iconify-icons/mdi/upload";
 import containerIcon from "@iconify-icons/mdi/docker";
 import uptimeIcon from "@iconify-icons/mdi/clock-outline";
 import serverIcon from "@iconify-icons/mdi/server";
+import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
 
@@ -271,15 +282,8 @@ const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
 const dropZoneStore = useDropZoneStore();
 const systemStatsStore = useSystemStatsStore();
+const diskStore = useDisksPlusStore();
 const csrfToken = useCsrfToken();
-
-interface DiskInfo {
-  used: number;
-  total: number;
-  usedFormatted: string;
-  totalFormatted: string;
-  percentage: number;
-}
 
 interface EncryptedStorageInfo {
   used: number;
@@ -287,22 +291,6 @@ interface EncryptedStorageInfo {
   fileCount: number;
   folderCount: number;
 }
-
-const systemDiskInfo = ref<DiskInfo>({
-  used: 0,
-  total: 0,
-  usedFormatted: "0 GB",
-  totalFormatted: "0 GB",
-  percentage: 0,
-});
-
-const externalDiskInfo = ref<DiskInfo>({
-  used: 0,
-  total: 0,
-  usedFormatted: "0 GB",
-  totalFormatted: "0 GB",
-  percentage: 0,
-});
 
 const storageInfo = ref<EncryptedStorageInfo>({
   used: 0,
@@ -322,10 +310,19 @@ const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
 
 const gridColsClass = computed(() => {
-  if (containerWidth.value < 600 || !externalDiskAvailable.value) {
+  const totalCards = 1 + disksForHome.value.length;
+  if (containerWidth.value < 600 || totalCards <= 1) {
     return "grid-cols-1";
   }
   return "grid-cols-2";
+});
+
+const LAUNCHPAD_MIN_CELL = 88;
+
+const launchpadGridStyle = computed(() => {
+  const width = containerWidth.value || 400;
+  const cols = Math.max(2, Math.floor(width / LAUNCHPAD_MIN_CELL));
+  return { gridTemplateColumns: `repeat(${cols}, 1fr)` };
 });
 
 const cpuValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuUsage) || 0));
@@ -345,25 +342,71 @@ const totalRam = computed(() => systemStatsStore.totalRam);
 
 const tempValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuTemp) || 0));
 
-const diskValue = computed(() => Math.round(parseFloat(systemStatsStore.hardDiskUsage) || 0));
-const hardDiskTotal = computed(() => systemStatsStore.hardDiskTotal);
+const externalDefaultDisk = computed(() => diskStore.trackedExternalDevice);
 
-const externalDefaultDisk = computed(() => systemStatsStore.externalDefaultDisk);
-const externalDiskValue = computed(() => Math.round(parseFloat(systemStatsStore.externalDiskUsage) || 0));
-const externalDiskTotal = computed(() => systemStatsStore.externalDiskTotal);
-
-const externalDiskAvailable = computed(() => {
-  return externalDefaultDisk.value !== "disabled" && externalDiskValue.value > 0;
+const osDiskSubtitle = computed(() => {
+  const disk = diskStore.osDisk;
+  if (!disk) return "System Disk";
+  const bits: string[] = [];
+  if (disk.media_type) bits.push(disk.media_type.toUpperCase());
+  bits.push("System Disk");
+  return bits.join(" · ");
 });
 
+function iconForMediaType(mediaType: string) {
+  switch (mediaType) {
+    case "nvme":
+      return harddiskPlusIcon;
+    case "ssd":
+      return harddiskIcon;
+    case "hdd":
+      return harddiskIcon;
+    case "usb":
+      return usbFlashIcon;
+    case "optical":
+      return discIcon;
+    default:
+      return sdIcon;
+  }
+}
+
+const disksForHome = computed<DiskData[]>(() => {
+  const disks = diskStore.otherDisks.filter((d) => !d.is_system);
+  const trackedDevice = externalDefaultDisk.value;
+  disks.sort((a, b) => {
+    if (a.device === trackedDevice && b.device !== trackedDevice) return -1;
+    if (b.device === trackedDevice && a.device !== trackedDevice) return 1;
+    if (a.internal && !b.internal) return -1;
+    if (!a.internal && b.internal) return 1;
+    return (a.label || a.device).localeCompare(b.label || b.device);
+  });
+  return disks;
+});
+
+function subtitleForDisk(disk: DiskData): string {
+  const bits: string[] = [];
+  if (disk.media_type) bits.push(disk.media_type.toUpperCase());
+  if (disk.internal) bits.push("Internal");
+  else if (disk.removable) bits.push("Removable");
+  return bits.join(" · ") || "Disk";
+}
+
+function formatDiskSize(gb: number): string {
+  if (!gb || gb <= 0) return "";
+  if (gb >= 1024) return `${(gb / 1024).toFixed(1)} TB`;
+  return `${gb.toFixed(0)} GB`;
+}
+
+const osDiskTotalBytes = computed(() => (diskStore.osDisk?.total_gb ?? 0) * 1073741824);
+
 const storagePercentage = computed(() => {
-  if (systemDiskInfo.value.total === 0) return 0;
-  return Math.round((storageInfo.value.used / systemDiskInfo.value.total) * 100 * 100) / 100;
+  if (osDiskTotalBytes.value === 0) return 0;
+  return Math.round((storageInfo.value.used / osDiskTotalBytes.value) * 100 * 100) / 100;
 });
 
 const encryptedStoragePercentage = computed(() => {
-  if (systemDiskInfo.value.total === 0) return 0;
-  return Math.round((encryptedStorageInfo.value.used / systemDiskInfo.value.total) * 100 * 100) / 100;
+  if (osDiskTotalBytes.value === 0) return 0;
+  return Math.round((encryptedStorageInfo.value.used / osDiskTotalBytes.value) * 100 * 100) / 100;
 });
 
 const networkDown = computed(() => systemStatsStore.downloadData);
@@ -421,34 +464,6 @@ function formatBytes(bytes: number): string {
   const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-}
-
-function updateSystemDiskInfo() {
-  const totalGB = parseFloat(hardDiskTotal.value as string) || 0;
-  const totalBytes = totalGB * 1073741824; // bytes
-  const usedBytes = (totalBytes * diskValue.value) / 100;
-
-  systemDiskInfo.value = {
-    used: usedBytes,
-    total: totalBytes,
-    usedFormatted: formatBytes(usedBytes),
-    totalFormatted: formatBytes(totalBytes),
-    percentage: diskValue.value,
-  };
-}
-
-function updateExternalDiskInfo() {
-  const totalGB = parseFloat(externalDiskTotal.value as string) || 0;
-  const totalBytes = totalGB * 1073741824;
-  const usedBytes = (totalBytes * externalDiskValue.value) / 100;
-
-  externalDiskInfo.value = {
-    used: usedBytes,
-    total: totalBytes,
-    usedFormatted: formatBytes(usedBytes),
-    totalFormatted: totalGB > 900 ? `${(totalGB / 1024).toFixed(2)} TB` : `${totalGB} GB`,
-    percentage: externalDiskValue.value,
-  };
 }
 
 async function fetchStorageInfo() {
@@ -515,26 +530,22 @@ function openDropZone() {
   });
 }
 
-watch([diskValue, hardDiskTotal], () => {
-  updateSystemDiskInfo();
-});
-
-watch([externalDiskValue, externalDiskTotal], () => {
-  updateExternalDiskInfo();
-});
+function openDiskInExplorer(disk: DiskData) {
+  windowStore.openWindow("fileexplorer", {
+    data: { initialLocation: "disksplus", initialDiskId: disk.id },
+  });
+}
 
 watch(
   () => dropZoneStore.lastUpdate,
   () => {
     fetchEncryptedStorageInfo();
-  }
+  },
 );
 
 let resizeObserver: ResizeObserver | null = null;
 
 onMounted(() => {
-  updateSystemDiskInfo();
-  updateExternalDiskInfo();
   fetchStorageInfo();
   fetchEncryptedStorageInfo();
 
@@ -557,3 +568,45 @@ onUnmounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.app-launchpad-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.app-launchpad-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  border-radius: 12px;
+  transition: transform 0.15s ease;
+}
+
+.app-launchpad-item:active {
+  transform: scale(0.92);
+}
+
+.app-launchpad-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  transition: all 0.15s ease;
+}
+
+.app-launchpad-name {
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

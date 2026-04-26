@@ -16,144 +16,183 @@
 
     <Transition name="dropdown">
       <Teleport to="body">
-        <div v-if="isExpanded" class="stats-dropdown border" :class="[themeClasses.statsWidgetDropdownBg, themeClasses.statsWidgetDropdownBorder, themeClasses.statsWidgetDropdownShadow]">
+        <div v-if="isExpanded" ref="dropdownRef" class="stats-dropdown border" :class="[themeClasses.statsWidgetDropdownBg, themeClasses.statsWidgetDropdownBorder, themeClasses.statsWidgetDropdownShadow]">
           <div class="stats-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
             <span class="stats-title" :class="themeClasses.notTextUp">System Monitor</span>
           </div>
 
           <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Performance</div>
-
-            <div v-if="tempValue > 0" class="stat-card">
-              <div class="stat-header">
-                <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temp</span>
-                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
-              </div>
-              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
+            <div class="section-label" :class="[themeClasses.statsWidgetSectionLabel, { 'section-toggle': maxVisibleSections < 5 }]" @click="toggleSection('performance')">
+              <span>Performance</span>
+              <Icon v-if="maxVisibleSections < 5" :icon="chevronDownIcon" class="section-chevron" :class="{ 'section-chevron-collapsed': !isSectionOpen('performance') }" />
             </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <div class="icon-wrapper">
-                  <Transition name="icon-fade">
-                    <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                  </Transition>
+            <Transition name="section-collapse">
+              <div v-if="isSectionOpen('performance')" class="section-content">
+                <div v-if="tempValue > 0" class="stat-card">
+                  <div class="stat-header">
+                    <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                    <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Temp</span>
+                    <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
+                  </div>
+                  <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
                 </div>
-                <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Usage</span>
-                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
-              </div>
-              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-                <div class="progress-fill" :class="[cpuValue > 95 ? themeClasses.statsWidgetProgressFillDanger : cpuValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: cpuValue + '%' }"></div>
-              </div>
-              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuCores }} cores</div>
-            </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <Icon :icon="ramIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                <span class="stat-name" :class="themeClasses.statsWidgetStatName">Memory</span>
-                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, ramValue > 95 ? themeClasses.statsWidgetStatValueDanger : ramValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ ramValue }}% </span>
+                <div class="stat-card">
+                  <div class="stat-header">
+                    <div class="icon-wrapper">
+                      <Transition name="icon-fade">
+                        <Icon :key="cpuIconKey" :icon="cpuIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                      </Transition>
+                    </div>
+                    <span class="stat-name" :class="themeClasses.statsWidgetStatName">CPU Usage</span>
+                    <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, cpuValue > 95 ? themeClasses.statsWidgetStatValueDanger : cpuValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ cpuValue }}% </span>
+                  </div>
+                  <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                    <div class="progress-fill" :class="[cpuValue > 95 ? themeClasses.statsWidgetProgressFillDanger : cpuValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: cpuValue + '%' }"></div>
+                  </div>
+                  <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuCores }} cores</div>
+                </div>
+
+                <div class="stat-card">
+                  <div class="stat-header">
+                    <Icon :icon="ramIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                    <span class="stat-name" :class="themeClasses.statsWidgetStatName">Memory</span>
+                    <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, ramValue > 95 ? themeClasses.statsWidgetStatValueDanger : ramValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ ramValue }}% </span>
+                  </div>
+                  <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                    <div class="progress-fill" :class="[ramValue > 95 ? themeClasses.statsWidgetProgressFillDanger : ramValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: ramValue + '%' }"></div>
+                  </div>
+                  <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ totalRam }} GB total</div>
+                </div>
               </div>
-              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-                <div class="progress-fill" :class="[ramValue > 95 ? themeClasses.statsWidgetProgressFillDanger : ramValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: ramValue + '%' }"></div>
-              </div>
-              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ totalRam }} GB total</div>
-            </div>
+            </Transition>
           </div>
 
           <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Storage</div>
-
-            <div class="stat-card">
-              <div class="stat-header">
-                <Icon :icon="diskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                <span class="stat-name" :class="themeClasses.statsWidgetStatName">System</span>
-                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, diskValue > 95 ? themeClasses.statsWidgetStatValueDanger : diskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ diskValue }}% </span>
-              </div>
-              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-                <div class="progress-fill" :class="[diskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : diskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: diskValue + '%' }"></div>
-              </div>
-              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ hardDiskTotal }} GB</div>
+            <div class="section-label" :class="[themeClasses.statsWidgetSectionLabel, { 'section-toggle': maxVisibleSections < 5 }]" @click="toggleSection('storage')">
+              <span>Storage</span>
+              <Icon v-if="maxVisibleSections < 5" :icon="chevronDownIcon" class="section-chevron" :class="{ 'section-chevron-collapsed': !isSectionOpen('storage') }" />
             </div>
 
-            <div v-if="externalDefaultDisk !== 'disabled' && externalDiskValue > 0" class="stat-card">
-              <div class="stat-header">
-                <Icon :icon="externalDiskIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
-                <span class="stat-name" :class="themeClasses.statsWidgetStatName">External</span>
-                <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, externalDiskValue > 95 ? themeClasses.statsWidgetStatValueDanger : externalDiskValue > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ externalDiskValue }}% </span>
+            <Transition name="section-collapse">
+              <div v-if="isSectionOpen('storage')" class="section-content">
+                <div class="disk-carousel-viewport">
+                  <TransitionGroup :name="diskSlideDirection">
+                    <div v-for="disk in visibleDisks" :key="disk.id" class="stat-card">
+                      <div class="stat-header">
+                        <Icon :icon="iconForMediaType(disk.media_type)" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
+                        <span class="stat-name" :class="themeClasses.statsWidgetStatName">{{ disk.label || disk.device }}</span>
+                        <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, disk.usage_percent > 95 ? themeClasses.statsWidgetStatValueDanger : disk.usage_percent > 80 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ disk.usage_percent }}% </span>
+                      </div>
+                      <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
+                        <div class="progress-fill" :class="[disk.usage_percent > 95 ? themeClasses.statsWidgetProgressFillDanger : disk.usage_percent > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: disk.usage_percent + '%' }"></div>
+                      </div>
+                      <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ disk.total_gb > 900 ? (disk.total_gb / 1024).toFixed(2) + " TB" : disk.total_gb + " GB" }}</div>
+                    </div>
+                  </TransitionGroup>
+                </div>
+                <div v-if="allDisksForWidget.length > DISKS_PAGE_SIZE" class="disk-carousel-nav">
+                  <button class="disk-carousel-btn" :class="[themeClasses.statsWidgetStatIcon, { 'disk-carousel-btn-disabled': diskPageIndex === 0 }]" :disabled="diskPageIndex === 0" @click="navigateDisks(-1)">
+                    <Icon :icon="chevronLeftIcon" class="w-4 h-4" />
+                  </button>
+                  <span class="disk-carousel-indicator" :class="themeClasses.statsWidgetStatMeta">{{ diskPageIndex + 1 }} / {{ totalDiskPages }}</span>
+                  <button class="disk-carousel-btn" :class="[themeClasses.statsWidgetStatIcon, { 'disk-carousel-btn-disabled': diskPageIndex >= totalDiskPages - 1 }]" :disabled="diskPageIndex >= totalDiskPages - 1" @click="navigateDisks(1)">
+                    <Icon :icon="chevronRightIcon" class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div class="progress-bar" :class="themeClasses.statsWidgetProgressBg">
-                <div class="progress-fill" :class="[externalDiskValue > 95 ? themeClasses.statsWidgetProgressFillDanger : externalDiskValue > 80 ? themeClasses.statsWidgetProgressFillWarning : themeClasses.statsWidgetProgressFill]" :style="{ width: externalDiskValue + '%' }"></div>
-              </div>
-              <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ formattedExternalDiskTotal }} {{ diskUnit }}</div>
-            </div>
+            </Transition>
           </div>
 
           <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Network</div>
-            <div class="stat-grid">
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="downloadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Download</div>
-                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                    {{ networkDownValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkDownUnit }}</span>
+            <div class="section-label" :class="[themeClasses.statsWidgetSectionLabel, { 'section-toggle': maxVisibleSections < 5 }]" @click="toggleSection('network')">
+              <span>Network</span>
+              <Icon v-if="maxVisibleSections < 5" :icon="chevronDownIcon" class="section-chevron" :class="{ 'section-chevron-collapsed': !isSectionOpen('network') }" />
+            </div>
+
+            <Transition name="section-collapse">
+              <div v-if="isSectionOpen('network')" class="section-content">
+                <div class="stat-grid">
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="downloadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Download</div>
+                      <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                        {{ networkDownValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkDownUnit }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="uploadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Upload</div>
+                      <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                        {{ networkUpValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkUpUnit }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="uploadIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Upload</div>
-                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                    {{ networkUpValue }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">{{ networkUpUnit }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </Transition>
           </div>
 
           <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Apps</div>
-            <div class="stat-grid">
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="appsIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Installed</div>
-                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">{{ totalApps }}</div>
-                </div>
-              </div>
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="containerIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Active</div>
-                  <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
-                    {{ activeContainers }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">/ {{ totalContainers }}</span>
+            <div class="section-label" :class="[themeClasses.statsWidgetSectionLabel, { 'section-toggle': maxVisibleSections < 5 }]" @click="toggleSection('apps')">
+              <span>Apps</span>
+              <Icon v-if="maxVisibleSections < 5" :icon="chevronDownIcon" class="section-chevron" :class="{ 'section-chevron-collapsed': !isSectionOpen('apps') }" />
+            </div>
+
+            <Transition name="section-collapse">
+              <div v-if="isSectionOpen('apps')" class="section-content">
+                <div class="stat-grid">
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="appsIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Installed</div>
+                      <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">{{ totalApps }}</div>
+                    </div>
+                  </div>
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="containerIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">Active</div>
+                      <div class="stat-mini-value" :class="themeClasses.statsWidgetMiniValueColor">
+                        {{ activeContainers }} <span class="stat-unit" :class="themeClasses.statsWidgetUnitColor">/ {{ totalContainers }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Transition>
           </div>
 
           <div class="stats-section" :class="themeClasses.statsWidgetSectionBorder">
-            <div class="section-label" :class="themeClasses.statsWidgetSectionLabel">Uptime</div>
-            <div class="stat-grid">
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="serverIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">System</div>
-                  <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ systemUptime }}</div>
-                </div>
-              </div>
-              <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
-                <Icon :icon="uptimeIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
-                <div class="stat-mini-content">
-                  <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">HomeDock OS</div>
-                  <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ homeDockUptime }}</div>
-                </div>
-              </div>
+            <div class="section-label" :class="[themeClasses.statsWidgetSectionLabel, { 'section-toggle': maxVisibleSections < 5 }]" @click="toggleSection('uptime')">
+              <span>Uptime</span>
+              <Icon v-if="maxVisibleSections < 5" :icon="chevronDownIcon" class="section-chevron" :class="{ 'section-chevron-collapsed': !isSectionOpen('uptime') }" />
             </div>
+
+            <Transition name="section-collapse">
+              <div v-if="isSectionOpen('uptime')" class="section-content">
+                <div class="stat-grid">
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="serverIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">System</div>
+                      <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ systemUptime }}</div>
+                    </div>
+                  </div>
+                  <div class="stat-mini" :class="[themeClasses.statsWidgetMiniCardBg, themeClasses.statsWidgetMiniCardBgHover]">
+                    <Icon :icon="uptimeIcon" class="stat-icon-small" :class="themeClasses.statsWidgetMiniIconColor" />
+                    <div class="stat-mini-content">
+                      <div class="stat-mini-label" :class="themeClasses.statsWidgetMiniLabelColor">HomeDock OS</div>
+                      <div class="stat-mini-value small" :class="themeClasses.statsWidgetMiniValueColor">{{ homeDockUptime }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition>
           </div>
         </div>
       </Teleport>
@@ -162,7 +201,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, TransitionGroup } from "vue";
 
 import { Icon } from "@iconify/vue";
 import cpuIconSlow from "@iconify-icons/mdi/speedometer-slow";
@@ -171,15 +210,22 @@ import cpuIconFast from "@iconify-icons/mdi/speedometer";
 import ramIcon from "@iconify-icons/mdi/memory";
 import tempIcon from "@iconify-icons/mdi/thermometer";
 import diskIcon from "@iconify-icons/mdi/harddisk";
+import harddiskPlusIcon from "@iconify-icons/mdi/harddisk-plus";
 import externalDiskIcon from "@iconify-icons/mdi/usb-flash-drive";
+import discIcon from "@iconify-icons/mdi/disc";
+import sdIcon from "@iconify-icons/mdi/sd";
 import downloadIcon from "@iconify-icons/mdi/download";
 import uploadIcon from "@iconify-icons/mdi/upload";
 import containerIcon from "@iconify-icons/mdi/docker";
 import appsIcon from "@iconify-icons/mdi/apps";
 import uptimeIcon from "@iconify-icons/mdi/clock-outline";
 import serverIcon from "@iconify-icons/mdi/server";
+import chevronDownIcon from "@iconify-icons/mdi/chevron-down";
+import chevronLeftIcon from "@iconify-icons/mdi/chevron-left";
+import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
 
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useTrayManager } from "../__Composables__/useTrayManager";
 
@@ -198,10 +244,58 @@ const trayManager = useTrayManager();
 const TRAY_ID = "system-stats-widget";
 
 const systemStatsStore = useSystemStatsStore();
+const diskStore = useDisksPlusStore();
 
 const widgetRef = ref<HTMLElement | null>(null);
+const dropdownRef = ref<HTMLElement | null>(null);
 
 const isExpanded = ref(false);
+
+type SectionId = "performance" | "storage" | "network" | "apps" | "uptime";
+const ALL_SECTIONS: SectionId[] = ["performance", "storage", "network", "apps", "uptime"];
+const openSections = ref<SectionId[]>(["performance"]);
+const maxVisibleSections = ref(1);
+
+function updateMaxSections() {
+  const h = window.innerHeight;
+  if (h >= 900) maxVisibleSections.value = 5;
+  else if (h >= 750) maxVisibleSections.value = 3;
+  else if (h >= 600) maxVisibleSections.value = 2;
+  else maxVisibleSections.value = 1;
+}
+
+watch(maxVisibleSections, (max) => {
+  if (max >= 5) {
+    openSections.value = [...ALL_SECTIONS];
+  } else {
+    while (openSections.value.length > max) {
+      openSections.value.shift();
+    }
+  }
+});
+
+function isSectionOpen(section: SectionId): boolean {
+  return openSections.value.includes(section);
+}
+
+function toggleSection(section: SectionId) {
+  if (maxVisibleSections.value >= 5) return;
+  const idx = openSections.value.indexOf(section);
+  if (idx !== -1) {
+    if (openSections.value.length > 1) {
+      openSections.value.splice(idx, 1);
+    }
+    return;
+  }
+  if (openSections.value.length >= maxVisibleSections.value) {
+    openSections.value.shift();
+    setTimeout(() => {
+      openSections.value.push(section);
+    }, 200);
+  } else {
+    openSections.value.push(section);
+  }
+}
 
 function toggleExpanded(e: MouseEvent) {
   e.stopPropagation();
@@ -220,7 +314,8 @@ function closeDropdown() {
 }
 
 function handleClickOutside(event: MouseEvent) {
-  if (widgetRef.value && !widgetRef.value.contains(event.target as Node)) {
+  const target = event.target as Node;
+  if (widgetRef.value && !widgetRef.value.contains(target) && (!dropdownRef.value || !dropdownRef.value.contains(target))) {
     closeDropdown();
   }
 }
@@ -231,15 +326,18 @@ watch(
     if (newTrayId !== TRAY_ID && isExpanded.value) {
       isExpanded.value = false;
     }
-  }
+  },
 );
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  updateMaxSections();
+  window.addEventListener("resize", updateMaxSections);
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  window.removeEventListener("resize", updateMaxSections);
 });
 
 const cpuValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuUsage) || 0));
@@ -265,21 +363,52 @@ const totalRam = computed(() => systemStatsStore.totalRam);
 
 const tempValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuTemp) || 0));
 
-const diskValue = computed(() => Math.round(parseFloat(systemStatsStore.hardDiskUsage) || 0));
-const hardDiskTotal = computed(() => systemStatsStore.hardDiskTotal);
+const allDisksForWidget = computed(() => {
+  return diskStore.allDisks.slice().sort((a, b) => {
+    if (a.is_system && !b.is_system) return -1;
+    if (!a.is_system && b.is_system) return 1;
+    if (a.internal && !b.internal) return -1;
+    if (!a.internal && b.internal) return 1;
+    return (a.label || a.device).localeCompare(b.label || b.device);
+  });
+});
 
-const externalDefaultDisk = computed(() => systemStatsStore.externalDefaultDisk);
-const externalDiskValue = computed(() => Math.round(parseFloat(systemStatsStore.externalDiskUsage) || 0));
-const externalDiskTotal = computed(() => systemStatsStore.externalDiskTotal);
-const formattedExternalDiskTotal = computed(() => {
-  const totalGB = Number(externalDiskTotal.value);
-  if (isNaN(totalGB)) return "0";
-  return totalGB > 900 ? (totalGB / 1024).toFixed(2) : totalGB.toString();
+const DISKS_PAGE_SIZE = 2;
+const diskPageIndex = ref(0);
+const diskSlideDirection = ref("disk-slide-right");
+const totalDiskPages = computed(() => Math.ceil(allDisksForWidget.value.length / DISKS_PAGE_SIZE));
+const visibleDisks = computed(() => {
+  if (allDisksForWidget.value.length <= DISKS_PAGE_SIZE) return allDisksForWidget.value;
+  const start = diskPageIndex.value * DISKS_PAGE_SIZE;
+  return allDisksForWidget.value.slice(start, start + DISKS_PAGE_SIZE);
 });
-const diskUnit = computed(() => {
-  const totalGB = Number(externalDiskTotal.value);
-  return totalGB > 900 ? "TB" : "GB";
+
+function navigateDisks(delta: number) {
+  diskSlideDirection.value = delta > 0 ? "disk-slide-left" : "disk-slide-right";
+  diskPageIndex.value += delta;
+}
+
+watch(allDisksForWidget, () => {
+  if (diskPageIndex.value >= totalDiskPages.value) {
+    diskPageIndex.value = Math.max(0, totalDiskPages.value - 1);
+  }
 });
+
+function iconForMediaType(mediaType: string) {
+  switch (mediaType) {
+    case "nvme":
+      return harddiskPlusIcon;
+    case "ssd":
+    case "hdd":
+      return diskIcon;
+    case "usb":
+      return externalDiskIcon;
+    case "optical":
+      return discIcon;
+    default:
+      return sdIcon;
+  }
+}
 
 const networkDown = computed(() => systemStatsStore.downloadData);
 const networkUp = computed(() => systemStatsStore.uploadData);
@@ -413,6 +542,54 @@ const homeDockUptime = computed(() => systemStatsStore.startTime);
   margin-bottom: 0.5rem;
 }
 
+.section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+  margin: -0.125rem -0.25rem;
+  padding: 0.125rem 0.25rem;
+  transition: opacity 0.15s ease;
+}
+
+.section-toggle:hover {
+  opacity: 0.7;
+}
+
+.section-chevron {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+
+.section-chevron-collapsed {
+  transform: rotate(-90deg);
+}
+
+.section-content {
+  overflow: hidden;
+}
+
+.section-collapse-enter-active,
+.section-collapse-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.section-collapse-enter-from,
+.section-collapse-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.section-collapse-enter-to,
+.section-collapse-leave-from {
+  opacity: 1;
+  max-height: 300px;
+}
+
 /* Stat Cards */
 .stat-card {
   display: flex;
@@ -474,7 +651,9 @@ const homeDockUptime = computed(() => systemStatsStore.startTime);
 .progress-fill {
   height: 100%;
   border-radius: 2px;
-  transition: width 0.3s ease, background 0.2s ease;
+  transition:
+    width 0.3s ease,
+    background 0.2s ease;
 }
 
 .stat-grid {
@@ -672,5 +851,80 @@ const homeDockUptime = computed(() => systemStatsStore.startTime);
   .stat-unit {
     font-size: 0.575rem;
   }
+}
+
+.disk-carousel-viewport {
+  overflow: hidden;
+  position: relative;
+}
+
+.disk-slide-left-enter-active,
+.disk-slide-left-leave-active,
+.disk-slide-right-enter-active,
+.disk-slide-right-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.disk-slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.disk-slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.disk-slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.disk-slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.disk-slide-left-leave-active,
+.disk-slide-right-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.disk-carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 4px 0 2px;
+}
+
+.disk-carousel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.disk-carousel-btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.disk-carousel-btn-disabled {
+  opacity: 0.2 !important;
+  cursor: default;
+}
+
+.disk-carousel-indicator {
+  font-size: 0.65rem;
+  min-width: 32px;
+  text-align: center;
 }
 </style>

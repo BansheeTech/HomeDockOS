@@ -34,6 +34,7 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useSSEStore } from "../__Stores__/useSSEStore";
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 
 import { useResponsive } from "../__Composables__/useResponsive";
@@ -58,7 +59,8 @@ const { availableHeight } = useResponsive();
 useMobileZoomPrevention();
 
 const desktopStore = useDesktopStore();
-const systemStatsStore = useSystemStatsStore();
+const sseStore = useSSEStore();
+useSystemStatsStore();
 
 const desktopIconsGridRef = ref<InstanceType<typeof DesktopIconsGrid> | null>(null);
 
@@ -74,11 +76,11 @@ function handleDesktopClick(e: MouseEvent) {
 
 onMounted(() => {
   desktopStore.initialize();
-  systemStatsStore.startPolling();
+  sseStore.startPolling();
 });
 
 onUnmounted(() => {
-  systemStatsStore.stopPolling();
+  sseStore.stopPolling();
 });
 </script>
 

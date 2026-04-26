@@ -17,12 +17,10 @@ from pymodules.hd_FunctionsMain import get_total_containers, get_active_containe
 from pymodules.hd_FunctionsMain import actual_uptime, get_server_uptime
 from pymodules.hd_FunctionsMain import get_cpu_max_speed, get_cpu_cores, get_total_ram
 from pymodules.hd_FunctionsMain import get_active_network_interface
-from pymodules.hd_FunctionsMain import get_total_disk, get_configured_external_drives, get_total_external_disk
-from pymodules.hd_ExternalDriveManager import get_valid_external_drives
+from pymodules.hd_ExternalDriveManager import get_all_disks_summary
 
 from pymodules.hd_DashboardMetrics import get_cpu_temp, get_cpu_usage, get_ram_usage
 from pymodules.hd_DashboardMetrics import get_download_data, get_upload_data
-from pymodules.hd_DashboardMetrics import get_disk_usage, get_external_disk_usage
 from pymodules.hd_EnterpriseLoader import is_enterprise_loaded
 
 
@@ -31,8 +29,6 @@ def desktop():
     config = read_config()
     user_name = config["user_name"]
     interface_name = get_active_network_interface()
-    external_disk_device = get_configured_external_drives()
-    external_path = external_disk_device[0] if external_disk_device else None
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
 
@@ -44,14 +40,17 @@ def desktop():
     delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
     delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
     delete_internal_data_volumes = config["delete_internal_data_volumes"]
+    reverse_proxy = config["reverse_proxy"]
     default_external_drive = config["default_external_drive"]
+    require_protected_paths_password = config["require_protected_paths_password"]
+    disksplus_session_timeout_minutes = config["disksplus_session_timeout_minutes"]
 
     download_gb = get_download_data(interface_name)["received"]
     upload_gb = get_upload_data(interface_name)["sent"]
     vdownload_formatted = f"{download_gb} GB" if download_gb is not None else "0 GB"
     vupload_formatted = f"{upload_gb} GB" if upload_gb is not None else "0 GB"
 
-    valid_drives = get_valid_external_drives()
+    valid_disks_summary = get_all_disks_summary()
 
     return render_template(
         "desktop.html",
@@ -66,7 +65,10 @@ def desktop():
         delete_old_image_containers_after_update=delete_old_image_containers_after_update,
         delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
         delete_internal_data_volumes=delete_internal_data_volumes,
+        reverse_proxy=reverse_proxy,
         default_external_drive=default_external_drive,
+        require_protected_paths_password=require_protected_paths_password,
+        disksplus_session_timeout_minutes=disksplus_session_timeout_minutes,
         version=version,
         version_hash=version_hash,
         year=current_year,
@@ -85,13 +87,7 @@ def desktop():
         get_cpu_max_speed=get_cpu_max_speed(),
         ram_usage=get_ram_usage(),
         total_ram=get_total_ram(),
-        hard_disk_usage=get_disk_usage(),
-        hard_disk_total=get_total_disk(),
-        external_disk_usage=get_external_disk_usage(),
-        external_disk_total=get_total_external_disk(),
-        external_default_disk=get_configured_external_drives(),
-        external_path=external_path,
-        valid_drives=valid_drives,
+        valid_disks_summary=valid_disks_summary,
         enterprise_available=is_enterprise_loaded(),
         nonce=g.get("nonce", ""),
     )

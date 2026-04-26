@@ -8,11 +8,13 @@ https://www.banshee.pro
 import os
 import hashlib
 
+from datetime import datetime
+
 from flask import jsonify, request
 from flask_login import login_required, current_user
 
 from pymodules.hd_FunctionsGlobals import current_directory
-from pymodules.hd_FunctionsMain import get_server_uptime_minutes
+from pymodules.hd_FunctionsMain import start_time
 from pymodules.hd_FunctionsHostSelector import is_docker
 from pymodules.hd_ThreadNotificationsFetcher import get_external_notifications
 
@@ -71,7 +73,7 @@ def get_notifications():
 
         all_notifications.append({"title": "Change the default password!", "message": "It's dangerous to go alone! If you're using the default password make sure you change it as soon as possible!", "permanent": True, "allowRemove": True})
 
-        uptime_minutes = get_server_uptime_minutes()
+        uptime_minutes = (datetime.now() - start_time).total_seconds() / 60
 
         if uptime_minutes >= 10:
             all_notifications.append({"title": "Are you enjoying HomeDock OS?", "message": "If you find it useful, give us a star on GitHub, it helps us a lot to keep growing!", "permanent": True, "allowRemove": True, "actionUrl": "https://github.com/BansheeTech/HomeDockOS", "actionText": "Star on GitHub"})

@@ -11,7 +11,7 @@ export interface UploadFile {
   size: number;
 }
 
-export type UploadLocation = "storage" | "dropzone" | "appdrive";
+export type UploadLocation = "storage" | "dropzone" | "appdrive" | "disksplus";
 
 interface LocationState {
   currentlyUploading: UploadFile[];
@@ -33,6 +33,11 @@ export const useUploadingStore = defineStore("UploadingStore", {
         uploadProgress: {} as Record<string, number>,
       },
       appdrive: {
+        currentlyUploading: [] as UploadFile[],
+        queue: [] as UploadFile[],
+        uploadProgress: {} as Record<string, number>,
+      },
+      disksplus: {
         currentlyUploading: [] as UploadFile[],
         queue: [] as UploadFile[],
         uploadProgress: {} as Record<string, number>,
@@ -69,7 +74,7 @@ export const useUploadingStore = defineStore("UploadingStore", {
       },
     // Global getters for any location uploading
     isAnyUploading(): boolean {
-      return this.isUploadingAt("storage") || this.isUploadingAt("dropzone") || this.isUploadingAt("appdrive");
+      return this.isUploadingAt("storage") || this.isUploadingAt("dropzone") || this.isUploadingAt("appdrive") || this.isUploadingAt("disksplus");
     },
   },
   actions: {

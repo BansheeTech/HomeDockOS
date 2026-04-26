@@ -42,6 +42,8 @@
 
         <UnifiedUploadIndicator location="appdrive" title="App Drive Uploads" :badgeIcon="cubeScanIcon" trayId="appdrive-upload-indicator" />
 
+        <UnifiedUploadIndicator location="disksplus" title="Disks+ Uploads" :badgeIcon="harddiskIcon" trayId="disksplus-upload-indicator" />
+
         <NetworkOfflineTray />
 
         <AudioIndicator />
@@ -94,6 +96,9 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
 
+import type { ThemeData } from "../__Types__/ThemeData";
+import type { SettingsData } from "../__Types__/SettingsData";
+
 import { Icon } from "@iconify/vue";
 import themeIconLight from "@iconify-icons/mdi/white-balance-sunny";
 import themeIconDark from "@iconify-icons/mdi/weather-night";
@@ -114,6 +119,7 @@ import AudioIndicator from "../__Components__/AudioIndicator.vue";
 import cubeIcon from "@iconify-icons/mdi/cube";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
 import folderIcon from "@iconify-icons/mdi/folder";
+import harddiskIcon from "@iconify-icons/mdi/harddisk";
 import NetworkOfflineTray from "../__Components__/NetworkOfflineTray.vue";
 import SessionExpiredTray from "../__Components__/SessionExpiredTray.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";
@@ -135,9 +141,9 @@ const windowStore = useWindowStore();
 const { taskbarHeight, showTaskbarLabels } = useResponsive();
 const { themeClasses } = useTheme();
 
-const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
-const settingsData = inject<{ userName: string }>("data-settings");
-const userName = computed(() => settingsData?.userName || "User");
+const themeData = inject<ThemeData | null>("data-theme", null);
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const userName = computed(() => settingsData?.user_name || "User");
 
 const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
 
@@ -166,7 +172,7 @@ const contextMenu = ref({
 const contextMenuRef = ref<HTMLElement | null>(null);
 
 const themeIcon = computed(() => {
-  return themeData?.selectedTheme === "dark-mode-theme" ? themeIconLight : themeIconDark;
+  return themeData?.selected_theme === "dark-mode-theme" ? themeIconLight : themeIconDark;
 });
 
 const openWindows = computed(() => windowStore.windows);

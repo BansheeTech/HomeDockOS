@@ -13,51 +13,11 @@ import { setCsrfTokenGetter } from "../__Services__/DockerAPIFetchContainerData"
 
 import EnterpriseSRILoader from "../__Utils__/EnterpriseSRILoader";
 
-interface ThemeData {
-  selected_theme: string;
-  selected_back: string;
-}
-
-interface CommonData {
-  version: string;
-  enterprise_available: boolean;
-}
-
-interface SettingsData {
-  user_name: string;
-  run_port: number;
-  dynamic_dns: string;
-  local_dns: boolean;
-  run_on_development: boolean;
-  disable_usage_data: boolean;
-  delete_old_image_containers_after_update: boolean;
-  delete_old_image_containers_after_uninstall: boolean;
-  delete_internal_data_volumes: boolean;
-  reverse_proxy: boolean;
-  default_external_drive: string;
-}
-
-interface DashboardData {
-  cpu_temp: string;
-  get_cpu_max_speed: string;
-  cpu_usage: string;
-  cpu_cores: string;
-  ram_usage: string;
-  total_ram: string;
-  hard_disk_usage: string;
-  hard_disk_total: string;
-  external_default_disk: string;
-  external_disk_usage: string;
-  external_disk_total: string;
-  valid_drives: string[];
-  interface_name: string;
-  vdownload: string;
-  vupload: string;
-  n_total_containers: string;
-  n_active_containers: string;
-  uptime_data: string;
-  start_time: string;
-}
+import type { ThemeData } from "../__Types__/ThemeData";
+import type { CommonData } from "../__Types__/CommonData";
+import type { SettingsData } from "../__Types__/SettingsData";
+import type { DashboardData } from "../__Types__/DashboardData";
+import type { DiskData } from "../__Types__/DiskData";
 
 function parseBase64Data(id: string): any {
   const element = document.getElementById(id)?.textContent;
@@ -78,8 +38,9 @@ const themeData = parseBase64Data("data-theme") as ThemeData | null;
 const commonData = parseBase64Data("data-common") as CommonData | null;
 const settingsData = parseBase64Data("data-settings") as SettingsData | null;
 const dashboardData = parseBase64Data("data-dashboard") as DashboardData | null;
+const disksData = parseBase64Data("data-disks") as DiskData[] | null;
 
-if (themeData && commonData && settingsData && dashboardData) {
+if (themeData && commonData && settingsData && dashboardData && disksData) {
   const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
 
   const app = createApp(Desktop);
@@ -92,68 +53,26 @@ if (themeData && commonData && settingsData && dashboardData) {
   const faviconHeadAdder = createHead();
   app.use(faviconHeadAdder);
 
-  const reactiveTheme = reactive({
-    selectedTheme: themeData.selected_theme,
-    selectedBack: themeData.selected_back,
-  });
+  const reactiveTheme = reactive({ ...themeData });
   app.provide("data-theme", reactiveTheme);
 
-  const updateTheme = (newTheme: { selectedTheme?: string; selectedBack?: string }) => {
-    if (newTheme.selectedTheme !== undefined) {
-      reactiveTheme.selectedTheme = newTheme.selectedTheme;
-    }
-    if (newTheme.selectedBack !== undefined) {
-      reactiveTheme.selectedBack = newTheme.selectedBack;
-    }
+  const updateTheme = (newTheme: Partial<ThemeData>) => {
+    Object.assign(reactiveTheme, newTheme);
   };
   app.provide("update-theme", updateTheme);
 
-  app.provide("data-common", {
-    version: commonData.version,
-  });
+  app.provide("data-common", commonData);
 
-  const reactiveSettings = reactive({
-    userName: settingsData.user_name,
-    runPort: settingsData.run_port,
-    dynamicDNS: settingsData.dynamic_dns,
-    localDNS: settingsData.local_dns,
-    runOnDev: settingsData.run_on_development,
-    disableUsageData: settingsData.disable_usage_data,
-    deleteImageOnUpdate: settingsData.delete_old_image_containers_after_update,
-    deleteImageOnUninstall: settingsData.delete_old_image_containers_after_uninstall,
-    deleteInternalDataVolumes: settingsData.delete_internal_data_volumes,
-    reverseProxy: settingsData.reverse_proxy,
-    defaultExternalDrive: settingsData.default_external_drive,
-    validDrives: Array.isArray(dashboardData.valid_drives) ? dashboardData.valid_drives : [],
-  });
+  const reactiveSettings = reactive({ ...settingsData });
   app.provide("data-settings", reactiveSettings);
 
-  const updateSettings = (newSettings: Partial<typeof reactiveSettings>) => {
+  const updateSettings = (newSettings: Partial<SettingsData>) => {
     Object.assign(reactiveSettings, newSettings);
   };
   app.provide("update-settings", updateSettings);
 
-  app.provide("data-dashboard", {
-    cpuTemp: dashboardData.cpu_temp,
-    cpuGhz: dashboardData.get_cpu_max_speed,
-    cpuUsage: dashboardData.cpu_usage,
-    cpuCores: dashboardData.cpu_cores,
-    ramUsage: dashboardData.ram_usage,
-    totalRam: dashboardData.total_ram,
-    hardDiskUsage: dashboardData.hard_disk_usage,
-    hardDiskTotal: dashboardData.hard_disk_total,
-    externalDefaultDisk: dashboardData.external_default_disk,
-    externalDiskUsage: dashboardData.external_disk_usage,
-    externalDiskTotal: dashboardData.external_disk_total,
-    validDrives: dashboardData.valid_drives,
-    interfaceName: dashboardData.interface_name,
-    downloadData: dashboardData.vdownload,
-    uploadData: dashboardData.vupload,
-    totalContainers: dashboardData.n_total_containers,
-    activeContainers: dashboardData.n_active_containers,
-    uptimeData: dashboardData.uptime_data,
-    startTime: dashboardData.start_time,
-  });
+  app.provide("data-dashboard", dashboardData);
+  app.provide("data-disks", disksData);
 
   const reactiveCsrfToken = reactive({
     value: csrfToken,
@@ -183,5 +102,6 @@ if (themeData && commonData && settingsData && dashboardData) {
     commonData: !!commonData,
     settingsData: !!settingsData,
     dashboardData: !!dashboardData,
+    disksData: !!disksData,
   });
 }

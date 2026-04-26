@@ -52,6 +52,7 @@ class StatsCollector:
         "active_containers": {"fmt": "str", "default": "0"},
         "system_uptime": {"fmt": "str", "default": "00:00", "cache_key": "uptime_data"},
         "homedock_uptime": {"fmt": "str", "default": "00:00"},
+        "disks_summary": {"fmt": "str", "default": "[]"},
     }
 
     def _format(self, val, fmt, default):

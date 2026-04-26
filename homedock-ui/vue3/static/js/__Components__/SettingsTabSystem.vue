@@ -38,6 +38,10 @@
         <Transition name="restart-badge">
           <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">Requires Restart</span>
         </Transition>
+        <Transition name="restart-badge">
+          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">SSL required on proxy</span>
+        </Transition>
+
       </template>
       <Switch v-model:checked="reverseProxyValue" name="FormInputReverseProxy" id="FormInputReverseProxy" />
     </SettingsItem>
@@ -103,18 +107,18 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-const portNumber = ref<number>(props.modelValue.runPort || 80);
-const hostnameValue = ref<string>(props.modelValue.hostname || "get.homedock.cloud");
-const homedockLocalValue = ref<boolean>(props.modelValue.localDNS || false);
-const initialLocalDNS = props.modelValue.localDNS || false;
+const portNumber = ref<number>(props.modelValue.run_port || 80);
+const hostnameValue = ref<string>(props.modelValue.dynamic_dns || "get.homedock.cloud");
+const homedockLocalValue = ref<boolean>(props.modelValue.local_dns || false);
+const initialLocalDNS = props.modelValue.local_dns || false;
 const localDNSChanged = computed(() => homedockLocalValue.value !== initialLocalDNS);
-const developmentValue = ref<boolean>(props.modelValue.developmentMode || false);
-const disableUsageDataValue = ref<boolean>(props.modelValue.disableUsageData || false);
-const delOldDataUpdateValue = ref<boolean>(props.modelValue.deleteOldImages || false);
-const delOldDataUninstallValue = ref<boolean>(props.modelValue.deleteOldImagesUninstall || false);
-const deleteOldVolumesUninstall = ref<boolean>(props.modelValue.deleteVolumesUninstall || false);
-const reverseProxyValue = ref<boolean>(props.modelValue.reverseProxy || false);
-const initialReverseProxy = props.modelValue.reverseProxy || false;
+const developmentValue = ref<boolean>(props.modelValue.run_on_development || false);
+const disableUsageDataValue = ref<boolean>(props.modelValue.disable_usage_data || false);
+const delOldDataUpdateValue = ref<boolean>(props.modelValue.delete_old_image_containers_after_update || false);
+const delOldDataUninstallValue = ref<boolean>(props.modelValue.delete_old_image_containers_after_uninstall || false);
+const deleteOldVolumesUninstall = ref<boolean>(props.modelValue.delete_internal_data_volumes || false);
+const reverseProxyValue = ref<boolean>(props.modelValue.reverse_proxy || false);
+const initialReverseProxy = props.modelValue.reverse_proxy || false;
 const reverseProxyChanged = computed(() => reverseProxyValue.value !== initialReverseProxy);
 
 const validateInput = (event: KeyboardEvent) => {
@@ -137,15 +141,15 @@ const portErrorMessage = computed(() => {
 
 watch(
   () => ({
-    runPort: portNumber.value,
-    hostname: hostnameValue.value,
-    localDNS: homedockLocalValue.value,
-    developmentMode: developmentValue.value,
-    disableUsageData: disableUsageDataValue.value,
-    deleteOldImages: delOldDataUpdateValue.value,
-    deleteOldImagesUninstall: delOldDataUninstallValue.value,
-    deleteVolumesUninstall: deleteOldVolumesUninstall.value,
-    reverseProxy: reverseProxyValue.value,
+    run_port: portNumber.value,
+    dynamic_dns: hostnameValue.value,
+    local_dns: homedockLocalValue.value,
+    run_on_development: developmentValue.value,
+    disable_usage_data: disableUsageDataValue.value,
+    delete_old_image_containers_after_update: delOldDataUpdateValue.value,
+    delete_old_image_containers_after_uninstall: delOldDataUninstallValue.value,
+    delete_internal_data_volumes: deleteOldVolumesUninstall.value,
+    reverse_proxy: reverseProxyValue.value,
   }),
   (newValue) => {
     emit("update:modelValue", newValue);

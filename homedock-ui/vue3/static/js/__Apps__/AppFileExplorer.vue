@@ -96,6 +96,60 @@
               </div>
             </div>
           </div>
+
+          <div class="disksplus-section">
+            <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
+              <Icon :icon="harddiskIcon" class="w-4 h-4 flex-shrink-0" />
+              <span class="truncate flex-1">Disks+</span>
+              <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
+              <Icon :icon="isDisksPlusExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
+              <span v-if="disksPlusStore.unlocked" class="absolute left-0 bottom-0 h-[2px] transition-[width,background-color] duration-500 ease-linear" :class="disksPlusSessionBarColor" :style="{ width: disksPlusSessionPercent + '%' }" aria-hidden="true"></span>
+            </button>
+
+            <div :class="['expand-wrapper', !isDisksPlusExpanded && 'collapsed']">
+              <div class="expand-content">
+                <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
+                  <template v-if="disksPlusStore.unlocked">
+                    <button v-for="disk in disksPlusStore.disks" :key="disk.id" @click="selectDisksPlusDisk(disk.id)" :class="[currentLocation === 'disksplus' && disksPlusStore.selectedDisk === disk.id ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs" :title="disk.mountpoint">
+                      <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span class="truncate flex-1">{{ disk.label || disk.device }}</span>
+                      <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
+                    </button>
+                    <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No disks detected</div>
+                    <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? `Auto-locks in ${disksPlusCountdown}` : 'Lock Disks+'">
+                      <Icon :icon="lockIcon" class="w-3 h-3" />
+                      <span class="flex-1">Lock Disks+</span>
+                      <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
+                        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
+                        <circle
+                          cx="8"
+                          cy="8"
+                          r="6"
+                          fill="none"
+                          :class="disksPlusSessionStrokeColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          :stroke-dasharray="37.7"
+                          :stroke-dashoffset="37.7 * (1 - disksPlusSessionPercent / 100)"
+                          style="
+                            transition:
+                              stroke-dashoffset 500ms linear,
+                              stroke 500ms linear;
+                          "
+                        />
+                      </svg>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                      <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span class="truncate">Unlock Disks+</span>
+                    </button>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div :class="[themeClasses.hrSelector]" class="my-2"></div>
@@ -265,6 +319,70 @@
                   </div>
                 </div>
 
+                <div class="disksplus-section">
+                  <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
+                    <Icon :icon="harddiskIcon" class="w-4 h-4 flex-shrink-0" />
+                    <span class="truncate flex-1">Disks+</span>
+                    <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
+                    <Icon :icon="isDisksPlusExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
+                    <span v-if="disksPlusStore.unlocked" class="absolute left-0 bottom-0 h-[2px] transition-[width,background-color] duration-500 ease-linear" :class="disksPlusSessionBarColor" :style="{ width: disksPlusSessionPercent + '%' }" aria-hidden="true"></span>
+                  </button>
+
+                  <div :class="['expand-wrapper', !isDisksPlusExpanded && 'collapsed']">
+                    <div class="expand-content">
+                      <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
+                        <template v-if="disksPlusStore.unlocked">
+                          <button
+                            v-for="disk in disksPlusStore.disks"
+                            :key="disk.id"
+                            @click="
+                              selectDisksPlusDisk(disk.id);
+                              isNavPopoverOpen = false;
+                            "
+                            :class="[currentLocation === 'disksplus' && disksPlusStore.selectedDisk === disk.id ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
+                            class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                            :title="disk.mountpoint"
+                          >
+                            <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 flex-shrink-0" />
+                            <span class="truncate flex-1">{{ disk.label || disk.device }}</span>
+                            <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
+                          </button>
+                          <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No disks detected</div>
+                          <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? `Auto-locks in ${disksPlusCountdown}` : 'Lock Disks+'">
+                            <Icon :icon="lockIcon" class="w-3 h-3" />
+                            <span class="flex-1">Lock Disks+</span>
+                            <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
+                              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
+                              <circle
+                                cx="8"
+                                cy="8"
+                                r="6"
+                                fill="none"
+                                :class="disksPlusSessionStrokeColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                :stroke-dasharray="37.7"
+                                :stroke-dashoffset="37.7 * (1 - disksPlusSessionPercent / 100)"
+                                style="
+                                  transition:
+                                    stroke-dashoffset 500ms linear,
+                                    stroke 500ms linear;
+                                "
+                              />
+                            </svg>
+                          </button>
+                        </template>
+                        <template v-else>
+                          <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                            <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
+                            <span class="truncate">Unlock Disks+</span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div :class="[themeClasses.hrSelector]" class="my-2"></div>
 
                 <div class="sidebar-section">
@@ -334,7 +452,7 @@
         </div>
 
         <transition name="mobile-search-icon">
-          <button v-if="!isSearchExpanded && (currentLocation === 'storage' || currentLocation === 'dropzone' || (currentLocation === 'appdrive' && selectedContainer))" @click="isSearchExpanded = true" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0" title="Search">
+          <button v-if="!isSearchExpanded && (currentLocation === 'storage' || currentLocation === 'dropzone' || (currentLocation === 'appdrive' && selectedContainer) || (currentLocation === 'disksplus' && disksPlusStore.selectedDisk))" @click="isSearchExpanded = true" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0" title="Search">
             <Icon :icon="magnifyIcon" class="w-4 h-4" />
           </button>
         </transition>
@@ -351,7 +469,7 @@
               <InputSearch ref="searchInputRef" v-model:value="searchQuery" placeholder="Search..." class="w-full text-sm [&_.ant-input-affix-wrapper]:!h-7 [&_.ant-input-affix-wrapper]:!py-0 [&_.ant-input-search-button]:!h-7 [&_.ant-input-search-button]:!flex [&_.ant-input-search-button]:!items-center [&_.ant-input-search-button]:!justify-center" size="small" enter-button @search="() => performSearch()">
                 <template #prefix>
                   <Icon v-if="isSearching" :icon="loadingIcon" :class="[themeClasses.dropZoneInputIcon, 'animate-spin']" class="mx-1" />
-                  <Icon v-else :icon="currentLocation === 'dropzone' ? cubeIcon : currentLocation === 'appdrive' ? cubeScanIcon : folderIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
+                  <Icon v-else :icon="currentLocation === 'dropzone' ? cubeIcon : currentLocation === 'appdrive' ? cubeScanIcon : currentLocation === 'disksplus' ? harddiskIcon : folderIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
                 </template>
               </InputSearch>
             </AutoComplete>
@@ -858,6 +976,9 @@
     </Upload>
 
     <StatusBubble :visible="showUploadStatus" :message="uploadStatusMessage" position="bottom-left" />
+
+    <DisksPlusUnlockModal v-model:visible="disksPlusUnlockVisible" @unlocked="onDisksPlusUnlocked" />
+    <DisksPlusDangerAuthModal />
   </div>
 </template>
 
@@ -873,6 +994,10 @@ import { useFileExplorerStore, type FileExplorerLocation } from "../__Stores__/u
 import { useUploadingStore, type UploadLocation } from "../__Stores__/useUploadingStore";
 import { useFileViewerPrefsStore } from "../__Stores__/useFileViewerPrefsStore";
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useDisksPlusStore, type DiskInfo } from "../__Stores__/useDisksPlusStore";
+import { useDangerAuth } from "../__Composables__/useDangerAuth";
+import DisksPlusUnlockModal from "../__Components__/DisksPlusUnlockModal.vue";
+import DisksPlusDangerAuthModal from "../__Components__/DisksPlusDangerAuthModal.vue";
 import { getStartMenuApps } from "../__Config__/WindowDefaultDetails";
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
 
@@ -900,6 +1025,7 @@ import excelFileIcon from "@iconify-icons/mdi/file-excel";
 import powerpointFileIcon from "@iconify-icons/mdi/file-powerpoint";
 import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
+import codeJsonIcon from "@iconify-icons/mdi/code-json";
 import unknownFileIcon from "@iconify-icons/mdi/file";
 import cloudUploadIcon from "@iconify-icons/mdi/cloud-upload";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
@@ -932,6 +1058,7 @@ import crosshairsGpsIcon from "@iconify-icons/mdi/crosshairs-gps";
 import appsIcon from "@iconify-icons/mdi/apps";
 import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
 import informationOutlineIcon from "@iconify-icons/mdi/information-outline";
+import harddiskIcon from "@iconify-icons/mdi/harddisk";
 
 import ContextMenu from "../__Components__/ContextMenu.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
@@ -976,9 +1103,10 @@ interface GroupedFiles {
 
 const props = defineProps<{
   _windowId?: string;
-  initialLocation?: "storage" | "dropzone" | "appdrive";
+  initialLocation?: "storage" | "dropzone" | "appdrive" | "disksplus";
   initialContainer?: string;
   initialMountIndex?: number;
+  initialDiskId?: string;
 }>();
 
 const { themeClasses } = useTheme();
@@ -987,6 +1115,53 @@ const desktopStore = useDesktopStore();
 const fileExplorerStore = useFileExplorerStore();
 const uploadStore = useUploadingStore();
 const fileViewerPrefs = useFileViewerPrefsStore();
+const disksPlusStore = useDisksPlusStore();
+const { withDangerCheck } = useDangerAuth();
+
+const disksPlusUnlockVisible = ref(false);
+
+function buildDiskAbsolutePath(mountpoint: string, relativePath: string): string {
+  if (!mountpoint) return relativePath;
+  if (!relativePath) return mountpoint;
+  const sep = mountpoint.includes("\\") ? "\\" : "/";
+  const base = mountpoint.endsWith(sep) ? mountpoint.slice(0, -sep.length) : mountpoint;
+  return `${base}${sep}${relativePath.replace(/^[\\/]+/, "")}`;
+}
+
+function currentDiskInfo(): DiskInfo | null {
+  return disksPlusStore.selectedDiskInfo;
+}
+
+const disksPlusCountdown = computed(() => {
+  if (!disksPlusStore.unlocked || disksPlusStore.session.ttl_seconds === 0) return "";
+  const secs = disksPlusStore.session.remaining_seconds;
+  if (secs <= 0) return "";
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+});
+
+const disksPlusSessionPercent = computed(() => {
+  const { remaining_seconds, ttl_seconds } = disksPlusStore.session;
+  if (!disksPlusStore.unlocked || ttl_seconds <= 0) return 0;
+  return Math.max(0, Math.min(100, (remaining_seconds / ttl_seconds) * 100));
+});
+
+const disksPlusSessionBarColor = computed(() => {
+  const p = disksPlusSessionPercent.value;
+  if (p > 60) return "bg-blue-500";
+  if (p > 35) return "bg-yellow-500";
+  if (p > 15) return "bg-orange-500";
+  return "bg-red-500";
+});
+
+const disksPlusSessionStrokeColor = computed(() => {
+  const p = disksPlusSessionPercent.value;
+  if (p > 60) return "stroke-blue-500";
+  if (p > 35) return "stroke-yellow-500";
+  if (p > 15) return "stroke-orange-500";
+  return "stroke-red-500";
+});
 const windowStore = useWindowStore();
 
 const { sortBy, sortDirection, viewMode } = storeToRefs(fileViewerPrefs);
@@ -1006,7 +1181,8 @@ const isLoadingContainers = ref(false);
 const isAppDriveExpanded = ref(false);
 const isStorageExpanded = ref(false);
 const isDropZoneExpanded = ref(false);
-const defaultStorageFolders = ["Notes", "Documents", "Photos", "Videos", "Music", "Downloads"];
+const isDisksPlusExpanded = ref(false);
+const defaultStorageFolders = ["Notes", "Sources", "Documents", "Photos", "Videos", "Music", "Downloads"];
 function isProtectedFolder(file: FileEntry): boolean {
   return currentLocation.value === "storage" && !currentPath.value && file.is_directory && defaultStorageFolders.includes(file.name);
 }
@@ -1054,6 +1230,8 @@ interface QueuedUpload {
   location: string;
   container?: string;
   mountIndex?: number;
+  diskId?: string;
+  diskAbsolutePath?: string;
 }
 const uploadQueue = ref<QueuedUpload[]>([]);
 const activeUploads = ref(0);
@@ -1109,7 +1287,8 @@ function updateMobileLayout(width: number) {
 const isNavPopoverOpen = ref(false);
 const isVolumePopoverOpen = ref(false);
 const isSearchExpanded = ref(false);
-const TEXT_EXTENSIONS = new Set(["txt", "md", "markdown", "json", "yml", "yaml", "xml", "conf", "ini", "env", "log", "js", "ts", "jsx", "tsx", "mjs", "cjs", "vue", "svelte", "astro", "py", "pyw", "pyi", "sh", "bash", "zsh", "fish", "ps1", "bat", "cmd", "css", "scss", "sass", "less", "styl", "html", "htm", "xhtml", "sql", "csv", "tsv", "c", "cpp", "h", "hpp", "cs", "java", "kt", "kts", "go", "rs", "rb", "php", "pl", "pm", "r", "rmd", "swift", "m", "mm", "scala", "groovy", "lua", "tcl", "tex", "latex", "sty", "cls", "bib", "bst", "dtx", "ins", "dockerfile", "makefile", "cmake", "gradle", "properties", "toml", "lock", "gitignore", "gitattributes", "editorconfig", "prettierrc", "eslintrc", "babelrc"]);
+const TEXT_EXTENSIONS = new Set(["txt", "md", "markdown", "csv", "tsv", "log", "env", "tex", "latex", "sty", "cls", "bib", "bst", "dtx", "ins", "properties", "lock", "gitignore", "gitattributes", "editorconfig", "prettierrc", "eslintrc", "babelrc"]);
+const CODE_EXTENSIONS = new Set(["json", "yml", "yaml", "xml", "conf", "ini", "js", "ts", "jsx", "tsx", "mjs", "cjs", "vue", "svelte", "astro", "py", "pyw", "pyi", "sh", "bash", "zsh", "fish", "ps1", "bat", "cmd", "css", "scss", "sass", "less", "styl", "html", "htm", "xhtml", "sql", "c", "cpp", "h", "hpp", "cs", "java", "kt", "kts", "go", "rs", "rb", "php", "pl", "pm", "r", "rmd", "swift", "m", "mm", "scala", "groovy", "lua", "tcl", "dockerfile", "makefile", "cmake", "gradle", "toml", "graphql", "requirements.txt"]);
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico", "tif", "tiff"]);
 const MEDIA_EXTENSIONS = new Set(["mp4", "webm", "ogv", "ogg", "mp3", "wav", "aac", "flac", "m4a"]);
 const PDF_EXTENSIONS = new Set(["pdf"]);
@@ -1186,7 +1365,7 @@ const systemAppsAsFiles = computed((): FileEntry[] => {
         _appId: app.id,
         _appIcon: app.icon,
         _appDescription: app.description,
-      } as FileEntry)
+      }) as FileEntry,
   );
 });
 
@@ -1203,7 +1382,7 @@ const utilitiesAsFiles = computed((): FileEntry[] => {
         _appId: util.id,
         _appIcon: util.icon,
         _appDescription: util.description,
-      } as FileEntry)
+      }) as FileEntry,
   );
 });
 
@@ -1227,6 +1406,9 @@ const canUpload = computed(() => {
   }
   if (currentLocation.value === "appdrive") {
     return selectedContainer.value && !isReadOnly.value;
+  }
+  if (currentLocation.value === "disksplus") {
+    return disksPlusStore.unlocked && !!disksPlusStore.selectedDisk;
   }
   return true;
 });
@@ -1253,6 +1435,10 @@ const locationLabel = computed(() => {
       return "System Apps";
     case "utilities":
       return "Utilities";
+    case "disksplus": {
+      const disk = currentDiskInfo();
+      return disk ? disk.label || disk.device : "Disks+";
+    }
     default:
       return "";
   }
@@ -1270,6 +1456,8 @@ const locationIcon = computed(() => {
       return appsIcon;
     case "utilities":
       return toolboxOutlineIcon;
+    case "disksplus":
+      return harddiskIcon;
     default:
       return folderIcon;
   }
@@ -1313,11 +1501,47 @@ const pathParts = computed(() => {
   return currentPath.value.split("/").filter((p) => p);
 });
 
+async function scrollFileIntoView(fileName: string) {
+  const selector = `[data-filename="${CSS.escape(fileName)}"]`;
+
+  const locate = (): HTMLElement | null => {
+    const scope = filesAreaRef.value || containerRef.value;
+    if (!scope) return null;
+    return scope.querySelector(selector) as HTMLElement | null;
+  };
+
+  const waitFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+  await nextTick();
+  await waitFrame();
+
+  let el = locate();
+  if (!el) {
+    await waitFrame();
+    el = locate();
+  }
+  if (!el) {
+    await nextTick();
+    el = locate();
+  }
+  if (!el) return;
+
+  el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+}
+
+function buildSpecialDisplayName(location: string, name: string, container: string | undefined, mountIndex: number | undefined): string {
+  if (location === "appdrive" && container) {
+    const mountSuffix = typeof mountIndex === "number" && mountIndex > 0 ? `:${mountIndex}` : "";
+    return `${container}${mountSuffix}/${name}`;
+  }
+  return name;
+}
+
 const displayFiles = computed(() => {
   if (currentLocation.value === "favorites") {
     return fileExplorerStore.favorites.map((f) => ({
       name: f.name,
-      display_name: f.name,
+      display_name: buildSpecialDisplayName(f.location, f.name, f.container, f.mount_index),
       size: 0,
       modified: f.added_at,
       is_directory: f.is_directory,
@@ -1325,12 +1549,13 @@ const displayFiles = computed(() => {
       _source: f.location,
       _sourcePath: f.path,
       _container: f.container,
+      _disk: (f as any).disk,
     }));
   }
   if (currentLocation.value === "recents") {
     return fileExplorerStore.recents.map((r) => ({
       name: r.name,
-      display_name: r.name,
+      display_name: buildSpecialDisplayName(r.location, r.name, r.container, r.mount_index),
       size: 0,
       modified: r.accessed_at,
       is_directory: r.is_directory,
@@ -1338,6 +1563,7 @@ const displayFiles = computed(() => {
       _source: r.location,
       _sourcePath: r.path,
       _container: r.container,
+      _disk: (r as any).disk,
     }));
   }
   return files.value;
@@ -1379,6 +1605,7 @@ const groupedDisplayFiles = computed(() => {
   const storageFiles = displayFiles.value.filter((f: any) => f._source === "storage");
   const dropzoneFiles = displayFiles.value.filter((f: any) => f._source === "dropzone");
   const appdriveFiles = displayFiles.value.filter((f: any) => f._source === "appdrive");
+  const disksplusFiles = displayFiles.value.filter((f: any) => f._source === "disksplus");
 
   if (storageFiles.length > 0) {
     groups.push({
@@ -1410,6 +1637,17 @@ const groupedDisplayFiles = computed(() => {
       files: appdriveFiles,
       positionedFiles: positionFilesInGrid(appdriveFiles, width),
       gridHeight: calculateGridHeight(appdriveFiles.length, width),
+    });
+  }
+
+  if (disksplusFiles.length > 0) {
+    groups.push({
+      key: "disksplus",
+      label: "Disks+",
+      icon: harddiskIcon,
+      files: disksplusFiles,
+      positionedFiles: positionFilesInGrid(disksplusFiles, width),
+      gridHeight: calculateGridHeight(disksplusFiles.length, width),
     });
   }
 
@@ -1582,7 +1820,7 @@ const isSearchMode = computed(() => {
 });
 
 const currentUploadLocation = computed((): UploadLocation | null => {
-  if (currentLocation.value === "storage" || currentLocation.value === "dropzone" || currentLocation.value === "appdrive") {
+  if (currentLocation.value === "storage" || currentLocation.value === "dropzone" || currentLocation.value === "appdrive" || currentLocation.value === "disksplus") {
     return currentLocation.value as UploadLocation;
   }
   return null;
@@ -1818,6 +2056,11 @@ const contextMenuItems = computed(() => {
 
         if (TEXT_EXTENSIONS.has(extension) || TEXT_EXTENSIONS.has(fileNameLower)) {
           items.push({ label: "Open in Notepad", icon: textFileIcon, action: () => openInNotepad(file) });
+          items.push({ label: "Open in Code", icon: codeFileIcon, action: () => openInCode(file) });
+        }
+        if (CODE_EXTENSIONS.has(extension) || CODE_EXTENSIONS.has(fileNameLower)) {
+          items.push({ label: "Open in Code", icon: codeFileIcon, action: () => openInCode(file) });
+          items.push({ label: "Open in Notepad", icon: textFileIcon, action: () => openInNotepad(file) });
         }
         if (IMAGE_EXTENSIONS.has(extension)) {
           items.push({ label: "Open in Image Viewer", icon: imageFileIcon, action: () => openInImageViewer(file) });
@@ -1833,7 +2076,7 @@ const contextMenuItems = computed(() => {
       }
 
       items.push({ divider: true });
-      const isFav = fileExplorerStore.isFavorite(currentLocation.value as "storage" | "dropzone" | "appdrive", currentPath.value, file.name);
+      const isFav = fileExplorerStore.isFavorite(currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus", currentPath.value, file.name);
       items.push({
         label: isFav ? "Remove from Favorites" : "Add to Favorites",
         icon: isFav ? starIcon : starOutlineIcon,
@@ -1868,6 +2111,7 @@ function getAppInfo(containerName: string) {
 }
 const specialFolderIcons: Record<string, any> = {
   Notes: notebookIcon,
+  Sources: codeJsonIcon,
   Documents: fileDocumentMultipleIcon,
   Photos: imageMultipleIcon,
   Videos: videoBoxIcon,
@@ -1970,6 +2214,61 @@ function setLocation(location: FileExplorerLocation) {
     loadFiles();
   } else if (location === "appdrive") {
     loadContainers();
+  } else if (location === "disksplus") {
+    openDisksPlusLocation();
+  }
+}
+
+async function openDisksPlusLocation() {
+  isDisksPlusExpanded.value = true;
+  isStorageExpanded.value = false;
+  isDropZoneExpanded.value = false;
+  isAppDriveExpanded.value = false;
+
+  if (!disksPlusStore.unlocked) {
+    await disksPlusStore.fetchStatus();
+  }
+  if (!disksPlusStore.unlocked) {
+    disksPlusUnlockVisible.value = true;
+    return;
+  }
+  if (disksPlusStore.dangerZonesList.length === 0) {
+    await disksPlusStore.fetchDangerZones();
+  }
+  await disksPlusStore.fetchDisks();
+  if (!disksPlusStore.selectedDisk && disksPlusStore.disks.length > 0) {
+    disksPlusStore.selectDisk(disksPlusStore.disks[0].id);
+  }
+  if (disksPlusStore.selectedDisk) {
+    loadFiles();
+  }
+}
+
+function selectDisksPlusDisk(diskId: string) {
+  disksPlusStore.selectDisk(diskId);
+  currentLocation.value = "disksplus";
+  currentPath.value = "";
+  searchQuery.value = "";
+  selectedFile.value = null;
+  selectedFiles.value.clear();
+  isNavPopoverOpen.value = false;
+  loadFiles();
+}
+
+async function onDisksPlusUnlocked() {
+  if (!disksPlusStore.selectedDisk && disksPlusStore.disks.length > 0) {
+    disksPlusStore.selectDisk(disksPlusStore.disks[0].id);
+  }
+  if (currentLocation.value === "disksplus" && disksPlusStore.selectedDisk) {
+    loadFiles();
+  }
+}
+
+async function lockDisksPlus() {
+  await disksPlusStore.lock();
+  if (currentLocation.value === "disksplus") {
+    currentLocation.value = "storage";
+    loadFiles();
   }
 }
 function openApp(appId: string) {
@@ -1983,6 +2282,7 @@ function toggleAppDriveExpanded() {
   if (isAppDriveExpanded.value) {
     isStorageExpanded.value = false;
     isDropZoneExpanded.value = false;
+    isDisksPlusExpanded.value = false;
     if (containers.value.length === 0) {
       loadContainers();
     }
@@ -1994,6 +2294,29 @@ function toggleStorageExpanded() {
   if (isStorageExpanded.value) {
     isDropZoneExpanded.value = false;
     isAppDriveExpanded.value = false;
+    isDisksPlusExpanded.value = false;
+  }
+}
+
+function toggleDisksPlusExpanded() {
+  isDisksPlusExpanded.value = !isDisksPlusExpanded.value;
+  if (isDisksPlusExpanded.value) {
+    isStorageExpanded.value = false;
+    isDropZoneExpanded.value = false;
+    isAppDriveExpanded.value = false;
+    if (!disksPlusStore.unlocked) {
+      disksPlusStore.fetchStatus().then(() => {
+        if (!disksPlusStore.unlocked) {
+          disksPlusUnlockVisible.value = true;
+        } else if (disksPlusStore.disks.length === 0) {
+          disksPlusStore.fetchDangerZones();
+          disksPlusStore.fetchDisks();
+        }
+      });
+    } else if (disksPlusStore.disks.length === 0) {
+      disksPlusStore.fetchDangerZones();
+      disksPlusStore.fetchDisks();
+    }
   }
 }
 
@@ -2012,6 +2335,7 @@ function toggleDropZoneExpanded() {
   if (isDropZoneExpanded.value) {
     isStorageExpanded.value = false;
     isAppDriveExpanded.value = false;
+    isDisksPlusExpanded.value = false;
     if (dropZoneFolders.value.length === 0) {
       loadDropZoneFolders();
     }
@@ -2098,8 +2422,39 @@ async function loadFiles() {
       params.container = selectedContainer.value;
       params.mount = String(selectedMountIndex.value);
       if (currentPath.value) params.path = currentPath.value;
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) {
+        files.value = [];
+        return;
+      }
+      endpoint = "/api/disksplus/files";
+      params.disk = disk.id;
+      if (currentPath.value) params.path = currentPath.value;
     } else {
       files.value = [];
+      return;
+    }
+
+    if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      const abs = disk ? buildDiskAbsolutePath(disk.mountpoint, currentPath.value) : "";
+      const prevPath = currentPath.value;
+      const result = await withDangerCheck(abs, async () => {
+        return await axios.get(endpoint, {
+          params,
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        });
+      });
+      if ((result as any)?._canceled) {
+        const parts = prevPath.split("/").filter(Boolean);
+        parts.pop();
+        currentPath.value = parts.join("/");
+        loadFiles();
+        return;
+      }
+      disksPlusStore.slideSession();
+      files.value = (result as any)?.data?.files || [];
       return;
     }
 
@@ -2182,6 +2537,11 @@ async function performSearch(forceSearch = false) {
       endpoint = "/api/appdrive/search";
       params.container = selectedContainer.value;
       params.mount = String(selectedMountIndex.value);
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) return;
+      endpoint = "/api/disksplus/search";
+      params.disk = disk.id;
     } else {
       return;
     }
@@ -2190,6 +2550,7 @@ async function performSearch(forceSearch = false) {
       params,
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
+    if (currentLocation.value === "disksplus") disksPlusStore.slideSession();
     files.value = response.data.files || [];
     currentPath.value = "";
   } catch (error) {
@@ -2292,6 +2653,28 @@ async function openInNotepad(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "text",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -2313,17 +2696,140 @@ async function openInNotepad(file: FileEntry) {
           source: currentLocation.value,
           container: currentLocation.value === "appdrive" ? selectedContainer.value : undefined,
           mountIndex: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+          disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id : undefined,
         },
       },
     });
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
+      });
+    }
+    setTimeout(() => {
+      delete downloadProgresses.value[file.name];
+      if (currentLocation.value === "dropzone") {
+        fileStates.value[file.name] = false;
+        loadingStates.value[file.name] = false;
+      }
+    }, 500);
+  } catch (error) {
+    delete downloadProgresses.value[file.name];
+    if (currentLocation.value === "dropzone") {
+      fileStates.value[file.name] = false;
+      loadingStates.value[file.name] = false;
+    }
+    message.error("Failed to open file");
+  }
+}
+
+async function openInCode(file: FileEntry) {
+  try {
+    downloadProgresses.value[file.name] = 0;
+    if (currentLocation.value === "dropzone") {
+      fileStates.value[file.name] = true;
+      loadingStates.value[file.name] = true;
+    }
+
+    let response;
+
+    if (currentLocation.value === "storage") {
+      response = await axios.get("/api/storage/download", {
+        params: { file: file.name },
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "text",
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          }
+        },
+      });
+    } else if (currentLocation.value === "dropzone") {
+      response = await axios.get(`/api/dropzone/download?file=${encodeURIComponent(file.name)}`, {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "text",
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          }
+        },
+      });
+    } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
+      response = await axios.get("/api/appdrive/download", {
+        params: {
+          container: selectedContainer.value,
+          mount: selectedMountIndex.value,
+          file: file.name,
+        },
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "blob",
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          }
+        },
+      });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "text",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
+    } else {
+      throw new Error("Invalid location or missing container");
+    }
+    let textContent: string;
+    if (currentLocation.value === "appdrive") {
+      textContent = await response.data.text();
+    } else {
+      textContent = response.data;
+    }
+
+    const fileName = file.display_name || file.name.split("/").pop() || file.name;
+
+    windowStore.openFileInApp("code", {
+      title: `Code - ${fileName}`,
+      data: {
+        externalFile: {
+          path: file.name,
+          content: textContent,
+          source: currentLocation.value,
+          container: currentLocation.value === "appdrive" ? selectedContainer.value : undefined,
+          mountIndex: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+          disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id : undefined,
+        },
+      },
+    });
+    if (!isSpecialLocation.value) {
+      fileExplorerStore.addToRecents({
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
+        path: currentPath.value,
+        name: file.name,
+        is_directory: false,
+        container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
+        mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2389,6 +2895,28 @@ async function openInImageViewer(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -2407,12 +2935,13 @@ async function openInImageViewer(file: FileEntry) {
     });
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2478,6 +3007,28 @@ async function openInPDFViewer(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -2494,12 +3045,13 @@ async function openInPDFViewer(file: FileEntry) {
     });
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2565,6 +3117,28 @@ async function openInMediaPlayer(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -2583,12 +3157,13 @@ async function openInMediaPlayer(file: FileEntry) {
     });
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2654,6 +3229,28 @@ async function openInBrusher(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -2673,12 +3270,13 @@ async function openInBrusher(file: FileEntry) {
     });
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2698,7 +3296,7 @@ async function openInBrusher(file: FileEntry) {
   }
 }
 
-async function verifyFileExists(source: string, path: string, fileName: string, container?: string, mountIndex?: number): Promise<boolean> {
+async function verifyFileExists(source: string, path: string, fileName: string, container?: string, mountIndex?: number, diskId?: string): Promise<boolean> {
   try {
     let endpoint = "";
     const params: Record<string, string> = {};
@@ -2714,6 +3312,10 @@ async function verifyFileExists(source: string, path: string, fileName: string, 
       params.container = container;
       params.mount = String(mountIndex || 0);
       if (path) params.path = path;
+    } else if (source === "disksplus" && diskId) {
+      endpoint = "/api/disksplus/files";
+      params.disk = diskId;
+      if (path) params.path = path;
     } else {
       return false;
     }
@@ -2722,6 +3324,7 @@ async function verifyFileExists(source: string, path: string, fileName: string, 
       params,
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
+    if (source === "disksplus") disksPlusStore.slideSession();
 
     const filesList = response.data.files || [];
     return filesList.some((f: FileEntry) => f.name === fileName || f.display_name === fileName);
@@ -2749,7 +3352,31 @@ async function handleFileDoubleClick(file: FileEntry) {
     const meta = file as any;
     const sourcePath = meta._sourcePath || "";
     const isFavorite = currentLocation.value === "favorites";
-    const exists = await verifyFileExists(meta._source, sourcePath, file.name, meta._container, meta._meta?.mount_index);
+
+    if (meta._source === "disksplus" && !disksPlusStore.unlocked) {
+      message.warning("Unlock Disks+ to access this file");
+      disksPlusUnlockVisible.value = true;
+      return;
+    }
+
+    let exists: boolean;
+    if (meta._source === "disksplus" && meta._disk) {
+      if (disksPlusStore.disks.length === 0) await disksPlusStore.fetchDisks();
+      const disk = disksPlusStore.disks.find((d) => d.id === meta._disk);
+      if (!disk) {
+        exists = false;
+      } else {
+        const relative = sourcePath ? `${sourcePath}/${file.name}` : file.name;
+        const abs = buildDiskAbsolutePath(disk.mountpoint, relative);
+        const res = await withDangerCheck(abs, async () => {
+          return await verifyFileExists(meta._source, sourcePath, file.name, undefined, undefined, meta._disk);
+        });
+        if (res && typeof res === "object" && (res as any)._canceled) return;
+        exists = res === true;
+      }
+    } else {
+      exists = await verifyFileExists(meta._source, sourcePath, file.name, meta._container, meta._meta?.mount_index, meta._disk);
+    }
 
     if (!exists) {
       message.error(`File "${file.display_name || file.name}" no longer exists`);
@@ -2769,27 +3396,38 @@ async function handleFileDoubleClick(file: FileEntry) {
       return;
     }
 
+    const selectAndScroll = () => {
+      if (file.is_directory) return;
+      selectedFiles.value.clear();
+      selectedFiles.value.add(file.name);
+      selectedFile.value = file.name;
+      scrollFileIntoView(file.name);
+    };
+
+    const targetPath = file.is_directory ? file.name : file.name.includes("/") ? file.name.split("/").slice(0, -1).join("/") : "";
+
     if (meta._source === "appdrive" && meta._container) {
       currentLocation.value = "appdrive";
       selectedContainer.value = meta._container;
       isAppDriveExpanded.value = true;
-      if (file.is_directory) {
-        currentPath.value = meta._sourcePath ? `${meta._sourcePath}/${file.name}` : file.name;
-      } else {
-        currentPath.value = meta._sourcePath || "";
-      }
+      currentPath.value = targetPath;
       const mountIdx = meta._meta?.mount_index !== undefined ? meta._meta.mount_index : 0;
       loadMounts(meta._container, mountIdx).then(() => {
-        loadFiles();
+        loadFiles().then(selectAndScroll);
       });
+    } else if (meta._source === "disksplus" && meta._disk) {
+      if (disksPlusStore.disks.length === 0) {
+        await disksPlusStore.fetchDisks();
+      }
+      disksPlusStore.selectDisk(meta._disk);
+      currentLocation.value = "disksplus";
+      isDisksPlusExpanded.value = true;
+      currentPath.value = targetPath;
+      loadFiles().then(selectAndScroll);
     } else {
       currentLocation.value = meta._source;
-      if (file.is_directory) {
-        currentPath.value = meta._sourcePath ? `${meta._sourcePath}/${file.name}` : file.name;
-      } else {
-        currentPath.value = meta._sourcePath || "";
-      }
-      loadFiles();
+      currentPath.value = targetPath;
+      loadFiles().then(selectAndScroll);
     }
     return;
   }
@@ -2800,7 +3438,9 @@ async function handleFileDoubleClick(file: FileEntry) {
     const extension = file.name.split(".").pop()?.toLowerCase() || "";
     const fileNameLower = file.name.toLowerCase();
 
-    if (TEXT_EXTENSIONS.has(extension) || TEXT_EXTENSIONS.has(fileNameLower)) {
+    if (CODE_EXTENSIONS.has(extension) || CODE_EXTENSIONS.has(fileNameLower)) {
+      openInCode(file);
+    } else if (TEXT_EXTENSIONS.has(extension) || TEXT_EXTENSIONS.has(fileNameLower)) {
       openInNotepad(file);
     } else if (IMAGE_EXTENSIONS.has(extension)) {
       openInImageViewer(file);
@@ -2872,10 +3512,32 @@ async function downloadFile(file: FileEntry) {
           }
         },
       });
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res;
     } else {
       throw new Error("Invalid location or missing container");
     }
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(new Blob([(response as any).data]));
     const link = document.createElement("a");
     link.href = url;
     const downloadName = file.display_name || file.name.split("/").pop() || "download";
@@ -2886,12 +3548,13 @@ async function downloadFile(file: FileEntry) {
     window.URL.revokeObjectURL(url);
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
-        location: currentLocation.value as "storage" | "dropzone" | "appdrive",
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
         path: currentPath.value,
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
         mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
       });
     }
     setTimeout(() => {
@@ -2938,7 +3601,7 @@ async function downloadAsZip(fileNames: string[]) {
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
           responseType: "blob",
-        }
+        },
       );
     } else if (currentLocation.value === "dropzone") {
       response = await axios.post(
@@ -2947,8 +3610,28 @@ async function downloadAsZip(fileNames: string[]) {
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
           responseType: "blob",
-        }
+        },
       );
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, currentPath.value);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.post(
+          "/api/disksplus/download-multiple",
+          { disk: disk.id, files: fileNames },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+            responseType: "blob",
+          },
+        );
+      });
+      if ((res as any)?._canceled) {
+        compressingFolders.value.clear();
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
       response = await axios.post(
         "/api/appdrive/download-multiple",
@@ -2960,7 +3643,7 @@ async function downloadAsZip(fileNames: string[]) {
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
           responseType: "blob",
-        }
+        },
       );
     } else {
       throw new Error("Invalid location or missing container");
@@ -3018,8 +3701,17 @@ async function confirmDelete() {
               mount: selectedMountIndex.value,
               file: fileName,
             },
-            { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } }
+            { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
           );
+        } else if (currentLocation.value === "disksplus") {
+          const disk = currentDiskInfo();
+          if (!disk) throw new Error("no_disk");
+          const abs = buildDiskAbsolutePath(disk.mountpoint, fileName);
+          const res = await withDangerCheck(abs, async () => {
+            return await axios.post("/api/disksplus/delete", { disk: disk.id, file: fileName }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+          });
+          if ((res as any)?._canceled) throw new Error("canceled");
+          disksPlusStore.slideSession();
         }
         successCount++;
       } catch {
@@ -3061,8 +3753,21 @@ async function confirmDelete() {
           mount: selectedMountIndex.value,
           file: fileToDelete.value.name,
         },
-        { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } }
+        { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
       );
+      message.success(`Deleted ${fileToDelete.value.display_name || fileToDelete.value.name}`);
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) {
+        message.error("No disk selected");
+        return;
+      }
+      const abs = buildDiskAbsolutePath(disk.mountpoint, fileToDelete.value.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.post("/api/disksplus/delete", { disk: disk.id, file: fileToDelete.value!.name }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+      });
+      if ((res as any)?._canceled) return;
+      disksPlusStore.slideSession();
       message.success(`Deleted ${fileToDelete.value.display_name || fileToDelete.value.name}`);
     } else {
       message.success("Deleted successfully");
@@ -3103,7 +3808,7 @@ async function performRename() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
       message.success(`Renamed to "${renameValue.value}"`);
     } else if (currentLocation.value === "dropzone") {
@@ -3115,7 +3820,7 @@ async function performRename() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
 
       if (response.data.success) {
@@ -3135,8 +3840,29 @@ async function performRename() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
+      message.success(`Renamed to "${renameValue.value}"`);
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) {
+        message.error("No disk selected");
+        return;
+      }
+      const abs = buildDiskAbsolutePath(disk.mountpoint, fileToRename.value.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.post(
+          "/api/disksplus/rename",
+          {
+            disk: disk.id,
+            old_name: fileToRename.value!.name,
+            new_name: renameValue.value.trim(),
+          },
+          { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+        );
+      });
+      if ((res as any)?._canceled) return;
+      disksPlusStore.slideSession();
       message.success(`Renamed to "${renameValue.value}"`);
     }
 
@@ -3169,7 +3895,7 @@ async function createFolder() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
       message.success(`Created folder "${newFolderName.value}"`);
     } else if (currentLocation.value === "dropzone") {
@@ -3181,7 +3907,7 @@ async function createFolder() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
 
       if (response.data.success) {
@@ -3201,8 +3927,29 @@ async function createFolder() {
         },
         {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        }
+        },
       );
+      message.success(`Created folder "${newFolderName.value}"`);
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) {
+        message.error("No disk selected");
+        return;
+      }
+      const abs = buildDiskAbsolutePath(disk.mountpoint, currentPath.value);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.post(
+          "/api/disksplus/create-folder",
+          {
+            disk: disk.id,
+            name: newFolderName.value.trim(),
+            path: currentPath.value,
+          },
+          { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+        );
+      });
+      if ((res as any)?._canceled) return;
+      disksPlusStore.slideSession();
       message.success(`Created folder "${newFolderName.value}"`);
     }
 
@@ -3219,7 +3966,7 @@ async function createFolder() {
 }
 
 async function toggleFavorite(file: FileEntry) {
-  const loc = currentLocation.value as "storage" | "dropzone" | "appdrive";
+  const loc = currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus";
   const isFav = fileExplorerStore.isFavorite(loc, currentPath.value, file.name);
 
   if (isFav) {
@@ -3237,6 +3984,7 @@ async function toggleFavorite(file: FileEntry) {
       is_directory: file.is_directory,
       container: loc === "appdrive" ? selectedContainer.value || undefined : undefined,
       mount_index: loc === "appdrive" ? selectedMountIndex.value : undefined,
+      disk: loc === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
     });
     message.success("Added to favorites");
   }
@@ -3248,7 +3996,31 @@ async function locateFileFromSpecial(file: FileEntry) {
 
   const sourcePath = meta._sourcePath || "";
   const isFavorite = currentLocation.value === "favorites";
-  const exists = await verifyFileExists(meta._source, sourcePath, file.name, meta._container, meta._meta?.mount_index);
+
+  if (meta._source === "disksplus" && !disksPlusStore.unlocked) {
+    message.warning("Unlock Disks+ to access this file");
+    disksPlusUnlockVisible.value = true;
+    return;
+  }
+
+  let exists: boolean;
+  if (meta._source === "disksplus" && meta._disk) {
+    if (disksPlusStore.disks.length === 0) await disksPlusStore.fetchDisks();
+    const disk = disksPlusStore.disks.find((d) => d.id === meta._disk);
+    if (!disk) {
+      exists = false;
+    } else {
+      const relative = sourcePath ? `${sourcePath}/${file.name}` : file.name;
+      const abs = buildDiskAbsolutePath(disk.mountpoint, relative);
+      const res = await withDangerCheck(abs, async () => {
+        return await verifyFileExists(meta._source, sourcePath, file.name, undefined, undefined, meta._disk);
+      });
+      if (res && typeof res === "object" && (res as any)._canceled) return;
+      exists = res === true;
+    }
+  } else {
+    exists = await verifyFileExists(meta._source, sourcePath, file.name, meta._container, meta._meta?.mount_index, meta._disk);
+  }
 
   if (!exists) {
     message.error(`"${file.display_name || file.name}" no longer exists`);
@@ -3279,7 +4051,22 @@ async function locateFileFromSpecial(file: FileEntry) {
         selectedFiles.value.clear();
         selectedFiles.value.add(file.name);
         selectedFile.value = file.name;
+        scrollFileIntoView(file.name);
       });
+    });
+  } else if (meta._source === "disksplus" && meta._disk) {
+    if (disksPlusStore.disks.length === 0) {
+      await disksPlusStore.fetchDisks();
+    }
+    disksPlusStore.selectDisk(meta._disk);
+    currentLocation.value = "disksplus";
+    isDisksPlusExpanded.value = true;
+    currentPath.value = sourcePath;
+    loadFiles().then(() => {
+      selectedFiles.value.clear();
+      selectedFiles.value.add(file.name);
+      selectedFile.value = file.name;
+      scrollFileIntoView(file.name);
     });
   } else {
     currentLocation.value = meta._source;
@@ -3288,6 +4075,7 @@ async function locateFileFromSpecial(file: FileEntry) {
       selectedFiles.value.clear();
       selectedFiles.value.add(file.name);
       selectedFile.value = file.name;
+      scrollFileIntoView(file.name);
     });
   }
 }
@@ -3382,7 +4170,7 @@ function confirmFolderUpload() {
   if (pendingUploadData.value) {
     handleFilesUpload(
       pendingUploadData.value.allFiles.map((f) => f.file),
-      pendingUploadData.value.allFiles
+      pendingUploadData.value.allFiles,
     );
   }
   folderUploadWarningVisible.value = false;
@@ -3430,19 +4218,36 @@ async function processUploadQueue() {
             endpoint = "/api/appdrive/upload";
             formData.append("container", nextUpload.container);
             formData.append("mount", String(nextUpload.mountIndex || 0));
+          } else if (nextUpload.location === "disksplus" && nextUpload.diskId) {
+            endpoint = "/api/disksplus/upload";
+            formData.append("disk", nextUpload.diskId);
           }
 
-          const response = await axios.post(endpoint, formData, {
-            headers: {
-              "X-HomeDock-CSRF-Token": csrfToken.value,
-            },
-            onUploadProgress: (progressEvent) => {
-              if (progressEvent.total) {
-                const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-                uploadStore.updateProgress(loc, nextUpload.uid, percent);
-              }
-            },
-          });
+          const doUpload = async () =>
+            await axios.post(endpoint, formData, {
+              headers: {
+                "X-HomeDock-CSRF-Token": csrfToken.value,
+              },
+              onUploadProgress: (progressEvent) => {
+                if (progressEvent.total) {
+                  const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+                  uploadStore.updateProgress(loc, nextUpload.uid, percent);
+                }
+              },
+            });
+
+          let response;
+          if (nextUpload.location === "disksplus" && nextUpload.diskAbsolutePath) {
+            const res = await withDangerCheck(nextUpload.diskAbsolutePath, doUpload);
+            if ((res as any)?._canceled) {
+              uploadStore.cancelUpload(loc, nextUpload.uid);
+              return;
+            }
+            disksPlusStore.slideSession();
+            response = res as any;
+          } else {
+            response = await doUpload();
+          }
 
           if (!response.data.success) {
             uploadStore.cancelUpload(loc, nextUpload.uid);
@@ -3484,10 +4289,12 @@ async function handleFilesUpload(filesList: File[], withPaths?: Array<{ file: Fi
   const container = selectedContainer.value || undefined;
   const mountIndex = selectedMountIndex.value;
   const basePath = currentPath.value;
-  const isValidLocation = location === "storage" || location === "dropzone" || location === "appdrive";
+  const isValidLocation = location === "storage" || location === "dropzone" || location === "appdrive" || location === "disksplus";
   if (!isValidLocation) return;
 
   const loc = location as UploadLocation;
+  const disk = location === "disksplus" ? currentDiskInfo() : null;
+  if (location === "disksplus" && !disk) return;
 
   for (let i = 0; i < filesList.length; i++) {
     const file = filesList[i];
@@ -3516,6 +4323,8 @@ async function handleFilesUpload(filesList: File[], withPaths?: Array<{ file: Fi
       location,
       container,
       mountIndex,
+      diskId: disk?.id,
+      diskAbsolutePath: disk ? buildDiskAbsolutePath(disk.mountpoint, targetPath) : undefined,
     });
   }
   processUploadQueue();
@@ -3543,6 +4352,7 @@ function closeContextMenu() {
 
 function showFileProperties(file: FileEntry) {
   closeContextMenu();
+  const disk = currentLocation.value === "disksplus" ? currentDiskInfo() : null;
   windowStore.openWindow("fileproperties", {
     title: `${file.display_name || file.name} - Properties`,
     allowMultiple: true,
@@ -3556,7 +4366,9 @@ function showFileProperties(file: FileEntry) {
       },
       location: currentLocation.value,
       path: currentPath.value,
-      container: selectedContainer.value,
+      container: currentLocation.value === "appdrive" ? selectedContainer.value : undefined,
+      diskLabel: disk ? disk.label || disk.device : undefined,
+      diskMountpoint: disk ? disk.mountpoint : undefined,
     },
   });
 }
@@ -3834,6 +4646,7 @@ let filesResizeObserver: ResizeObserver | null = null;
 
 onMounted(async () => {
   await fileExplorerStore.initialize();
+  disksPlusStore.fetchStatus();
   if (props.initialLocation === "appdrive" && props.initialContainer) {
     currentLocation.value = "appdrive";
     selectedContainer.value = props.initialContainer;
@@ -3843,6 +4656,13 @@ onMounted(async () => {
   } else if (props.initialLocation === "dropzone") {
     currentLocation.value = "dropzone";
     isDropZoneExpanded.value = true;
+    loadFiles();
+    loadContainers();
+  } else if (props.initialLocation === "disksplus" && props.initialDiskId) {
+    isDisksPlusExpanded.value = true;
+    if (disksPlusStore.unlocked) {
+      selectDisksPlusDisk(props.initialDiskId);
+    }
     loadFiles();
     loadContainers();
   } else if (props.initialLocation === "storage") {
@@ -3885,6 +4705,11 @@ async function handleIncomingNavigation(event: CustomEvent) {
     currentPath.value = "";
     isAppDriveExpanded.value = true;
     await loadMounts(data.initialContainer, data.initialMountIndex);
+  } else if (data?.initialLocation === "disksplus" && data?.initialDiskId) {
+    isDisksPlusExpanded.value = true;
+    if (disksPlusStore.unlocked) {
+      selectDisksPlusDisk(data.initialDiskId);
+    }
   }
 }
 
@@ -3917,7 +4742,7 @@ watch(searchQuery, (newVal) => {
     loadFiles();
     return;
   }
-  const canSearch = currentLocation.value === "dropzone" || currentLocation.value === "storage" || (currentLocation.value === "appdrive" && selectedContainer.value);
+  const canSearch = currentLocation.value === "dropzone" || currentLocation.value === "storage" || (currentLocation.value === "appdrive" && selectedContainer.value) || (currentLocation.value === "disksplus" && disksPlusStore.selectedDisk);
   if (newVal.trim().length >= 2 && canSearch) {
     searchTimeout = setTimeout(() => {
       performSearch(true);
@@ -3936,7 +4761,7 @@ watch(
         files.value = [];
       }
     }
-  }
+  },
 );
 watch(
   () => desktopStore.dockerApps.map((app) => ({ name: app.name, status: app.status })),
@@ -3949,7 +4774,7 @@ watch(
       return container;
     });
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
@@ -4107,7 +4932,9 @@ watch(
 .nav-burger-close {
   position: absolute;
   inset: 0;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease;
 }
 
 .nav-burger-menu {

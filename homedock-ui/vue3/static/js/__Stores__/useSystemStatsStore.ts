@@ -3,164 +3,38 @@
 // See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import axios from "axios";
 import { defineStore } from "pinia";
 import { ref, inject } from "vue";
-import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { registerSSERef } from "./useSSEStore";
 
-interface DashboardData {
-  cpuTemp?: string;
-  cpuGhz?: string;
-  cpuUsage?: string;
-  cpuCores?: string;
-  ramUsage?: string;
-  totalRam?: string;
-  hardDiskUsage?: string;
-  hardDiskTotal?: string;
-  externalDefaultDisk?: string;
-  externalDiskUsage?: string;
-  externalDiskTotal?: string;
-  interfaceName?: string;
-  downloadData?: string;
-  uploadData?: string;
-  totalContainers?: string;
-  activeContainers?: string;
-  uptimeData?: string;
-  startTime?: string;
-}
-
-const keyToRefName: Record<string, string> = {
-  cpu_temp: "cpuTemp",
-  cpu_usage: "cpuUsage",
-  ram_usage: "ramUsage",
-  disk_usage: "hardDiskUsage",
-  external_disk_usage: "externalDiskUsage",
-  download_data: "downloadData",
-  upload_data: "uploadData",
-  total_containers: "totalContainers",
-  active_containers: "activeContainers",
-  system_uptime: "uptimeData",
-  homedock_uptime: "startTime",
-};
+import type { DashboardData } from "../__Types__/DashboardData";
 
 export const useSystemStatsStore = defineStore("systemStats", () => {
-  const dashboardData = inject<DashboardData>("data-dashboard");
-  const csrfToken = useCsrfToken();
+  const dashboardData = inject<DashboardData | null>("data-dashboard", null);
 
-  const cpuTemp = ref(dashboardData?.cpuTemp || "0");
-  const cpuGhz = ref(dashboardData?.cpuGhz || "0");
-  const cpuUsage = ref(dashboardData?.cpuUsage || "0");
-  const cpuCores = ref(dashboardData?.cpuCores || "0");
-  const ramUsage = ref(dashboardData?.ramUsage || "0");
-  const totalRam = ref(dashboardData?.totalRam || "0");
-  const hardDiskUsage = ref(dashboardData?.hardDiskUsage || "0");
-  const hardDiskTotal = ref(dashboardData?.hardDiskTotal || "0");
-  const externalDefaultDisk = ref(dashboardData?.externalDefaultDisk || "disabled");
-  const externalDiskUsage = ref(dashboardData?.externalDiskUsage || "0");
-  const externalDiskTotal = ref(dashboardData?.externalDiskTotal || "0");
-  const interfaceName = ref(dashboardData?.interfaceName || "Network");
-  const downloadData = ref(dashboardData?.downloadData || "0 GB");
-  const uploadData = ref(dashboardData?.uploadData || "0 GB");
-  const totalContainers = ref(dashboardData?.totalContainers || "0");
-  const activeContainers = ref(dashboardData?.activeContainers || "0");
-  const uptimeData = ref(dashboardData?.uptimeData || "0d 0h");
-  const startTime = ref(dashboardData?.startTime || "0d 0h");
+  const cpuTemp = ref(dashboardData?.cpu_temp || "0");
+  const cpuGhz = ref(dashboardData?.get_cpu_max_speed || "0");
+  const cpuUsage = ref(dashboardData?.cpu_usage || "0");
+  const cpuCores = ref(dashboardData?.cpu_cores || "0");
+  const ramUsage = ref(dashboardData?.ram_usage || "0");
+  const totalRam = ref(dashboardData?.total_ram || "0");
+  const interfaceName = ref(dashboardData?.interface_name || "Network");
+  const downloadData = ref(dashboardData?.vdownload || "0 GB");
+  const uploadData = ref(dashboardData?.vupload || "0 GB");
+  const totalContainers = ref(dashboardData?.n_total_containers || "0");
+  const activeContainers = ref(dashboardData?.n_active_containers || "0");
+  const uptimeData = ref(dashboardData?.uptime_data || "0d 0h");
+  const startTime = ref(dashboardData?.start_time || "0d 0h");
 
-  const refs: Record<string, ReturnType<typeof ref<string>>> = {
-    cpuTemp,
-    cpuUsage,
-    ramUsage,
-    hardDiskUsage,
-    externalDiskUsage,
-    downloadData,
-    uploadData,
-    totalContainers,
-    activeContainers,
-    uptimeData,
-    startTime,
-  };
-
-  let abortController: AbortController | null = null;
-  let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
-  let reconnectDelay = 0;
-
-  function applyData(data: Record<string, string>) {
-    for (const [sseKey, value] of Object.entries(data)) {
-      const refName = keyToRefName[sseKey];
-      if (refName && refs[refName]) {
-        refs[refName].value = String(value);
-      }
-    }
-  }
-
-  function startPolling() {
-    if (abortController) return;
-    abortController = new AbortController();
-
-    const connect = () => {
-      const signal = abortController!.signal;
-      let lastIndex = 0;
-      let buffer = "";
-
-      axios
-        .get("/stream/stats", {
-          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-          signal,
-          responseType: "text",
-          onDownloadProgress: (progressEvent) => {
-            const responseText = (progressEvent.event?.target as XMLHttpRequest)?.responseText;
-            if (!responseText) return;
-
-            const newData = responseText.substring(lastIndex);
-            lastIndex = responseText.length;
-
-            const combined = buffer + newData;
-            const parts = combined.split("\n\n");
-            buffer = parts.pop()!;
-
-            for (const part of parts) {
-              if (!part.trim()) continue;
-              let event = "message";
-              let data = "";
-              for (const line of part.split("\n")) {
-                if (line.startsWith("event: ")) event = line.slice(7);
-                else if (line.startsWith("data: ")) data = line.slice(6);
-              }
-              if (data && (event === "snapshot" || event === "patch")) {
-                try {
-                  applyData(JSON.parse(data));
-                } catch {
-                  /* nope */
-                }
-              }
-            }
-          },
-        })
-        .then(() => {
-          reconnectDelay = 0;
-          if (!signal.aborted) connect();
-        })
-        .catch(() => {
-          if (signal.aborted) return;
-          reconnectDelay = Math.min((reconnectDelay || 1500) * 2, 60000);
-          const jitter = reconnectDelay * (0.5 + Math.random() * 0.5);
-          reconnectTimeout = setTimeout(connect, jitter);
-        });
-    };
-
-    connect();
-  }
-
-  function stopPolling() {
-    if (reconnectTimeout !== null) {
-      clearTimeout(reconnectTimeout);
-      reconnectTimeout = null;
-    }
-    if (abortController) {
-      abortController.abort();
-      abortController = null;
-    }
-  }
+  registerSSERef("cpu_temp", cpuTemp);
+  registerSSERef("cpu_usage", cpuUsage);
+  registerSSERef("ram_usage", ramUsage);
+  registerSSERef("download_data", downloadData);
+  registerSSERef("upload_data", uploadData);
+  registerSSERef("total_containers", totalContainers);
+  registerSSERef("active_containers", activeContainers);
+  registerSSERef("system_uptime", uptimeData);
+  registerSSERef("homedock_uptime", startTime);
 
   return {
     cpuTemp,
@@ -169,11 +43,6 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
     cpuCores,
     ramUsage,
     totalRam,
-    hardDiskUsage,
-    hardDiskTotal,
-    externalDefaultDisk,
-    externalDiskUsage,
-    externalDiskTotal,
     interfaceName,
     downloadData,
     uploadData,
@@ -181,8 +50,5 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
     activeContainers,
     uptimeData,
     startTime,
-
-    startPolling,
-    stopPolling,
   };
 });

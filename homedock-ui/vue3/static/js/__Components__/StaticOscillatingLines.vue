@@ -53,7 +53,9 @@ export default defineComponent({
     const numLines = props.numLines;
     const pointsPerLine = props.pointsPerLine;
     const amplitude = props.amplitude;
-    const speed = 0.001;
+    const baseSpeed = 0.001;
+    const errorSpeed = 0.004;
+    const speed = ref(baseSpeed);
     const opacity = ref(0);
     const opacityIncrement = 0.03;
 
@@ -162,13 +164,19 @@ export default defineComponent({
     watch(
       () => props.isError,
       (val) => {
-        if (val) disperseWithSurvivors();
+        if (val) {
+          disperseWithSurvivors();
+          speed.value = errorSpeed;
+        }
       },
     );
     watch(
       () => props.isChecking,
       (val) => {
-        if (val) resetLines();
+        if (val) {
+          resetLines();
+          speed.value = baseSpeed;
+        }
       },
     );
 
@@ -253,7 +261,7 @@ export default defineComponent({
           }
 
           for (const point of line) {
-            point.phase += speed;
+            point.phase += speed.value;
             const baseY = point.yBase + amplitude * Math.sin(point.phase);
             const mouseEffect = getMouseInfluence(point.x, point.currentY);
             point.targetY = baseY + mouseEffect;

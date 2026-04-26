@@ -218,3 +218,34 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/fileexplorer/recents/add", "add_recent", CSRF_Protect(add_recent), methods=["POST"])
     homedock_www.add_url_rule("/api/fileexplorer/recents/remove", "remove_recent", CSRF_Protect(remove_recent), methods=["POST"])
     homedock_www.add_url_rule("/api/fileexplorer/recents/clear", "clear_recents", CSRF_Protect(clear_recents), methods=["POST"])
+
+    from pymodules.hd_DisksPlusAuth import disksplus_status, disksplus_danger_zones, disksplus_unlock, disksplus_lock, disksplus_danger_auth
+    from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_upload_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files
+    from pymodules.hd_ThreadDisksPlus import disksplus_events_stream
+
+    homedock_www.add_url_rule("/api/disksplus/status", "disksplus_status", CSRF_Protect(disksplus_status), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/danger-zones", "disksplus_danger_zones", CSRF_Protect(disksplus_danger_zones), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/unlock", "disksplus_unlock", CSRF_Protect(disksplus_unlock), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/lock", "disksplus_lock", CSRF_Protect(disksplus_lock), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/danger-auth", "disksplus_danger_auth", CSRF_Protect(disksplus_danger_auth), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/disks", "disksplus_list_disks", CSRF_Protect(disksplus_list_disks), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/files", "disksplus_list_files", CSRF_Protect(disksplus_list_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/search", "disksplus_search_files", CSRF_Protect(disksplus_search_files), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/download", "disksplus_download_file", CSRF_Protect(disksplus_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/download-multiple", "disksplus_download_multiple", CSRF_Protect(disksplus_download_multiple), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/upload", "disksplus_upload_file", CSRF_Protect(disksplus_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/delete", "disksplus_delete_file", CSRF_Protect(disksplus_delete_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/create-folder", "disksplus_create_folder", CSRF_Protect(disksplus_create_folder), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/rename", "disksplus_rename_item", CSRF_Protect(disksplus_rename_item), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/events", "disksplus_events_stream", CSRF_Protect(disksplus_events_stream), methods=["GET"])
+
+    from pymodules.hd_UICalendar import api_calendar_get_events, api_calendar_save_event, api_calendar_delete_event, api_calendar_get_world_clocks, api_calendar_save_world_clocks, api_calendar_get_calendars, api_calendar_save_calendar, api_calendar_delete_calendar
+
+    homedock_www.add_url_rule("/api/calendar/events", "calendar_get_events", CSRF_Protect(api_calendar_get_events), methods=["GET"])
+    homedock_www.add_url_rule("/api/calendar/events/save", "calendar_save_event", CSRF_Protect(api_calendar_save_event), methods=["POST"])
+    homedock_www.add_url_rule("/api/calendar/events/delete", "calendar_delete_event", CSRF_Protect(api_calendar_delete_event), methods=["POST"])
+    homedock_www.add_url_rule("/api/calendar/world-clocks", "calendar_get_world_clocks", CSRF_Protect(api_calendar_get_world_clocks), methods=["GET"])
+    homedock_www.add_url_rule("/api/calendar/world-clocks/save", "calendar_save_world_clocks", CSRF_Protect(api_calendar_save_world_clocks), methods=["POST"])
+    homedock_www.add_url_rule("/api/calendar/calendars", "calendar_get_calendars", CSRF_Protect(api_calendar_get_calendars), methods=["GET"])
+    homedock_www.add_url_rule("/api/calendar/calendars/save", "calendar_save_calendar", CSRF_Protect(api_calendar_save_calendar), methods=["POST"])
+    homedock_www.add_url_rule("/api/calendar/calendars/delete", "calendar_delete_calendar", CSRF_Protect(api_calendar_delete_calendar), methods=["POST"])

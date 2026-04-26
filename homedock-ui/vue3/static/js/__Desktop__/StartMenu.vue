@@ -114,6 +114,8 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
+import type { SettingsData } from "../__Types__/SettingsData";
+
 import { Icon } from "@iconify/vue";
 import searchIcon from "@iconify-icons/mdi/magnify";
 import closeIcon from "@iconify-icons/mdi/close";
@@ -133,15 +135,17 @@ import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu
 import monitorPlusIcon from "@iconify-icons/mdi/monitor-cellphone-star";
 
 import { clientSignOut } from "../__Services__/ClientSignOut";
+import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
+const disksPlusStore = useDisksPlusStore();
 const { isMobile, gridColumns } = useResponsive();
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 
-const settingsData = inject<{ userName: string }>("data-settings");
-const userName = computed(() => settingsData?.userName || "User");
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const userName = computed(() => settingsData?.user_name || "User");
 
 const searchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
@@ -303,7 +307,8 @@ async function handleWrapperContextMenu(event: MouseEvent) {
   }
 }
 
-function handleLogout() {
+async function handleLogout() {
+  await disksPlusStore.lock();
   clientSignOut(csrfToken.value);
 }
 
@@ -440,7 +445,7 @@ watch(
         }, 100);
       });
     }
-  }
+  },
 );
 </script>
 
@@ -481,7 +486,9 @@ watch(
 @media (min-width: 769px) {
   .start-menu-enter-active,
   .start-menu-leave-active {
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
   }
 
   .start-menu-enter-from,
@@ -495,7 +502,9 @@ watch(
 @media (max-width: 768px) {
   .start-menu-enter-active,
   .start-menu-leave-active {
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .start-menu-enter-from,

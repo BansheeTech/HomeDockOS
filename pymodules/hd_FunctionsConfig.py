@@ -14,6 +14,17 @@ from pymodules.hd_FunctionsGlobals import current_directory, compose_upload_fold
 from pymodules.hd_ExternalDriveManager import get_default_external_drive
 
 
+ALLOWED_DISKSPLUS_SESSION_MINUTES = (0, 3, 5, 10, 15)
+
+
+def _clamp_session_timeout(value):
+    try:
+        minutes = int(value)
+    except (TypeError, ValueError):
+        return 10
+    return minutes if minutes in ALLOWED_DISKSPLUS_SESSION_MINUTES else 10
+
+
 def check_and_generate_config():
     config_file = os.path.join(current_directory, "homedock_server.conf")
 
@@ -39,6 +50,8 @@ def check_and_generate_config():
             "delete_internal_data_volumes": "True",
             "reverse_proxy": "False",
             "default_external_drive": default_external_drive,
+            "require_protected_paths_password": "True",
+            "disksplus_session_timeout_minutes": "10",
             "selected_theme": "default",
             "selected_back": "back1.jpg",
             "2fa_enabled": "False",
@@ -118,6 +131,14 @@ def check_and_update_config():
             config.set("Config", "reverse_proxy", "False")
             missing_options.append("reverse_proxy")
 
+        if not config.has_option("Config", "require_protected_paths_password"):
+            config.set("Config", "require_protected_paths_password", "True")
+            missing_options.append("require_protected_paths_password")
+
+        if not config.has_option("Config", "disksplus_session_timeout_minutes"):
+            config.set("Config", "disksplus_session_timeout_minutes", "10")
+            missing_options.append("disksplus_session_timeout_minutes")
+
         if missing_options:
             with open(config_file, "w") as configfile:
                 config.write(configfile)
@@ -161,6 +182,8 @@ def read_config():
         "2fa_backup_codes": config.get("Config", "2fa_backup_codes"),
         "2fa_whitelist_hashes": config.get("Config", "2fa_whitelist_hashes", fallback=""),
         "reverse_proxy": config.getboolean("Config", "reverse_proxy", fallback=False),
+        "require_protected_paths_password": config.getboolean("Config", "require_protected_paths_password", fallback=True),
+        "disksplus_session_timeout_minutes": _clamp_session_timeout(config.get("Config", "disksplus_session_timeout_minutes", fallback="10")),
     }
 
     return config_dict

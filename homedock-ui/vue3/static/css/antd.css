@@ -1006,3 +1006,221 @@ input.ant-input-disabled.aero-mode-theme:hover {
 .aero-mode-theme.ant-select-multiple .ant-select-selection-placeholder {
   color: rgba(154, 154, 154, 0.54) !important;
 }
+
+.calendar-picker-popup {
+  z-index: 10100 !important;
+}
+
+.white-mode-theme.ant-picker .ant-picker-input > input {
+  border: 0 !important;
+}
+
+.dark-mode-theme.ant-picker {
+  background-color: rgb(39, 39, 42) !important;
+  border: 1px solid rgb(64, 64, 64) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.dark-mode-theme.ant-picker .ant-picker-input > input {
+  color: rgb(200, 200, 200) !important;
+  background-color: transparent !important;
+}
+
+.dark-mode-theme.ant-picker .ant-picker-input > input::placeholder {
+  color: rgb(100, 100, 100) !important;
+}
+
+.dark-mode-theme.ant-picker .ant-picker-suffix,
+.dark-mode-theme.ant-picker .ant-picker-clear {
+  color: rgb(115, 115, 115) !important;
+  background: transparent !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-panel-container {
+  background-color: rgb(39, 39, 42) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-panel {
+  border-color: rgb(64, 64, 64) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-header {
+  color: rgb(200, 200, 200) !important;
+  border-bottom-color: rgb(64, 64, 64) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-header button {
+  color: rgb(115, 115, 115) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-header button:hover {
+  color: rgb(200, 200, 200) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-content th {
+  color: rgb(115, 115, 115) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-cell {
+  color: rgb(80, 80, 80) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view {
+  color: rgb(200, 200, 200) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: rgb(96, 165, 250) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: rgb(59, 130, 246) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: rgb(55, 55, 58) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-today-btn {
+  color: rgb(96, 165, 250) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-footer {
+  border-top-color: rgb(64, 64, 64) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-time-panel-column {
+  border-inline-start-color: rgb(64, 64, 64) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+  color: rgb(200, 200, 200) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: rgb(55, 55, 58) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner:hover {
+  background-color: rgb(50, 50, 53) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-ranges .ant-picker-now-btn {
+  color: rgb(96, 165, 250) !important;
+}
+
+.dark-mode-theme.ant-picker-dropdown .ant-picker-ranges .ant-picker-ok .ant-btn-primary {
+  background-color: rgb(59, 130, 246) !important;
+  border-color: rgb(59, 130, 246) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.aero-mode-theme.ant-picker {
+  background-color: transparent !important;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.1) inset !important;
+  border: 1px solid rgba(64, 64, 64, 0.5) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.aero-mode-theme.ant-picker .ant-picker-input > input {
+  color: rgba(200, 200, 200, 0.9) !important;
+  background-color: transparent !important;
+}
+
+.aero-mode-theme.ant-picker .ant-picker-input > input::placeholder {
+  color: rgba(154, 154, 154, 0.54) !important;
+}
+
+.aero-mode-theme.ant-picker .ant-picker-suffix,
+.aero-mode-theme.ant-picker .ant-picker-clear {
+  color: rgb(115, 115, 115) !important;
+  background: transparent !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-panel-container {
+  background-color: rgb(30, 30, 30) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-panel {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-header {
+  color: rgba(200, 200, 200, 0.9) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-header button {
+  color: rgba(154, 154, 154, 0.7) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-header button:hover {
+  color: rgba(200, 200, 200, 0.9) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-content th {
+  color: rgba(154, 154, 154, 0.7) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-cell {
+  color: rgba(100, 100, 100, 0.6) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view {
+  color: rgba(200, 200, 200, 0.9) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: rgba(96, 165, 250, 0.6) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: rgba(59, 130, 246, 0.6) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-today-btn {
+  color: rgba(96, 165, 250, 0.8) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-footer {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-time-panel-column {
+  border-inline-start-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+  color: rgba(200, 200, 200, 0.9) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-ranges .ant-picker-now-btn {
+  color: rgba(96, 165, 250, 0.8) !important;
+}
+
+.aero-mode-theme.ant-picker-dropdown .ant-picker-ranges .ant-picker-ok .ant-btn-primary {
+  background-color: rgba(59, 130, 246, 0.6) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: rgb(255, 255, 255) !important;
+}

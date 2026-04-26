@@ -10,11 +10,13 @@
 <script lang="ts" setup>
 import { inject, computed, ref, watch } from "vue";
 
+import type { ThemeData } from "../__Types__/ThemeData";
+
 const HASH_STORAGE_KEY = "wallpaperHash";
 
-const themeData = inject<{ selectedTheme: string; selectedBack: string }>("data-theme");
+const themeData = inject<ThemeData | null>("data-theme", null);
 
-const isVisible = computed(() => themeData?.selectedTheme === "aeroplus");
+const isVisible = computed(() => themeData?.selected_theme === "aeroplus");
 const wallpaperHash = ref(localStorage.getItem(HASH_STORAGE_KEY) || "");
 
 function djb2(bytes: Uint8Array): string {
@@ -24,7 +26,7 @@ function djb2(bytes: Uint8Array): string {
 }
 
 watch(
-  () => themeData?.selectedBack,
+  () => themeData?.selected_back,
   async (back) => {
     if (!back?.startsWith("_back_custom")) {
       wallpaperHash.value = "";
@@ -45,11 +47,11 @@ watch(
 const backgroundStyle = computed(() => {
   let wallpaperUrl = "/images/back1.jpg";
 
-  if (themeData?.selectedBack) {
-    if (themeData.selectedBack.startsWith("_back_custom")) {
-      wallpaperUrl = `/images/user-wallpaper/${themeData.selectedBack}${wallpaperHash.value ? `?h=${wallpaperHash.value}` : ""}`;
+  if (themeData?.selected_back) {
+    if (themeData.selected_back.startsWith("_back_custom")) {
+      wallpaperUrl = `/images/user-wallpaper/${themeData.selected_back}${wallpaperHash.value ? `?h=${wallpaperHash.value}` : ""}`;
     } else {
-      wallpaperUrl = `/images/wallpapers/${themeData.selectedBack}`;
+      wallpaperUrl = `/images/wallpapers/${themeData.selected_back}`;
     }
   }
 

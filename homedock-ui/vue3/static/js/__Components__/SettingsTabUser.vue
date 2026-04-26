@@ -174,10 +174,10 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-const usernameValue = ref<string>(props.modelValue.username || "");
-const passwordCheckbox = ref<boolean>(props.modelValue.changePassword || false);
+const usernameValue = ref<string>(props.modelValue.user_name || "");
+const passwordCheckbox = ref<boolean>(props.modelValue.change_password || false);
 const passwordValue = ref<string>(props.modelValue.password || "");
-const confirmPassword = ref<string>(props.modelValue.confirmPassword || "");
+const confirmPassword = ref<string>(props.modelValue.confirm_password || "");
 
 const isUsernameValid = computed(() => /^[a-zA-Z0-9]+$/.test(usernameValue.value));
 
@@ -211,10 +211,10 @@ const confirmPasswordErrorMessage = computed(() => {
 
 watch(
   () => ({
-    username: usernameValue.value,
-    changePassword: passwordCheckbox.value,
+    user_name: usernameValue.value,
+    change_password: passwordCheckbox.value,
     password: passwordValue.value,
-    confirmPassword: confirmPassword.value,
+    confirm_password: confirmPassword.value,
   }),
   (newValue) => {
     emit("update:modelValue", newValue);

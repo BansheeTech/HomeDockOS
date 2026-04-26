@@ -17,7 +17,9 @@
 
     <Transition name="fade-slide" appear>
       <div v-if="appDisplayName" :class="[themeClasses.appStatusPill]" class="flex items-center gap-2.5 z-10 mt-1 px-5 py-1.5 rounded-full backdrop-blur-xl border">
-        <BaseImage v-if="appIconReady" :src="appIconSrc" :alt="appDisplayName" class="w-7 h-7 rounded-full shadow-sm" draggable="false" />
+        <Transition name="icon-slide">
+          <BaseImage v-if="appIconReady" :src="appIconSrc" :alt="appDisplayName" class="w-7 h-7 rounded-full shadow-sm" draggable="false" />
+        </Transition>
         <span class="text-lg font-semibold tracking-tight">{{ appDisplayName }}</span>
       </div>
     </Transition>
@@ -67,6 +69,8 @@ import { inject, onMounted, ref, computed } from "vue";
 import axios from "axios";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
+import type { PortData } from "../__Types__/PortData";
+
 import { Icon } from "@iconify/vue";
 import linkVariantOff from "@iconify-icons/mdi/link-variant-off";
 import loadingIcon from "@iconify-icons/mdi/loading";
@@ -87,18 +91,13 @@ const { themeClasses } = useTheme();
 
 const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
 
-const portData = inject<{
-  selectedPort: string;
-  selectedPath: string;
-  appSlug: string;
-  appDisplayName: string;
-}>("data-port");
+const portData = inject<PortData | null>("data-port", null);
 
 if (!portData) {
-  throw new Error("Settings data is missing!");
+  throw new Error("Port data is missing!");
 }
 
-const { selectedPort: port, selectedPath: path, appSlug, appDisplayName } = portData;
+const { selected_port: port, selected_path: path, selected_app_slug: appSlug, selected_app_display_name: appDisplayName } = portData;
 
 const isChecking = ref(true);
 const isSuccess = ref(false);
@@ -124,6 +123,13 @@ const resolveAppIcon = async (slug: string) => {
       try {
         const res = await fetch(`/images/${path}`, { method: "HEAD" });
         if (res.ok) {
+          const fullUrl = `/images/${path}`;
+          await new Promise<void>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => reject();
+            img.src = fullUrl;
+          });
           appIconSrc.value = path;
           appIconReady.value = true;
           return;
@@ -294,5 +300,16 @@ onMounted(() => {
 .fade-scale-up-leave-to {
   opacity: 0;
   transform: scale(0.95) translateY(-4px);
+}
+
+.icon-slide-enter-active {
+  transition:
+    opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.icon-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-12px) scale(0.85);
 }
 </style>

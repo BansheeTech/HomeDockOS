@@ -8,51 +8,37 @@ import { createHead } from "@unhead/vue/client";
 
 import ErrorCode from "../__Layouts__/ErrorCode.vue";
 
-interface ThemeData {
-  selected_theme: string;
-  selected_back: string;
-}
+import type { ThemeData } from "../__Types__/ThemeData";
+import type { ErrorData } from "../__Types__/ErrorData";
 
-interface ErrorData {
-  error_code: string;
-  error_message: string;
-}
-
-const base64ThemeData = document.getElementById("data-theme")?.textContent;
-const base64ErrorData = document.getElementById("data-error")?.textContent;
-
-if (base64ThemeData && base64ErrorData) {
-  try {
-    const themeJsonData = atob(base64ThemeData);
-    const errorJsonData = atob(base64ErrorData);
-
-    const themeData = JSON.parse(themeJsonData) as ThemeData;
-    const errorData = JSON.parse(errorJsonData) as ErrorData;
-
-    const app = createApp(ErrorCode);
-
-    app.provide("data-theme", {
-      selectedTheme: themeData.selected_theme,
-      selectedBack: themeData.selected_back,
-    });
-
-    app.provide("data-error", {
-      errorCode: errorData.error_code,
-      errorMessage: errorData.error_message,
-    });
-
-    const faviconHeadAdder = createHead();
-    app.use(faviconHeadAdder);
-
-    app.mount("#app-errorcode-root");
-  } catch (error) {
-    console.error("Error parsing data-theme or data-error objects:", error);
+function parseBase64Data(id: string): any {
+  const element = document.getElementById(id)?.textContent;
+  if (element) {
+    try {
+      const jsonData = atob(element);
+      return JSON.parse(jsonData);
+    } catch (error) {
+      console.error(`Error parsing data from element #${id}:`, error);
+    }
+  } else {
+    console.error(`Element with ID '${id}' not found or is empty.`);
   }
+  return null;
+}
+
+const themeData = parseBase64Data("data-theme") as ThemeData | null;
+const errorData = parseBase64Data("data-error") as ErrorData | null;
+
+if (themeData && errorData) {
+  const app = createApp(ErrorCode);
+
+  app.provide("data-theme", themeData);
+  app.provide("data-error", errorData);
+
+  const faviconHeadAdder = createHead();
+  app.use(faviconHeadAdder);
+
+  app.mount("#app-errorcode-root");
 } else {
-  if (!base64ThemeData) {
-    console.error("The element 'data-theme' wasn't found or it's empty.");
-  }
-  if (!base64ErrorData) {
-    console.error("The element 'data-error' wasn't found or it's empty.");
-  }
+  console.error("Required data is missing or invalid. Cannot initialize ErrorCode.");
 }

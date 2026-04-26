@@ -123,7 +123,10 @@ def get_total_ram():
 
 def get_total_disk():
     try:
-        disk_usage = psutil.disk_usage("/")
+        path = "/"
+        if running_OS == "Darwin" and os.path.isdir("/System/Volumes/Data"):
+            path = "/System/Volumes/Data"
+        disk_usage = psutil.disk_usage(path)
         total_disk = disk_usage.total / 1024 / 1024 / 1024
         return round(total_disk)
     except Exception as e:
@@ -204,22 +207,20 @@ def actual_uptime():
 
 def get_server_uptime():
     try:
-        current_time = datetime.now()
-        script_uptime = current_time - start_time
-        hours, remainder = divmod(script_uptime.seconds, 3600)
+        uptime = datetime.now() - start_time
+
+        days = uptime.days
+        hours, remainder = divmod(uptime.seconds, 3600)
         minutes, _ = divmod(remainder, 60)
-        return "{:02d}:{:02d}".format(int(hours), int(minutes))
+
+        if days > 0:
+            return "{}d:{:02d}:{:02d}".format(days, hours, minutes)
+        else:
+            return "{:02d}:{:02d}".format(hours, minutes)
+
     except Exception as e:
         print("Error getting HomeDock OS uptime:", e)
         return None
-
-
-def get_server_uptime_minutes():
-    try:
-        return (datetime.now() - start_time).total_seconds() / 60
-    except Exception as e:
-        print("Error getting HomeDock OS uptime in minutes:", e)
-        return 0
 
 
 def get_active_network_interface():

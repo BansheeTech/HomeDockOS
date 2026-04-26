@@ -8,17 +8,8 @@ import { createHead } from "@unhead/vue/client";
 
 import App from "../__Layouts__/App.vue";
 
-interface ThemeData {
-  selected_theme: string;
-  selected_back: string;
-}
-
-interface PortData {
-  selected_port: string;
-  selected_path: string;
-  selected_app_slug: string;
-  selected_app_display_name: string;
-}
+import type { ThemeData } from "../__Types__/ThemeData";
+import type { PortData } from "../__Types__/PortData";
 
 function parseBase64Data(id: string): any {
   const element = document.getElementById(id)?.textContent;
@@ -36,32 +27,18 @@ function parseBase64Data(id: string): any {
 }
 
 const themeData = parseBase64Data("data-theme") as ThemeData | null;
-
 const portData = parseBase64Data("data-port") as PortData | null;
 
 if (themeData && portData) {
-  try {
-    const app = createApp(App);
+  const app = createApp(App);
 
-    app.provide("data-theme", {
-      selectedTheme: themeData.selected_theme,
-      selectedBack: themeData.selected_back,
-    });
+  app.provide("data-theme", themeData);
+  app.provide("data-port", portData);
 
-    app.provide("data-port", {
-      selectedPort: portData.selected_port,
-      selectedPath: portData.selected_path,
-      appSlug: portData.selected_app_slug,
-      appDisplayName: portData.selected_app_display_name,
-    });
+  const faviconHeadAdder = createHead();
+  app.use(faviconHeadAdder);
 
-    const faviconHeadAdder = createHead();
-    app.use(faviconHeadAdder);
-
-    app.mount("#app-app-root");
-  } catch (error) {
-    console.error("Error initializing the Vue app:", error);
-  }
+  app.mount("#app-app-root");
 } else {
-  console.error("Required data (data-theme or data-initial) is missing or invalid.");
+  console.error("Required data is missing or invalid. Cannot initialize App.");
 }
