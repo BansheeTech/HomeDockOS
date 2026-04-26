@@ -1,6 +1,9 @@
 # CHANGELOG
 
-- **2.1.4.684** (Latest): PostCSS security dependency upgrade.
+- **2.1.4.686** (Latest): Filter Docker-injected bind mounts from Disks+.
+  - **Excluded `/etc/hosts`, `/etc/resolv.conf`, and `/etc/hostname`** from the disk list when running inside a container. These are internal bind mounts injected by the Docker runtime for network configuration and were incorrectly surfacing as mounted disks in Disks+. The filter should apply identically on Linux, Docker Desktop for macOS, and Docker Desktop for Windows.
+
+- **2.1.4.684**: PostCSS security dependency upgrade.
   - **Patched PostCSS CVE-2026-41305** (XSS via Unescaped `</style>` in CSS Stringify Output **opened 4 minutes ago**) by upgrading `postcss` (npm) to 8.5.10+. Pinned via npm overrides so every transitive consumer (Tailwind, Vite, Vue compiler) resolves to the patched version.
 
 - **2.1.4.682**: Disks+, Code editor, Calendar & World Clock, Notepad markdown preview, and type-safe data layer.

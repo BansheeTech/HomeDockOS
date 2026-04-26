@@ -66,6 +66,9 @@ _LINUX_REMOVABLE_MOUNT_PREFIXES = ("/media/", "/run/media/")
 _DOCKER_INTERNAL_MOUNTS = (
     "/DATA",
     "/homedock",
+    "/etc/hosts",
+    "/etc/resolv.conf",
+    "/etc/hostname",
 )
 
 
