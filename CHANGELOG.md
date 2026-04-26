@@ -1,6 +1,9 @@
 # CHANGELOG
 
-- **2.1.4.682** (Latest): Disks+, Code editor, Calendar & World Clock, Notepad markdown preview, and type-safe data layer.
+- **2.1.4.684** (Latest): PostCSS security dependency upgrade.
+  - **Patched PostCSS CVE-2026-41305** (XSS via Unescaped `</style>` in CSS Stringify Output **opened 4 minutes ago**) by upgrading `postcss` (npm) to 8.5.10+. Pinned via npm overrides so every transitive consumer (Tailwind, Vite, Vue compiler) resolves to the patched version.
+
+- **2.1.4.682**: Disks+, Code editor, Calendar & World Clock, Notepad markdown preview, and type-safe data layer.
   - **Introduced Disks+**, a new File Explorer location next to Storage, Drop Zone and App Drive. Unlock it with your password to start a timed session and browse every physical disk on the machine: internal SSDs, external USBs, optical drives, you name it. All the usual file operations work here too: list, download, upload (including **full folder drops with nested subdirectories**), delete, rename, create folder, ZIP multiple items, and recursive search with live results. Plug in a USB and it shows up in the sidebar automatically thanks to real-time hot-plug detection. Turns out you didn’t need to flash an ISO for that.
   - **Protected Zones** require a second password prompt before entering system-critical paths like `/etc`, `/boot`, `/sys`, `/proc`, `/root`, `/dev`, `/var/log`, `/usr/bin`, `/System`, `/Library`, `C:\Windows`, `C:\Program Files`, and others. Once you authorize a zone it stays open for the rest of the session. Locking or timing out wipes all grants. After 5 wrong attempts your IP gets locked out for 5 minutes.
   - **End-to-end password encryption** for unlock and zone-auth flows. Passwords never travel in plaintext, using the same RSA-OAEP + AES-GCM hybrid encryption already in place for saved settings and login.
