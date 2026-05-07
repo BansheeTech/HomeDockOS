@@ -4,7 +4,7 @@
 {# https://www.banshee.pro #}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ selected_language|default('en') }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, shrink-to-fit=no" />
@@ -42,6 +42,9 @@
           "default_external_drive": default_external_drive,
           "require_protected_paths_password": require_protected_paths_password,
           "disksplus_session_timeout_minutes": disksplus_session_timeout_minutes,
+          "selected_language": selected_language,
+          "clock_format": clock_format,
+          "week_start": week_start,
         } | b64encode
       }}
     </script>

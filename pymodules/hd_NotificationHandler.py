@@ -68,11 +68,6 @@ def get_notifications():
         username = current_user.id
         all_notifications = []
 
-        if username == "user":
-            all_notifications.append({"title": "Default User Detected", "message": "You're using the default user! Please change it in settings.", "permanent": True, "allowRemove": False})
-
-        all_notifications.append({"title": "Change the default password!", "message": "It's dangerous to go alone! If you're using the default password make sure you change it as soon as possible!", "permanent": True, "allowRemove": True})
-
         uptime_minutes = (datetime.now() - start_time).total_seconds() / 60
 
         if uptime_minutes >= 10:

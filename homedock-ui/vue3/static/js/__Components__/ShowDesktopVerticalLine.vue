@@ -27,7 +27,7 @@
         <div v-for="(item, index) in contextMenuItems" :key="index" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-150" :class="[themeClasses.taskbarContextMenuItem, !item.divider && !item.disabled ? [themeClasses.taskbarContextMenuItemHover, 'cursor-pointer'] : '', item.disabled && [themeClasses.taskbarContextMenuItemDisabled, 'cursor-not-allowed'], item.divider && 'py-1 cursor-default']" @click="handleContextItemClick(item)">
           <template v-if="!item.divider">
             <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="flex-shrink-0" />
-            <span class="flex-1">{{ item.label }}</span>
+            <span class="flex-1">{{ item.label ? $t(item.label) : '' }}</span>
           </template>
           <div v-else class="h-px mx-2" :class="themeClasses.taskbarContextMenuDivider"></div>
         </div>

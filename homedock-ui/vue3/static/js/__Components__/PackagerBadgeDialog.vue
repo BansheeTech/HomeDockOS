@@ -4,21 +4,21 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <AppDialog v-model:visible="visibleModel" type="info" :title="`Share your ${displayName} package`" ok-text="Close" :ok-cancel="false" :width="820" @ok="visibleModel = false">
+  <AppDialog v-model:visible="visibleModel" type="info" :title="$t('Share your {name} package', { name: displayName })" ok-text="Close" :ok-cancel="false" :width="820" @ok="visibleModel = false">
     <div v-if="app" class="space-y-4">
-      <p :class="['text-xs', themeClasses.packagerTextMuted]">Download badges to share your app. Embed them in your README, GitHub repo, docs, or any website.</p>
+      <p :class="['text-xs', themeClasses.packagerTextMuted]">{{ $t("Download badges to share your app. Embed them in your README, GitHub repo, docs, or any website.") }}</p>
 
       <div :class="['rounded-xl border', themeClasses.windowBorder]">
         <!-- App Store badges -->
         <div>
           <button @click.stop="toggleSection('appstore')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="storeIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-            <span class="text-xs font-medium">App Store Badges</span>
+            <span class="text-xs font-medium">{{ $t("App Store Badges") }}</span>
             <Icon :icon="activeBadgeSection === 'appstore' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
           <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'appstore' ? '1fr' : '0fr' }">
             <div class="overflow-hidden">
-              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">Badges for users to discover and install your app from the HomeDock OS App Store.</p>
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">{{ $t("Badges for users to discover and install your app from the HomeDock OS App Store.") }}</p>
               <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
                 <div v-for="badge in appStoreBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
                   <div class="rounded-xl overflow-hidden">
@@ -72,12 +72,12 @@
         <div :class="['border-t', themeClasses.windowBorder]">
           <button @click.stop="toggleSection('support')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="shareIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-            <span class="text-xs font-medium">Support Badges</span>
+            <span class="text-xs font-medium">{{ $t("Support Badges") }}</span>
             <Icon :icon="activeBadgeSection === 'support' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
           <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'support' ? '1fr' : '0fr' }">
             <div class="overflow-hidden">
-              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">For developers who want to link or credit HomeDock OS in their project's README or website ♥</p>
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">{{ $t("For developers who want to link or credit HomeDock OS in their project's README or website ♥") }}</p>
               <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
                 <div v-for="badge in supportBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
                   <div class="rounded-2xl overflow-hidden">
@@ -141,12 +141,12 @@
         <div :class="['border-t', themeClasses.windowBorder]">
           <button @click.stop="toggleSection('branding')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="tagIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-            <span class="text-xs font-medium">Branding Badges</span>
+            <span class="text-xs font-medium">{{ $t("Branding Badges") }}</span>
             <Icon :icon="activeBadgeSection === 'branding' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
           <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeBadgeSection === 'branding' ? '1fr' : '0fr' }">
             <div class="overflow-hidden">
-              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">Generic HomeDock OS App Store badges without a specific app name.</p>
+              <p :class="['text-xs leading-relaxed px-3 pb-2 -mt-1', themeClasses.packagerTextMuted]">{{ $t("Generic HomeDock OS App Store badges without a specific app name.") }}</p>
               <div class="flex items-start gap-4 overflow-x-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none" @mousedown="onScrollDown" @mousemove="onScrollMove" @mouseup="onScrollUp" @mouseleave="onScrollUp">
                 <div v-for="badge in brandingBadges" :key="badge.key" class="flex flex-col items-center gap-2 flex-shrink-0">
                   <div class="rounded-xl overflow-hidden">
@@ -175,12 +175,12 @@
         <div>
           <button @click.stop="toggleSection('discord')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="discordIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-            <span class="text-xs font-medium">Share on Discord</span>
+            <span class="text-xs font-medium">{{ $t("Share on Discord") }}</span>
             <Icon :icon="activeSection === 'discord' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
           <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeSection === 'discord' ? '1fr' : '0fr' }">
             <div class="overflow-hidden">
-              <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">Packaged an existing app? Share your <strong>.hds</strong> file with the community in the <strong>#package-sharing</strong> channel on our Discord so other users can install it too.</p>
+              <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">{{ $t("Packaged an existing app? Share your .hds file with the community in the #package-sharing channel on our Discord so other users can install it too.") }}</p>
               <div class="flex items-center gap-2 px-3 pb-3">
                 <button @click.stop="openDiscordChannel" :class="['inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#5865F2] hover:bg-[#4752C4] text-white']">
                   <Icon :icon="discordIcon" class="w-3.5 h-3.5" />
@@ -188,7 +188,7 @@
                 </button>
                 <button @click.stop="openDiscordInvite" :class="['inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150', themeClasses.windowBorder, themeClasses.packagerTextMuted, 'hover:opacity-80']">
                   <Icon :icon="accountGroupIcon" class="w-3.5 h-3.5" />
-                  Join Discord
+                  {{ $t("Join Discord") }}
                 </button>
               </div>
             </div>
@@ -197,17 +197,17 @@
         <div :class="['border-t', themeClasses.windowBorder]">
           <button @click.stop="toggleSection('email')" :class="['flex items-center gap-2 w-full p-3 text-left', themeClasses.packagerText]">
             <Icon :icon="emailIcon" :class="['w-4 h-4 flex-shrink-0', themeClasses.packagerTextMuted]" />
-            <span class="text-xs font-medium">Submit your apps to the App Store</span>
+            <span class="text-xs font-medium">{{ $t("Submit your apps to the App Store") }}</span>
             <Icon :icon="activeSection === 'email' ? chevronUpIcon : chevronDownIcon" :class="['w-3.5 h-3.5 ml-auto flex-shrink-0', themeClasses.packagerTextMuted]" />
           </button>
           <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: activeSection === 'email' ? '1fr' : '0fr' }">
             <div class="overflow-hidden">
               <p :class="['text-xs leading-relaxed px-3 pb-3 -mt-1', themeClasses.packagerTextMuted]">
-                Built your own app? Package it as <strong>.hds</strong> and send it to
+                {{ $t("Built your own app? Package it as .hds and send it to") }}
                 <button @click.stop="copyEmail" :class="['inline-flex items-center gap-0.5 font-medium underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity', themeClasses.packagerText]">
                   apps@homedock.cloud
                   <Icon :icon="emailCopied ? checkIcon : copyIcon" class="w-3 h-3 inline" /></button
-                >. We support indie developers and list their apps on the official App Store for free. We're a small team, so reviews may take some time. We'll reach out back for screenshots and details.
+                >. {{ $t("We support indie developers and list their apps on the official App Store for free. We're a small team, so reviews may take some time. We'll reach out back for screenshots and details.") }}
               </p>
             </div>
           </div>

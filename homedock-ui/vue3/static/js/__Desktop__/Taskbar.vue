@@ -8,7 +8,7 @@
     <div class="flex items-center h-full px-3 gap-2">
       <button class="flex items-center gap-2 px-4 py-2 rounded-lg border-0 cursor-pointer transition-all duration-150 text-sm font-medium" :class="[themeClasses.startButtonBg, desktopStore.startMenuOpen ? [themeClasses.startButtonBgActive, themeClasses.startButtonTextActive] : [themeClasses.startButtonBgHover, themeClasses.startButtonText]]" @click="toggleStartMenu">
         <LogoIcon :class="['transition-all duration-300 ease-in-out w-[20px] h-[20px]', desktopStore.startMenuOpen ? themeClasses.startButtonIconActive : themeClasses.startButtonIcon]" />
-        <span v-if="showTaskbarLabels" class="select-none">Start</span>
+        <span v-if="showTaskbarLabels" class="select-none">{{ $t("Start", 1) }}</span>
       </button>
 
       <div class="w-px h-[60%]" :class="themeClasses.taskbarDivider"></div>
@@ -36,13 +36,13 @@
 
         <UpdateIndicator />
 
-        <UnifiedUploadIndicator location="storage" title="Storage Uploads" :badgeIcon="folderIcon" trayId="storage-upload-indicator" />
+        <UnifiedUploadIndicator location="storage" :title="$t('Storage Uploads')" :badgeIcon="folderIcon" trayId="storage-upload-indicator" />
 
-        <UnifiedUploadIndicator location="dropzone" title="Drop Zone Uploads" :badgeIcon="cubeIcon" trayId="dropzone-upload-indicator" />
+        <UnifiedUploadIndicator location="dropzone" :title="$t('Drop Zone Uploads')" :badgeIcon="cubeIcon" trayId="dropzone-upload-indicator" />
 
-        <UnifiedUploadIndicator location="appdrive" title="App Drive Uploads" :badgeIcon="cubeScanIcon" trayId="appdrive-upload-indicator" />
+        <UnifiedUploadIndicator location="appdrive" :title="$t('App Drive Uploads')" :badgeIcon="cubeScanIcon" trayId="appdrive-upload-indicator" />
 
-        <UnifiedUploadIndicator location="disksplus" title="Disks+ Uploads" :badgeIcon="harddiskIcon" trayId="disksplus-upload-indicator" />
+        <UnifiedUploadIndicator location="disksplus" :title="$t('Disks+ Uploads')" :badgeIcon="harddiskIcon" trayId="disksplus-upload-indicator" />
 
         <NetworkOfflineTray />
 
@@ -52,7 +52,7 @@
 
         <SystemStatsWidget :csrfToken="csrfToken" />
 
-        <button class="flex items-center justify-center w-9 h-9 rounded-lg border-0 cursor-pointer transition-all duration-150" :class="[themeClasses.trayIconBg, themeClasses.trayIconText, themeClasses.trayIconBgHover, themeClasses.trayIconTextHover]" title="Notifications" @click.stop="notificationBellRef?.toggleDropdown()">
+        <button class="flex items-center justify-center w-9 h-9 rounded-lg border-0 cursor-pointer transition-all duration-150" :class="[themeClasses.trayIconBg, themeClasses.trayIconText, themeClasses.trayIconBgHover, themeClasses.trayIconTextHover]" :title="$t('Notifications')" @click.stop="notificationBellRef?.toggleDropdown()">
           <NotificationBell ref="notificationBellRef" />
         </button>
 
@@ -78,7 +78,7 @@
         <div v-for="(item, index) in contextMenuItems" :key="index" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-150" :class="[themeClasses.taskbarContextMenuItem, !item.divider && !item.disabled ? themeClasses.taskbarContextMenuItemHover : '', item.disabled && themeClasses.taskbarContextMenuItemDisabled, item.divider && 'py-1 cursor-default']" @click="handleContextItemClick(item)">
           <template v-if="!item.divider">
             <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="flex-shrink-0" />
-            <span class="flex-1">{{ item.label }}</span>
+            <span class="flex-1">{{ item.label ? $t(item.label) : "" }}</span>
           </template>
           <div v-else class="h-px mx-2" :class="themeClasses.taskbarContextMenuDivider"></div>
         </div>

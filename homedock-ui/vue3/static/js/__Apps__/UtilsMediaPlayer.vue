@@ -6,7 +6,7 @@
 <template>
   <div class="media-player flex flex-col h-full overflow-hidden">
     <div class="toolbar flex items-center gap-2 px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="toggleMute" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors" :title="isMuted ? 'Unmute' : 'Mute'">
+      <button @click="toggleMute" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors" :title="isMuted ? $t('Unmute') : $t('Mute')">
         <Icon :icon="volumeIcon" class="w-4 h-4" />
       </button>
       <input type="range" v-model.number="volume" min="0" max="100" class="volume-slider h-1.5 rounded-lg appearance-none cursor-pointer accent-blue-500" :class="themeClasses.sliderBg" @input="onVolumeChange" />
@@ -14,7 +14,7 @@
 
       <div class="w-px h-4 mx-1 flex-shrink-0" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="cyclePlaybackSpeed" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium" title="Playback Speed">{{ playbackSpeed }}x</button>
+      <button @click="cyclePlaybackSpeed" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium" :title="$t('Playback Speed')">{{ playbackSpeed }}x</button>
 
       <div class="flex-1"></div>
 
@@ -28,7 +28,7 @@
       <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <Icon :icon="loadingIcon" class="w-8 h-8 animate-spin" :class="themeClasses.windowTextMuted" />
-          <span :class="['text-sm', themeClasses.windowTextMuted]">Loading media...</span>
+          <span :class="['text-sm', themeClasses.windowTextMuted]">{{ $t("Loading media...") }}</span>
         </div>
       </div>
 
@@ -37,7 +37,7 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/10">
             <Icon :icon="alertIcon" class="w-8 h-8 text-red-500" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">Cannot Play Media</h3>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("Cannot Play Media") }}</h3>
           <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ error }}</p>
         </div>
       </div>
@@ -47,16 +47,19 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center" :class="themeClasses.imageViewerBg">
             <Icon :icon="movieIcon" class="w-8 h-8" :class="themeClasses.windowTextMuted" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">No Media</h3>
-          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">Open a video or audio file to play it here.</p>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("No Media") }}</h3>
+          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ $t("Open a video or audio file to play it here.") }}</p>
         </div>
       </div>
 
       <video v-else-if="isVideo" ref="mediaRef" :src="mediaSrc" class="max-w-full max-h-full" @loadedmetadata="onMediaLoaded" @timeupdate="onTimeUpdate" @ended="onMediaEnded" @error="onMediaError" @play="isPlaying = true" @pause="isPlaying = false" playsinline />
 
       <div v-else-if="isAudio" class="absolute inset-0 flex flex-col items-center justify-center gap-6 p-8 overflow-hidden">
-        <div class="w-32 h-32 rounded-2xl flex items-center justify-center flex-shrink-0" :class="themeClasses.imageViewerBg">
+        <div class="relative w-32 h-32 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden" :class="themeClasses.imageViewerBg">
           <Icon :icon="isPlaying ? musicNoteIcon : musicIcon" :class="['w-16 h-16', themeClasses.windowTextMuted, isPlaying ? 'animate-pulse' : '']" />
+          <Transition name="fade">
+            <img v-if="coverUrl" :src="coverUrl" alt="" draggable="false" class="absolute inset-0 w-full h-full object-cover" />
+          </Transition>
         </div>
         <div class="text-center max-w-full px-4">
           <h3 :class="['text-lg font-medium truncate max-w-xs', themeClasses.windowText]" :title="fileName">{{ fileName }}</h3>
@@ -83,51 +86,51 @@
       </div>
 
       <div class="flex items-center justify-center gap-2">
-        <button @click="skipBackward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" title="Back 10s">
+        <button @click="skipBackward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Back 10s')">
           <Icon :icon="rewindIcon" class="w-5 h-5" />
         </button>
-        <button @click="togglePlay" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-3 rounded-full transition-colors bg-blue-500/20 hover:bg-blue-500/30" :title="isPlaying ? 'Pause' : 'Play'">
+        <button @click="togglePlay" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-3 rounded-full transition-colors bg-blue-500/20 hover:bg-blue-500/30" :title="isPlaying ? $t('Pause') : $t('Play')">
           <Icon :icon="isPlaying ? pauseIcon : playIcon" class="w-6 h-6" />
         </button>
-        <button @click="skipForward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" title="Forward 10s">
+        <button @click="skipForward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Forward 10s')">
           <Icon :icon="fastForwardIcon" class="w-5 h-5" />
         </button>
 
         <div v-if="isVideo && !isMobile" class="w-px h-6 mx-2 flex-shrink-0" :class="themeClasses.utilityDivider"></div>
 
-        <button v-if="isVideo && !isMobile" @click="toggleFullscreen" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" title="Fullscreen">
+        <button v-if="isVideo && !isMobile" @click="toggleFullscreen" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Fullscreen')">
           <Icon :icon="fullscreenIcon" class="w-5 h-5" />
         </button>
       </div>
     </div>
 
-    <StatusBar :icon="isVideo ? movieIcon : musicIcon" :message="fileName || 'No media'" :info="mediaType ? mediaType.toUpperCase() : ''">
+    <StatusBar :icon="isVideo ? movieIcon : musicIcon" :message="fileName || $t('No Media')" :info="mediaType ? mediaType.toUpperCase() : ''">
       <template v-if="isValidated" #extra>
         <div class="flex items-center gap-1 text-green-500 text-[10px]">
           <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5" />
-          <span>Verified</span>
+          <span>{{ $t("Verified") }}</span>
         </div>
       </template>
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="movieIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Media Player</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Media Player") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Play video and audio files with magic bytes validation.</p>
+            <p>{{ $t("Play video and audio files with magic bytes validation.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="movieIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Video:</strong> Supports MP4, WebM, and Ogg video formats.</p>
+                <p>{{ $t("Video: Supports MP4, WebM, and Ogg video formats.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="musicIcon" class="w-3.5 h-3.5 mt-0.5 text-purple-500 flex-shrink-0" />
-                <p><strong>Audio:</strong> Supports MP3, WAV, AAC, and Ogg audio formats.</p>
+                <p>{{ $t("Audio: Supports MP3, WAV, AAC, and Ogg audio formats.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>Verified:</strong> Files are validated against their magic bytes.</p>
+                <p>{{ $t("Verified: Files are validated against their magic bytes.") }}</p>
               </div>
             </div>
           </div>
@@ -139,6 +142,7 @@
 
 <script lang="ts" setup>
 import axios from "axios";
+import { parseBlob } from "music-metadata";
 
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 
@@ -195,6 +199,7 @@ const props = defineProps<{
 const containerRef = ref<HTMLElement | null>(null);
 const mediaRef = ref<HTMLVideoElement | HTMLAudioElement | null>(null);
 const mediaSrc = ref<string | null>(null);
+const coverUrl = ref<string | null>(null);
 const fileName = ref("");
 const originalWindowTitle = ref(props._windowId ? windowStore.getWindowById(props._windowId)?.title || "" : "");
 const mediaType = ref("");
@@ -240,6 +245,7 @@ function registerInPlaybackStore() {
       isMuted: isMuted.value,
       currentTime: currentTime.value,
       duration: duration.value,
+      coverUrl: coverUrl.value || undefined,
     });
   }
 }
@@ -254,6 +260,7 @@ function updatePlaybackStore() {
       isMuted: isMuted.value,
       currentTime: currentTime.value,
       duration: duration.value,
+      coverUrl: coverUrl.value || undefined,
     });
   }
 }
@@ -377,6 +384,32 @@ function revokeBlobUrl() {
   if (mediaSrc.value && mediaSrc.value.startsWith("blob:")) {
     URL.revokeObjectURL(mediaSrc.value);
   }
+  coverUrl.value = null;
+}
+
+function detectCoverImageMime(bytes: Uint8Array): string | null {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return "image/png";
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return "image/gif";
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
+  if (bytes[0] === 0x42 && bytes[1] === 0x4d) return "image/bmp";
+  return null;
+}
+
+async function extractCoverArt(buffer: ArrayBuffer) {
+  try {
+    const metadata = await parseBlob(new Blob([buffer]));
+    const pic = metadata?.common?.picture?.[0];
+    if (!pic || !pic.data || !pic.data.length) return;
+    const detectedMime = detectCoverImageMime(pic.data);
+    if (!detectedMime) return;
+    let binary = "";
+    for (let i = 0; i < pic.data.length; i++) {
+      binary += String.fromCharCode(pic.data[i]);
+    }
+    coverUrl.value = `data:${detectedMime};base64,${btoa(binary)}`;
+    updatePlaybackStore();
+  } catch {}
 }
 
 function resetMediaElement() {
@@ -453,6 +486,9 @@ async function loadMedia(extFile: ExternalFile) {
     mediaType.value = detected.type;
     isValidated.value = true;
     mediaInfo.value = { size: fileBuffer.byteLength };
+    if (["mp3", "aac", "oga", "ogg", "flac"].includes(detected.type.toLowerCase())) {
+      extractCoverArt(fileBuffer);
+    }
   } catch (err: any) {
     console.error("Failed to load media:", err);
     error.value = err.message || "Failed to load media";
@@ -491,6 +527,9 @@ function loadFromBuffer(file: MediaFile) {
     mediaType.value = detected.type;
     isValidated.value = true;
     mediaInfo.value = { size: fileBuffer.byteLength };
+    if (["mp3", "aac", "oga", "ogg", "flac"].includes(detected.type.toLowerCase())) {
+      extractCoverArt(fileBuffer);
+    }
   } catch (err: any) {
     console.error("Failed to load media:", err);
     error.value = err.message || "Failed to load media";
@@ -842,7 +881,7 @@ watch(
       loadMedia(extFile);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -853,7 +892,7 @@ watch(
       loadFromBuffer(file);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function handleIncomingFile(event: CustomEvent) {

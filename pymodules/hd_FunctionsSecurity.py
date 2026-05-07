@@ -92,7 +92,7 @@ def validate_filename(filename):
     if filename.endswith(" "):
         raise ValueError("Filename cannot end with a space")
 
-    dangerous_chars = ["<", ">", ":", '"', "|", "?", "*", "&"]
+    dangerous_chars = ["<", ">", ":", '"', "|", "?", "*"]
     for char in dangerous_chars:
         if char in filename:
             raise ValueError(f"Filename cannot contain '{char}'")

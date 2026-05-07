@@ -83,7 +83,7 @@ def get_container_using_port(port: int, exclude_container_name: Optional[str] = 
         return None
 
 
-def validate_ports(yml_content: str, allow_container_name: Optional[str] = None) -> Tuple[bool, Optional[str], Optional[List[int]]]:
+def validate_ports(yml_content: str, allow_container_name: Optional[str] = None) -> Tuple[bool, Optional[List[dict]], Optional[List[int]]]:
     config = read_config()
     homedock_port = config.get("run_port", 80)
 
@@ -100,30 +100,33 @@ def validate_ports(yml_content: str, allow_container_name: Optional[str] = None)
     for port in ports:
         if port in blocked_ports:
             if port == homedock_port:
-                error_messages.append(f"Port {port}: Reserved for HomeDock OS")
+                error_messages.append({"key": "Port {port}: Reserved for HomeDock OS", "params": {"port": port}})
             elif port == 80:
-                error_messages.append(f"Port {port}: System HTTP port is blocked")
+                error_messages.append({"key": "Port {port}: System HTTP port is blocked", "params": {"port": port}})
             elif port == 443:
-                error_messages.append(f"Port {port}: System HTTPS port is blocked")
+                error_messages.append({"key": "Port {port}: System HTTPS port is blocked", "params": {"port": port}})
 
             problematic_ports.append(port)
             continue
 
         app_name = get_container_using_port(port, exclude_container_name=allow_container_name)
         if app_name:
-            error_messages.append(f"Port {port}: Already in use by app '{app_name}'")
+            error_messages.append({"key": "Port {port}: Already in use by app '{app}'", "params": {"port": port, "app": app_name}})
             problematic_ports.append(port)
             continue
 
         any_container_using_port = get_container_using_port(port, exclude_container_name=None)
 
         if not any_container_using_port and is_port_in_use_system(port):
-            error_messages.append(f"Port {port}: Already in use by the system")
+            error_messages.append({"key": "Port {port}: Already in use by the system", "params": {"port": port}})
             problematic_ports.append(port)
 
     if problematic_ports:
-        full_error = "The following ports are not available:\n\n" + "\n".join(error_messages)
-        full_error += "\n\nPlease select different ports for your application."
-        return False, full_error, problematic_ports
+        messages = [
+            {"key": "The following ports are not available:", "params": {}},
+            *error_messages,
+            {"key": "Please select different ports for your application.", "params": {}},
+        ]
+        return False, messages, problematic_ports
 
     return True, None, None

@@ -13,9 +13,9 @@
               <Icon :icon="currentLocation === 'dropzone' ? cubeIcon : cloudUploadIcon" :class="[themeClasses.dropZoneDragIcon]" class="text-5xl w-16 h-16" />
             </p>
             <p :class="[themeClasses.dropZoneDragUpText]" class="px-4 text-balance text-center text-lg font-semibold mt-4">
-              {{ currentLocation === "dropzone" ? "Drop files to upload and encrypt" : "Drop files to upload" }}
+              {{ currentLocation === "dropzone" ? $t("Drop files to upload and encrypt") : $t("Drop files to upload") }}
             </p>
-            <p :class="[themeClasses.dropZoneDragDownText]" class="px-4 text-balance text-center text-sm mt-2">Folders will maintain their structure.</p>
+            <p :class="[themeClasses.dropZoneDragDownText]" class="px-4 text-balance text-center text-sm mt-2">{{ $t("Folders will maintain their structure.") }}</p>
           </div>
         </div>
       </div>
@@ -24,12 +24,12 @@
     <div v-if="!isMobileLayout" :class="[themeClasses.fileExplorerSidebar]" class="fileexplorer-sidebar w-52 flex-shrink-0 flex flex-col border-r overflow-hidden">
       <div class="flex-1 overflow-y-auto py-2 px-2">
         <div class="sidebar-section mb-3">
-          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">Locations</div>
+          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Locations") }}</div>
 
           <div class="storage-section">
             <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
               <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
-              <span class="truncate flex-1">Storage</span>
+              <span class="truncate flex-1">{{ $t("Storage") }}</span>
               <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
             </button>
 
@@ -38,11 +38,11 @@
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-52 overflow-y-auto">
                   <button @click="setLocation('storage')" :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                     <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">All Files</span>
+                    <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
                   <button v-for="folder in defaultStorageFolders" :key="folder" @click="selectStorageFolder(folder)" :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                     <Icon :icon="specialFolderIcons[folder] || folderIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">{{ folder }}</span>
+                    <span class="truncate">{{ $t(folder) }}</span>
                   </button>
                 </div>
               </div>
@@ -62,7 +62,7 @@
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
                   <button @click="setLocation('dropzone')" :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                     <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">All Files</span>
+                    <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
                   <button v-for="folder in dropZoneFolders" :key="folder" @click="selectDropZoneFolder(folder)" :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                     <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
@@ -115,10 +115,10 @@
                       <span class="truncate flex-1">{{ disk.label || disk.device }}</span>
                       <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
                     </button>
-                    <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No disks detected</div>
-                    <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? `Auto-locks in ${disksPlusCountdown}` : 'Lock Disks+'">
+                    <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">{{ $t("No disks detected") }}</div>
+                    <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                       <Icon :icon="lockIcon" class="w-3 h-3" />
-                      <span class="flex-1">Lock Disks+</span>
+                      <span class="flex-1">{{ $t("Lock Disks+") }}</span>
                       <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
                         <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
                         <circle
@@ -143,7 +143,7 @@
                   <template v-else>
                     <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                       <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
-                      <span class="truncate">Unlock Disks+</span>
+                      <span class="truncate">{{ $t("Unlock Disks+") }}</span>
                     </button>
                   </template>
                 </div>
@@ -155,17 +155,17 @@
         <div :class="[themeClasses.hrSelector]" class="my-2"></div>
 
         <div class="sidebar-section">
-          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">System Apps</div>
+          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("System Apps") }}</div>
 
           <button @click="setLocation('systemapps')" :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
             <Icon :icon="appsIcon" class="w-4 h-4 flex-shrink-0" />
-            <span class="truncate">Applications</span>
+            <span class="truncate">{{ $t("Applications") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ systemApps.length }}</span>
           </button>
 
           <button @click="setLocation('utilities')" :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
             <Icon :icon="toolboxOutlineIcon" class="w-4 h-4 flex-shrink-0" />
-            <span class="truncate">Utilities</span>
+            <span class="truncate">{{ $t("Utilities") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ utilitiesApps.length }}</span>
           </button>
         </div>
@@ -173,17 +173,17 @@
         <div :class="[themeClasses.hrSelector]" class="my-2"></div>
 
         <div class="sidebar-section">
-          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">Quick Access</div>
+          <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Quick Access") }}</div>
 
           <button @click="setLocation('favorites')" :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
             <Icon :icon="starIcon" class="w-4 h-4 flex-shrink-0" />
-            <span class="truncate">Favorites</span>
+            <span class="truncate">{{ $t("Favorites") }}</span>
             <span v-if="fileExplorerStore.favoritesCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.favoritesCount }}</span>
           </button>
 
           <button @click="setLocation('recents')" :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
             <Icon :icon="historyIcon" class="w-4 h-4 flex-shrink-0" />
-            <span class="truncate">Recents</span>
+            <span class="truncate">{{ $t("Recents") }}</span>
             <span v-if="fileExplorerStore.recentsCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.recentsCount }}</span>
           </button>
         </div>
@@ -205,12 +205,12 @@
           <transition name="popover-fade">
             <div v-if="isNavPopoverOpen" class="nav-popover absolute top-full left-0 mt-1 z-50 w-56 max-h-[70vh] overflow-y-auto rounded-lg shadow-xl border" :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder]">
               <div class="py-2 px-2">
-                <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">Locations</div>
+                <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Locations") }}</div>
 
                 <div class="storage-section">
                   <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
                     <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate flex-1">Storage</span>
+                    <span class="truncate flex-1">{{ $t("Storage") }}</span>
                     <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
                   </button>
 
@@ -226,7 +226,7 @@
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
                           <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
-                          <span class="truncate">All Files</span>
+                          <span class="truncate">{{ $t("All Files") }}</span>
                         </button>
                         <button
                           v-for="folder in defaultStorageFolders"
@@ -239,7 +239,7 @@
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
                           <Icon :icon="specialFolderIcons[folder] || folderIcon" class="w-4 h-4 flex-shrink-0" />
-                          <span class="truncate">{{ folder }}</span>
+                          <span class="truncate">{{ $t(folder) }}</span>
                         </button>
                       </div>
                     </div>
@@ -266,7 +266,7 @@
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
                           <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
-                          <span class="truncate">All Files</span>
+                          <span class="truncate">{{ $t("All Files") }}</span>
                         </button>
                         <button
                           v-for="folder in dropZoneFolders"
@@ -347,10 +347,10 @@
                             <span class="truncate flex-1">{{ disk.label || disk.device }}</span>
                             <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
                           </button>
-                          <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No disks detected</div>
-                          <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? `Auto-locks in ${disksPlusCountdown}` : 'Lock Disks+'">
+                          <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">{{ $t("No disks detected") }}</div>
+                          <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                             <Icon :icon="lockIcon" class="w-3 h-3" />
-                            <span class="flex-1">Lock Disks+</span>
+                            <span class="flex-1">{{ $t("Lock Disks+") }}</span>
                             <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
                               <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
                               <circle
@@ -375,7 +375,7 @@
                         <template v-else>
                           <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
                             <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span class="truncate">Unlock Disks+</span>
+                            <span class="truncate">{{ $t("Unlock Disks+") }}</span>
                           </button>
                         </template>
                       </div>
@@ -386,7 +386,7 @@
                 <div :class="[themeClasses.hrSelector]" class="my-2"></div>
 
                 <div class="sidebar-section">
-                  <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">System Apps</div>
+                  <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("System Apps") }}</div>
 
                   <button
                     @click="
@@ -397,7 +397,7 @@
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
                     <Icon :icon="appsIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">Applications</span>
+                    <span class="truncate">{{ $t("Applications") }}</span>
                     <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ systemApps.length }}</span>
                   </button>
 
@@ -410,7 +410,7 @@
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
                     <Icon :icon="toolboxOutlineIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">Utilities</span>
+                    <span class="truncate">{{ $t("Utilities") }}</span>
                     <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ utilitiesApps.length }}</span>
                   </button>
                 </div>
@@ -418,7 +418,7 @@
                 <div :class="[themeClasses.hrSelector]" class="my-2"></div>
 
                 <div class="sidebar-section">
-                  <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">Quick Access</div>
+                  <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Quick Access") }}</div>
 
                   <button
                     @click="
@@ -429,7 +429,7 @@
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
                     <Icon :icon="starIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">Favorites</span>
+                    <span class="truncate">{{ $t("Favorites") }}</span>
                     <span v-if="fileExplorerStore.favoritesCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.favoritesCount }}</span>
                   </button>
 
@@ -442,7 +442,7 @@
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
                     <Icon :icon="historyIcon" class="w-4 h-4 flex-shrink-0" />
-                    <span class="truncate">Recents</span>
+                    <span class="truncate">{{ $t("Recents") }}</span>
                     <span v-if="fileExplorerStore.recentsCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.recentsCount }}</span>
                   </button>
                 </div>
@@ -466,7 +466,7 @@
                   <span class="truncate">{{ label }}</span>
                 </div>
               </template>
-              <InputSearch ref="searchInputRef" v-model:value="searchQuery" placeholder="Search..." class="w-full text-sm [&_.ant-input-affix-wrapper]:!h-7 [&_.ant-input-affix-wrapper]:!py-0 [&_.ant-input-search-button]:!h-7 [&_.ant-input-search-button]:!flex [&_.ant-input-search-button]:!items-center [&_.ant-input-search-button]:!justify-center" size="small" enter-button @search="() => performSearch()">
+              <InputSearch ref="searchInputRef" v-model:value="searchQuery" :placeholder="$t('Search...')" class="w-full text-sm [&_.ant-input-affix-wrapper]:!h-7 [&_.ant-input-affix-wrapper]:!py-0 [&_.ant-input-search-button]:!h-7 [&_.ant-input-search-button]:!flex [&_.ant-input-search-button]:!items-center [&_.ant-input-search-button]:!justify-center" size="small" enter-button @search="() => performSearch()">
                 <template #prefix>
                   <Icon v-if="isSearching" :icon="loadingIcon" :class="[themeClasses.dropZoneInputIcon, 'animate-spin']" class="mx-1" />
                   <Icon v-else :icon="currentLocation === 'dropzone' ? cubeIcon : currentLocation === 'appdrive' ? cubeScanIcon : currentLocation === 'disksplus' ? harddiskIcon : folderIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
@@ -480,7 +480,7 @@
               "
               :class="[themeClasses.dropZoneSortButton]"
               class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0"
-              title="Cancel"
+              :title="$t('Cancel')"
             >
               <Icon :icon="closeIcon" class="w-4 h-4" />
             </button>
@@ -538,9 +538,9 @@
           <div v-if="!isSearchExpanded" class="flex items-center gap-2 flex-shrink-0">
             <template v-if="currentLocation !== 'systemapps' && currentLocation !== 'utilities'">
               <Select v-model:value="sortBy" :class="[themeClasses.scopeSelector, themeClasses.dropZoneSortSelect]" class="w-24 rounded text-xs [&_.ant-select-selector]:!min-h-0 [&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!py-0 [&_.ant-select-selector]:!leading-7 [&_.ant-select-selection-item]:!leading-7" :popup-class-name="`${themeClasses.scopeSelector}`" :show-search="false" size="small">
-                <SelectOption value="name">Name</SelectOption>
-                <SelectOption value="size">Size</SelectOption>
-                <SelectOption value="date">Date</SelectOption>
+                <SelectOption value="name">{{ $t("Name") }}</SelectOption>
+                <SelectOption value="size">{{ $t("Size") }}</SelectOption>
+                <SelectOption value="date">{{ $t("Date") }}</SelectOption>
               </Select>
 
               <button @click="toggleSortDirection" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" :title="sortDirection === 'asc' ? 'Ascending' : 'Descending'">
@@ -567,18 +567,18 @@
         <template v-for="(part, index) in pathParts" :key="index">
           <Icon :icon="chevronRightIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-3 h-3 opacity-50 flex-shrink-0" />
           <button @click="navigateToPathIndex(index)" :class="[themeClasses.dropZoneSortButton]" class="px-1.5 py-0.5 rounded hover:opacity-80 transition-opacity truncate max-w-[120px] flex-shrink-0">
-            {{ part }}
+            {{ getBreadcrumbPart(part, index) }}
           </button>
         </template>
       </div>
 
       <div :class="[themeClasses.fileExplorerInfoBar]" class="flex items-center gap-2 px-3 py-1 text-[10px] border-b flex-shrink-0">
         <span :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5">
-          <template v-if="currentLocation === 'systemapps'"> {{ systemAppsAsFiles.length }} {{ systemAppsAsFiles.length === 1 ? "app" : "apps" }} </template>
-          <template v-else-if="currentLocation === 'utilities'"> {{ utilitiesAsFiles.length }} {{ utilitiesAsFiles.length === 1 ? "utility" : "utilities" }} </template>
+          <template v-if="currentLocation === 'systemapps'"> {{ systemAppsAsFiles.length }} {{ systemAppsAsFiles.length === 1 ? $t("app") : $t("apps") }} </template>
+          <template v-else-if="currentLocation === 'utilities'"> {{ utilitiesAsFiles.length }} {{ utilitiesAsFiles.length === 1 ? $t("utility") : $t("utilities") }} </template>
           <template v-else>
-            {{ displayFiles.length }} {{ displayFiles.length === 1 ? "item" : "items" }}
-            <span v-if="isSearchMode" class="ml-0.5">(global search)</span>
+            {{ displayFiles.length }} {{ displayFiles.length === 1 ? $t("item") : $t("items") }}
+            <span v-if="isSearchMode" class="ml-0.5">{{ $t("(global search)") }}</span>
           </template>
         </span>
         <span v-if="totalSize !== '0 B' && displayFiles.length > 0 && !isSpecialLocation && currentLocation !== 'systemapps' && currentLocation !== 'utilities'" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5"> {{ totalSize }} total </span>
@@ -588,7 +588,7 @@
         </span>
         <span v-if="currentLocation === 'dropzone'" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 flex items-center gap-1">
           <Icon :icon="shieldLockIcon" class="w-3 h-3" />
-          Encrypted
+          {{ $t("Encrypted") }}
         </span>
       </div>
 
@@ -644,7 +644,7 @@
                         <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(file) && themeClasses.desktopIconContainerBgSelected]">
                           <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10" />
                         </div>
-                        <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="file.display_name || file.name">
+                        <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
                           {{ getDisplayName(file) }}
                         </span>
                       </div>
@@ -656,9 +656,9 @@
                     <div :class="[themeClasses.dropZoneTotalSizeScope]" class="flex items-center gap-2 px-2 py-1.5 mb-2 rounded-md sticky top-0 z-30">
                       <Icon :icon="folderIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-4 h-4 flex-shrink-0" />
                       <span class="text-[10px] font-semibold truncate">
-                        {{ group.folder === "" ? "Root" : group.folder }}
+                        {{ group.folder === "" ? $t("Root") : group.folder }}
                       </span>
-                      <span class="text-[9px] opacity-60 ml-auto flex-shrink-0 whitespace-nowrap"> {{ group.files.length }} {{ group.files.length === 1 ? "item" : "items" }} </span>
+                      <span class="text-[9px] opacity-60 ml-auto flex-shrink-0 whitespace-nowrap"> {{ group.files.length }} {{ group.files.length === 1 ? $t("item") : $t("items") }} </span>
                     </div>
                     <div class="fileexplorer-grid" :style="{ height: `${group.gridHeight}px` }">
                       <TransitionGroup name="file-item">
@@ -679,6 +679,9 @@
                             <div v-if="compressingFolders.has(file.name)" class="absolute -right-1 -top-1 z-20">
                               <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4" />
                             </div>
+                            <div v-if="isFileFavorited(file)" class="absolute -right-1 -bottom-1 z-10 text-yellow-400 drop-shadow">
+                              <Icon :icon="starIcon" class="h-3.5 w-3.5" />
+                            </div>
 
                             <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
 
@@ -687,8 +690,8 @@
                             </div>
                           </div>
 
-                          <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="file.display_name || file.name">
-                            {{ file.name.split("/").pop() }}
+                          <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
+                            {{ getDisplayName(file) }}
                           </span>
                           <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute -bottom-1 left-2 right-2">
                             <Progress :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector]" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
@@ -717,6 +720,9 @@
                         <div v-if="compressingFolders.has(file.name)" class="absolute -right-1 -top-1 z-20">
                           <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4" />
                         </div>
+                        <div v-if="isFileFavorited(file)" class="absolute -right-1 -bottom-1 z-10 text-yellow-400 drop-shadow">
+                          <Icon :icon="starIcon" class="h-3.5 w-3.5" />
+                        </div>
 
                         <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
 
@@ -725,7 +731,7 @@
                         </div>
                       </div>
 
-                      <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="file.display_name || file.name">
+                      <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
                         {{ getDisplayName(file) }}
                       </span>
                       <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute -bottom-1 left-2 right-2">
@@ -746,7 +752,7 @@
                         {{ app.display_name }}
                       </span>
                     </div>
-                    <div :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">App</div>
+                    <div :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">{{ $t("App") }}</div>
                   </div>
                 </template>
                 <template v-else-if="currentLocation === 'utilities'">
@@ -759,7 +765,7 @@
                         {{ util.display_name }}
                       </span>
                     </div>
-                    <div :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">Utility</div>
+                    <div :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">{{ $t("Utility") }}</div>
                   </div>
                 </template>
                 <template v-else-if="isSpecialLocation">
@@ -781,7 +787,7 @@
                       </div>
 
                       <div class="flex-1 overflow-hidden z-[1]">
-                        <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="file.display_name || file.name">
+                        <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="getDisplayName(file)">
                           {{ getDisplayName(file) }}
                         </span>
                       </div>
@@ -797,9 +803,9 @@
                     <div :class="[themeClasses.dropZoneTotalSizeScope]" class="flex items-center gap-2 px-2 py-1.5 mt-2 mb-1 rounded-md sticky top-0 z-30">
                       <Icon :icon="folderIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-4 h-4 flex-shrink-0" />
                       <span class="text-[10px] font-semibold truncate">
-                        {{ group.folder === "" ? "Root" : group.folder }}
+                        {{ group.folder === "" ? $t("Root") : group.folder }}
                       </span>
-                      <span class="text-[9px] opacity-60 ml-auto flex-shrink-0 whitespace-nowrap"> {{ group.files.length }} {{ group.files.length === 1 ? "item" : "items" }} </span>
+                      <span class="text-[9px] opacity-60 ml-auto flex-shrink-0 whitespace-nowrap"> {{ group.files.length }} {{ group.files.length === 1 ? $t("item") : $t("items") }} </span>
                     </div>
 
                     <TransitionGroup name="file-item-list">
@@ -819,10 +825,12 @@
                         </div>
 
                         <div class="flex-1 overflow-hidden z-[1]">
-                          <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="file.name">
-                            {{ file.name.split("/").pop() }}
+                          <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="getDisplayName(file)">
+                            {{ getDisplayName(file) }}
                           </span>
                         </div>
+
+                        <Icon v-if="isFileFavorited(file)" :icon="starIcon" class="h-3.5 w-3.5 text-yellow-400 flex-shrink-0 z-[1]" />
 
                         <div v-if="!file.is_directory" :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">
                           {{ formatSize(file.size) }}
@@ -852,10 +860,12 @@
                     </div>
 
                     <div class="flex-1 overflow-hidden z-[1]">
-                      <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="file.display_name || file.name">
+                      <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="getDisplayName(file)">
                         {{ getDisplayName(file) }}
                       </span>
                     </div>
+
+                    <Icon v-if="isFileFavorited(file)" :icon="starIcon" class="h-3.5 w-3.5 text-yellow-400 flex-shrink-0 z-[1]" />
 
                     <div v-if="!file.is_directory" :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">
                       {{ formatSize(file.size) }}
@@ -880,9 +890,9 @@
               <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneDragIcon]" class="w-3.5 h-3.5 flex-shrink-0 animate-spin" />
               <span :class="[themeClasses.dropZoneDragUpText]" class="text-[10px] leading-none truncate">
                 <template v-if="currentUploads.length > 0"
-                  >{{ currentUploads.length }} uploading<template v-if="currentQueue.length > 0">, {{ currentQueue.length }} queued</template></template
+                  >{{ $t("{count} uploading", { count: currentUploads.length }) }}<template v-if="currentQueue.length > 0">, {{ $t("{count} queued", { count: currentQueue.length }) }}</template></template
                 >
-                <template v-else>{{ currentQueue.length }} queued, waiting...</template>
+                <template v-else>{{ $t("{count} queued, waiting...", { count: currentQueue.length }) }}</template>
               </span>
             </div>
 
@@ -923,13 +933,20 @@
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
               <Icon :icon="folderMultipleIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-              <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">File Explorer</h4>
+              <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("File Explorer") }}</h4>
             </div>
 
             <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-              <p><strong>Storage:</strong> Your personal file storage. Files are stored as-is without encryption.</p>
-              <p><strong>Drop Zone:</strong> Encrypted storage. Every file is automatically encrypted with AES-256-GCM using your unique user key.</p>
-              <p><strong>App Drive:</strong> Access files from your Docker containers' mounted volumes.</p>
+              <p>
+                <strong>{{ $t("Storage") }}:</strong> {{ $t("Your personal file storage. Files are stored as-is without encryption.") }}
+              </p>
+              <p>
+                <strong>{{ $t("Drop Zone") }}:</strong> {{ $t("Encrypted storage. Every file is automatically encrypted with AES-256-GCM using your unique user key.") }}
+              </p>
+              <p>
+                <strong>{{ $t("App Drive") }}:</strong> {{ $t("Access files from your Docker containers' mounted volumes.") }}
+              </p>
+              <p><strong>Disks+:</strong> {{ $t("Access and manage files from your externally mounted disks.") }}</p>
             </div>
           </div>
         </template>
@@ -940,8 +957,8 @@
 
     <AppDialog v-model:visible="createFolderDialogVisible" type="info" title="Create New Folder" ok-text="Create" cancel-text="Cancel" @ok="createFolder" @cancel="createFolderDialogVisible = false" :icon="folderPlusIcon">
       <div class="mb-1">
-        <label :class="[themeClasses.notTextDown]" class="text-sm block mb-2">Folder name (max 255 characters)</label>
-        <Input v-model:value="newFolderName" placeholder="Enter folder name..." @pressEnter="createFolder" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus :maxlength="255">
+        <label :class="[themeClasses.notTextDown]" class="text-sm block mb-2">{{ $t("Folder name (max 255 characters)") }}</label>
+        <Input v-model:value="newFolderName" :placeholder="$t('Enter folder name...')" @pressEnter="createFolder" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus :maxlength="255">
           <template #prefix>
             <Icon :icon="folderIcon" :class="[themeClasses.formIcon]" class="mr-0.5 transition duration-300" width="16" height="16" />
           </template>
@@ -951,8 +968,8 @@
 
     <AppDialog v-model:visible="renameDialogVisible" type="info" title="Rename Item" ok-text="Rename" cancel-text="Cancel" @ok="performRename" @cancel="renameDialogVisible = false" :icon="pencilIcon">
       <div class="mb-1">
-        <label :class="[themeClasses.notTextDown]" class="text-sm block mb-2">New name (max 255 characters)</label>
-        <Input v-model:value="renameValue" placeholder="Enter new name..." @pressEnter="performRename" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus :maxlength="255">
+        <label :class="[themeClasses.notTextDown]" class="text-sm block mb-2">{{ $t("New name (max 255 characters)") }}</label>
+        <Input v-model:value="renameValue" :placeholder="$t('Enter new name...')" @pressEnter="performRename" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus :maxlength="255">
           <template #prefix>
             <Icon :icon="pencilIcon" :class="[themeClasses.formIcon]" class="mr-0.5 transition duration-300" width="16" height="16" />
           </template>
@@ -963,10 +980,10 @@
     <AppDialog v-model:visible="folderUploadWarningVisible" type="info" title="Folder Upload Detected" ok-text="Upload Folder" cancel-text="Cancel" @ok="confirmFolderUpload" @cancel="cancelFolderUpload" :icon="folderIcon" :width="480" :reverse-buttons="true">
       <div class="space-y-3">
         <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">
-          You are about to upload <strong>{{ pendingUploadData?.allFiles.length || 0 }} files</strong> across <strong>{{ pendingUploadData?.folders.length || 0 }} directories</strong>.
-          <span v-if="currentLocation === 'dropzone'"> Each file will be encrypted individually.</span>
+          {{ $t("You are about to upload {files} files across {folders} directories.", { files: pendingUploadData?.allFiles.length || 0, folders: pendingUploadData?.folders.length || 0 }) }}
+          <span v-if="currentLocation === 'dropzone'"> {{ $t("Each file will be encrypted individually.") }}</span>
         </p>
-        <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">The folder structure will be preserved.</p>
+        <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">{{ $t("The folder structure will be preserved.") }}</p>
       </div>
     </AppDialog>
     <Upload v-if="canUpload" v-model:fileList="fileList" name="file" :multiple="true" :customRequest="customUpload" @change="handleUploadChange" :showUploadList="false" class="fixed bottom-10 right-2 z-50 hidden max-[900px]:block">
@@ -985,6 +1002,7 @@
 <script lang="ts" setup>
 import axios from "axios";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
@@ -1107,9 +1125,12 @@ const props = defineProps<{
   initialContainer?: string;
   initialMountIndex?: number;
   initialDiskId?: string;
+  initialPath?: string;
+  initialFileName?: string;
 }>();
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const desktopStore = useDesktopStore();
 const fileExplorerStore = useFileExplorerStore();
@@ -1357,7 +1378,7 @@ const systemAppsAsFiles = computed((): FileEntry[] => {
     (app) =>
       ({
         name: app.id,
-        display_name: app.name,
+        display_name: t(app.name),
         size: 0,
         modified: 0,
         is_directory: false,
@@ -1374,7 +1395,7 @@ const utilitiesAsFiles = computed((): FileEntry[] => {
     (util) =>
       ({
         name: util.id,
-        display_name: util.name,
+        display_name: t(util.name),
         size: 0,
         modified: 0,
         is_directory: false,
@@ -1426,15 +1447,15 @@ const showBreadcrumbs = computed(() => {
 const locationLabel = computed(() => {
   switch (currentLocation.value) {
     case "storage":
-      return "Storage";
+      return t("Storage");
     case "dropzone":
       return "Drop Zone";
     case "appdrive":
       return getAppInfo(selectedContainer.value || "").displayName || "App Drive";
     case "systemapps":
-      return "System Apps";
+      return t("System Apps");
     case "utilities":
-      return "Utilities";
+      return t("Utilities");
     case "disksplus": {
       const disk = currentDiskInfo();
       return disk ? disk.label || disk.device : "Disks+";
@@ -1481,18 +1502,18 @@ const emptyIcon = computed(() => {
 const emptyMessage = computed(() => {
   switch (currentLocation.value) {
     case "favorites":
-      return "No favorites yet. Right-click on files to add them.";
+      return t("No favorites yet. Right-click on files to add them.");
     case "recents":
-      return "No recent files.";
+      return t("No recent files.");
     case "appdrive":
-      if (!selectedContainer.value) return "Select an application from the sidebar.";
-      return isReadOnly.value ? "This mount is empty." : "Drag and drop files to upload.";
+      if (!selectedContainer.value) return t("Select an application from the sidebar.");
+      return isReadOnly.value ? t("This mount is empty.") : t("Drag and drop files to upload.");
     case "systemapps":
-      return "No system apps available.";
+      return t("No system apps available.");
     case "utilities":
-      return "No utilities available.";
+      return t("No utilities available.");
     default:
-      return "Drag and drop files to upload.";
+      return t("Drag and drop files to upload.");
   }
 });
 
@@ -1500,6 +1521,11 @@ const pathParts = computed(() => {
   if (!currentPath.value) return [];
   return currentPath.value.split("/").filter((p) => p);
 });
+
+function getBreadcrumbPart(part: string, index: number): string {
+  if (currentLocation.value === "storage" && index === 0 && defaultStorageFolders.includes(part)) return t(part);
+  return part;
+}
 
 async function scrollFileIntoView(fileName: string) {
   const selector = `[data-filename="${CSS.escape(fileName)}"]`;
@@ -1610,7 +1636,7 @@ const groupedDisplayFiles = computed(() => {
   if (storageFiles.length > 0) {
     groups.push({
       key: "storage",
-      label: "Storage",
+      label: t("Storage"),
       icon: folderIcon,
       files: storageFiles,
       positionedFiles: positionFilesInGrid(storageFiles, width),
@@ -1621,7 +1647,7 @@ const groupedDisplayFiles = computed(() => {
   if (dropzoneFiles.length > 0) {
     groups.push({
       key: "dropzone",
-      label: "Drop Zone (Encrypted)",
+      label: t("Drop Zone (Encrypted)"),
       icon: cubeIcon,
       files: dropzoneFiles,
       positionedFiles: positionFilesInGrid(dropzoneFiles, width),
@@ -1880,17 +1906,17 @@ const statusBarIcon = computed(() => {
 const statusBarMessage = computed(() => {
   switch (currentLocation.value) {
     case "storage":
-      return "Storage";
+      return t("Storage");
     case "dropzone":
-      return "Drop Zone (Encrypted)";
+      return t("Drop Zone (Encrypted)");
     case "appdrive":
       return selectedContainer.value ? getAppInfo(selectedContainer.value).displayName : "App Drive";
     case "favorites":
-      return "Favorites";
+      return t("Favorites");
     case "recents":
-      return "Recents";
+      return t("Recents");
     default:
-      return "File Explorer";
+      return t("File Explorer");
   }
 });
 
@@ -1898,7 +1924,7 @@ const statusBarInfo = computed(() => {
   if (currentLocation.value === "appdrive" && selectedMount.value) {
     return selectedMount.value.container_path;
   }
-  return `${displayFiles.value.length} items`;
+  return `${displayFiles.value.length} ${displayFiles.value.length === 1 ? t("item") : t("items")}`;
 });
 
 const selectionBoxStyle = computed(() => {
@@ -1987,8 +2013,8 @@ const contextMenuItems = computed(() => {
         icon: deleteIcon,
         danger: true,
         action: () => {
-          deleteDialogTitle.value = `Delete ${selectedCount} items?`;
-          deleteDialogContent.value = `Are you sure you want to delete ${selectedCount} selected items? This action cannot be undone.`;
+          deleteDialogTitle.value = t("Delete {n} items?", { n: selectedCount });
+          deleteDialogContent.value = t("Are you sure you want to delete {n} selected items? This action cannot be undone.", { n: selectedCount });
           fileToDelete.value = null;
           deleteDialogVisible.value = true;
           closeContextMenu();
@@ -2025,14 +2051,14 @@ const contextMenuItems = computed(() => {
               path: meta._sourcePath || "",
               name: file.name,
             });
-            message.success("Removed from favorites");
+            message.success(t("Removed from favorites"));
           } else {
             fileExplorerStore.removeFromRecents({
               location: meta._source,
               path: meta._sourcePath || "",
               name: file.name,
             });
-            message.success("Removed from recents");
+            message.success(t("Removed from recents"));
           }
         },
       });
@@ -2139,6 +2165,7 @@ function getFileIcon(file: FileEntry) {
 }
 
 function getDisplayName(file: FileEntry) {
+  if (isProtectedFolder(file)) return t(file.name);
   if (file.display_name) return file.display_name;
   return file.name.split("/").pop() || file.name;
 }
@@ -2703,7 +2730,7 @@ async function openInNotepad(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -2724,7 +2751,7 @@ async function openInNotepad(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open file");
+    message.error(t("Failed to open file"));
   }
 }
 
@@ -2824,7 +2851,7 @@ async function openInCode(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -2845,7 +2872,7 @@ async function openInCode(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open file");
+    message.error(t("Failed to open file"));
   }
 }
 
@@ -2936,7 +2963,7 @@ async function openInImageViewer(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -2957,7 +2984,7 @@ async function openInImageViewer(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open image");
+    message.error(t("Failed to open image"));
   }
 }
 
@@ -3046,7 +3073,7 @@ async function openInPDFViewer(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -3067,7 +3094,7 @@ async function openInPDFViewer(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open PDF");
+    message.error(t("Failed to open PDF"));
   }
 }
 
@@ -3158,7 +3185,7 @@ async function openInMediaPlayer(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -3179,7 +3206,7 @@ async function openInMediaPlayer(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open media file");
+    message.error(t("Failed to open media file"));
   }
 }
 
@@ -3271,7 +3298,7 @@ async function openInBrusher(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -3292,8 +3319,32 @@ async function openInBrusher(file: FileEntry) {
       fileStates.value[file.name] = false;
       loadingStates.value[file.name] = false;
     }
-    message.error("Failed to open image in Brusher");
+    message.error(t("Failed to open image in Brusher"));
   }
+}
+
+function fileParentPath(file: { name: string }): string {
+  const slashIdx = file.name.lastIndexOf("/");
+  return slashIdx >= 0 ? file.name.slice(0, slashIdx) : currentPath.value;
+}
+
+const favoriteKeys = computed(() => {
+  const set = new Set<string>();
+  for (const f of fileExplorerStore.favorites) {
+    set.add(`${f.location}|${f.path}|${f.name}|${f.disk || ""}|${f.container || ""}|${f.mount_index ?? 0}`);
+  }
+  return set;
+});
+
+function isFileFavorited(file: FileEntry): boolean {
+  if (isSpecialLocation.value) return false;
+  const loc = currentLocation.value;
+  if (loc === "systemapps" || loc === "utilities") return false;
+  const path = fileParentPath(file);
+  const disk = loc === "disksplus" ? currentDiskInfo()?.id || "" : "";
+  const container = loc === "appdrive" ? selectedContainer.value || "" : "";
+  const mountIndex = loc === "appdrive" ? selectedMountIndex.value || 0 : 0;
+  return favoriteKeys.value.has(`${loc}|${path}|${file.name}|${disk}|${container}|${mountIndex}`);
 }
 
 async function verifyFileExists(source: string, path: string, fileName: string, container?: string, mountIndex?: number, diskId?: string): Promise<boolean> {
@@ -3354,7 +3405,7 @@ async function handleFileDoubleClick(file: FileEntry) {
     const isFavorite = currentLocation.value === "favorites";
 
     if (meta._source === "disksplus" && !disksPlusStore.unlocked) {
-      message.warning("Unlock Disks+ to access this file");
+      message.warning(t("Unlock Disks+ to access this file"));
       disksPlusUnlockVisible.value = true;
       return;
     }
@@ -3549,7 +3600,7 @@ async function downloadFile(file: FileEntry) {
     if (!isSpecialLocation.value) {
       fileExplorerStore.addToRecents({
         location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
-        path: currentPath.value,
+        path: fileParentPath(file),
         name: file.name,
         is_directory: false,
         container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -3566,7 +3617,7 @@ async function downloadFile(file: FileEntry) {
     }, 1000);
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      message.error(error.response?.data?.error_message || "Failed to download file. Please try again.");
+      message.error(t(error.response?.data?.error_message || "Failed to download file. Please try again."));
     } else {
       message.error("Failed to download file. Please try again.");
     }
@@ -3676,8 +3727,8 @@ async function downloadAsZip(fileNames: string[]) {
 
 function showDeleteDialog(file: FileEntry) {
   fileToDelete.value = file;
-  deleteDialogTitle.value = file.is_directory ? "Delete Folder" : "Delete File";
-  deleteDialogContent.value = `Are you sure you want to delete "${file.display_name || file.name}"?`;
+  deleteDialogTitle.value = file.is_directory ? t("Delete Folder") : t("Delete File");
+  deleteDialogContent.value = t('Are you sure you want to delete "{name}"?', { name: file.display_name || file.name });
   deleteDialogVisible.value = true;
 }
 
@@ -3740,9 +3791,9 @@ async function confirmDelete() {
     } else if (currentLocation.value === "dropzone") {
       const response = await axios.post("/api/dropzone/delete", { file: fileToDelete.value.name }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
       if (response.data.success) {
-        message.success(response.data.message);
+        message.success(t(response.data.message));
       } else {
-        message.error(response.data.error || "Failed to delete file");
+        message.error(t(response.data.error || "Failed to delete file"));
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
@@ -3755,11 +3806,11 @@ async function confirmDelete() {
         },
         { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
       );
-      message.success(`Deleted ${fileToDelete.value.display_name || fileToDelete.value.name}`);
+      message.success(t("Deleted {name}", { name: fileToDelete.value.display_name || fileToDelete.value.name }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) {
-        message.error("No disk selected");
+        message.error(t("No disk selected"));
         return;
       }
       const abs = buildDiskAbsolutePath(disk.mountpoint, fileToDelete.value.name);
@@ -3768,17 +3819,17 @@ async function confirmDelete() {
       });
       if ((res as any)?._canceled) return;
       disksPlusStore.slideSession();
-      message.success(`Deleted ${fileToDelete.value.display_name || fileToDelete.value.name}`);
+      message.success(t("Deleted {name}", { name: fileToDelete.value.display_name || fileToDelete.value.name }));
     } else {
-      message.success("Deleted successfully");
+      message.success(t("Deleted successfully"));
     }
 
     refreshFiles();
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
-      message.error(error.response?.data?.error_message || error.response?.data?.error || "Failed to delete");
+      message.error(t(error.response?.data?.error_message || error.response?.data?.error || "Failed to delete"));
     } else {
-      message.error("Failed to delete");
+      message.error(t("Failed to delete"));
     }
   } finally {
     deleteDialogVisible.value = false;
@@ -3810,7 +3861,7 @@ async function performRename() {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
         },
       );
-      message.success(`Renamed to "${renameValue.value}"`);
+      message.success(t('Renamed to "{name}"', { name: renameValue.value }));
     } else if (currentLocation.value === "dropzone") {
       const response = await axios.post(
         "/api/dropzone/rename",
@@ -3824,9 +3875,9 @@ async function performRename() {
       );
 
       if (response.data.success) {
-        message.success(response.data.message);
+        message.success(t(response.data.message));
       } else {
-        message.error(response.data.error || "Failed to rename item");
+        message.error(t(response.data.error || "Failed to rename item"));
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
@@ -3842,7 +3893,7 @@ async function performRename() {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
         },
       );
-      message.success(`Renamed to "${renameValue.value}"`);
+      message.success(t('Renamed to "{name}"', { name: renameValue.value }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) {
@@ -3863,7 +3914,7 @@ async function performRename() {
       });
       if ((res as any)?._canceled) return;
       disksPlusStore.slideSession();
-      message.success(`Renamed to "${renameValue.value}"`);
+      message.success(t('Renamed to "{name}"', { name: renameValue.value }));
     }
 
     renameDialogVisible.value = false;
@@ -3872,9 +3923,9 @@ async function performRename() {
     refreshFiles();
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      message.error(error.response?.data?.error || "Failed to rename");
+      message.error(t(error.response?.data?.error || "Failed to rename"));
     } else {
-      message.error("Failed to rename");
+      message.error(t("Failed to rename"));
     }
   }
 }
@@ -3911,9 +3962,9 @@ async function createFolder() {
       );
 
       if (response.data.success) {
-        message.success(response.data.message);
+        message.success(t(response.data.message));
       } else {
-        message.error(response.data.error || "Failed to create folder");
+        message.error(t(response.data.error || "Failed to create folder"));
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
@@ -3929,11 +3980,11 @@ async function createFolder() {
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
         },
       );
-      message.success(`Created folder "${newFolderName.value}"`);
+      message.success(t('Created folder "{name}"', { name: newFolderName.value }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) {
-        message.error("No disk selected");
+        message.error(t("No disk selected"));
         return;
       }
       const abs = buildDiskAbsolutePath(disk.mountpoint, currentPath.value);
@@ -3950,7 +4001,7 @@ async function createFolder() {
       });
       if ((res as any)?._canceled) return;
       disksPlusStore.slideSession();
-      message.success(`Created folder "${newFolderName.value}"`);
+      message.success(t('Created folder "{name}"', { name: newFolderName.value }));
     }
 
     createFolderDialogVisible.value = false;
@@ -3958,28 +4009,28 @@ async function createFolder() {
     refreshFiles();
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      message.error(error.response?.data?.error || "Failed to create folder. Please try again.");
+      message.error(t(error.response?.data?.error || "Failed to create folder. Please try again."));
     } else {
-      message.error("Failed to create folder. Please try again.");
+      message.error(t("Failed to create folder. Please try again."));
     }
   }
 }
 
 async function toggleFavorite(file: FileEntry) {
   const loc = currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus";
-  const isFav = fileExplorerStore.isFavorite(loc, currentPath.value, file.name);
+  const isFav = fileExplorerStore.isFavorite(loc, fileParentPath(file), file.name);
 
   if (isFav) {
     await fileExplorerStore.removeFromFavorites({
       location: loc,
-      path: currentPath.value,
+      path: fileParentPath(file),
       name: file.name,
     });
-    message.success("Removed from favorites");
+    message.success(t("Removed from favorites"));
   } else {
     await fileExplorerStore.addToFavorites({
       location: loc,
-      path: currentPath.value,
+      path: fileParentPath(file),
       name: file.name,
       is_directory: file.is_directory,
       container: loc === "appdrive" ? selectedContainer.value || undefined : undefined,
@@ -3998,7 +4049,7 @@ async function locateFileFromSpecial(file: FileEntry) {
   const isFavorite = currentLocation.value === "favorites";
 
   if (meta._source === "disksplus" && !disksPlusStore.unlocked) {
-    message.warning("Unlock Disks+ to access this file");
+    message.warning(t("Unlock Disks+ to access this file"));
     disksPlusUnlockVisible.value = true;
     return;
   }
@@ -4182,6 +4233,82 @@ function cancelFolderUpload() {
   pendingUploadData.value = null;
 }
 
+const CHUNK_SIZE = 5 * 1024 * 1024;
+
+async function uploadChunked(apiBase: string, file: File, targetPath: string, uid: string, loc: UploadLocation, extraInitFields: Record<string, any> = {}, onChunkComplete?: () => void): Promise<{ success: boolean; error?: string; data?: any }> {
+  const totalSize = file.size;
+  const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+
+  const initRes = await axios.post(
+    `${apiBase}/init`,
+    {
+      filename: file.name,
+      total_size: totalSize,
+      total_chunks: totalChunks,
+      target_path: targetPath || "",
+      ...extraInitFields,
+    },
+    { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+  );
+  if (!initRes.data?.success || !initRes.data.upload_id) {
+    return { success: false, error: initRes.data?.error || "init_failed" };
+  }
+  const uploadId = initRes.data.upload_id as string;
+
+  let uploadedBytes = 0;
+  try {
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, totalSize);
+      const chunk = file.slice(start, end);
+
+      await axios.put(`${apiBase}/chunk?upload_id=${uploadId}&chunk_index=${i}`, chunk, {
+        headers: {
+          "X-HomeDock-CSRF-Token": csrfToken.value,
+          "Content-Type": "application/octet-stream",
+        },
+        onUploadProgress: (progressEvent) => {
+          const chunkLoaded = progressEvent.loaded || 0;
+          const total = uploadedBytes + chunkLoaded;
+          const percent = Math.min(99, Math.round((total / totalSize) * 100));
+          uploadStore.updateProgress(loc, uid, percent);
+        },
+      });
+      uploadedBytes += end - start;
+      onChunkComplete?.();
+    }
+
+    const finalizeRes = await axios.post(`${apiBase}/finalize`, { upload_id: uploadId }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+    if (!finalizeRes.data?.success) {
+      return { success: false, error: finalizeRes.data?.error || "finalize_failed" };
+    }
+    return { success: true, data: finalizeRes.data };
+  } catch (err) {
+    try {
+      await axios.delete(`${apiBase}/abort?upload_id=${encodeURIComponent(uploadId)}`, {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      });
+    } catch {}
+    throw err;
+  }
+}
+
+async function uploadStorageChunked(file: File, targetPath: string, uid: string, loc: UploadLocation) {
+  return uploadChunked("/api/storage/upload", file, targetPath, uid, loc);
+}
+
+async function uploadAppDriveChunked(file: File, targetPath: string, uid: string, loc: UploadLocation, container: string, mountIndex: number) {
+  return uploadChunked("/api/appdrive/upload", file, targetPath, uid, loc, { container, mount: mountIndex });
+}
+
+async function uploadDisksPlusChunked(file: File, targetPath: string, uid: string, loc: UploadLocation, diskId: string) {
+  return uploadChunked("/api/disksplus/upload", file, targetPath, uid, loc, { disk: diskId }, () => disksPlusStore.slideSession());
+}
+
+async function uploadDropzoneChunked(file: File, targetPath: string, uid: string, loc: UploadLocation) {
+  return uploadChunked("/api/dropzone/upload", file, targetPath, uid, loc);
+}
+
 async function processUploadQueue() {
   if (isProcessingUploadQueue) return;
   isProcessingUploadQueue = true;
@@ -4202,69 +4329,71 @@ async function processUploadQueue() {
       });
       (async () => {
         try {
-          const formData = new FormData();
-          formData.append("file", nextUpload.file);
-
-          if (nextUpload.targetPath) {
-            formData.append("path", nextUpload.targetPath);
-          }
-
-          let endpoint = "";
           if (nextUpload.location === "storage") {
-            endpoint = "/api/storage/upload";
-          } else if (nextUpload.location === "dropzone") {
-            endpoint = "/api/dropzone/upload";
-          } else if (nextUpload.location === "appdrive" && nextUpload.container) {
-            endpoint = "/api/appdrive/upload";
-            formData.append("container", nextUpload.container);
-            formData.append("mount", String(nextUpload.mountIndex || 0));
-          } else if (nextUpload.location === "disksplus" && nextUpload.diskId) {
-            endpoint = "/api/disksplus/upload";
-            formData.append("disk", nextUpload.diskId);
-          }
-
-          const doUpload = async () =>
-            await axios.post(endpoint, formData, {
-              headers: {
-                "X-HomeDock-CSRF-Token": csrfToken.value,
-              },
-              onUploadProgress: (progressEvent) => {
-                if (progressEvent.total) {
-                  const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-                  uploadStore.updateProgress(loc, nextUpload.uid, percent);
-                }
-              },
-            });
-
-          let response;
-          if (nextUpload.location === "disksplus" && nextUpload.diskAbsolutePath) {
-            const res = await withDangerCheck(nextUpload.diskAbsolutePath, doUpload);
-            if ((res as any)?._canceled) {
+            const result = await uploadStorageChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc);
+            if (!result.success) {
               uploadStore.cancelUpload(loc, nextUpload.uid);
-              return;
+              message.error(t(result.error || "Upload failed"));
+            } else {
+              uploadStore.completeUpload(loc, nextUpload.uid);
             }
-            disksPlusStore.slideSession();
-            response = res as any;
-          } else {
-            response = await doUpload();
+            return;
           }
 
-          if (!response.data.success) {
-            uploadStore.cancelUpload(loc, nextUpload.uid);
-            message.error(response.data.error || "Upload failed");
-          } else {
-            uploadStore.completeUpload(loc, nextUpload.uid);
+          if (nextUpload.location === "appdrive" && nextUpload.container) {
+            const result = await uploadAppDriveChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc, nextUpload.container, nextUpload.mountIndex || 0);
+            if (!result.success) {
+              uploadStore.cancelUpload(loc, nextUpload.uid);
+              message.error(t(result.error || "Upload failed"));
+            } else {
+              uploadStore.completeUpload(loc, nextUpload.uid);
+            }
+            return;
+          }
+
+          if (nextUpload.location === "disksplus" && nextUpload.diskId) {
+            const doChunkedUpload = async () => uploadDisksPlusChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc, nextUpload.diskId!);
+            let result: { success: boolean; error?: string; data?: any };
+            if (nextUpload.diskAbsolutePath) {
+              const res = await withDangerCheck(nextUpload.diskAbsolutePath, doChunkedUpload);
+              if ((res as any)?._canceled) {
+                uploadStore.cancelUpload(loc, nextUpload.uid);
+                return;
+              }
+              disksPlusStore.slideSession();
+              result = res as any;
+            } else {
+              result = await doChunkedUpload();
+            }
+            if (!result.success) {
+              uploadStore.cancelUpload(loc, nextUpload.uid);
+              message.error(t(result.error || "Upload failed"));
+            } else {
+              uploadStore.completeUpload(loc, nextUpload.uid);
+            }
+            return;
+          }
+
+          if (nextUpload.location === "dropzone") {
+            const result = await uploadDropzoneChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc);
+            if (!result.success) {
+              uploadStore.cancelUpload(loc, nextUpload.uid);
+              message.error(t(result.error || "Upload failed"));
+            } else {
+              uploadStore.completeUpload(loc, nextUpload.uid);
+            }
+            return;
           }
         } catch (error) {
           uploadStore.cancelUpload(loc, nextUpload.uid);
           if (axios.isAxiosError(error)) {
             if (error.response?.status === 413) {
-              message.error("The selected file is larger than the maximum allowed size.");
+              message.error(t("The selected file is larger than the maximum allowed size."));
             } else {
-              message.error(error.response?.data?.error_message || error.response?.data?.error || `Failed to upload ${nextUpload.file.name}`);
+              message.error(t(error.response?.data?.error_message || error.response?.data?.error || "Failed to upload {name}", { name: nextUpload.file.name }));
             }
           } else {
-            message.error(`Failed to upload ${nextUpload.file.name}`);
+            message.error(t("Failed to upload {name}", { name: nextUpload.file.name }));
           }
         } finally {
           activeUploads.value--;
@@ -4354,12 +4483,12 @@ function showFileProperties(file: FileEntry) {
   closeContextMenu();
   const disk = currentLocation.value === "disksplus" ? currentDiskInfo() : null;
   windowStore.openWindow("fileproperties", {
-    title: `${file.display_name || file.name} - Properties`,
+    title: `${getDisplayName(file)} - ${t("Properties")}`,
     allowMultiple: true,
     data: {
       file: {
         name: file.name,
-        display_name: file.display_name,
+        display_name: getDisplayName(file),
         size: file.size,
         modified: file.modified,
         is_directory: file.is_directory,
@@ -4656,7 +4785,8 @@ onMounted(async () => {
   } else if (props.initialLocation === "dropzone") {
     currentLocation.value = "dropzone";
     isDropZoneExpanded.value = true;
-    loadFiles();
+    if (props.initialPath) currentPath.value = props.initialPath;
+    loadFiles().then(() => selectFileInList(props.initialFileName));
     loadContainers();
   } else if (props.initialLocation === "disksplus" && props.initialDiskId) {
     isDisksPlusExpanded.value = true;
@@ -4668,7 +4798,8 @@ onMounted(async () => {
   } else if (props.initialLocation === "storage") {
     currentLocation.value = "storage";
     isStorageExpanded.value = true;
-    loadFiles();
+    if (props.initialPath) currentPath.value = props.initialPath;
+    loadFiles().then(() => selectFileInList(props.initialFileName));
     loadContainers();
   } else {
     loadFiles();
@@ -4702,15 +4833,36 @@ async function handleIncomingNavigation(event: CustomEvent) {
   if (data?.initialLocation === "appdrive" && data?.initialContainer) {
     currentLocation.value = "appdrive";
     selectedContainer.value = data.initialContainer;
-    currentPath.value = "";
+    currentPath.value = data.initialPath || "";
     isAppDriveExpanded.value = true;
     await loadMounts(data.initialContainer, data.initialMountIndex);
+    selectFileInList(data.initialFileName);
   } else if (data?.initialLocation === "disksplus" && data?.initialDiskId) {
     isDisksPlusExpanded.value = true;
     if (disksPlusStore.unlocked) {
       selectDisksPlusDisk(data.initialDiskId);
     }
+  } else if (data?.initialLocation === "storage") {
+    currentLocation.value = "storage";
+    isStorageExpanded.value = true;
+    currentPath.value = data.initialPath || "";
+    await loadFiles();
+    selectFileInList(data.initialFileName);
+  } else if (data?.initialLocation === "dropzone") {
+    currentLocation.value = "dropzone";
+    isDropZoneExpanded.value = true;
+    currentPath.value = data.initialPath || "";
+    await loadFiles();
+    selectFileInList(data.initialFileName);
   }
+}
+
+function selectFileInList(fileName?: string) {
+  if (!fileName) return;
+  selectedFiles.value.clear();
+  selectedFiles.value.add(fileName);
+  selectedFile.value = fileName;
+  scrollFileIntoView(fileName);
 }
 
 onUnmounted(() => {

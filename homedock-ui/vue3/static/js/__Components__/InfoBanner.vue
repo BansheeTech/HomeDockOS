@@ -31,7 +31,7 @@
       </slot>
     </div>
 
-    <button v-if="closable" :class="['flex items-center justify-center w-5 h-5 rounded transition-all duration-150 flex-shrink-0 border-0 bg-transparent cursor-pointer ml-1 opacity-60 hover:opacity-100 hover:scale-110', themeClasses.infoBannerClose]" @click="handleClose" aria-label="Close banner">
+    <button v-if="closable" :class="['flex items-center justify-center w-5 h-5 rounded transition-all duration-150 flex-shrink-0 border-0 bg-transparent cursor-pointer ml-1 opacity-60 hover:opacity-100 hover:scale-110', themeClasses.infoBannerClose]" @click="handleClose" :aria-label="$t('Close banner')">
       <Icon :icon="closeIcon" class="w-3.5 h-3.5" />
     </button>
   </div>

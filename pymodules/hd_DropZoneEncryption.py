@@ -7,6 +7,7 @@ https://www.banshee.pro
 
 import os
 import base64
+import threading
 
 from flask_login import current_user
 
@@ -15,14 +16,15 @@ from pymodules.hd_FunctionsGlobals import current_directory, dropzone_folder
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, padding as sym_padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-
 MASTER_KEY_FILE = os.path.join(current_directory, "homedock_dropzone.conf")
 AES_KEY_SIZE = 32
 AES_GCM_NONCE_BYTES = 12
+AES_GCM_TAG_BYTES = 16
 
 # v3c
 V3_KEY_PREFIX = "dzkey_v3"
@@ -75,6 +77,55 @@ def _decrypt_v3(username: str, full_content: bytes) -> bytes:
     aesgcm = AESGCM(key)
     associated_data = username.lower().encode("utf-8")
     return aesgcm.decrypt(nonce, encrypted_data, associated_data)
+
+
+# HDOS00020
+_active_streams = {}
+_streams_lock = threading.Lock()
+
+
+def init_streaming_encryption(username: str, upload_id: str) -> bytes:
+    key = _derive_key_v3(username)
+    nonce = os.urandom(AES_GCM_NONCE_BYTES)
+    encryptor = Cipher(algorithms.AES(key), modes.GCM(nonce)).encryptor()
+    encryptor.authenticate_additional_data(username.lower().encode("utf-8"))
+    with _streams_lock:
+        _active_streams[upload_id] = {
+            "encryptor": encryptor,
+            "nonce": nonce,
+            "username": username,
+            "lock": threading.Lock(),
+        }
+    return nonce
+
+
+def encrypt_streaming_chunk(upload_id: str, plaintext: bytes) -> bytes:
+    with _streams_lock:
+        state = _active_streams.get(upload_id)
+    if state is None:
+        raise KeyError("no_active_stream")
+    with state["lock"]:
+        return state["encryptor"].update(plaintext)
+
+
+def finalize_streaming_encryption(upload_id: str) -> bytes:
+    with _streams_lock:
+        state = _active_streams.pop(upload_id, None)
+    if state is None:
+        raise KeyError("no_active_stream")
+    with state["lock"]:
+        state["encryptor"].finalize()
+        return state["encryptor"].tag
+
+
+def abort_streaming_encryption(upload_id: str) -> bool:
+    with _streams_lock:
+        return _active_streams.pop(upload_id, None) is not None
+
+
+def has_streaming_encryption(upload_id: str) -> bool:
+    with _streams_lock:
+        return upload_id in _active_streams
 
 
 # dzkey_v2 (PBKDF2)

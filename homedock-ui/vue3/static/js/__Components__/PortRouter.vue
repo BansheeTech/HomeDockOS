@@ -13,10 +13,10 @@
           <Transition mode="out-in" name="fade-in">
             <span :key="portsDisplay" class="port-text truncate" :title="portsDisplay">{{ portsDisplay }}</span>
           </Transition>
-          <button @click="startRescan" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, { 'cursor-not-allowed opacity-50': !canRescan }]" :disabled="!canRescan" :title="canRescan ? 'Rescan ports' : isDisabled ? 'Already rescanning...' : 'Container must be running to rescan'">
+          <button @click="startRescan" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, { 'cursor-not-allowed opacity-50': !canRescan }]" :disabled="!canRescan" :title="canRescan ? $t('Rescan ports') : isDisabled ? $t('Already rescanning...') : $t('Container must be running to rescan')">
             <Icon :icon="isRescanning ? loadingIcon : rescanIcon" width="14" height="14" :class="{ 'animate-spin': isRescanning }" />
           </button>
-          <button @click="startEditing" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :title="'Edit ports'">
+          <button @click="startEditing" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :title="$t('Edit ports')">
             <Icon :icon="editIcon" width="14" height="14" />
           </button>
         </div>
@@ -25,12 +25,12 @@
       <!-- Edit -->
       <div v-else class="port-content" key="edit-mode">
         <div class="port-edit">
-          <Input ref="inputElement" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :value="portsValue" @input="handleValidatedInput" @keyup="handleKeyUp" type="text" placeholder="e.g., 8080 or 8080:80:443" class="port-input" />
+          <Input ref="inputElement" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :value="portsValue" @input="handleValidatedInput" @keyup="handleKeyUp" type="text" :placeholder="$t('e.g., 8080 or 8080:80:443')" class="port-input" />
           <div class="port-actions">
-            <button @click="saveData" class="action-button save" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" :disabled="isLoading" title="Save (Enter)">
+            <button @click="saveData" class="action-button save" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" :disabled="isLoading" :title="$t('Save (Enter)')">
               <Icon :icon="isLoading ? loadingIcon : saveIcon" width="16" height="16" :class="{ 'animate-spin': isLoading }" />
             </button>
-            <button @click="closeEditing" class="action-button cancel" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :disabled="isLoading" title="Cancel (Esc)">
+            <button @click="closeEditing" class="action-button cancel" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :disabled="isLoading" :title="$t('Cancel (Esc)')">
               <Icon :icon="closeIcon" width="16" height="16" />
             </button>
           </div>
@@ -45,6 +45,7 @@ import axios from "axios";
 
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
@@ -71,6 +72,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update"]);
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 const desktopStore = useDesktopStore();
@@ -152,13 +154,13 @@ function saveData() {
       if (data.status === "success") {
         originalPorts.value = portsValue.value;
         emit("update", portsValue.value);
-        notifySuccess("Success", "Ports updated successfully!", themeClasses.value.scopeSelector);
+        notifySuccess(t("Success"), t("Ports updated successfully!"), themeClasses.value.scopeSelector);
       }
     })
     .catch((error) => {
       const responseData = error.response?.data || {};
       const errorMessage = responseData.error_message || "An unknown error occurred.";
-      notifyWarning(errorMessage, themeClasses.value.scopeSelector);
+      notifyWarning(t(errorMessage), themeClasses.value.scopeSelector);
     })
     .finally(() => {
       isLoading.value = false;
@@ -200,7 +202,7 @@ async function startRescan() {
 
     const data = response.data;
     if (data.status === "success") {
-      notifySuccess("Port Rescan", `Rescanning ports for ${containerDisplayName.value}. It will update automatically in a few seconds, please wait...`, themeClasses.value.scopeSelector);
+      notifySuccess(t("Port Rescan"), t("Rescanning ports for {name}. It will update automatically in a few seconds, please wait...", { name: containerDisplayName.value }), themeClasses.value.scopeSelector);
     }
   } catch (error) {
     const responseData = error.response?.data || {};

@@ -4,8 +4,8 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsGroup header="NETWORK" footer="Configure network access ports and more for HomeDock OS.">
-    <SettingsItem :icon="counterIcon" icon-color="blue" title="HomeDock OS Port" description="Port for accessing HomeDock (80-65535)">
+  <SettingsGroup :header="$t('NETWORK')" :footer="$t('Configure network access ports and more for HomeDock OS.')">
+    <SettingsItem :icon="counterIcon" icon-color="blue" :title="$t('HomeDock OS Port')" :description="$t('Port for accessing HomeDock (80-65535)')">
       <FormItem :validate-status="isPortValid ? 'success' : 'error'" class="mb-0">
         <template #help>
           <div v-if="!isPortValid" class="flex items-center text-xs mt-1">
@@ -14,51 +14,51 @@
           </div>
         </template>
 
-        <InputNumber :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" @keypress="validateInput" v-model:value="portNumber" :min="80" :max="65535" placeholder="85..." name="FormInputRunPort" id="FormInputRunPort" pattern="\d*" style="width: 150px" />
+        <InputNumber :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" @keypress="validateInput" v-model:value="portNumber" :min="80" :max="65535" :placeholder="$t('85...')" name="FormInputRunPort" id="FormInputRunPort" pattern="\d*" style="width: 150px" />
       </FormItem>
     </SettingsItem>
 
-    <SettingsItem :icon="globeIcon" icon-color="cyan" title="Hostname" description="Dynamic DNS hostname for remote access" is-last>
-      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="hostnameValue" name="FormInputDynamicDNS" id="FormInputDynamicDNS" placeholder="get.homedock.cloud" style="width: 280px" />
+    <SettingsItem :icon="globeIcon" icon-color="cyan" :title="$t('Hostname')" :description="$t('Dynamic DNS hostname for remote access')" is-last>
+      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="hostnameValue" name="FormInputDynamicDNS" id="FormInputDynamicDNS" :placeholder="$t('get.homedock.cloud')" style="width: 280px" />
     </SettingsItem>
   </SettingsGroup>
 
-  <SettingsGroup header="SYSTEM BEHAVIOR" footer="Configure how HomeDock OS behaves and manages applications.">
-    <SettingsItem :icon="lanIcon" icon-color="purple" title="Local DNS Access" description="Enable homedock.local access">
+  <SettingsGroup :header="$t('SYSTEM BEHAVIOR')" :footer="$t('Configure how HomeDock OS behaves and manages applications.')">
+    <SettingsItem :icon="lanIcon" icon-color="purple" :title="$t('Local DNS Access')" :description="$t('Enable homedock.local access')">
       <template #after-description>
         <Transition name="restart-badge">
-          <span v-if="localDNSChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">Requires Restart</span>
+          <span v-if="localDNSChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">{{ $t('Requires Restart') }}</span>
         </Transition>
       </template>
       <Switch v-model:checked="homedockLocalValue" name="FormInputHomeDockLocal" id="FormInputHomeDockLocal" />
     </SettingsItem>
 
-    <SettingsItem :icon="serverNetworkIcon" icon-color="green" title="Reverse Proxy" description="Enable if running behind a reverse proxy">
+    <SettingsItem :icon="serverNetworkIcon" icon-color="green" :title="$t('Reverse Proxy')" :description="$t('Enable if running behind a reverse proxy')">
       <template #after-description>
         <Transition name="restart-badge">
-          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">Requires Restart</span>
+          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">{{ $t('Requires Restart') }}</span>
         </Transition>
         <Transition name="restart-badge">
-          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">SSL required on proxy</span>
+          <span v-if="reverseProxyChanged" class="inline-block text-[8px] font-semibold uppercase tracking-wide px-1.5 py-px rounded-md bg-blue-400/15 text-blue-400">{{ $t('SSL required on proxy') }}</span>
         </Transition>
 
       </template>
       <Switch v-model:checked="reverseProxyValue" name="FormInputReverseProxy" id="FormInputReverseProxy" />
     </SettingsItem>
 
-    <SettingsItem :icon="chartBellCurveIcon" icon-color="gray" title="Anonymous Usage Data" description="Disable sending anonymous analytics">
+    <SettingsItem :icon="chartBellCurveIcon" icon-color="gray" :title="$t('Anonymous Usage Data')" :description="$t('Disable sending anonymous analytics')">
       <Switch v-model:checked="disableUsageDataValue" name="FormInputDisableUsageData" id="FormInputDisableUsageData" />
     </SettingsItem>
 
-    <SettingsItem :icon="deleteClockIcon" icon-color="orange" title="Auto-Clean on Update" description="Delete old images when updating apps">
+    <SettingsItem :icon="deleteClockIcon" icon-color="orange" :title="$t('Auto-Clean on Update')" :description="$t('Delete old images when updating apps')">
       <Switch v-model:checked="delOldDataUpdateValue" name="FormInputDeleteOldImages" id="FormInputDeleteOldImages" />
     </SettingsItem>
 
-    <SettingsItem :icon="deleteIcon" icon-color="red" title="Delete Images on Uninstall" description="Remove old images when uninstalling apps">
+    <SettingsItem :icon="deleteIcon" icon-color="red" :title="$t('Delete Images on Uninstall')" :description="$t('Remove old images when uninstalling apps')">
       <Switch v-model:checked="delOldDataUninstallValue" name="FormInputDeleteOldImagesUninstall" id="FormInputDeleteOldImagesUninstall" />
     </SettingsItem>
 
-    <SettingsItem :icon="cubeOffIcon" icon-color="red" title="Delete Volumes on Uninstall" description="Remove app and user data when uninstalling" is-last>
+    <SettingsItem :icon="cubeOffIcon" icon-color="red" :title="$t('Delete Volumes on Uninstall')" :description="$t('Remove app and user data when uninstalling')" is-last>
       <Switch v-model:checked="deleteOldVolumesUninstall" name="FormInputDeleteVolumes" id="FormInputDeleteVolumes" />
     </SettingsItem>
   </SettingsGroup>
@@ -66,7 +66,7 @@
   <EnterpriseSlotRenderer module="SecureTunnel" />
 
   <div v-if="false">
-    <SettingsItem :icon="hazardLightsIcon" icon-color="yellow" title="Development Mode" description="Run in development mode (requires restart)" is-last>
+    <SettingsItem :icon="hazardLightsIcon" icon-color="yellow" :title="$t('Development Mode')" :description="$t('Run in development mode (requires restart)')" is-last>
       <Switch v-model:checked="developmentValue" name="FormInputDevelopmentMode" id="FormInputDevelopmentMode" />
     </SettingsItem>
   </div>
@@ -74,6 +74,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -95,6 +96,8 @@ import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
 
 import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
+
+const { t } = useI18n();
 
 const { themeClasses } = useTheme();
 
@@ -133,9 +136,9 @@ const isPortValid = computed(() => {
 });
 
 const portErrorMessage = computed(() => {
-  if (portNumber.value === null) return "Port can't be blank!";
-  if (portNumber.value < 80) return "Ports 80 and below are reserved";
-  if (portNumber.value > 65535) return "Ports higher than 65535 are not available";
+  if (portNumber.value === null) return t("Port can't be blank!");
+  if (portNumber.value < 80) return t("Ports 80 and below are reserved");
+  if (portNumber.value > 65535) return t("Ports higher than 65535 are not available");
   return "";
 });
 

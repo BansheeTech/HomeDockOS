@@ -8,7 +8,7 @@
     <div v-if="!app" class="flex-1 flex items-center justify-center">
       <div class="text-center">
         <Icon :icon="loadingIcon" :class="[themeClasses.installConfigLoadingIcon]" class="animate-spin h-12 w-12 mx-auto mb-4" />
-        <p :class="[themeClasses.installConfigLoadingText]">Loading application details...</p>
+        <p :class="[themeClasses.installConfigLoadingText]">{{ $t("Loading application details...") }}</p>
       </div>
     </div>
 
@@ -30,21 +30,21 @@
               <div class="flex items-center gap-2 text-xs mb-5 sm:mb-4 min-w-0">
                 <span :class="[themeClasses.storeModalAppType]" class="font-medium truncate">{{ app?.type }}</span>
                 <span :class="[themeClasses.storeModalAppCategory]" class="flex-shrink-0">•</span>
-                <span :class="[themeClasses.storeModalAppCategory]" class="truncate">{{ app?.category }}</span>
+                <span :class="[themeClasses.storeModalAppCategory]" class="truncate">{{ $t(app?.category ?? "") }}</span>
               </div>
 
               <div class="flex items-center gap-2.5">
                 <Transition name="button-fade" mode="out-in">
-                  <button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">Installed</button>
+                  <button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">{{ $t("Installed") }}</button>
                   <button v-else-if="installationStore.currentlyInstalling === app?.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
                     <Icon :icon="loadingIcon" class="w-3 h-3 animate-spin" />
-                    Installing
+                    {{ $t("Installing") }}
                   </button>
                   <button v-else-if="app?.name && installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
                     <Icon :icon="queueIcon" class="w-3 h-3" />
-                    Queued
+                    {{ $t("Queued") }}
                   </button>
-                  <button v-else :disabled="installDisabled" :class="[themeClasses.storeCardGetPill]" key="install" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-40" @click="handleInstall">GET</button>
+                  <button v-else :disabled="installDisabled" :class="[themeClasses.storeCardGetPill]" key="install" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-40" @click="handleInstall">{{ $t("GET") }}</button>
                 </Transition>
 
                 <a :href="app?.is_external ? 'https://www.homedock.cloud' : `https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" :class="[themeClasses.storeCardSubtitle]" class="p-2 rounded-full transition-all duration-200 hover:opacity-70">
@@ -76,9 +76,9 @@
             <template v-if="app?.is_external">
               <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.source" placement="bottom">
                 <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                  <span class="text-[9px] font-semibold uppercase tracking-wider mb-1 text-amber-500">Source</span>
+                  <span class="text-[9px] font-semibold uppercase tracking-wider mb-1 text-amber-500">{{ $t("Source") }}</span>
                   <Icon :icon="packageIcon" class="w-5 h-5 mb-0.5 flex-shrink-0 text-amber-500" />
-                  <span class="text-[10px] font-semibold text-amber-500 truncate w-full text-center">External</span>
+                  <span class="text-[10px] font-semibold text-amber-500 truncate w-full text-center">{{ $t("External") }}</span>
                 </div>
               </Tooltip>
               <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
@@ -86,9 +86,9 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.category" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Category</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Category") }}</span>
                 <Icon :icon="categoryIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
-                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.category }}</span>
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ $t(app?.category ?? "") }}</span>
               </div>
             </Tooltip>
 
@@ -96,7 +96,7 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.type" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Type</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Type") }}</span>
                 <Icon :icon="cubeIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
                 <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.type }}</span>
               </div>
@@ -106,7 +106,7 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.image" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Image</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Image") }}</span>
                 <Icon :icon="dockerIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
                 <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.docker_image?.split("/").pop()?.split(":")[0] }}</span>
               </div>
@@ -116,7 +116,7 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.version" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Version</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Version") }}</span>
                 <Icon :icon="tagIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
                 <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.docker_image?.split(":").pop() || "latest" }}</span>
               </div>
@@ -126,7 +126,7 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="sslEnabled ? infoTipTexts.securityHttps : infoTipTexts.securityHttp" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Security</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Security") }}</span>
                 <Icon :icon="lockIcon" :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
                 <span :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ sslEnabled ? "HTTPS" : "HTTP" }}</span>
               </div>
@@ -136,9 +136,9 @@
 
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.deps" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
-                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">Deps</span>
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Deps") }}</span>
                 <Icon :icon="cubeIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
-                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.dependencies?.length || "None" }}</span>
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ app?.dependencies?.length || $t("None") }}</span>
               </div>
             </Tooltip>
           </div>
@@ -148,20 +148,20 @@
           <div v-if="app?.default_credentials" :class="[themeClasses.installConfigDefaultCredsRow]" class="mb-4 rounded-xl border px-3 py-2.5">
             <div class="flex items-center gap-2 mb-2">
               <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Default Credentials</h3>
+              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Default Credentials") }}</h3>
             </div>
             <div class="flex items-center">
               <Icon :icon="shieldAccountIcon" class="h-3.5 w-3.5 flex-shrink-0 mr-2.5" :class="[themeClasses.installConfigDefaultCredsLabel]" />
               <div class="flex items-center gap-4 min-w-0">
                 <div class="flex items-center gap-1.5">
-                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">User</span>
+                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">{{ $t("User") }}</span>
                   <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.username }}</span>
                   <button @click="copyCredential(app.default_credentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                     <Icon :icon="copiedField === 'username' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
                   </button>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">Pass</span>
+                  <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">{{ $t("Pass") }}</span>
                   <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.password }}</span>
                   <button @click="copyCredential(app.default_credentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                     <Icon :icon="copiedField === 'password' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
@@ -175,7 +175,7 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span><strong>Change after first sign-in.</strong> Once installed, view these anytime from {{ app?.display_name || app?.name }} Properties panel on the Desktop.</span>
+                <span>{{ $t("Change after first sign-in. Once installed, view these anytime from the Properties panel on the Desktop.") }}</span>
               </p>
             </div>
           </div>
@@ -220,28 +220,28 @@
               <div v-if="userName !== undefined || userPassword !== undefined" :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                   <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Credentials</h3>
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Credentials") }}</h3>
                 </div>
                 <div class="space-y-3">
-                  <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" placeholder="Username" class="w-full" />
+                  <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" :placeholder="$t('Username')" class="w-full" />
                   <Transition name="input-swap" mode="out-in">
-                    <Input v-if="userPassword !== undefined && autoGenDisplayMode" key="preview" :value="maskedPasswordPreview" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'autogen-preview']" :disabled="app?.is_installed" placeholder="Password" class="w-full" readonly @click="exitAutoGenMode">
+                    <Input v-if="userPassword !== undefined && autoGenDisplayMode" key="preview" :value="maskedPasswordPreview" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'autogen-preview']" :disabled="app?.is_installed" :placeholder="$t('Password')" class="w-full" readonly @click="exitAutoGenMode">
                       <template #suffix>
                         <button @click.stop="copyCredential(originalAutoGenPassword, 'autogen')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'autogen' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                           <Icon :icon="copiedField === 'autogen' ? checkIcon : contentCopyIcon" class="h-3.5 w-3.5" />
                         </button>
                       </template>
                     </Input>
-                    <InputPassword v-else-if="userPassword !== undefined" key="password" ref="passwordInputRef" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" placeholder="Password" class="w-full" />
+                    <InputPassword v-else-if="userPassword !== undefined" key="password" ref="passwordInputRef" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userPassword" :placeholder="$t('Password')" class="w-full" />
                   </Transition>
                   <Transition name="fade-slide" mode="out-in">
                     <div v-if="autoGenHintVisible" key="autogen-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
                       <Icon :icon="alertIcon" class="h-3 w-3 text-amber-500 flex-shrink-0" />
-                      <p class="text-[10px] font-medium text-amber-600 dark:text-amber-400">This is an auto-generated password. Copy to save it or click the field to set your own.</p>
+                      <p class="text-[10px] font-medium text-amber-600 dark:text-amber-400">{{ $t("This is an auto-generated password. Copy to save it or click the field to set your own.") }}</p>
                     </div>
                     <div v-else-if="passwordTooShort" key="pwd-min-hint" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
                       <Icon :icon="alertIcon" class="h-3 w-3 text-red-500 flex-shrink-0" />
-                      <p class="text-[10px] font-medium text-red-600 dark:text-red-400">Password for {{ app?.display_name }} must be at least {{ app?.pwd_min_required }} characters long.</p>
+                      <p class="text-[10px] font-medium text-red-600 dark:text-red-400">{{ $t("Password for {name} must be at least {n} characters long.", { name: app?.display_name, n: app?.pwd_min_required }) }}</p>
                     </div>
                   </Transition>
                 </div>
@@ -252,14 +252,14 @@
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
                     <Icon :icon="portIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Ports</h3>
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Ports") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addPort">+ Add</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addPort">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="portMappings.length > 0" class="space-y-2">
                   <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Host</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Container</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Host") }}</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Container") }}</span>
                     <span class="w-7"></span>
                   </div>
                   <div v-for="(port, index) in portMappings" :key="'port-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
@@ -273,8 +273,8 @@
                 <div v-else class="flex flex-col items-center py-2 gap-1">
                   <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
                   <div class="flex items-center gap-1">
-                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No port mappings</span>
-                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="This may be a CLI application or configured with Network Mode: Host, which doesn't require explicit port mappings." placement="bottom">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">{{ $t("No port mappings") }}</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" :title="$t('This may be a CLI application or configured with Network Mode: Host, which doesn\'t require explicit port mappings.')" placement="bottom">
                       <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
                     </Tooltip>
                   </div>
@@ -286,14 +286,14 @@
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
                     <Icon :icon="folderIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Volumes</h3>
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Volumes") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addVolume">+ Add</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addVolume">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="volumeMappings.length > 0" class="space-y-2">
                   <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Host Path</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Container Path</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Host Path") }}</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Container Path") }}</span>
                     <span class="w-7"></span>
                   </div>
                   <div v-for="(volume, index) in volumeMappings" :key="'volume-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
@@ -311,8 +311,8 @@
                 <div v-else class="flex flex-col items-center py-2 gap-1">
                   <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
                   <div class="flex items-center gap-1">
-                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No volume mounts</span>
-                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="Not all applications require volume mounts. Some store data internally or are stateless by design." placement="bottom">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">{{ $t("No volume mounts") }}</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" :title="$t('Not all applications require volume mounts. Some store data internally or are stateless by design.')" placement="bottom">
                       <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
                     </Tooltip>
                   </div>
@@ -323,15 +323,15 @@
               <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                   <Icon :icon="networkIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Network</h3>
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Network") }}</h3>
                 </div>
                 <div v-if="networkMappings.length > 0" class="flex items-center gap-2">
                   <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="networkMappings[0].type" class="w-full" @change="handleNetworkTypeChange(0)">
-                    <SelectOption :class="[themeClasses.scopeSelector]" value="host">Host</SelectOption>
-                    <SelectOption :class="[themeClasses.scopeSelector]" value="bridge">Bridge</SelectOption>
-                    <SelectOption :class="[themeClasses.scopeSelector]" value="homedock_network">HomeDock OS Network</SelectOption>
-                    <SelectOption :class="[themeClasses.scopeSelector]" value="none">None</SelectOption>
-                    <SelectOption :class="[themeClasses.scopeSelector]" value="other">Other</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="host">{{ $t("Host") }}</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="bridge">{{ $t("Bridge") }}</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="homedock_network">{{ $t("HomeDock OS Network") }}</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="none">{{ $t("None") }}</SelectOption>
+                    <SelectOption :class="[themeClasses.scopeSelector]" value="other">{{ $t("Other") }}</SelectOption>
                   </Select>
                 </div>
                 <Input v-if="networkMappings.length > 0 && networkMappings[0].type === 'other'" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="networkMappings[0].customName" placeholder="custom-network-name" class="w-full mt-2" />
@@ -342,20 +342,20 @@
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
                     <Icon :icon="envIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Environment</h3>
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Environment") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addEnvVar">+ Add</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addEnvVar">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="envVars.length > 0" class="space-y-2">
                   <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Key</span>
-                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Value</span>
+                    <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Value") }}</span>
                     <span class="w-7"></span>
                   </div>
 
                   <div v-for="(envVar, index) in envVars" :key="'env-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].key" placeholder="VARIABLE_NAME" />
-                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].value" placeholder="value" />
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].key" :placeholder="$t('VARIABLE_NAME')" />
+                    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].value" :placeholder="$t('value')" />
                     <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removeEnvVar(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </button>
@@ -364,8 +364,8 @@
                 <div v-else class="flex flex-col items-center py-2 gap-1">
                   <Icon :icon="emptyMappingIcon" :class="[themeClasses.storeCardSubtitle]" class="w-6 h-6 opacity-40" />
                   <div class="flex items-center gap-1">
-                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">No environment variables</span>
-                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" title="Some applications work with default settings and don't need custom environment variables." placement="bottom">
+                    <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] opacity-60">{{ $t("No environment variables") }}</span>
+                    <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '200px', minHeight: 'auto' }" :title="$t('Some applications work with default settings and don\'t need custom environment variables.')" placement="bottom">
                       <Icon :icon="helpCircleIcon" :class="[themeClasses.storeCardSubtitle]" class="w-3 h-3 opacity-50 cursor-help" />
                     </Tooltip>
                   </div>
@@ -375,12 +375,12 @@
               <!-- Restart Policy Card -->
               <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
-                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Restart Policy</h3>
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Restart Policy") }}</h3>
                 </div>
                 <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="restartPolicy" class="w-full">
-                  <SelectOption :class="[themeClasses.scopeSelector]" value="always">Always</SelectOption>
-                  <SelectOption :class="[themeClasses.scopeSelector]" value="unless-stopped">Unless Stopped</SelectOption>
-                  <SelectOption :class="[themeClasses.scopeSelector]" value="no">No</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="always">{{ $t("Always") }}</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="unless-stopped">{{ $t("Unless Stopped") }}</SelectOption>
+                  <SelectOption :class="[themeClasses.scopeSelector]" value="no">{{ $t("No") }}</SelectOption>
                 </Select>
               </div>
 
@@ -388,9 +388,9 @@
               <div :class="[themeClasses.installConfigSectionCard]" class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                   <Icon :icon="capabilityIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Capabilities</h3>
+                  <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Capabilities") }}</h3>
                 </div>
-                <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="capabilities" mode="multiple" placeholder="Select capabilities" class="w-full">
+                <Select :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :popup-class-name="`${themeClasses.scopeSelector}`" :disabled="app?.is_installed" v-model:value="capabilities" mode="multiple" :placeholder="$t('Select capabilities')" class="w-full">
                   <SelectOption :class="[themeClasses.scopeSelector]" value="NET_ADMIN">NET_ADMIN (Network administration)</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="NET_RAW">NET_RAW (Raw sockets)</SelectOption>
                   <SelectOption :class="[themeClasses.scopeSelector]" value="SYS_ADMIN">SYS_ADMIN (System administration)</SelectOption>
@@ -416,14 +416,14 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <Icon :icon="privilegedIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
-                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">Privileged Mode</h3>
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Privileged Mode") }}</h3>
                   </div>
                   <Switch :disabled="app?.is_installed" :checked="privilegedMode" @change="handlePrivilegedModeChange">
                     <template #checkedChildren>
-                      <span>On</span>
+                      <span>{{ $t("On") }}</span>
                     </template>
                     <template #unCheckedChildren>
-                      <span>Off</span>
+                      <span>{{ $t("Off") }}</span>
                     </template>
                   </Switch>
                 </div>
@@ -431,23 +431,23 @@
             </div>
 
             <div v-else key="advanced" class="pb-4">
-              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold mb-3">Advanced Configuration</h3>
+              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold mb-3">{{ $t("Advanced Configuration") }}</h3>
               <textarea :disabled="app?.is_installed" v-model="advancedCompose" :class="[themeClasses.hubTextArea]" class="flex-1 rounded-xl w-full font-mono text-xs resize-none p-4" style="height: 500px"></textarea>
             </div>
           </Transition>
         </div>
       </div>
 
-      <StatusBar :icon="downloadIcon" message="Install App" :info="app?.name ? `${app.display_name || app.name} Installation` : 'Configure application'" :showHelp="true">
+      <StatusBar :icon="downloadIcon" :message="$t('Install App')" :info="app?.name ? t('Install {name}', { name: app.display_name || app.name }) : t('Configure application')" :showHelp="true">
         <template #help>
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
               <Icon :icon="downloadIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-              <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Install App</h4>
+              <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Install App") }}</h4>
             </div>
 
             <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-              <p>Configure your application before installation using simple mode with form fields or advanced mode with direct compose editing. Set ports, volumes, credentials, and restart policies to customize how your application runs. Toggle between modes using the switch to choose your preferred configuration method.</p>
+              <p>{{ $t("Configure your application before installation using simple mode with form fields or advanced mode with direct compose editing. Set ports, volumes, credentials, and restart policies to customize how your application runs. Toggle between modes using the switch to choose your preferred configuration method.") }}</p>
             </div>
           </div>
         </template>
@@ -459,35 +459,35 @@
         <div class="flex items-start gap-3">
           <Icon :icon="alertIcon" class="w-6 h-6 text-red-500 flex-shrink-0" />
           <div class="flex-1">
-            <p :class="['font-semibold mb-3', themeClasses.externalWarningTitle]" class="text-sm">You are about to install an external package</p>
-            <p :class="['text-sm mb-2', themeClasses.externalWarningText]">This application was not added or verified by the HomeDock OS team. External packages can potentially be dangerous if they contain malicious code.</p>
+            <p :class="['font-semibold mb-3', themeClasses.externalWarningTitle]" class="text-sm">{{ $t("You are about to install an external package") }}</p>
+            <p :class="['text-sm mb-2', themeClasses.externalWarningText]">{{ $t("This application was not added or verified by the HomeDock OS team. External packages can potentially be dangerous if they contain malicious code.") }}</p>
 
             <div :class="['border rounded-lg p-3 mb-3', themeClasses.externalWarningAuthorBg, themeClasses.externalWarningAuthorBorder]">
-              <p :class="['text-sm font-semibold', themeClasses.externalWarningAuthorTitle]">HDS Package Author:</p>
-              <p :class="['text-sm', themeClasses.externalWarningAuthorText]">{{ app?.author || "Unknown" }}</p>
+              <p :class="['text-sm font-semibold', themeClasses.externalWarningAuthorTitle]">{{ $t("HDS Package Author:") }}</p>
+              <p :class="['text-sm', themeClasses.externalWarningAuthorText]">{{ app?.author || $t("Unknown") }}</p>
             </div>
 
-            <p :class="['text-sm font-semibold mb-2', themeClasses.externalWarningTitle]">Security Recommendations:</p>
-            <ul :class="['text-xs -space-y-1', themeClasses.externalWarningListText]">
+            <p :class="['text-sm font-semibold mb-2', themeClasses.externalWarningTitle]">{{ $t("Security Recommendations:") }}</p>
+            <ul :class="['text-xs leading-none', themeClasses.externalWarningListText]">
               <li class="flex items-start gap-1">
                 <span class="mt-0.5">•</span>
-                <span>Only install packages from authors you trust</span>
+                <span>{{ $t("Only install packages from authors you trust") }}</span>
               </li>
               <li class="flex items-start gap-1">
                 <span class="mt-0.5">•</span>
-                <span>Review the package configuration before installing</span>
+                <span>{{ $t("Review the package configuration before installing") }}</span>
               </li>
               <li class="flex items-start gap-1">
                 <span class="mt-0.5">•</span>
-                <span>Be cautious of packages requesting unusual permissions</span>
+                <span>{{ $t("Be cautious of packages requesting unusual permissions") }}</span>
               </li>
               <li class="flex items-start gap-1">
                 <span class="mt-0.5">•</span>
-                <span>Report suspicious packages to <a href="mailto:support@homedock.cloud" :class="[themeClasses.hyperLink]">support@homedock.cloud</a></span>
+                <span>{{ $t("Report suspicious packages to") }} <a href="mailto:support@homedock.cloud" :class="[themeClasses.hyperLink]">support@homedock.cloud</a></span>
               </li>
             </ul>
 
-            <p :class="['text-xs mt-2 underline', themeClasses.externalWarningDisclaimerText]">By proceeding, you acknowledge the risks associated with installing external packages.</p>
+            <p :class="['text-xs mt-2 underline', themeClasses.externalWarningDisclaimerText]">{{ $t("By proceeding, you acknowledge the risks associated with installing external packages.") }}</p>
           </div>
         </div>
       </div>
@@ -501,23 +501,23 @@
 
     <AppDialog v-model:visible="showPrivilegedWarning" type="warning" title="Privileged Mode Warning" ok-text="I Understand, Enable" cancel-text="Cancel" @ok="handlePrivilegedWarningConfirm" @cancel="handlePrivilegedWarningCancel" :icon="alertIcon" :width="480" :reverse-buttons="true">
       <div class="space-y-3">
-        <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">Enabling <strong>Privileged Mode</strong> grants the container <strong>unrestricted access</strong> to all host system resources and devices. This removes all security isolation provided by Docker.</p>
+        <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed" v-html="$t('Enabling <strong>Privileged Mode</strong> grants the container <strong>unrestricted access</strong> to all host system resources and devices. This removes all security isolation provided by Docker.')"></p>
 
         <div :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-lg p-3.5 space-y-2.5">
           <p class="text-sm font-bold flex items-center gap-2">
             <Icon :icon="privilegedIcon" class="w-5 h-5" />
-            <span>Security Risks</span>
+            <span>{{ $t("Security Risks") }}</span>
           </p>
-          <p class="text-xs leading-relaxed">With Privileged Mode enabled, the container can:</p>
+          <p class="text-xs leading-relaxed">{{ $t("With Privileged Mode enabled, the container can:") }}</p>
           <ul class="text-xs space-y-1.5 ml-4 list-disc">
-            <li>Access <strong>all host devices</strong> and hardware</li>
-            <li>Modify <strong>kernel parameters</strong> and load modules</li>
-            <li>Potentially <strong>compromise the entire host</strong> system</li>
-            <li>Bypass <strong>all container security</strong> mechanisms</li>
+            <li v-html="$t('Access <strong>all host devices</strong> and hardware')"></li>
+            <li v-html="$t('Modify <strong>kernel parameters</strong> and load modules')"></li>
+            <li v-html="$t('Potentially <strong>compromise the entire host</strong> system')"></li>
+            <li v-html="$t('Bypass <strong>all container security</strong> mechanisms')"></li>
           </ul>
         </div>
 
-        <p :class="[themeClasses.notTextDown]" class="text-xs leading-relaxed font-semibold">Only enable if absolutely necessary and you trust this application completely.</p>
+        <p :class="[themeClasses.notTextDown]" class="text-xs leading-relaxed font-semibold">{{ $t("Only enable if absolutely necessary and you trust this application completely.") }}</p>
       </div>
     </AppDialog>
   </div>
@@ -527,6 +527,7 @@
 import axios from "axios";
 
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useAppStore } from "../__Stores__/useAppStore";
@@ -584,6 +585,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const appStoreInstance = useAppStore();
 const installationStore = useInstallationStore();
 
@@ -673,14 +675,14 @@ const categoryIcons: Record<string, any> = {
 const categoryIcon = computed(() => categoryIcons[app.value?.category || ""] || shapeIcon);
 
 const infoTipTexts: Record<string, string> = {
-  source: "This app comes from a third-party package, not the official HomeDock OS App Store.",
-  category: "The general category this app belongs to in the store.",
-  type: "The specific function or role this app serves.",
-  image: "The Docker image used to run this container.",
-  version: "The image tag or version that will be installed.",
-  securityHttps: "This app supports encrypted HTTPS connections.",
-  securityHttp: "This app runs over unencrypted HTTP.",
-  deps: "Additional apps that will be installed alongside this one.",
+  source: t("This app comes from a third-party package, not the official HomeDock OS App Store."),
+  category: t("The general category this app belongs to in the store."),
+  type: t("The specific function or role this app serves."),
+  image: t("The Docker image used to run this container."),
+  version: t("The image tag or version that will be installed."),
+  securityHttps: t("This app supports encrypted HTTPS connections."),
+  securityHttp: t("This app runs over unencrypted HTTP."),
+  deps: t("Additional apps that will be installed alongside this one."),
 };
 const screenshots = ref<string[]>([]);
 const showScreenshotModal = ref(false);
@@ -932,13 +934,14 @@ async function handleInstall() {
       });
 
       if (!response.data.success) {
-        console.error(`Failed to process configuration: ${response.data.message}`);
-        notifyWarning(response.data.message || "Failed to process configuration", themeClasses.value.scopeSelector, 10);
+        console.error(`Failed to process configuration: ${JSON.stringify(response.data.messages || response.data.message)}`);
+        const messages = response.data.messages || [{ key: response.data.message || "Failed to process configuration", params: {} }];
+        notifyWarning(messages.map((m: any) => t(m.key, m.params || {})).join("\n"), themeClasses.value.scopeSelector, 10);
         return;
       }
     } catch (configError: any) {
-      if (configError.response?.status === 400 && configError.response?.data?.message) {
-        notifyWarning(configError.response.data.message, themeClasses.value.scopeSelector, 10);
+      if (configError.response?.status === 400 && configError.response?.data?.messages) {
+        notifyWarning(configError.response.data.messages.map((m: any) => t(m.key, m.params || {})).join("\n"), themeClasses.value.scopeSelector, 10);
       } else if (configError.response) {
         notifyError(configError, themeClasses.value.scopeSelector);
       } else {

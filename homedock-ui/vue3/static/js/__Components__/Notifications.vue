@@ -16,6 +16,8 @@ import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import robot from "@iconify-icons/mdi/robot";
 import robotOff from "@iconify-icons/mdi/robot-off";
 
+import { t } from "../__Languages__";
+
 export const props = {
   errorMessage: String,
   documentationLink: String,
@@ -38,7 +40,7 @@ function generateErrorDescription(errorMessage: string, documentationLink: strin
           href: documentationLink,
           target: "_blank",
         },
-        "Click to View Documentation"
+        t("Click to View Documentation"),
       ),
     ]),
   ]);
@@ -47,7 +49,7 @@ function generateErrorDescription(errorMessage: string, documentationLink: strin
 export function notifyError(error: AxiosError | string, themeClass?: string) {
   if (typeof error === "string") {
     notification.warning({
-      message: "Uh-oh...",
+      message: t("Uh-oh..."),
       description: error,
       placement: "bottomRight",
       class: themeClass || "",
@@ -70,7 +72,7 @@ export function notifyError(error: AxiosError | string, themeClass?: string) {
   if (error_code && error_message) {
     notification.error({
       message: `Error HDOS-${error_code}:`,
-      description: generateErrorDescription(error_message, documentation_url || "https://docs.homedock.cloud"),
+      description: generateErrorDescription(t(error_message), documentation_url || "https://docs.homedock.cloud"),
       placement: "bottomRight",
       class: themeClass || "",
       duration: 5,
@@ -80,8 +82,8 @@ export function notifyError(error: AxiosError | string, themeClass?: string) {
 
   if (simpleError) {
     notification.warning({
-      message: "Uh-oh...",
-      description: generateErrorDescription(simpleError, documentation_url || "https://docs.homedock.cloud"),
+      message: t("Uh-oh..."),
+      description: generateErrorDescription(t(simpleError), documentation_url || "https://docs.homedock.cloud"),
       placement: "bottomRight",
       class: themeClass || "",
       duration: 5,
@@ -89,7 +91,7 @@ export function notifyError(error: AxiosError | string, themeClass?: string) {
     return;
   }
 
-  const fallbackMessage = error.message || "An unexpected error occurred.";
+  const fallbackMessage = error.message || t("An unexpected error occurred.");
   notification.error({
     message: "Error HDOS-699",
     description: fallbackMessage,
@@ -111,7 +113,7 @@ export function notifySuccess(message: string, description?: string, themeClass?
 
 export function notifyWarning(description?: string, themeClass?: string, duration = 5) {
   notification.warning({
-    message: "Uh-oh...",
+    message: t("Uh-oh..."),
     description,
     placement: "bottomRight",
     class: themeClass || "",

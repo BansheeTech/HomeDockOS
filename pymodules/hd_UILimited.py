@@ -15,5 +15,6 @@ def limited():
     config = read_config()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    selected_language = config["selected_language"]
 
-    return render_template("limited.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, nonce=g.get("nonce", ""))
+    return render_template("limited.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, selected_language=selected_language, nonce=g.get("nonce", ""))

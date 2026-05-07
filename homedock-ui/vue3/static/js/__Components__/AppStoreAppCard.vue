@@ -33,21 +33,21 @@
     <div class="flex-shrink-0" @click.stop="onInstall(app)">
       <Transition name="pill-fade" mode="out-in">
         <button v-if="app.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">
-          Installed
+          {{ $t("Installed") }}
         </button>
 
         <button v-else-if="installationStore.currentlyInstalling === app.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="app-pill px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
           <Icon :icon="loadingIcon" class="w-3 h-3 animate-spin" />
-          <span>Installing</span>
+          <span>{{ $t("Installing") }}</span>
         </button>
 
         <button v-else-if="installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
           <Icon :icon="queueIcon" class="w-3 h-3" />
-          <span>Queued</span>
+          <span>{{ $t("Queued") }}</span>
         </button>
 
         <button v-else key="get" :class="[themeClasses.storeCardGetPill]" class="app-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">
-          GET
+          {{ $t("GET") }}
         </button>
       </Transition>
     </div>

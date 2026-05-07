@@ -11,7 +11,7 @@
           <template #action>
             <button @click="desktopStore.openSystemApp('packager')" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, themeClasses.windowBorder]" class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all duration-150">
               <Icon :icon="packageIcon" class="w-3.5 h-3.5" />
-              <span>Add your own apps</span>
+              <span>{{ $t("Add your own apps") }}</span>
             </button>
           </template>
         </SectionHeader>
@@ -26,16 +26,16 @@
       </div>
     </div>
 
-    <StatusBar :icon="widgetsOutlineIcon" :message="`${appStore.apps.length} ${appStore.apps.length === 1 ? 'app' : 'apps'} available`" :info="`${installedAppsCount} installed`" :showHelp="true">
+    <StatusBar :icon="widgetsOutlineIcon" :message="`${appStore.apps.length} ${appStore.apps.length === 1 ? $t('app') : $t('apps')} ${$t('available')}`" :info="`${installedAppsCount} ${$t('installed')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="widgetsOutlineIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">App Store</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("App Store") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Discover and install curated applications for your HomeDock OS. Browse curated apps, search by category, and manage your installed applications. All apps are containerized and run securely within your HomeDock OS environment.</p>
+            <p>{{ $t("Discover and install curated applications for your HomeDock OS. Browse curated apps, search by category, and manage your installed applications. All apps are containerized and run securely within your HomeDock OS environment.") }}</p>
           </div>
         </div>
       </template>

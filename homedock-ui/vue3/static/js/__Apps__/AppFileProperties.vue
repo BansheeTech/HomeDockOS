@@ -15,7 +15,7 @@
             </div>
             <div class="flex-1 flex flex-col justify-center gap-1 min-w-0">
               <h2 class="text-xl font-bold m-0 leading-tight truncate" :class="[themeClasses.notTextUp]">{{ displayName }}</h2>
-              <p class="text-sm opacity-70 m-0" :class="[themeClasses.notTextDown]">{{ fileTypeLabel }}</p>
+              <p class="text-sm opacity-70 m-0" :class="[themeClasses.notTextDown]">{{ $t(fileTypeLabel) }}</p>
             </div>
           </div>
         </div>
@@ -23,11 +23,11 @@
         <div class="flex gap-1.5 px-4 py-1.5" :class="[themeClasses.appPropsTabsContainerBg, themeClasses.appPropsTabsContainerBorder]">
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'general' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'general' }]" @click="activeTab = 'general'">
             <Icon :icon="infoIcon" width="15" height="15" />
-            <span>General</span>
+            <span>{{ $t("General") }}</span>
           </button>
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'security' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'security' }]" @click="activeTab = 'security'">
             <Icon :icon="shieldIcon" width="15" height="15" />
-            <span>Security</span>
+            <span>{{ $t("Security") }}</span>
           </button>
         </div>
 
@@ -37,35 +37,35 @@
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="fileDocumentIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">File Information</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("File Information") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Name</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Name") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ fileData.name }}</span>
                   </div>
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Type</span>
-                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ fileTypeLabel }}</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Type") }}</span>
+                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ $t(fileTypeLabel) }}</span>
                   </div>
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Location</span>
-                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ locationLabel }}</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Location") }}</span>
+                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ $t(locationLabel) }}</span>
                   </div>
                   <div v-if="filePath" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Path</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Path") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ filePath || "/" }}</span>
                   </div>
                   <div v-if="containerName" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Container</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Container") }}</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ containerName }}</span>
                   </div>
                   <div v-if="diskLabel" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Disk</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Disk") }}</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ diskLabel }}</span>
                   </div>
                   <div v-if="diskMountpoint" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Mountpoint</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Mountpoint") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ diskMountpoint }}</span>
                   </div>
                 </div>
@@ -74,15 +74,15 @@
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="chartIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Size & Date</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Size & Date") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Size</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Size") }}</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ formattedSize }}</span>
                   </div>
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Modified</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Modified") }}</span>
                     <div class="flex flex-col items-end gap-0.5">
                       <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">{{ formattedDate }}</span>
                       <span class="text-[10px] opacity-60" :class="[themeClasses.appPropsInfoLabel]">{{ relativeTime }}</span>
@@ -96,7 +96,7 @@
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="shieldLockIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Encryption Status</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Encryption Status") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex items-center gap-3 py-2">
@@ -104,8 +104,8 @@
                       <Icon :icon="isEncrypted ? lockIcon : lockOpenIcon" width="20" height="20" :class="isEncrypted ? 'text-emerald-500' : 'text-gray-400'" />
                     </div>
                     <div class="flex flex-col gap-0.5">
-                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">{{ isEncrypted ? "Encrypted" : "Not Encrypted" }}</span>
-                      <span class="text-[10px] opacity-60" :class="[themeClasses.appPropsInfoLabel]">{{ isEncrypted ? "This file is stored in the encrypted Drop Zone" : "This file is stored without encryption" }}</span>
+                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">{{ isEncrypted ? $t("Encrypted") : $t("Not Encrypted") }}</span>
+                      <span class="text-[10px] opacity-60" :class="[themeClasses.appPropsInfoLabel]">{{ isEncrypted ? $t("This file is stored in the encrypted Drop Zone") : $t("This file is stored without encryption") }}</span>
                     </div>
                   </div>
                 </div>
@@ -114,19 +114,19 @@
               <div v-if="isEncrypted" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="keyIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Encryption Details</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Encryption Details") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Algorithm</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Algorithm") }}</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">AES-256-GCM</span>
                   </div>
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Key Derivation</span>
-                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">PBKDF2</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Key Derivation") }}</span>
+                    <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">HKDF</span>
                   </div>
                   <div class="flex justify-between items-start gap-4 py-1.5 border-b-0">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Storage</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Storage") }}</span>
                     <span class="text-xs font-medium text-right" :class="[themeClasses.appPropsInfoValue]">Drop Zone</span>
                   </div>
                 </div>
@@ -135,7 +135,7 @@
               <div v-if="location === 'appdrive'" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="containerIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Container Access</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Container Access") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex items-center gap-3 py-2">
@@ -143,8 +143,8 @@
                       <Icon :icon="dockerIcon" width="20" height="20" class="text-blue-400" />
                     </div>
                     <div class="flex flex-col gap-0.5">
-                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">Container Volume</span>
-                      <span class="text-[10px] opacity-60" :class="[themeClasses.appPropsInfoLabel]">This file is mounted from a Docker container</span>
+                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">{{ $t("Container Volume") }}</span>
+                      <span class="text-[10px] opacity-60" :class="[themeClasses.appPropsInfoLabel]">{{ $t("This file is mounted from a Docker container") }}</span>
                     </div>
                   </div>
                 </div>
@@ -156,21 +156,21 @@
 
       <div v-else class="flex flex-col items-center justify-center h-full gap-4 px-6 py-12">
         <Icon :icon="alertIcon" width="64" height="64" class="opacity-30" />
-        <h3 class="text-xl font-semibold m-0" :class="[themeClasses.notTextUp]">No File Selected</h3>
-        <p class="text-sm opacity-60 m-0" :class="[themeClasses.notTextDown]">File data could not be loaded</p>
+        <h3 class="text-xl font-semibold m-0" :class="[themeClasses.notTextUp]">{{ $t("No File Selected") }}</h3>
+        <p class="text-sm opacity-60 m-0" :class="[themeClasses.notTextDown]">{{ $t("File data could not be loaded") }}</p>
       </div>
     </div>
 
-    <StatusBar v-if="fileData" :icon="infoIcon" message="File Properties" :info="truncatedDisplayName" :showHelp="true">
+    <StatusBar v-if="fileData" :icon="infoIcon" :message="$t('File Properties')" :info="truncatedDisplayName" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="infoIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">File Properties</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("File Properties") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>View detailed information about your file or folder including name, type, size, location, and modification date. The Security tab shows encryption status. Files stored in the Drop Zone are protected with AES-256-GCM encryption.</p>
+            <p>{{ $t("View detailed information about your file or folder including name, type, size, location, and modification date. The Security tab shows encryption status. Files stored in the Drop Zone are protected with AES-256-GCM encryption.") }}</p>
           </div>
         </div>
       </template>
@@ -180,6 +180,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -227,6 +228,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 
 const activeTab = ref("general");
@@ -320,7 +322,7 @@ const fileTypeLabel = computed(() => {
     sqlite: "SQLite Database",
   };
 
-  return typeMap[ext] || `${ext.toUpperCase()} File`;
+  return typeMap[ext] || t("{ext} File", { ext: ext.toUpperCase() });
 });
 
 const fileIcon = computed(() => {
@@ -372,7 +374,7 @@ const formattedSize = computed(() => {
 });
 
 const formattedDate = computed(() => {
-  if (!fileData.value?.modified) return "Unknown";
+  if (!fileData.value?.modified) return t("Unknown");
 
   const timestamp = fileData.value.modified * 1000;
   const date = new Date(timestamp);
@@ -394,20 +396,20 @@ const relativeTime = computed(() => {
   const diff = now - modified;
 
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  if (minutes < 1) return t("Just now");
+  if (minutes < 60) return minutes === 1 ? t("1 minute ago") : t("{count} minutes ago", { count: minutes });
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return hours === 1 ? t("1 hour ago") : t("{count} hours ago", { count: hours });
 
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} day${days !== 1 ? "s" : ""} ago`;
+  if (days < 30) return days === 1 ? t("1 day ago") : t("{count} days ago", { count: days });
 
   const months = Math.floor(days / 30);
-  if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
+  if (months < 12) return months === 1 ? t("1 month ago") : t("{count} months ago", { count: months });
 
   const years = Math.floor(months / 12);
-  return `${years} year${years !== 1 ? "s" : ""} ago`;
+  return years === 1 ? t("1 year ago") : t("{count} years ago", { count: years });
 });
 </script>
 

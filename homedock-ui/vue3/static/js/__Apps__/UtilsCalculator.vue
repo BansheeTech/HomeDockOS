@@ -10,13 +10,13 @@
         {{ expression || "&nbsp;" }}
       </div>
       <div class="value text-right font-light truncate" :class="[themeClasses.windowText, displayFontSize]">
-        {{ displayValue }}
+        {{ displayValue === "Error" ? $t("Error") : displayValue }}
       </div>
     </div>
 
     <div class="buttons flex-1 grid grid-cols-4 gap-[1px] p-[1px]" :class="themeClasses.calculatorGrid">
       <button @click="clear" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">
-        {{ currentValue === "0" && !expression ? "AC" : "C" }}
+        {{ currentValue === "0" && !expression ? $t("AC") : $t("C") }}
       </button>
       <button @click="toggleSign" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">±</button>
       <button @click="percentage" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">%</button>

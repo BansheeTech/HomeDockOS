@@ -5,6 +5,7 @@
 
 import { defineStore } from "pinia";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
+import { t } from "../__Languages__";
 
 export interface WindowState {
   id: string;
@@ -74,7 +75,7 @@ export const useWindowStore = defineStore("window", {
 
       sanitized = sanitized.replace(/\s+/g, " ");
 
-      sanitized = sanitized.replace(/[^a-zA-Z0-9\s\-_().áéíóúÁÉÍÓÚñÑüÜ]/g, "");
+      sanitized = sanitized.replace(/[^\p{L}\p{N}\s\-_().]/gu, "");
 
       sanitized = sanitized.substring(0, 50);
 
@@ -111,7 +112,7 @@ export const useWindowStore = defineStore("window", {
 
       const cascadeOffset = this.windows.length * 30;
 
-      const rawTitle = options?.title || app?.name || appId;
+      const rawTitle = options?.title || (app?.name ? t(app.name) : appId);
       const sanitizedTitle = this.sanitizeWindowTitle(rawTitle);
 
       const resolvedIcon = options?.icon || options?.data?.icon || app?.icon || null;

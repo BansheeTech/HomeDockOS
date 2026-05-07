@@ -9,7 +9,7 @@
       <div v-if="isLoading" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-[100]">
         <div :class="[themeClasses.desktopLoadingBg, themeClasses.desktopLoadingBorder]" class="flex flex-col items-center gap-4 px-12 py-8 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
           <div class="w-12 h-12 border-4 border-white/10 rounded-full animate-spin" :class="[themeClasses.desktopLoadingSpinner]" style="border-top-color: currentColor"></div>
-          <p :class="[themeClasses.desktopLoadingText]" class="text-sm font-medium m-0 tracking-wide">Loading applications...</p>
+          <p :class="[themeClasses.desktopLoadingText]" class="text-sm font-medium m-0 tracking-wide">{{ $t("Loading applications...") }}</p>
           <div :class="[themeClasses.desktopLoadingBarBg]" class="w-[200px] h-[3px] rounded-[3px] overflow-hidden">
             <div :class="[themeClasses.desktopLoadingBarFill]" class="h-full bg-[length:200%_100%] animate-[loading-bar-animation_1.5s_ease-in-out_infinite]"></div>
           </div>
@@ -21,7 +21,7 @@
       <div v-if="!isLoading && desktopStore.mainDockerApps.length === 0" class="absolute top-3 right-3 z-[100] pointer-events-none">
         <button @click="openAppStore" :class="[themeClasses.desktopEmptyBg, themeClasses.desktopEmptyBorder]" class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 pointer-events-auto shadow-md backdrop-blur-sm cursor-pointer border transition-all hover:scale-105 hover:shadow-lg">
           <Icon :icon="widgetsOutlineIcon" class="w-3.5 h-3.5" :class="themeClasses.desktopEmptyIcon" />
-          <span :class="[themeClasses.desktopEmptyTitle]" class="text-[10px] font-medium leading-none">Install apps</span>
+          <span :class="[themeClasses.desktopEmptyTitle]" class="text-[10px] font-medium leading-none">{{ $t("Install apps") }}</span>
         </button>
       </div>
     </Transition>
@@ -48,13 +48,13 @@
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
-        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.name">
+        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="$t(sysIcon.name)">
           <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
             <div :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
               <Icon :icon="getSystemIconObject(sysIcon)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
             </div>
           </div>
-          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ sysIcon.name }}</span>
+          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ $t(sysIcon.name) }}</span>
         </div>
       </TransitionGroup>
 
@@ -66,11 +66,11 @@
     <ContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y" :items="contextMenuItems" @close="closeContextMenu" />
 
     <AppDialog v-model:visible="showCreateFolderModal" type="info" title="Create New Folder" ok-text="Create" cancel-text="Cancel" @ok="handleCreateFolderOk" @cancel="handleCreateFolderCancel">
-      <input v-model="createFolderName" placeholder="Folder name" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
+      <input v-model="createFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
     </AppDialog>
 
     <AppDialog v-model:visible="showRenameFolderModal" type="info" title="Rename Folder" ok-text="Rename" cancel-text="Cancel" @ok="handleRenameFolderOk" @cancel="handleRenameFolderCancel">
-      <input v-model="renameFolderName" placeholder="Folder name" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
+      <input v-model="renameFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
     </AppDialog>
 
     <FolderCustomizeMenu :visible="showCustomizeMenu" :x="customizeMenuPosition.x" :y="customizeMenuPosition.y" :color="customizeFolderColor" :icon="customizeFolderIcon" @update:color="handleCustomizeColorChange" @update:icon="handleCustomizeIconChange" @close="closeCustomizeMenu" />
@@ -79,6 +79,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useDesktopStore, DockerApp, DesktopFolder, SystemDesktopIcon } from "../__Stores__/desktopStore";
 import { useDesktopDragSelection } from "../__Composables__/useDesktopDragSelection";
@@ -150,6 +151,7 @@ const selectedAppsStore = useSelectedAppsStore();
 const updateStore = useAppUpdateStore();
 const { isMobile, isPortrait, isLandscape, windowWidth, windowHeight } = useResponsive();
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const { confirm } = useDialog();
 
 const csrfToken = useCsrfToken();
@@ -246,7 +248,7 @@ const contextMenu = ref({
 });
 
 const showCreateFolderModal = ref(false);
-const createFolderName = ref("New Folder");
+const createFolderName = ref(t("New Folder"));
 const createFolderPosition = ref<{ x: number; y: number; row: number; col: number } | null>(null);
 
 const showRenameFolderModal = ref(false);
@@ -266,7 +268,7 @@ function openCreateFolderModal() {
     createFolderPosition.value = findNextAvailablePosition();
   }
 
-  createFolderName.value = "New Folder";
+  createFolderName.value = t("New Folder");
   showCreateFolderModal.value = true;
 }
 
@@ -285,7 +287,7 @@ function handleCreateFolderOk() {
 
 function handleCreateFolderCancel() {
   showCreateFolderModal.value = false;
-  createFolderName.value = "New Folder";
+  createFolderName.value = t("New Folder");
   createFolderPosition.value = null;
 }
 
@@ -775,7 +777,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     if (folderApps.length > 0) {
       items.push({ divider: true });
       items.push({
-        label: `Update Apps (${folderApps.length})`,
+        label: t("Update Apps ({n})", { n: folderApps.length }),
         icon: updateIcon,
         action: () => {
           for (const app of folderApps) {
@@ -791,7 +793,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
       icon: folderRemoveIcon,
       action: () => {
         const itemCount = folder.items.length;
-        const message = itemCount > 0 ? `Delete "${folder.name}"? ${itemCount} app(s) will be moved to desktop.` : `Delete "${folder.name}"?`;
+        const message = itemCount > 0 ? t(`Delete "{name}"? {n} app(s) will be moved to desktop.`, { name: folder.name, n: itemCount }) : t(`Delete "{name}"?`, { name: folder.name });
 
         confirm({
           title: "Delete Folder",
@@ -829,7 +831,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         },
       },
       {
-        label: `Update All Apps (${totalApps})`,
+        label: t("Update All Apps ({n})", { n: totalApps }),
         icon: updateIcon,
         action: () => {
           for (const app of desktopStore.dockerApps.filter((a) => a.HDRole !== "dependency")) {
@@ -870,7 +872,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
 
     return [
       {
-        label: `Selected: ${selectedCount} apps`,
+        label: t("Selected: {n} apps", { n: selectedCount }),
         icon: checkIcon,
         action: () => {},
         disabled: true,
@@ -971,7 +973,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
   }
 
   items.push({
-    label: isRunning ? "Stop" : "Start",
+    label: isRunning ? "Stop" : t("Start", 2),
     icon: isRunning ? stopIcon : playIcon,
     action: async () => {
       if (!contextMenuApp.value) return;
@@ -1019,7 +1021,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     action: () => {
       if (contextMenuApp.value) {
         windowStore.openWindow("logs", {
-          title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Logs`,
+          title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - ${t("Logs")}`,
           data: { appName: contextMenuApp.value.name },
           allowMultiple: true,
         });
@@ -1053,7 +1055,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     action: () => {
       if (!contextMenuApp.value) return;
       windowStore.openWindow("properties", {
-        title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Properties`,
+        title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - ${t("Properties")}`,
         data: { appId: contextMenuApp.value.id },
         allowMultiple: true,
       });
@@ -1071,7 +1073,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
 
       confirm({
         title: "Confirm Uninstall",
-        content: `Are you sure you want to uninstall ${appToUninstall.display_name || appToUninstall.name}? This action cannot be undone.`,
+        content: t("Are you sure you want to uninstall {name}? This action cannot be undone.", { name: appToUninstall.display_name || appToUninstall.name }),
         okText: "Uninstall",
         cancelText: "Cancel",
         onOk: async () => {
@@ -1117,7 +1119,7 @@ function handleDoubleClick(app: DockerApp) {
     window.open(app.service_url, "_blank", "noopener,noreferrer");
   } else {
     windowStore.openWindow("properties", {
-      title: `${app.display_name || app.name} - Properties`,
+      title: `${app.display_name || app.name} - ${t("Properties")}`,
       data: { appId: app.id },
       allowMultiple: true,
     });

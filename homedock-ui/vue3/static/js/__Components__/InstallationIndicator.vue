@@ -30,11 +30,11 @@
         <Teleport to="body">
           <div v-if="isExpanded" class="installation-dropdown border" :class="[themeClasses.installDropdownBg, themeClasses.installDropdownBorder, themeClasses.installDropdownShadow]">
             <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">Installing Apps</span>
+              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Installing Apps") }}</span>
             </div>
 
             <div v-if="installationStore.currentlyInstalling" class="installation-section" :class="themeClasses.installSectionBorder">
-              <div class="section-label" :class="themeClasses.installSectionLabel">Currently Installing</div>
+              <div class="section-label" :class="themeClasses.installSectionLabel">{{ $t("Currently Installing") }}</div>
               <TransitionGroup name="app-switch" tag="div">
                 <div class="app-item" :class="themeClasses.installAppItemInstalling" :key="`installing-${installationStore.currentlyInstalling}`">
                   <BaseImage :key="`img-installing-${installationStore.currentlyInstalling}`" :src="getAppIcon(installationStore.currentlyInstalling)" class="app-icon rounded-md" alt="" draggable="false" />
@@ -45,7 +45,7 @@
             </div>
 
             <div v-if="installationStore.queue.length > 0" class="installation-section" :class="themeClasses.installSectionBorder">
-              <div class="section-label" :class="themeClasses.installSectionLabel">In Queue ({{ installationStore.queue.length }})</div>
+              <div class="section-label" :class="themeClasses.installSectionLabel">{{ $t("In Queue ({n})", { n: installationStore.queue.length }) }}</div>
               <div class="app-list">
                 <TransitionGroup name="queue-item" tag="div">
                   <div v-for="(appName, index) in visibleQueue" :key="`queue-${appName}`" class="app-item" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover]">
@@ -53,7 +53,7 @@
                     <span class="app-name" :class="themeClasses.installAppName">{{ getAppDisplayName(appName) }}</span>
                   </div>
                 </TransitionGroup>
-                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">And {{ remainingCount }} more...</div>
+                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
               </div>
             </div>
           </div>

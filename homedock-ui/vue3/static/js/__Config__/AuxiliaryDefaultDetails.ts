@@ -68,7 +68,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -87,7 +87,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -106,7 +106,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -125,7 +125,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -144,7 +144,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -163,7 +163,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
   {
@@ -182,7 +182,7 @@ export const AUXILIARY_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: false,
-    showInExplorerApp: false,
+    showInFinderApp: false,
     showInMyHomeApp: false,
   },
 ];

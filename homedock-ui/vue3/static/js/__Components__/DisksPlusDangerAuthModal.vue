@@ -6,18 +6,18 @@
 <template>
   <AppDialog :visible="modalState.visible" :title="'Access to Protected Path'" :ok-text="modalState.loading ? 'Verifying' : 'Authorize'" :cancel-text="'Cancel'" :ok-cancel="true" :close-on-ok="false" :loading="modalState.loading" :ok-disabled="!password" :icon="warningIcon" type="warning" @ok="handleSubmit" @cancel="handleCancel" @update:visible="onVisibleUpdate">
     <div class="flex flex-col gap-3">
-      <p class="text-sm leading-relaxed m-0" :class="themeClasses.notTextDown">You are about to access a system-protected path:</p>
+      <p class="text-sm leading-relaxed m-0" :class="themeClasses.notTextDown">{{ $t("You are about to access a system-protected path:") }}</p>
 
       <div class="rounded-lg px-3 py-2 text-xs font-mono break-all border" :class="[themeClasses.loginFormInput, themeClasses.notTextUp]">
         {{ modalState.zone || modalState.path }}
       </div>
 
-      <p class="text-xs" :class="themeClasses.notTextDown">Confirm with your password to authorize access for the rest of <u>this</u> session.</p>
+      <p class="text-xs" :class="themeClasses.notTextDown">{{ $t("Confirm with your password to authorize access for the rest of") }} <u>{{ $t("this") }}</u> {{ $t("session.") }}</p>
 
-      <label class="text-xs font-semibold uppercase tracking-wider mt-2" :class="themeClasses.notTextUp">Password</label>
-      <InputPassword ref="inputRef" v-model:value="password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="modalState.loading" @keyup.enter="handleSubmit" placeholder="Enter your password" autocomplete="current-password" />
+      <label class="text-xs font-semibold uppercase tracking-wider mt-2" :class="themeClasses.notTextUp">{{ $t("Password") }}</label>
+      <InputPassword ref="inputRef" v-model:value="password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="modalState.loading" @keyup.enter="handleSubmit" :placeholder="$t('Enter your password')" autocomplete="current-password" />
 
-      <div v-if="modalState.loading" class="text-xs" :class="themeClasses.notTextDown">Verifying…</div>
+      <div v-if="modalState.loading" class="text-xs" :class="themeClasses.notTextDown">{{ $t("Verifying…") }}</div>
       <div v-if="modalState.error" class="text-xs text-red-500 mt-1">{{ modalState.error }}</div>
     </div>
   </AppDialog>
@@ -25,6 +25,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import { InputPassword } from "ant-design-vue";
 import AppDialog from "./AppDialog.vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
@@ -32,6 +33,7 @@ import { useDangerAuth } from "../__Composables__/useDangerAuth";
 import warningIcon from "@iconify-icons/mdi/shield-alert-outline";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const { modalState, submitDangerAuth, cancelDangerAuth } = useDangerAuth();
 
 const password = ref("");

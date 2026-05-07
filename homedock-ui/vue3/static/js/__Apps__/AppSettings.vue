@@ -38,27 +38,27 @@
         <div class="flex mt-4 gap-3">
           <button type="button" id="cancelButton" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
             <Icon :icon="arrowLeftIcon" width="15" height="15" />
-            Cancel
+            {{ $t("Cancel") }}
           </button>
           <button :disabled="!isFormValid || savingLoading" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="isFormValid ? [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover] : 'save-btn-disabled'" type="submit">
             <Icon v-if="savingLoading" :icon="loadingIcon" width="15" height="15" class="animate-spin" />
             <Icon v-else :icon="contentSaveIcon" width="15" height="15" />
-            <span>Save Settings</span>
+            <span>{{ $t("Save Settings") }}</span>
           </button>
         </div>
       </form>
     </div>
 
-    <StatusBar :icon="settingsIcon" message="Settings" :info="`Theme: ${themeDisplayName}`" :showHelp="true">
+    <StatusBar :icon="settingsIcon" :message="$t('Settings')" :info="`${$t('Theme')}: ${themeDisplayName}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="settingsIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Settings</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Settings") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Configure your HomeDock OS settings including user account, system behavior, storage preferences, and interface themes. You can customize your username and password, adjust system ports, manage external storage drives, and personalize your visual experience. All settings are encrypted before being saved, ensuring maximum security even when not using HTTPS.</p>
+            <p>{{ $t("Configure your HomeDock OS settings including user account, system behavior, storage preferences, and interface themes. You can customize your username and password, adjust system ports, manage external storage drives, and personalize your visual experience. All settings are encrypted before being saved, ensuring maximum security even when not using HTTPS.") }}</p>
           </div>
         </div>
       </template>
@@ -67,6 +67,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import axios from "axios";
 
 import { computed, inject, reactive, ref, watch, nextTick, onBeforeUnmount } from "vue";
@@ -93,6 +94,8 @@ import SettingsTabStorage from "../__Components__/SettingsTabStorage.vue";
 import SettingsTabTheme from "../__Components__/SettingsTabTheme.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 
+import { setLanguage } from "../__Languages__";
+
 import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
 import { useWindowStore } from "../__Stores__/windowStore";
@@ -112,17 +115,19 @@ const csrfToken = useCsrfToken();
 if (!themeData) throw new Error("Theme data is missing!");
 if (!settingsData) throw new Error("Settings data is missing!");
 
+const { t } = useI18n();
+
 const { themeClasses } = useTheme();
 const windowStore = useWindowStore();
 const disksPlusStore = useDisksPlusStore();
 
 const activeKey = ref("1");
-const segmentedOptions = [
-  { value: "1", payload: { label: "User", icon: accountIcon } },
-  { value: "2", payload: { label: "System", icon: consoleIcon } },
-  { value: "3", payload: { label: "Storage", icon: sdIcon } },
-  { value: "4", payload: { label: "Theme", icon: compareIcon } },
-];
+const segmentedOptions = computed(() => [
+  { value: "1", payload: { label: t("User"), icon: accountIcon } },
+  { value: "2", payload: { label: t("System"), icon: consoleIcon } },
+  { value: "3", payload: { label: t("Storage"), icon: sdIcon } },
+  { value: "4", payload: { label: t("Theme"), icon: compareIcon } },
+]);
 const savingLoading = ref<boolean>(false);
 const themeTabRef = ref<any>(null);
 
@@ -169,7 +174,7 @@ watch(activeKey, (val) => {
     const container = segmentedContainerRef.value;
     if (!container || container.scrollWidth <= container.clientWidth) return;
     const items = container.querySelectorAll<HTMLElement>(".ant-segmented-item");
-    const idx = segmentedOptions.findIndex((o) => o.value === val);
+    const idx = segmentedOptions.value.findIndex((o) => o.value === val);
     const target = items[idx];
     if (!target) return;
     const left = target.offsetLeft - (container.clientWidth - target.offsetWidth) / 2;
@@ -179,15 +184,18 @@ watch(activeKey, (val) => {
 
 const themeDisplayName = computed(() => {
   const themeMap: Record<string, string> = {
-    default: "Default",
-    noir: "Noir",
-    aeroplus: "Aero+",
+    default: t("Default"),
+    noir: t("Noir"),
+    aeroplus: t("Aero+"),
   };
   return themeMap[formData.theme.selected_theme || "default"] || "Default";
 });
 
 const isFormValid = computed(() => {
-  const userValid = !(!formData.user.user_name || !/^[a-zA-Z0-9]+$/.test(formData.user.user_name) || formData.user.user_name.length > 30 || (formData.user.change_password && ((formData.user.password?.length ?? 0) < 6 || formData.user.password !== formData.user.confirm_password)));
+  const u = formData.user;
+  const usernameOk = !!u.user_name && /^[a-zA-Z0-9]+$/.test(u.user_name) && u.user_name.length <= 30 && u.user_name.toLowerCase() !== "user";
+  const passwordOk = !u.change_password || ((u.password?.length ?? 0) >= 6 && u.password !== "passwd" && u.password === u.confirm_password);
+  const userValid = usernameOk && passwordOk;
   const systemValid = !isNaN(formData.system.run_port ?? 0) && (formData.system.run_port ?? 0) >= 80 && (formData.system.run_port ?? 0) <= 65535;
   return userValid && systemValid;
 });
@@ -220,6 +228,9 @@ interface StorageFormData {
 const originalTheme = {
   selected_theme: themeData!.selected_theme,
   selected_back: themeData!.selected_back,
+  selected_language: settingsData!.selected_language,
+  clock_format: settingsData!.clock_format,
+  week_start: settingsData!.week_start,
 };
 
 const formData = reactive({
@@ -251,7 +262,10 @@ const formData = reactive({
   theme: {
     selected_theme: themeData.selected_theme,
     selected_back: themeData.selected_back,
-  } as Partial<ThemeData>,
+    selected_language: settingsData.selected_language,
+    clock_format: settingsData.clock_format,
+    week_start: settingsData.week_start,
+  } as Partial<ThemeData> & { selected_language?: string; clock_format?: string; week_start?: string },
 });
 
 onBeforeUnmount(() => {
@@ -260,6 +274,15 @@ onBeforeUnmount(() => {
     updateTheme({
       selected_theme: originalTheme.selected_theme,
       selected_back: originalTheme.selected_back,
+    });
+  }
+  if (formData.theme.selected_language !== originalTheme.selected_language) {
+    setLanguage(originalTheme.selected_language);
+  }
+  if (updateSettings && (formData.theme.clock_format !== originalTheme.clock_format || formData.theme.week_start !== originalTheme.week_start)) {
+    updateSettings({
+      clock_format: originalTheme.clock_format,
+      week_start: originalTheme.week_start,
     });
   }
 });
@@ -272,13 +295,13 @@ const handleSubmit = async () => {
     try {
       const uploaded = await themeTabRef.value.uploadPendingWallpaper();
       if (!uploaded) {
-        notifyWarning("Failed to upload wallpaper", themeClasses.value.scopeSelector);
+        notifyWarning(t("Failed to upload wallpaper"), themeClasses.value.scopeSelector);
         savingLoading.value = false;
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (error: any) {
-      notifyWarning("Failed to upload wallpaper: " + (error.message || "Unknown error"), themeClasses.value.scopeSelector);
+      notifyWarning(t("Failed to upload wallpaper") + ": " + (error.message || t("Unknown error")), themeClasses.value.scopeSelector);
       savingLoading.value = false;
       return;
     }
@@ -313,16 +336,19 @@ const handleSubmit = async () => {
     }
 
     if (usernameChanged) {
-      notifySuccess("Settings saved successfully!", "Your settings were securely encrypted before being saved to ensure their safety. Reloading HomeDock OS because username changed...", themeClasses.value.scopeSelector);
+      notifySuccess(t("Settings saved successfully!"), t("Your settings were securely encrypted before being saved to ensure their safety. Reloading HomeDock OS because username changed..."), themeClasses.value.scopeSelector);
 
       setTimeout(() => {
         window.location.reload();
       }, 2000);
     } else {
-      notifySuccess("Settings saved successfully!", "Your settings were securely encrypted before being saved to ensure their safety.", themeClasses.value.scopeSelector);
+      notifySuccess(t("Settings saved successfully!"), t("Your settings were securely encrypted before being saved to ensure their safety."), themeClasses.value.scopeSelector);
 
       originalTheme.selected_theme = formData.theme.selected_theme || "";
       originalTheme.selected_back = formData.theme.selected_back || "";
+      originalTheme.selected_language = formData.theme.selected_language || "en";
+      originalTheme.clock_format = formData.theme.clock_format || "24h";
+      originalTheme.week_start = formData.theme.week_start || "monday";
 
       if (updateSettings) {
         updateSettings({
@@ -339,6 +365,9 @@ const handleSubmit = async () => {
           default_external_drive: formData.storage.default_external_drive,
           require_protected_paths_password: formData.storage.require_protected_paths_password,
           disksplus_session_timeout_minutes: formData.storage.disksplus_session_timeout_minutes,
+          selected_language: formData.theme.selected_language || "en",
+          clock_format: formData.theme.clock_format || "24h",
+          week_start: formData.theme.week_start || "monday",
         });
       }
 

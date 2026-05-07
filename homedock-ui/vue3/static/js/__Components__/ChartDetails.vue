@@ -15,13 +15,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, inject, onMounted, onUnmounted, watch } from "vue";
 
 import axios from "axios";
 
 import Slider from "ant-design-vue/es/slider";
 
 import { Chart, ChartConfiguration, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Filler } from "chart.js";
+
+import type { SettingsData } from "../__Types__/SettingsData";
 
 const props = defineProps({
   apiEndpoint: {
@@ -55,6 +57,23 @@ const props = defineProps({
 const groupSize = ref(25);
 const chartId = `chart_${Math.random().toString(36).slice(2, 11)}`;
 const serverData = ref<Array<{ timestamp: number; [key: string]: number }>>([]);
+
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const clockFormat = computed(() => settingsData?.clock_format ?? "24h");
+
+function formatChartTimestamp(ts: unknown): string {
+  if (typeof ts !== "string") return String(ts);
+  const match = ts.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*$/);
+  if (!match) return ts;
+  const [, hStr, m, s] = match;
+  if (clockFormat.value === "12h") {
+    const h = parseInt(hStr, 10);
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    return s ? `${h12}:${m}:${s} ${period}` : `${h12}:${m} ${period}`;
+  }
+  return s ? `${hStr.padStart(2, "0")}:${m}:${s}` : `${hStr.padStart(2, "0")}:${m}`;
+}
 
 let chartInstance: Chart | null = null;
 
@@ -141,7 +160,7 @@ const fetchDataFromApi = async () => {
 
 const processChartData = () => {
   const groupedData = groupData(serverData.value, groupSize.value);
-  const labels = groupedData.map((item) => item.timestamp);
+  const labels = groupedData.map((item) => formatChartTimestamp(item.timestamp));
   const keys = getStreamDataKeys();
 
   if (chartInstance) {
@@ -188,6 +207,10 @@ function hasMoreThanTwoDecimals(value: number): boolean {
 let resizeObserver: ResizeObserver | null = null;
 let resizeTimeout: number | null = null;
 let isFirstResize = true;
+
+watch(clockFormat, () => {
+  if (chartInstance) processChartData();
+});
 
 onMounted(() => {
   const canvas = document.getElementById(chartId) as HTMLCanvasElement;

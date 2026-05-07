@@ -9,7 +9,7 @@
       <div class="mb-8">
         <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="harddiskIcon" class="w-4 h-4" />
-          <span>My Devices</span>
+          <span>{{ $t("My Devices") }}</span>
         </h3>
 
         <div class="grid gap-4 mb-4" :class="gridColsClass">
@@ -19,12 +19,12 @@
                 <Icon :icon="cloudIcon" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
               </div>
               <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.label || "OS Disk" }}</h3>
+                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.label || $t("OS Disk") }}</h3>
                 <p class="text-xs" :class="themeClasses.statSubtleText">{{ osDiskSubtitle }}</p>
               </div>
               <div class="flex items-center gap-2">
                 <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.usage_percent ?? 0 }}%</div>
-                <button v-if="diskStore.osDisk" @click="openDiskInExplorer(diskStore.osDisk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" title="Open in File Explorer">
+                <button v-if="diskStore.osDisk" @click="openDiskInExplorer(diskStore.osDisk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" :title="$t('Open in File Explorer')">
                   <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
                 </button>
               </div>
@@ -34,22 +34,22 @@
               <div class="absolute inset-0 h-full bg-green-500 transition-all duration-150" :style="{ width: encryptedStoragePercentage + '%' }"></div>
             </div>
             <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ formatDiskSize(diskStore.osDisk?.used_gb ?? 0) }} used</span>
-              <span>{{ formatDiskSize(diskStore.osDisk?.total_gb ?? 0) }} total</span>
+              <span>{{ formatDiskSize(diskStore.osDisk?.used_gb ?? 0) }} {{ $t("used") }}</span>
+              <span>{{ formatDiskSize(diskStore.osDisk?.total_gb ?? 0) }} {{ $t("total") }}</span>
             </div>
             <div @click="openStorage" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.25rem">
               <div class="flex items-center gap-2">
                 <Icon :icon="folderIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                <span class="text-xs font-medium" :class="themeClasses.statInnerText">Storage: {{ storageInfo.usedFormatted }}</span>
+                <span class="text-xs font-medium" :class="themeClasses.statInnerText">{{ $t("Storage") }}: {{ storageInfo.usedFormatted }}</span>
               </div>
-              <span class="text-xs" :class="themeClasses.statSubtleText">{{ storageInfo.fileCount }} {{ storageInfo.fileCount === 1 ? "file" : "files" }} • {{ storageInfo.folderCount }} {{ storageInfo.folderCount === 1 ? "folder" : "folders" }}</span>
+              <span class="text-xs" :class="themeClasses.statSubtleText">{{ storageInfo.fileCount }} {{ storageInfo.fileCount === 1 ? $t("file") : $t("files") }} • {{ storageInfo.folderCount }} {{ storageInfo.folderCount === 1 ? $t("folder") : $t("folders") }}</span>
             </div>
             <div @click="openDropZone" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.5rem">
               <div class="flex items-center gap-2">
                 <Icon :icon="lockIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                <span class="text-xs font-medium" :class="themeClasses.statInnerText">Encrypted: {{ encryptedStorageInfo.usedFormatted }}</span>
+                <span class="text-xs font-medium" :class="themeClasses.statInnerText">{{ $t("Encrypted") }}: {{ encryptedStorageInfo.usedFormatted }}</span>
               </div>
-              <span class="text-xs" :class="themeClasses.statSubtleText">{{ encryptedStorageInfo.fileCount }} {{ encryptedStorageInfo.fileCount === 1 ? "file" : "files" }} • {{ encryptedStorageInfo.folderCount }} {{ encryptedStorageInfo.folderCount === 1 ? "folder" : "folders" }}</span>
+              <span class="text-xs" :class="themeClasses.statSubtleText">{{ encryptedStorageInfo.fileCount }} {{ encryptedStorageInfo.fileCount === 1 ? $t("file") : $t("files") }} • {{ encryptedStorageInfo.folderCount }} {{ encryptedStorageInfo.folderCount === 1 ? $t("folder") : $t("folders") }}</span>
             </div>
           </div>
 
@@ -61,13 +61,13 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5">
                   <h3 class="text-sm font-semibold truncate" :class="themeClasses.statInnerText">{{ disk.label || disk.device }}</h3>
-                  <Icon v-if="disk.device === externalDefaultDisk" :icon="pinIcon" class="w-3 h-3 flex-shrink-0 opacity-70" :class="themeClasses.explorerItemIcon" title="Tracked external disk" />
+                  <Icon v-if="disk.device === externalDefaultDisk" :icon="pinIcon" class="w-3 h-3 flex-shrink-0 opacity-70" :class="themeClasses.explorerItemIcon" :title="$t('Tracked external disk')" />
                 </div>
                 <p class="text-xs" :class="themeClasses.statSubtleText">{{ subtitleForDisk(disk) }}</p>
               </div>
               <div class="flex items-center gap-2">
                 <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ disk.usage_percent }}%</div>
-                <button @click="openDiskInExplorer(disk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" title="Open in File Explorer">
+                <button @click="openDiskInExplorer(disk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" :title="$t('Open in File Explorer')">
                   <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
                 </button>
               </div>
@@ -76,8 +76,8 @@
               <div class="h-full bg-green-500 transition-all duration-150" :style="{ width: disk.usage_percent + '%' }"></div>
             </div>
             <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ formatDiskSize(disk.used_gb) }} used</span>
-              <span>{{ formatDiskSize(disk.total_gb) }} total</span>
+              <span>{{ formatDiskSize(disk.used_gb) }} {{ $t("used") }}</span>
+              <span>{{ formatDiskSize(disk.total_gb) }} {{ $t("total") }}</span>
             </div>
           </div>
         </div>
@@ -86,19 +86,19 @@
       <div class="mb-8">
         <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="serverIcon" class="w-4 h-4" />
-          <span>System Overview</span>
+          <span>{{ $t("System Overview") }}</span>
         </h3>
 
         <div class="grid gap-4" :class="gridColsClass">
           <div class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
             <div class="flex items-center gap-2 mb-1">
               <Icon :icon="cpuIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">Performance</h3>
+              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("Performance") }}</h3>
             </div>
 
             <div class="space-y-1">
               <div class="flex items-center justify-between text-xs">
-                <span :class="themeClasses.statSubtleText">CPU</span>
+                <span :class="themeClasses.statSubtleText">{{ $t("CPU") }}</span>
                 <span class="font-semibold" :class="themeClasses.statInnerText">{{ cpuValue }}%</span>
               </div>
               <div class="w-full h-1.5 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
@@ -109,27 +109,27 @@
 
             <div class="space-y-1">
               <div class="flex items-center justify-between text-xs">
-                <span :class="themeClasses.statSubtleText">Memory</span>
+                <span :class="themeClasses.statSubtleText">{{ $t("Memory") }}</span>
                 <span class="font-semibold" :class="themeClasses.statInnerText">{{ ramValue }}%</span>
               </div>
               <div class="w-full h-1.5 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
                 <div class="h-full bg-purple-500 transition-all duration-150" :style="{ width: ramValue + '%' }"></div>
               </div>
-              <div class="text-[10px]" :class="themeClasses.statSubtleText">{{ totalRam }} GB total</div>
+              <div class="text-[10px]" :class="themeClasses.statSubtleText">{{ totalRam }} {{ $t("GB total") }}</div>
             </div>
           </div>
 
           <div class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
             <div class="flex items-center gap-2 mb-1">
               <Icon :icon="downloadIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">Network</h3>
+              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("Network") }}</h3>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
                 <div class="flex items-center gap-1.5">
                   <Icon :icon="downloadIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">Download</span>
+                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Download") }}</span>
                 </div>
                 <div class="text-sm font-bold" :class="themeClasses.statInnerText">
                   {{ networkDownValue }} <span class="text-[10px] font-normal" :class="themeClasses.statSubtleText">{{ networkDownUnit }}</span>
@@ -139,7 +139,7 @@
               <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
                 <div class="flex items-center gap-1.5">
                   <Icon :icon="uploadIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">Upload</span>
+                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Upload") }}</span>
                 </div>
                 <div class="text-sm font-bold" :class="themeClasses.statInnerText">
                   {{ networkUpValue }} <span class="text-[10px] font-normal" :class="themeClasses.statSubtleText">{{ networkUpUnit }}</span>
@@ -151,14 +151,14 @@
           <div class="flex flex-col gap-3 p-4 rounded-xl border transition-all duration-150" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
             <div class="flex items-center gap-2 mb-1">
               <Icon :icon="serverIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">System Health</h3>
+              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("System Health") }}</h3>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
                 <div class="flex items-center gap-1.5">
                   <Icon :icon="uptimeIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">System</span>
+                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("System") }}</span>
                 </div>
                 <div class="text-xs font-bold" :class="themeClasses.statInnerText">{{ systemUptime }}</div>
               </div>
@@ -175,7 +175,7 @@
             <div class="flex items-center justify-between p-2 rounded-lg border" :class="themeClasses.windowBorder">
               <div class="flex items-center gap-1.5">
                 <Icon :icon="containerIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">Installed Applications</span>
+                <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Installed Applications") }}</span>
               </div>
               <span class="text-xs font-bold" :class="themeClasses.statInnerText">{{ activeContainers }} / {{ totalContainers }}</span>
             </div>
@@ -186,7 +186,7 @@
       <div class="mb-6">
         <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="appsIcon" class="w-4 h-4" />
-          <span>System Applications</span>
+          <span>{{ $t("System Applications") }}</span>
         </h3>
 
         <div class="app-launchpad-grid" :style="launchpadGridStyle">
@@ -194,7 +194,7 @@
             <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
               <Icon :icon="app.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
             </div>
-            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ app.name }}</span>
+            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ $t(app.name) }}</span>
           </div>
         </div>
       </div>
@@ -202,7 +202,7 @@
       <div>
         <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
           <Icon :icon="toolboxOutlineIcon" class="w-4 h-4" />
-          <span>Utilities</span>
+          <span>{{ $t("Utilities") }}</span>
         </h3>
 
         <div class="app-launchpad-grid" :style="launchpadGridStyle">
@@ -210,24 +210,24 @@
             <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
               <Icon :icon="util.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
             </div>
-            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ util.name }}</span>
+            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ $t(util.name) }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <StatusBar :icon="cloudIcon" message="My Home" :info="`CPU ${cpuValue}% • RAM ${ramValue}% • ${activeContainers}/${totalContainers} apps`" :showHelp="true">
+    <StatusBar :icon="cloudIcon" :message="$t('My Home')" :info="`${$t('CPU')} ${cpuValue}% • ${$t('RAM')} ${ramValue}% • ${activeContainers}/${totalContainers} ${$t('apps')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="cloudIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">My Home</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("My Home") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>My Home is your central hub for accessing system information and applications. Monitor storage, performance, network activity, and system health at a glance.</p>
-            <p><strong>Storage:</strong> OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.</p>
-            <p><strong>System Overview:</strong> Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.</p>
+            <p>{{ $t("My Home is your central hub for accessing system information and applications. Monitor storage, performance, network activity, and system health at a glance.") }}</p>
+            <p><strong>{{ $t("Storage") }}:</strong> {{ $t("OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.") }}</p>
+            <p><strong>{{ $t("System Overview") }}:</strong> {{ $t("Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.") }}</p>
           </div>
         </div>
       </template>
@@ -239,12 +239,13 @@
 import axios from "axios";
 
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useDropZoneStore } from "../__Stores__/useDropZoneStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { getExplorerApps } from "../__Config__/WindowDefaultDetails";
+import { getFinderApps } from "../__Config__/WindowDefaultDetails";
 
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
@@ -277,6 +278,7 @@ import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
@@ -332,9 +334,9 @@ const cpuGhz = computed(() => systemStatsStore.cpuGhz);
 const cpuInfoText = computed(() => {
   const ghz = parseFloat(cpuGhz.value as string) || 0;
   if (ghz > 0) {
-    return `${cpuCores.value} cores @ ${cpuGhz.value} GHz`;
+    return `${cpuCores.value} ${t("cores")} @ ${cpuGhz.value} GHz`;
   }
-  return `${cpuCores.value} cores`;
+  return `${cpuCores.value} ${t("cores")}`;
 });
 
 const ramValue = computed(() => Math.round(parseFloat(systemStatsStore.ramUsage) || 0));
@@ -346,10 +348,10 @@ const externalDefaultDisk = computed(() => diskStore.trackedExternalDevice);
 
 const osDiskSubtitle = computed(() => {
   const disk = diskStore.osDisk;
-  if (!disk) return "System Disk";
+  if (!disk) return t("System Disk");
   const bits: string[] = [];
   if (disk.media_type) bits.push(disk.media_type.toUpperCase());
-  bits.push("System Disk");
+  bits.push(t("System Disk"));
   return bits.join(" · ");
 });
 
@@ -386,9 +388,9 @@ const disksForHome = computed<DiskData[]>(() => {
 function subtitleForDisk(disk: DiskData): string {
   const bits: string[] = [];
   if (disk.media_type) bits.push(disk.media_type.toUpperCase());
-  if (disk.internal) bits.push("Internal");
-  else if (disk.removable) bits.push("Removable");
-  return bits.join(" · ") || "Disk";
+  if (disk.internal) bits.push(t("Internal"));
+  else if (disk.removable) bits.push(t("Removable"));
+  return bits.join(" · ") || t("Disk");
 }
 
 function formatDiskSize(gb: number): string {
@@ -451,7 +453,7 @@ const systemUptime = computed(() => systemStatsStore.uptimeData);
 const homeDockUptime = computed(() => systemStatsStore.startTime);
 
 const systemApps = computed(() => {
-  return getExplorerApps();
+  return getFinderApps();
 });
 
 const utilitiesApps = computed(() => {

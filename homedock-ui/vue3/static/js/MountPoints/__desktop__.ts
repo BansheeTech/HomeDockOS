@@ -10,6 +10,7 @@ import router from "../__Router__/index";
 
 import Desktop from "../__Layouts__/Desktop.vue";
 import { setCsrfTokenGetter } from "../__Services__/DockerAPIFetchContainerData";
+import { i18n, bootstrapI18n } from "../__Languages__";
 
 import EnterpriseSRILoader from "../__Utils__/EnterpriseSRILoader";
 
@@ -44,6 +45,8 @@ if (themeData && commonData && settingsData && dashboardData && disksData) {
   const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "";
 
   const app = createApp(Desktop);
+
+  app.use(i18n);
 
   const pinia = createPinia();
   app.use(pinia);
@@ -94,6 +97,7 @@ if (themeData && commonData && settingsData && dashboardData && disksData) {
     });
   }
 
+  await bootstrapI18n();
   app.mount("#app-desktop-root");
 } else {
   console.error("Required data is missing or invalid. Cannot initialize Prism Window Manager.");

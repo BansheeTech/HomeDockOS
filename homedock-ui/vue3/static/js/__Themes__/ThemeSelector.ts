@@ -49,6 +49,12 @@ export const themes: Record<string, Record<string, string>> = {
     loginPrimaryButton: "login-primary-button",
     loginSecondaryButton: "login-secondary-button",
 
+    onboardingStepCurrent: "bg-blue-500 text-white ring-4 ring-blue-500/20",
+    onboardingStepDone: "bg-blue-500 text-white",
+    onboardingStepPending: "bg-gray-200 text-gray-500",
+    onboardingStepLineDone: "bg-blue-500",
+    onboardingStepLinePending: "bg-gray-200",
+
     iconHolder: "ring-gray-300/25 bg-gradient-to-tr from-gray-300 via-gray-200 to-gray-300",
     appHolder: "hover:bg-gray-50 border-gray-200",
     appName: "text-gray-800",
@@ -315,6 +321,8 @@ export const themes: Record<string, Record<string, string>> = {
     optionSelector: "text-gray-700",
     radioGroupSelector: "bg-white text-black border border-gray-300",
     radioGroupIconSelector: "text-black",
+    languageOptionSelector: "text-gray-700 bg-gray-50/60 border-gray-200/80",
+    languageOptionSelectedSelector: "!border-gray-400 !bg-gray-200/60",
     upperTabText: "text-gray-700",
     selectedCompScope: "bg-transparent",
 
@@ -892,6 +900,12 @@ export const themes: Record<string, Record<string, string>> = {
     loginPrimaryButton: "login-primary-button",
     loginSecondaryButton: "login-secondary-button",
 
+    onboardingStepCurrent: "bg-blue-500 text-white ring-4 ring-blue-500/30",
+    onboardingStepDone: "bg-blue-500 text-white",
+    onboardingStepPending: "bg-white/[0.08] text-white/55",
+    onboardingStepLineDone: "bg-blue-500",
+    onboardingStepLinePending: "bg-white/[0.12]",
+
     iconHolder: "ring-indigo-500/20 bg-gradient-to-br from-slate-700 via-indigo-900/40 to-slate-800 shadow-inner shadow-indigo-500/10",
     appHolder: "border-zinc-800 hover:bg-zinc-800",
     appName: "text-white",
@@ -1157,6 +1171,8 @@ export const themes: Record<string, Record<string, string>> = {
     optionSelector: "text-zinc-500",
     radioGroupSelector: "bg-zinc-800 text-zinc-500 border border-zinc-600",
     radioGroupIconSelector: "text-zinc-500",
+    languageOptionSelector: "text-zinc-300 bg-zinc-800/60 border-zinc-700/60",
+    languageOptionSelectedSelector: "!border-zinc-400 !bg-zinc-700/70",
     upperTabText: "text-zinc-400",
     selectedCompScope: "bg-transparent",
 
@@ -1734,6 +1750,12 @@ export const themes: Record<string, Record<string, string>> = {
     loginPrimaryButton: "login-primary-button",
     loginSecondaryButton: "login-secondary-button",
 
+    onboardingStepCurrent: "bg-white/95 text-zinc-900 ring-4 ring-white/25",
+    onboardingStepDone: "bg-white/85 text-zinc-900",
+    onboardingStepPending: "bg-white/10 text-white/60",
+    onboardingStepLineDone: "bg-white/85",
+    onboardingStepLinePending: "bg-white/15",
+
     iconHolder: "ring-sky-400/15 bg-gradient-to-br from-slate-600/80 via-sky-900/30 to-slate-700/80 shadow-inner shadow-sky-400/10 backdrop-blur-sm",
     appHolder: "border-zinc-800/50 hover:bg-zinc-800/25",
     appName: "text-white",
@@ -1999,6 +2021,8 @@ export const themes: Record<string, Record<string, string>> = {
     optionSelector: "text-zinc-500",
     radioGroupSelector: "bg-zinc-800/50 text-zinc-500 border border-zinc-600/50",
     radioGroupIconSelector: "text-zinc-500/50",
+    languageOptionSelector: "text-zinc-100 bg-white/10 border-white/15 hover:bg-white/20",
+    languageOptionSelectedSelector: "!border-white/50 !bg-white/25",
     upperTabText: "text-zinc-400",
     selectedCompScope: "bg-transparent",
 

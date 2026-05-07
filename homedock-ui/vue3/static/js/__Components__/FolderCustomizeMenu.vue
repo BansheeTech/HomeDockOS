@@ -8,7 +8,7 @@
     <Transition name="customize-fade">
       <div v-if="visible" ref="menuRef" class="customize-menu" :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder, themeClasses.contextMenuShadow]" :style="menuStyle" @click.stop @contextmenu.prevent>
         <div class="section-header" :class="[themeClasses.contextMenuText]">
-          <span>Color</span>
+          <span>{{ $t("Color") }}</span>
         </div>
         <div class="color-palette">
           <div v-for="color in predefinedColors" :key="color" class="color-swatch" :class="{ selected: selectedColor === color }" :style="{ backgroundColor: color }" @click="selectColor(color)" :title="color">
@@ -17,13 +17,13 @@
         </div>
 
         <div class="section-header mt-3" :class="[themeClasses.contextMenuText]">
-          <span>Icon</span>
+          <span>{{ $t("Icon") }}</span>
         </div>
         <div class="icon-palette">
-          <div class="icon-swatch" :class="[themeClasses.contextMenuItemHover, { selected: !selectedIcon }]" @click="selectIcon('')" title="None">
+          <div class="icon-swatch" :class="[themeClasses.contextMenuItemHover, { selected: !selectedIcon }]" @click="selectIcon('')" :title="$t('None')">
             <Icon :icon="folderIcon" class="swatch-icon" :class="[themeClasses.contextMenuText]" />
           </div>
-          <div v-for="iconOption in predefinedIcons" :key="iconOption.id" class="icon-swatch" :class="[themeClasses.contextMenuItemHover, { selected: selectedIcon === iconOption.id }]" @click="selectIcon(iconOption.id)" :title="iconOption.label">
+          <div v-for="iconOption in predefinedIcons" :key="iconOption.id" class="icon-swatch" :class="[themeClasses.contextMenuItemHover, { selected: selectedIcon === iconOption.id }]" @click="selectIcon(iconOption.id)" :title="$t(iconOption.label)">
             <Icon :icon="iconOption.icon" class="swatch-icon" :class="[themeClasses.contextMenuText]" />
           </div>
         </div>

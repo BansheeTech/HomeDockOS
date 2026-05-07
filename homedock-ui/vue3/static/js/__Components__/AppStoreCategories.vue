@@ -7,12 +7,12 @@
   <div class="categories-scroll flex gap-2 overflow-x-auto py-2">
     <button @click="selectCategory('')" :class="[selectedCategory === '' ? themeClasses.storeCategoryPillActive : themeClasses.storeCategoryPill]" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200">
       <Icon :icon="allInclusiveIcon" class="h-3.5 w-3.5" />
-      All
+      {{ $t("All") }}
     </button>
 
     <button v-for="category in categories" :key="category" @click="selectCategory(category)" :class="[selectedCategory === category ? themeClasses.storeCategoryPillActive : themeClasses.storeCategoryPill]" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200">
       <Icon v-if="icons[category as Category]" :icon="icons[category as Category]" class="h-3.5 w-3.5" />
-      {{ category }}
+      {{ $t(category) }}
     </button>
   </div>
 </template>

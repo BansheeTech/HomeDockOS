@@ -13,13 +13,14 @@ import zipfile
 import hashlib
 
 from flask import send_file, jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from pymodules.hd_FunctionsGlobals import running_OS
 from pymodules.hd_FunctionsHostSelector import is_docker
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
+from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
 
 MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
@@ -260,6 +261,8 @@ def appdrive_download_file():
                 for root, dirs, files in os.walk(file_path):
                     dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
                     for file in files:
+                        if is_temp_file(file):
+                            continue
                         file_count += 1
                         if file_count > MAX_FILES_FOR_ZIP:
                             return jsonify({"error": "Directory contains too many files to download"}), 400
@@ -287,7 +290,7 @@ def appdrive_download_file():
 
 
 @login_required
-def appdrive_upload_file():
+def appdrive_edit_file():
     container_name = request.form.get("container")
     mount_index = request.form.get("mount", "0")
     target_path = request.form.get("path", "").strip()
@@ -371,6 +374,168 @@ def appdrive_upload_file():
             except:
                 pass
         return jsonify({"error": "Error saving file"}), 500
+
+
+def _resolve_appdrive_mount(container_name, mount_index_raw):
+    if not container_name:
+        raise ValueError("missing_container")
+    try:
+        mount_index = int(mount_index_raw)
+    except (TypeError, ValueError):
+        raise ValueError("invalid_mount_index")
+    valid_mounts = get_container_valid_mounts(container_name)
+    if not valid_mounts:
+        raise ValueError("no_accessible_mounts")
+    if mount_index < 0 or mount_index >= len(valid_mounts):
+        raise ValueError("invalid_mount_index")
+    mount = valid_mounts[mount_index]
+    if mount["read_only"]:
+        raise ValueError("read_only_mount")
+    return mount
+
+
+def _resolve_appdrive_target(base_dir, target_path, original_filename):
+    target_dir = validate_safe_path(base_dir, target_path) if target_path else base_dir
+    if os.path.exists(target_dir):
+        validate_no_symlinks(target_dir, base_dir)
+    safe_filename = validate_filename(original_filename)
+    return target_dir, safe_filename
+
+
+_APPDRIVE_ERR_STATUS = {
+    "missing_container": 400,
+    "invalid_mount_index": 400,
+    "no_accessible_mounts": 404,
+    "read_only_mount": 403,
+    "invalid_path": 400,
+    "invalid_filename": 400,
+}
+
+
+def _appdrive_err(code):
+    return jsonify({"error": code}), _APPDRIVE_ERR_STATUS.get(code, 400)
+
+
+@login_required
+def appdrive_upload_init():
+    body = request.get_json(silent=True) or {}
+    container_name = body.get("container")
+    mount_index_raw = body.get("mount", "0")
+    filename = body.get("filename")
+    total_size = body.get("total_size")
+    total_chunks = body.get("total_chunks")
+    target_path = (body.get("target_path") or "").strip()
+
+    try:
+        mount = _resolve_appdrive_mount(container_name, mount_index_raw)
+    except ValueError as ve:
+        return _appdrive_err(str(ve))
+
+    base_dir = mount["host_path"]
+    try:
+        target_dir, _safe = _resolve_appdrive_target(base_dir, target_path, filename or "")
+    except ValueError:
+        return _appdrive_err("invalid_path")
+
+    if not os.path.exists(target_dir):
+        try:
+            os.makedirs(target_dir, mode=0o755, exist_ok=True)
+        except OSError:
+            return jsonify({"error": "cannot_create_target"}), 500
+        try:
+            validate_no_symlinks(target_dir, base_dir)
+        except ValueError:
+            return jsonify({"error": "security_violation"}), 403
+
+    user_name = current_user.id.lower()
+    try:
+        result = init_upload(user_name, "appdrive", filename, total_size, total_chunks, target_path, assembled_dir=target_dir, extra={"container": container_name, "mount_index": int(mount_index_raw)})
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def appdrive_upload_chunk():
+    user_name = current_user.id.lower()
+    upload_id = request.args.get("upload_id", "")
+    try:
+        chunk_index = int(request.args.get("chunk_index", ""))
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid_chunk_index"}), 400
+
+    raw = request.get_data(cache=False, as_text=False)
+
+    try:
+        result = write_chunk(user_name, upload_id, chunk_index, raw)
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def appdrive_upload_finalize():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id", "")
+
+    try:
+        manifest = get_manifest(user_name, upload_id, expected_kind="appdrive")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    extra = manifest.get("extra") or {}
+    container_name = extra.get("container")
+    mount_index_raw = extra.get("mount_index")
+    target_path = (manifest.get("target_path") or "").strip()
+    filename = manifest.get("filename") or ""
+
+    try:
+        mount = _resolve_appdrive_mount(container_name, mount_index_raw)
+    except ValueError as ve:
+        cleanup(user_name, upload_id)
+        return _appdrive_err(str(ve))
+
+    base_dir = mount["host_path"]
+    try:
+        target_dir, safe_filename = _resolve_appdrive_target(base_dir, target_path, filename)
+    except ValueError:
+        cleanup(user_name, upload_id)
+        return _appdrive_err("invalid_path")
+
+    final_path = os.path.join(target_dir, safe_filename)
+
+    try:
+        assemble_to_path(user_name, upload_id, final_path)
+    except ChunkedUploadError as e:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": e.code, "message": e.message}), e.status
+    except OSError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "save_failed"}), 500
+
+    cleanup(user_name, upload_id)
+
+    relative_file_path = os.path.join(target_path, safe_filename) if target_path else safe_filename
+    relative_file_path = relative_file_path.replace("\\", "/")
+    return jsonify({"success": True, "filename": safe_filename, "path": relative_file_path})
+
+
+@login_required
+def appdrive_upload_abort():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id") or request.args.get("upload_id", "")
+
+    try:
+        get_manifest(user_name, upload_id, expected_kind="appdrive")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    cleanup(user_name, upload_id)
+    return jsonify({"success": True})
 
 
 @login_required
@@ -621,6 +786,8 @@ def appdrive_download_multiple():
                     for root, dirs, files in os.walk(file_path):
                         dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
                         for file in files:
+                            if is_temp_file(file):
+                                continue
                             file_count += 1
                             if file_count > MAX_FILES_FOR_ZIP:
                                 return jsonify({"error": "Too many files to download"}), 400

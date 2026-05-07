@@ -11,12 +11,17 @@ from pymodules.hd_FunctionsHandleCSRFToken import CSRF_Protect
 def RouteAllModules(homedock_www, send_public_key):
 
     from pymodules.hd_UILogin import login_pwd_encrypt, login_page, api_login, login_2fa_verify, load_user, login_manager
+    from pymodules.hd_UIOnboarding import onboarding_page, api_onboarding_setup
 
     homedock_www.add_url_rule("/", "login_page", login_page, methods=["GET"])
     homedock_www.add_url_rule("/login", "api_login", CSRF_Protect(api_login), methods=["POST"])
     homedock_www.add_url_rule("/api/pksend", "send_public_key", CSRF_Protect(send_public_key), methods=["GET"])
     homedock_www.add_url_rule("/api/pcrypt", "login_pwd_encrypt", CSRF_Protect(login_pwd_encrypt), methods=["POST"])
     homedock_www.add_url_rule("/api/pk2fa", "login_2fa_verify", CSRF_Protect(login_2fa_verify), methods=["POST"])
+
+    homedock_www.add_url_rule("/onboarding", "onboarding_page", onboarding_page, methods=["GET"])
+    homedock_www.add_url_rule("/api/onboarding", "api_onboarding_setup", CSRF_Protect(api_onboarding_setup), methods=["POST"])
+
     login_manager.init_app(homedock_www)
     login_manager.user_loader(load_user)
 
@@ -174,35 +179,47 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])
 
-    from pymodules.hd_UIStorage import list_files as storage_list_files, upload_file as storage_upload_file, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files
+    from pymodules.hd_UIStorage import list_files as storage_list_files, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files, upload_init as storage_upload_init, upload_chunk as storage_upload_chunk, upload_finalize as storage_upload_finalize, upload_abort as storage_upload_abort, edit_file as storage_edit_file
 
     homedock_www.add_url_rule("/api/storage/files", "storage_list_files", CSRF_Protect(storage_list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/storage/search", "storage_search_files", CSRF_Protect(storage_search_files), methods=["GET"])
-    homedock_www.add_url_rule("/api/storage/upload", "storage_upload_file", CSRF_Protect(storage_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/edit", "storage_edit_file", CSRF_Protect(storage_edit_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/upload/init", "storage_upload_init", CSRF_Protect(storage_upload_init), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/upload/chunk", "storage_upload_chunk", CSRF_Protect(storage_upload_chunk), methods=["PUT"])
+    homedock_www.add_url_rule("/api/storage/upload/finalize", "storage_upload_finalize", CSRF_Protect(storage_upload_finalize), methods=["POST"])
+    homedock_www.add_url_rule("/api/storage/upload/abort", "storage_upload_abort", CSRF_Protect(storage_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/storage/download", "storage_download_file", CSRF_Protect(storage_download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/storage/download-multiple", "storage_download_multiple", CSRF_Protect(storage_download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/delete", "storage_delete_file", CSRF_Protect(storage_delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/create-folder", "storage_create_folder", CSRF_Protect(storage_create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/rename", "storage_rename_item", CSRF_Protect(storage_rename_item), methods=["POST"])
 
-    from pymodules.hd_UIDropzone import list_files, upload_file, download_file, download_multiple, delete_file, create_folder, rename_item, search_files
+    from pymodules.hd_UIDropzone import list_files, download_file, download_multiple, delete_file, create_folder, rename_item, search_files, upload_init as dropzone_upload_init, upload_chunk as dropzone_upload_chunk, upload_finalize as dropzone_upload_finalize, upload_abort as dropzone_upload_abort, edit_file as dropzone_edit_file
 
     homedock_www.add_url_rule("/api/dropzone/files", "dropzone_list_files", CSRF_Protect(list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/dropzone/search", "dropzone_search_files", CSRF_Protect(search_files), methods=["GET"])
-    homedock_www.add_url_rule("/api/dropzone/upload", "dropzone_upload_file", CSRF_Protect(upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/edit", "dropzone_edit_file", CSRF_Protect(dropzone_edit_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/upload/init", "dropzone_upload_init", CSRF_Protect(dropzone_upload_init), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/upload/chunk", "dropzone_upload_chunk", CSRF_Protect(dropzone_upload_chunk), methods=["PUT"])
+    homedock_www.add_url_rule("/api/dropzone/upload/finalize", "dropzone_upload_finalize", CSRF_Protect(dropzone_upload_finalize), methods=["POST"])
+    homedock_www.add_url_rule("/api/dropzone/upload/abort", "dropzone_upload_abort", CSRF_Protect(dropzone_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/dropzone/download", "dropzone_download_file", CSRF_Protect(download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/dropzone/download-multiple", "dropzone_download_multiple", CSRF_Protect(download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/delete", "dropzone_delete_file", CSRF_Protect(delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/create-folder", "dropzone_create_folder", CSRF_Protect(create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/rename", "dropzone_rename_item", CSRF_Protect(rename_item), methods=["POST"])
 
-    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_upload_file, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item, appdrive_search_files
+    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item, appdrive_search_files, appdrive_upload_init, appdrive_upload_chunk, appdrive_upload_finalize, appdrive_upload_abort, appdrive_edit_file
 
     homedock_www.add_url_rule("/api/appdrive/containers", "appdrive_list_containers", CSRF_Protect(appdrive_list_containers), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/mounts", "appdrive_get_mounts", CSRF_Protect(appdrive_get_mounts), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/files", "appdrive_list_files", CSRF_Protect(appdrive_list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/search", "appdrive_search_files", CSRF_Protect(appdrive_search_files), methods=["GET"])
-    homedock_www.add_url_rule("/api/appdrive/upload", "appdrive_upload_file", CSRF_Protect(appdrive_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/edit", "appdrive_edit_file", CSRF_Protect(appdrive_edit_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/upload/init", "appdrive_upload_init", CSRF_Protect(appdrive_upload_init), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/upload/chunk", "appdrive_upload_chunk", CSRF_Protect(appdrive_upload_chunk), methods=["PUT"])
+    homedock_www.add_url_rule("/api/appdrive/upload/finalize", "appdrive_upload_finalize", CSRF_Protect(appdrive_upload_finalize), methods=["POST"])
+    homedock_www.add_url_rule("/api/appdrive/upload/abort", "appdrive_upload_abort", CSRF_Protect(appdrive_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/appdrive/download", "appdrive_download_file", CSRF_Protect(appdrive_download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/download-multiple", "appdrive_download_multiple", CSRF_Protect(appdrive_download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/delete", "appdrive_delete_file", CSRF_Protect(appdrive_delete_file), methods=["POST"])
@@ -220,7 +237,7 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/fileexplorer/recents/clear", "clear_recents", CSRF_Protect(clear_recents), methods=["POST"])
 
     from pymodules.hd_DisksPlusAuth import disksplus_status, disksplus_danger_zones, disksplus_unlock, disksplus_lock, disksplus_danger_auth
-    from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_upload_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files
+    from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files, disksplus_upload_init, disksplus_upload_chunk, disksplus_upload_finalize, disksplus_upload_abort, disksplus_edit_file
     from pymodules.hd_ThreadDisksPlus import disksplus_events_stream
 
     homedock_www.add_url_rule("/api/disksplus/status", "disksplus_status", CSRF_Protect(disksplus_status), methods=["GET"])
@@ -233,7 +250,11 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/disksplus/search", "disksplus_search_files", CSRF_Protect(disksplus_search_files), methods=["GET"])
     homedock_www.add_url_rule("/api/disksplus/download", "disksplus_download_file", CSRF_Protect(disksplus_download_file), methods=["GET"])
     homedock_www.add_url_rule("/api/disksplus/download-multiple", "disksplus_download_multiple", CSRF_Protect(disksplus_download_multiple), methods=["POST"])
-    homedock_www.add_url_rule("/api/disksplus/upload", "disksplus_upload_file", CSRF_Protect(disksplus_upload_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/edit", "disksplus_edit_file", CSRF_Protect(disksplus_edit_file), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/upload/init", "disksplus_upload_init", CSRF_Protect(disksplus_upload_init), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/upload/chunk", "disksplus_upload_chunk", CSRF_Protect(disksplus_upload_chunk), methods=["PUT"])
+    homedock_www.add_url_rule("/api/disksplus/upload/finalize", "disksplus_upload_finalize", CSRF_Protect(disksplus_upload_finalize), methods=["POST"])
+    homedock_www.add_url_rule("/api/disksplus/upload/abort", "disksplus_upload_abort", CSRF_Protect(disksplus_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/disksplus/delete", "disksplus_delete_file", CSRF_Protect(disksplus_delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/disksplus/create-folder", "disksplus_create_folder", CSRF_Protect(disksplus_create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/disksplus/rename", "disksplus_rename_item", CSRF_Protect(disksplus_rename_item), methods=["POST"])

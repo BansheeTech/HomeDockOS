@@ -7,6 +7,7 @@ import { createApp } from "vue";
 import { createHead } from "@unhead/vue/client";
 
 import App from "../__Layouts__/App.vue";
+import { i18n, bootstrapI18n } from "../__Languages__";
 
 import type { ThemeData } from "../__Types__/ThemeData";
 import type { PortData } from "../__Types__/PortData";
@@ -32,12 +33,15 @@ const portData = parseBase64Data("data-port") as PortData | null;
 if (themeData && portData) {
   const app = createApp(App);
 
+  app.use(i18n);
+
   app.provide("data-theme", themeData);
   app.provide("data-port", portData);
 
   const faviconHeadAdder = createHead();
   app.use(faviconHeadAdder);
 
+  await bootstrapI18n();
   app.mount("#app-app-root");
 } else {
   console.error("Required data is missing or invalid. Cannot initialize App.");

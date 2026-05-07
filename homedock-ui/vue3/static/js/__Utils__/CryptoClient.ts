@@ -44,7 +44,7 @@ function encryptRSADirect(data: string | object, publicKeyPem: string): string {
   const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
   const dataString = typeof data === "string" ? data : JSON.stringify(data);
 
-  const encrypted = publicKey.encrypt(dataString, "RSA-OAEP", {
+  const encrypted = publicKey.encrypt(forge.util.encodeUtf8(dataString), "RSA-OAEP", {
     md: forge.md.sha256.create(),
     mgf1: { md: forge.md.sha256.create() },
   });

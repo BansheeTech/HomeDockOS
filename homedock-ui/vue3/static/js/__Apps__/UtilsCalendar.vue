@@ -7,13 +7,13 @@
   <div class="utils-calendar flex flex-col h-full overflow-hidden" style="container-type: inline-size">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">File</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="openNewEvent">
               <div class="flex items-center gap-2">
                 <Icon :icon="plusIcon" class="w-4 h-4" />
-                <span>New Event</span>
+                <span>{{ $t("New Event") }}</span>
               </div>
             </MenuItem>
             <MenuDivider />
@@ -25,7 +25,7 @@
                     <path stroke="currentColor" stroke-width="2" d="M5 16v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" />
                   </g>
                 </svg>
-                <span>Import .ics</span>
+                <span>{{ $t("Import .ics") }}</span>
               </div>
             </MenuItem>
             <MenuItem key="export" @click="exportICS" :disabled="events.length === 0">
@@ -36,27 +36,27 @@
                     <path stroke="currentColor" stroke-width="2" d="M5 16v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" />
                   </g>
                 </svg>
-                <span>Export .ics</span>
+                <span>{{ $t("Export .ics") }}</span>
               </div>
             </MenuItem>
             <MenuDivider />
             <MenuItem key="dedup" @click="showDedupDialog" :disabled="events.length === 0">
               <div class="flex items-center gap-2">
                 <Icon :icon="filterRemoveIcon" class="w-4 h-4" />
-                <span>Remove Duplicates</span>
+                <span>{{ $t("Remove Duplicates") }}</span>
               </div>
             </MenuItem>
             <MenuItem key="deleteall" @click="confirmDeleteAll" :disabled="events.length === 0">
               <div class="flex items-center gap-2">
                 <Icon :icon="deleteIcon" class="w-4 h-4" />
-                <span>Delete All Events</span>
+                <span>{{ $t("Delete All Events") }}</span>
               </div>
             </MenuItem>
             <MenuDivider />
             <MenuItem key="exit" @click="handleExit">
               <div class="flex items-center gap-2">
                 <Icon :icon="exitIcon" class="w-4 h-4" />
-                <span>Exit</span>
+                <span>{{ $t("Exit") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -64,20 +64,20 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">View</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("View") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="calendar" @click="activeTab = 'calendar'">
               <div class="flex items-center gap-2">
                 <Icon :icon="calendarIcon" class="w-4 h-4" />
-                <span>Calendar</span>
+                <span>{{ $t("Calendar") }}</span>
                 <span v-if="activeTab === 'calendar'" class="ml-auto text-[10px] opacity-50">✓</span>
               </div>
             </MenuItem>
             <MenuItem key="worldclock" @click="activeTab = 'worldclock'">
               <div class="flex items-center gap-2">
                 <Icon :icon="earthIcon" class="w-4 h-4" />
-                <span>World Clock</span>
+                <span>{{ $t("World Clock") }}</span>
                 <span v-if="activeTab === 'worldclock'" class="ml-auto text-[10px] opacity-50">✓</span>
               </div>
             </MenuItem>
@@ -130,8 +130,8 @@
               <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all" :class="sidebarTab === 'events' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'events'">
                 {{ selectedDateFormatted }}
               </button>
-              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all" :class="sidebarTab === 'calendars' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'calendars'">Calendars</button>
-              <button class="toolbar-btn mr-2" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="sidebarTab === 'calendars' ? openNewCalendar() : openNewEvent()" :title="sidebarTab === 'calendars' ? 'New Calendar' : 'New Event'">
+              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all" :class="sidebarTab === 'calendars' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'calendars'">{{ $t("Calendars") }}</button>
+              <button class="toolbar-btn mr-2" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="sidebarTab === 'calendars' ? openNewCalendar() : openNewEvent()" :title="sidebarTab === 'calendars' ? $t('New Calendar') : $t('New Event')">
                 <Icon :icon="plusIcon" class="w-4 h-4" />
               </button>
             </div>
@@ -141,7 +141,7 @@
           <div class="sidebar-wide-header px-3 py-2 border-b" :class="themeClasses.utilityToolbarBorder">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold" :class="themeClasses.notTextUp">{{ selectedDateFormatted }}</span>
-              <button class="toolbar-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="openNewEvent" title="New Event">
+              <button class="toolbar-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="openNewEvent" :title="$t('New Event')">
                 <Icon :icon="plusIcon" class="w-4 h-4" />
               </button>
             </div>
@@ -151,14 +151,14 @@
           <div class="sidebar-events-panel flex-1 overflow-y-auto px-3 py-2" :class="{ 'narrow-hidden': sidebarTab !== 'events' }">
             <div v-if="selectedDayEvents.length === 0" class="text-center py-4">
               <Icon :icon="calendarBlankIcon" class="w-8 h-8 mx-auto mb-2 opacity-30" :class="themeClasses.statsWidgetStatIcon" />
-              <p class="text-xs opacity-40" :class="themeClasses.notTextDown">No events</p>
+              <p class="text-xs opacity-40" :class="themeClasses.notTextDown">{{ $t("No events") }}</p>
             </div>
             <div v-for="evt in selectedDayEvents" :key="evt.id" class="event-card mb-2 p-2 rounded-lg border cursor-pointer" :class="[themeClasses.windowBorder, themeClasses.calendarDayBgHover]" @click="editEvent(evt)">
               <div class="flex items-center gap-2">
                 <span class="event-color-bar" :style="{ backgroundColor: eventColor(calendarStore.calendarColor(evt.calendar_id || 'personal')) }"></span>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-medium truncate" :class="themeClasses.notTextUp">{{ evt.title }}</p>
-                  <p v-if="evt.time" class="text-[10px] opacity-60" :class="themeClasses.notTextDown">{{ evt.time }}{{ evt.end_time ? ` – ${evt.end_time}` : "" }}</p>
+                  <p v-if="evt.time" class="text-[10px] opacity-60" :class="themeClasses.notTextDown">{{ formatStoredTime(evt.time) }}{{ evt.end_time ? ` – ${formatStoredTime(evt.end_time)}` : "" }}</p>
                 </div>
               </div>
             </div>
@@ -167,8 +167,8 @@
           <!-- Calendars panel -->
           <div class="sidebar-calendars-panel overflow-y-auto px-3 py-2 border-t" :class="[themeClasses.utilityToolbarBorder, { 'narrow-hidden': sidebarTab !== 'calendars' }]">
             <div class="flex items-center justify-between mb-1">
-              <span class="text-[10px] font-semibold uppercase tracking-wider opacity-60" :class="themeClasses.notTextDown">Calendars</span>
-              <button class="toolbar-btn !w-5 !h-5" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="openNewCalendar" title="New Calendar">
+              <span class="text-[10px] font-semibold uppercase tracking-wider opacity-60" :class="themeClasses.notTextDown">{{ $t("Calendars") }}</span>
+              <button class="toolbar-btn !w-5 !h-5" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="openNewCalendar" :title="$t('New Calendar')">
                 <Icon :icon="plusIcon" class="w-3 h-3" />
               </button>
             </div>
@@ -178,7 +178,7 @@
                 <span class="w-2 h-2 rounded-full flex-shrink-0" :style="{ backgroundColor: eventColor(cal.color) }"></span>
                 <span class="text-xs truncate" :class="themeClasses.notTextUp">{{ cal.name }}</span>
               </label>
-              <button class="toolbar-btn !w-4 !h-4 opacity-0 group-hover:opacity-60 hover:!opacity-100" :class="themeClasses.calendarNavBtn" @click="editCalendar(cal)" title="Edit">
+              <button class="toolbar-btn !w-4 !h-4 opacity-0 group-hover:opacity-60 hover:!opacity-100" :class="themeClasses.calendarNavBtn" @click="editCalendar(cal)" :title="$t('Edit')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -192,14 +192,14 @@
       <template v-if="activeTab === 'worldclock'">
         <div class="flex-1 overflow-y-auto p-4">
           <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-semibold" :class="themeClasses.notTextUp">World Clock</span>
-            <button v-if="worldClocks.length < 12" class="toolbar-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="showAddClock = true" title="Add Clock">
+            <span class="text-sm font-semibold" :class="themeClasses.notTextUp">{{ $t("World Clock") }}</span>
+            <button v-if="worldClocks.length < 12" class="toolbar-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="showAddClock = true" :title="$t('Add Clock')">
               <Icon :icon="plusIcon" class="w-4 h-4" />
             </button>
           </div>
 
           <div v-if="showAddClock" class="mb-4 p-3 rounded-lg border" :class="themeClasses.windowBorder">
-            <input ref="clockSearchRef" v-model="clockSearch" type="text" placeholder="Search timezone..." class="w-full text-xs px-2 py-1.5 rounded-md border mb-2 outline-none" :class="[themeClasses.windowBorder, themeClasses.calendarDayBg, themeClasses.notTextUp]" />
+            <input ref="clockSearchRef" v-model="clockSearch" type="text" :placeholder="$t('Search timezone...')" class="w-full text-xs px-2 py-1.5 rounded-md border mb-2 outline-none" :class="[themeClasses.windowBorder, themeClasses.calendarDayBg, themeClasses.notTextUp]" />
             <div class="max-h-32 overflow-y-auto">
               <button v-for="tz in filteredTimezones" :key="tz" class="w-full text-left text-xs px-2 py-1 rounded hover:opacity-80 truncate" :class="[themeClasses.notTextDown, themeClasses.calendarDayBgHover]" @click="addWorldClock(tz)">
                 {{ tz }}
@@ -209,7 +209,7 @@
 
           <div v-if="worldClocks.length === 0" class="text-center py-12">
             <Icon :icon="earthIcon" class="w-10 h-10 mx-auto mb-2 opacity-20" :class="themeClasses.statsWidgetStatIcon" />
-            <p class="text-xs opacity-40" :class="themeClasses.notTextDown">No clocks added</p>
+            <p class="text-xs opacity-40" :class="themeClasses.notTextDown">{{ $t("No clocks added") }}</p>
           </div>
 
           <div v-for="(tz, idx) in worldClocks" :key="tz" class="world-clock-card p-3 rounded-lg border mb-2" :class="themeClasses.windowBorder">
@@ -221,7 +221,7 @@
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-[10px] px-1.5 py-0.5 rounded" :class="[themeClasses.calendarDayBg, themeClasses.notTextDown]">{{ worldClockOffsets[tz] || "" }}</span>
-                <button class="toolbar-btn opacity-40 hover:opacity-100" :class="themeClasses.calendarNavBtn" @click="removeWorldClock(idx)" title="Remove">
+                <button class="toolbar-btn opacity-40 hover:opacity-100" :class="themeClasses.calendarNavBtn" @click="removeWorldClock(idx)" :title="$t('Remove')">
                   <Icon :icon="closeIcon" class="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -231,28 +231,28 @@
       </template>
     </div>
 
-    <AppDialog v-model:visible="showEventDialog" :type="editingEvent?.id ? 'info' : 'info'" :title="editingEvent?.id ? 'Edit Event' : 'New Event'" :ok-text="editingEvent?.id ? 'Update' : 'Create'" cancel-text="Cancel" @ok="saveEvent" @cancel="closeEventDialog" :icon="calendarIcon" :width="380">
+    <AppDialog v-model:visible="showEventDialog" :type="editingEvent?.id ? 'info' : 'info'" :title="editingEvent?.id ? $t('Edit Event') : $t('New Event')" :ok-text="editingEvent?.id ? $t('Update') : $t('Create')" :cancel-text="$t('Cancel')" @ok="saveEvent" @cancel="closeEventDialog" :icon="calendarIcon" :width="380">
       <div class="space-y-3">
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Title</label>
-          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" placeholder="Event title" ref="eventTitleRef" />
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Title") }}</label>
+          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Event title')" ref="eventTitleRef" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Date</label>
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Date") }}</label>
           <DatePicker v-model:value="eventFormDate" format="YYYY-MM-DD" class="w-full calendar-date-picker" :class="themeClasses.scopeSelector" :popupClassName="`calendar-picker-popup ${themeClasses.scopeSelector}`" :allow-clear="false" />
         </div>
         <div class="flex gap-2">
           <div class="flex-1">
-            <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Start time</label>
-            <TimePicker v-model:value="eventFormStartTime" format="HH:mm" :minute-step="5" placeholder="Start" class="w-full calendar-time-picker" :class="themeClasses.scopeSelector" :popupClassName="`calendar-picker-popup ${themeClasses.scopeSelector}`" :allow-clear="true" />
+            <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Start time") }}</label>
+            <TimePicker v-model:value="eventFormStartTime" :format="timeFormat" :minute-step="5" :use12-hours="clockFormat === '12h'" :placeholder="$t('Start')" class="w-full calendar-time-picker" :class="themeClasses.scopeSelector" :popupClassName="`calendar-picker-popup ${themeClasses.scopeSelector}`" :allow-clear="true" />
           </div>
           <div class="flex-1">
-            <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">End time</label>
-            <TimePicker v-model:value="eventFormEndTime" format="HH:mm" :minute-step="5" placeholder="End" class="w-full calendar-time-picker" :class="themeClasses.scopeSelector" :popupClassName="`calendar-picker-popup ${themeClasses.scopeSelector}`" :allow-clear="true" />
+            <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("End time") }}</label>
+            <TimePicker v-model:value="eventFormEndTime" :format="timeFormat" :minute-step="5" :use12-hours="clockFormat === '12h'" :placeholder="$t('End')" class="w-full calendar-time-picker" :class="themeClasses.scopeSelector" :popupClassName="`calendar-picker-popup ${themeClasses.scopeSelector}`" :allow-clear="true" />
           </div>
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Calendar</label>
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Calendar") }}</label>
           <div class="flex gap-1.5 flex-wrap">
             <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="eventForm.calendar_id === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="eventForm.calendar_id = cal.id">
               <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: eventColor(cal.color) }"></span>
@@ -261,28 +261,27 @@
           </div>
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Notes</label>
-          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-none resize-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" placeholder="Optional notes..."></textarea>
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Notes") }}</label>
+          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-none resize-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Optional notes...')"></textarea>
         </div>
         <div v-if="editingEvent?.id" class="pt-1">
-          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteEventConfirm = true">Delete this event</button>
+          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteEventConfirm = true">{{ $t("Delete this event") }}</button>
         </div>
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showDeleteEventConfirm" type="warning" title="Delete Event" ok-text="Delete" cancel-text="Cancel" @ok="deleteEvent" @cancel="showDeleteEventConfirm = false" :icon="deleteIcon" :width="340">
+    <AppDialog v-model:visible="showDeleteEventConfirm" type="warning" :title="$t('Delete Event')" :ok-text="$t('Delete')" :cancel-text="$t('Cancel')" @ok="deleteEvent" @cancel="showDeleteEventConfirm = false" :icon="deleteIcon" :width="340">
       <p class="text-sm" :class="themeClasses.windowText">
-        Are you sure you want to delete "<strong>{{ editingEvent?.title }}</strong
-        >"?
+        {{ $t('Are you sure you want to delete "{title}"?', { title: editingEvent?.title }) }}
       </p>
     </AppDialog>
 
     <AppDialog
       v-model:visible="showDeleteAllDialog"
       type="warning"
-      title="Delete All Events"
-      ok-text="Delete All"
-      cancel-text="Cancel"
+      :title="$t('Delete All Events')"
+      :ok-text="$t('Delete All')"
+      :cancel-text="$t('Cancel')"
       @ok="
         showDeleteAllConfirm = true;
         showDeleteAllDialog = false;
@@ -291,19 +290,19 @@
       :icon="deleteIcon"
       :width="340"
     >
-      <p class="text-xs" :class="themeClasses.notTextDown">This will permanently delete all {{ events.length }} events. This action cannot be undone.</p>
+      <p class="text-xs" :class="themeClasses.notTextDown">{{ $t("This will permanently delete all {n} events. This action cannot be undone.", { n: events.length }) }}</p>
     </AppDialog>
 
-    <AppDialog v-model:visible="showDeleteAllConfirm" type="error" title="Are you positively sure?" ok-text="Yes, delete everything" cancel-text="Cancel" :reverse-buttons="true" @ok="deleteAllEvents" @cancel="showDeleteAllConfirm = false" :icon="deleteIcon" :width="380">
-      <p class="text-xs" :class="themeClasses.notTextDown">All {{ events.length }} events will be permanently deleted. There is no way to recover them.</p>
+    <AppDialog v-model:visible="showDeleteAllConfirm" type="error" :title="$t('Are you positively sure?')" :ok-text="$t('Yes, delete everything')" :cancel-text="$t('Cancel')" :reverse-buttons="true" @ok="deleteAllEvents" @cancel="showDeleteAllConfirm = false" :icon="deleteIcon" :width="380">
+      <p class="text-xs" :class="themeClasses.notTextDown">{{ $t("All {n} events will be permanently deleted. There is no way to recover them.", { n: events.length }) }}</p>
     </AppDialog>
 
-    <AppDialog v-model:visible="showDedupDialogVisible" type="info" title="Remove Duplicates" :ok-text="duplicateGroups.length > 0 ? 'Remove Selected' : 'OK'" :cancel-text="duplicateGroups.length > 0 ? 'Cancel' : ''" :ok-cancel="duplicateGroups.length > 0" @ok="duplicateGroups.length > 0 ? removeDuplicates() : (showDedupDialogVisible = false)" @cancel="showDedupDialogVisible = false" :icon="filterRemoveIcon" :width="420" :ok-disabled="duplicateGroups.length > 0 && dedupSelected.length === 0">
+    <AppDialog v-model:visible="showDedupDialogVisible" type="info" :title="$t('Remove Duplicates')" :ok-text="duplicateGroups.length > 0 ? $t('Remove Selected') : $t('OK')" :cancel-text="duplicateGroups.length > 0 ? $t('Cancel') : ''" :ok-cancel="duplicateGroups.length > 0" @ok="duplicateGroups.length > 0 ? removeDuplicates() : (showDedupDialogVisible = false)" @cancel="showDedupDialogVisible = false" :icon="filterRemoveIcon" :width="420" :ok-disabled="duplicateGroups.length > 0 && dedupSelected.length === 0">
       <div v-if="duplicateGroups.length === 0" class="py-2">
-        <p class="text-sm" :class="themeClasses.windowText">No duplicate events found.</p>
+        <p class="text-sm" :class="themeClasses.windowText">{{ $t("No duplicate events found.") }}</p>
       </div>
       <template v-else>
-        <p class="text-sm mb-3" :class="themeClasses.windowText">Found {{ duplicateGroups.reduce((a, g) => a + g.dupes.length, 0) }} duplicate(s). Select which to remove:</p>
+        <p class="text-sm mb-3" :class="themeClasses.windowText">{{ $t("Found {n} duplicate(s). Select which to remove:", { n: duplicateGroups.reduce((a, g) => a + g.dupes.length, 0) }) }}</p>
         <div class="max-h-48 overflow-y-auto space-y-2 pr-1">
           <div v-for="(group, gi) in duplicateGroups" :key="gi">
             <div class="text-xs font-semibold mb-1 px-1" :class="themeClasses.windowText">{{ group.key }}</div>
@@ -320,9 +319,9 @@
     <AppDialog
       v-model:visible="showICSImportDialog"
       type="info"
-      title="Import .ics"
-      ok-text="Import"
-      cancel-text="Cancel"
+      :title="$t('Import .ics')"
+      :ok-text="$t('Import')"
+      :cancel-text="$t('Cancel')"
       @ok="confirmICSImport"
       @cancel="
         showICSImportDialog = false;
@@ -332,35 +331,35 @@
       :width="380"
     >
       <div class="space-y-3">
-        <p class="text-sm" :class="themeClasses.windowText">{{ icsPendingEvents.length }} event{{ icsPendingEvents.length !== 1 ? "s" : "" }} found. Import to which calendar?</p>
+        <p class="text-sm" :class="themeClasses.windowText">{{ $t("{n} {events} found. Import to which calendar?", { n: icsPendingEvents.length, events: icsPendingEvents.length !== 1 ? $t("events") : $t("event") }) }}</p>
         <div class="flex gap-1.5 flex-wrap">
           <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="icsImportCalendarId === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="icsImportCalendarId = cal.id">
             <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: eventColor(cal.color) }"></span>
             {{ cal.name }}
           </button>
-          <button class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="[themeClasses.windowBorder, themeClasses.windowText, icsImportCalendarId === '__new__' ? 'opacity-100' : 'opacity-60 hover:opacity-80']" @click="icsImportCalendarId = '__new__'"><Icon :icon="plusIcon" class="w-3 h-3" /> New Calendar</button>
+          <button class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="[themeClasses.windowBorder, themeClasses.windowText, icsImportCalendarId === '__new__' ? 'opacity-100' : 'opacity-60 hover:opacity-80']" @click="icsImportCalendarId = '__new__'"><Icon :icon="plusIcon" class="w-3 h-3" /> {{ $t("New Calendar") }}</button>
         </div>
         <div v-if="icsImportCalendarId === '__new__'">
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Calendar name</label>
-          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" placeholder="e.g. Spain Holidays" />
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Calendar name") }}</label>
+          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('e.g. Spain Holidays')" />
         </div>
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showCalendarDialog" type="info" :title="editingCalendar?.id ? 'Edit Calendar' : 'New Calendar'" :ok-text="editingCalendar?.id ? 'Update' : 'Create'" cancel-text="Cancel" @ok="saveCalendarForm" @cancel="showCalendarDialog = false" :icon="calendarIcon" :width="340">
+    <AppDialog v-model:visible="showCalendarDialog" type="info" :title="editingCalendar?.id ? $t('Edit Calendar') : $t('New Calendar')" :ok-text="editingCalendar?.id ? $t('Update') : $t('Create')" :cancel-text="$t('Cancel')" @ok="saveCalendarForm" @cancel="showCalendarDialog = false" :icon="calendarIcon" :width="340">
       <div class="space-y-3">
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Name</label>
-          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" placeholder="Calendar name" />
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Name") }}</label>
+          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Calendar name')" />
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">Color</label>
+          <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Color") }}</label>
           <div class="flex gap-1.5">
             <button v-for="c in EVENT_COLORS" :key="c.name" class="w-6 h-6 rounded-full border-2 transition-transform" :class="calendarForm.color === c.name ? 'scale-110 border-white/60' : 'border-transparent hover:scale-105'" :style="{ backgroundColor: c.hex }" @click="calendarForm.color = c.name" :title="c.name"></button>
           </div>
         </div>
         <div v-if="editingCalendar?.id && calendars.length > 1" class="pt-1">
-          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteCalendarDialog = true">Delete this calendar</button>
+          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteCalendarDialog = true">{{ $t("Delete this calendar") }}</button>
         </div>
       </div>
     </AppDialog>
@@ -368,9 +367,9 @@
     <AppDialog
       v-model:visible="showDeleteCalendarDialog"
       type="warning"
-      title="Delete Calendar"
-      ok-text="Delete"
-      cancel-text="Cancel"
+      :title="$t('Delete Calendar')"
+      :ok-text="$t('Delete')"
+      :cancel-text="$t('Cancel')"
       @ok="
         showDeleteCalendarConfirm = true;
         showDeleteCalendarDialog = false;
@@ -381,50 +380,43 @@
     >
       <div class="space-y-3">
         <p class="text-xs" :class="themeClasses.notTextDown">
-          The calendar "<strong>{{ editingCalendar?.name }}</strong
-          >" and its configuration will be permanently deleted.
+          {{ $t('The calendar "{name}" and its configuration will be permanently deleted.', { name: editingCalendar?.name }) }}
         </p>
         <div class="flex items-center justify-between">
-          <span class="text-xs" :class="themeClasses.windowText">Keep events (move to "{{ calendars.find((c) => c.id !== editingCalendar?.id)?.name }}")</span>
+          <span class="text-xs" :class="themeClasses.windowText">{{ $t('Keep events (move to "{target}")', { target: calendars.find((c) => c.id !== editingCalendar?.id)?.name }) }}</span>
           <Switch v-model:checked="deleteCalendarKeepEvents" />
         </div>
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showDeleteCalendarConfirm" type="error" title="Are you positively sure?" ok-text="Yes, delete calendar" cancel-text="Cancel" :reverse-buttons="true" @ok="confirmDeleteCalendar" @cancel="showDeleteCalendarConfirm = false" :icon="deleteIcon" :width="380">
+    <AppDialog v-model:visible="showDeleteCalendarConfirm" type="error" :title="$t('Are you positively sure?')" :ok-text="$t('Yes, delete calendar')" :cancel-text="$t('Cancel')" :reverse-buttons="true" @ok="confirmDeleteCalendar" @cancel="showDeleteCalendarConfirm = false" :icon="deleteIcon" :width="380">
       <p class="text-xs" :class="themeClasses.notTextDown">
-        <template v-if="deleteCalendarKeepEvents"
-          >The calendar "<strong>{{ editingCalendar?.name }}</strong
-          >" will be deleted. Its events will be moved to "{{ calendars.find((c) => c.id !== editingCalendar?.id)?.name }}".</template
-        >
-        <template v-else
-          >The calendar "<strong>{{ editingCalendar?.name }}</strong
-          >" and <strong>all its events</strong> will be permanently deleted.</template
-        >
+        <template v-if="deleteCalendarKeepEvents">{{ $t('The calendar "{name}" will be deleted. Its events will be moved to "{target}".', { name: editingCalendar?.name, target: calendars.find((c) => c.id !== editingCalendar?.id)?.name }) }}</template>
+        <template v-else>{{ $t('The calendar "{name}" and all its events will be permanently deleted.', { name: editingCalendar?.name }) }}</template>
       </p>
     </AppDialog>
 
-    <StatusBar :icon="calendarIcon" message="Calendar" :info="statusInfo">
+    <StatusBar :icon="calendarIcon" :message="$t('Calendar')" :info="statusInfo">
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="calendarIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Calendar</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Calendar") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Manage events and track time across the world.</p>
+            <p>{{ $t("Manage events and track time across the world.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="plusIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Events:</strong> Click any day to see its events. Create new events from the File menu or the sidebar + button.</p>
+                <p>{{ $t("Events: Click any day to see its events. Create new events from the File menu or the sidebar + button.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="earthIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>World Clock:</strong> Switch to World Clock from the View menu to track time across different timezones.</p>
+                <p>{{ $t("World Clock: Switch to World Clock from the View menu to track time across different timezones.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="filterRemoveIcon" class="w-3.5 h-3.5 mt-0.5 text-orange-500 flex-shrink-0" />
-                <p><strong>Import / Export:</strong> Import and export events in standard .ics format, compatible with Google Calendar, Apple Calendar, and Outlook.</p>
+                <p>{{ $t("Import / Export: Import and export events in standard .ics format, compatible with Google Calendar, Apple Calendar, and Outlook.") }}</p>
               </div>
             </div>
           </div>
@@ -435,10 +427,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { ref, computed, inject, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import "dayjs/locale/es";
+import "dayjs/locale/en";
+import { getLanguage } from "../__Languages__";
 import { Icon } from "@iconify/vue";
 import { TimePicker, DatePicker, Dropdown, Menu, MenuItem, MenuDivider, Switch } from "ant-design-vue";
 import calendarIcon from "@iconify-icons/mdi/calendar";
@@ -459,6 +455,8 @@ import { useCalendarStore } from "../__Stores__/useCalendarStore";
 import StatusBar from "../__Components__/StatusBar.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
 
+import type { SettingsData } from "../__Types__/SettingsData";
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -468,17 +466,45 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
+const djLocale = getLanguage();
+
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
 const calendarStore = useCalendarStore();
+
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const clockFormat = computed(() => settingsData?.clock_format ?? "24h");
+const weekStart = computed<number>(() => (settingsData?.week_start === "sunday" ? 0 : 1));
+const timeFormat = computed(() => (clockFormat.value === "12h" ? "h:mm A" : "HH:mm"));
+const timeFormatWithSeconds = computed(() => (clockFormat.value === "12h" ? "h:mm:ss A" : "HH:mm:ss"));
+
+function formatStoredTime(raw: string | undefined | null): string {
+  if (!raw) return "";
+  const [h, m] = raw.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return raw;
+  if (clockFormat.value === "12h") {
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+  }
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 
 const activeTab = ref<"calendar" | "worldclock">("calendar");
 const sidebarTab = ref<"events" | "calendars">("events");
 const viewDate = ref(dayjs());
 const selectedDate = ref(dayjs());
 
-const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const weekDays = computed(() =>
+  Array.from({ length: 7 }, (_, i) =>
+    dayjs()
+      .locale(djLocale)
+      .day((i + weekStart.value) % 7)
+      .format("dd"),
+  ),
+);
 
 const EVENT_COLORS = [
   { name: "blue", hex: "#3b82f6" },
@@ -497,18 +523,21 @@ function eventColor(name: string): string {
 
 const events = computed(() => calendarStore.visibleEvents);
 
-const currentMonthYear = computed(() => viewDate.value.format("MMMM YYYY"));
-const selectedDateFormatted = computed(() => selectedDate.value.format("ddd, MMM D"));
+const currentMonthYear = computed(() => {
+  const raw = viewDate.value.locale(djLocale).format("MMMM YYYY");
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+});
+const selectedDateFormatted = computed(() => selectedDate.value.locale(djLocale).format("ddd, MMM D"));
 const statusInfo = computed(() => {
   const count = events.value.length;
-  return `${count} event${count !== 1 ? "s" : ""} total`;
+  return t("{n} {events} total", { n: count, events: count !== 1 ? t("events") : t("event") });
 });
 
 const calendarDays = computed(() => {
   const days: any[] = [];
   const startOfMonth = viewDate.value.startOf("month");
   const endOfMonth = viewDate.value.endOf("month");
-  const startDay = startOfMonth.day();
+  const startDay = (startOfMonth.day() - weekStart.value + 7) % 7;
   const daysInMonth = endOfMonth.date();
 
   const prevMonthEnd = startOfMonth.subtract(1, "day");
@@ -851,8 +880,8 @@ function updateWorldClockTimes() {
   for (const tz of worldClocks.value) {
     try {
       const t = now.tz(tz);
-      worldClockTimes.value[tz] = t.format("HH:mm:ss");
-      worldClockDates.value[tz] = t.format("ddd, MMM D");
+      worldClockTimes.value[tz] = t.format(timeFormatWithSeconds.value);
+      worldClockDates.value[tz] = t.locale(djLocale).format("ddd, MMM D");
       const offset = t.utcOffset();
       const h = Math.floor(Math.abs(offset) / 60);
       const m = Math.abs(offset) % 60;

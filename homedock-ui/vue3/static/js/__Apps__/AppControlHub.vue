@@ -24,7 +24,7 @@
               <span class="truncate">{{ label }}</span>
             </div>
           </template>
-          <InputSearch v-model:value="searchQuery" placeholder="Search apps..." class="w-full text-sm" enter-button="Search">
+          <InputSearch v-model:value="searchQuery" :placeholder="$t('Search apps...')" class="w-full text-sm" :enter-button="$t('Search')">
             <template #prefix>
               <Icon :icon="nutIcon" :class="[themeClasses.dropZoneInputIcon]" class="mx-1" />
             </template>
@@ -39,11 +39,11 @@
         <div v-else-if="sortedApps.length === 0" class="flex flex-col items-center justify-center h-64">
           <div :class="[themeClasses.windowBorder]" class="p-8 rounded-2xl border bg-white/5 text-center max-w-md">
             <Icon :icon="emptyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <h3 :class="[themeClasses.windowTitleTextFocused]" class="text-lg font-semibold mb-2">No apps installed</h3>
-            <p :class="[themeClasses.windowPlaceholderText]" class="text-sm mb-6">Get started by installing your first application</p>
+            <h3 :class="[themeClasses.windowTitleTextFocused]" class="text-lg font-semibold mb-2">{{ $t("No apps installed") }}</h3>
+            <p :class="[themeClasses.windowPlaceholderText]" class="text-sm mb-6">{{ $t("Get started by installing your first application") }}</p>
             <button @click="openAppStore" :class="[themeClasses.settingsIconBgBlue]" class="px-6 py-3 rounded-xl text-white font-medium flex items-center gap-2 mx-auto hover:scale-105 transition-transform duration-200 shadow-lg">
               <Icon :icon="storeIcon" class="w-5 h-5" />
-              <span>Browse App Store</span>
+              <span>{{ $t("Browse App Store") }}</span>
             </button>
           </div>
         </div>
@@ -71,11 +71,11 @@
                     </h3>
                     <div v-if="app.has_update" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center gap-1 px-2 py-0.5 rounded-md border flex-shrink-0">
                       <Icon :icon="updateIcon" :class="[themeClasses.appPropsUpdateBadgeIcon]" class="w-3 h-3" />
-                      <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[10px] font-semibold">Update</span>
+                      <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[10px] font-semibold">{{ $t("Update") }}</span>
                     </div>
                   </div>
                   <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 capitalize">
-                    {{ app.status }}
+                    {{ $t(app.status) }}
                   </p>
                 </div>
 
@@ -112,21 +112,21 @@
                     <div class="grid grid-cols-2 gap-1.5">
                       <button @click="handleEdit(app)" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-[11px]">
                         <Icon :icon="editIcon" class="w-3.5 h-3.5" />
-                        <span>Edit Config</span>
+                        <span>{{ $t("Edit Config") }}</span>
                       </button>
                       <button @click="handleLogs(app)" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-[11px]">
                         <Icon :icon="logsIcon" class="w-3.5 h-3.5" />
-                        <span>View Logs</span>
+                        <span>{{ $t("View Logs") }}</span>
                       </button>
                       <button @click="handleExport(app)" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-[11px]">
                         <Icon :icon="exportIcon" class="w-3.5 h-3.5" />
-                        <span>Export Config</span>
+                        <span>{{ $t("Export Config") }}</span>
                       </button>
                       <div class="relative">
                         <Upload :custom-request="(options) => handleImport(app, options)" v-model:file-list="fileList" accept=".yml,.yaml" :maxCount="1" :showUploadList="false" :headers="uploadHeaders">
                           <button :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-[11px]">
                             <Icon :icon="importIcon" class="w-3.5 h-3.5" />
-                            <span>Import Config</span>
+                            <span>{{ $t("Import Config") }}</span>
                           </button>
                         </Upload>
                       </div>
@@ -138,7 +138,7 @@
                           <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5">
                               <Icon :icon="cpuIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                              <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">CPU</span>
+                              <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("CPU") }}</span>
                             </div>
                             <span class="text-[11px] font-bold" :class="[themeClasses.appPropsInfoValue]">{{ getCPU(app) }}</span>
                           </div>
@@ -151,7 +151,7 @@
                           <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1">
                               <Icon :icon="memoryIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                              <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">RAM</span>
+                              <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("RAM") }}</span>
                             </div>
                             <span class="text-[11px] font-bold" :class="[themeClasses.appPropsInfoValue]">{{ getRAM(app) }}</span>
                           </div>
@@ -163,7 +163,7 @@
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-1">
                             <Icon :icon="downloadIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">Download</span>
+                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Download") }}</span>
                           </div>
                           <span class="text-[11px] font-bold" :class="[themeClasses.appPropsInfoValue]">{{ formatBytes(app.networkRxBytes || 0) }}</span>
                         </div>
@@ -171,7 +171,7 @@
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-1">
                             <Icon :icon="uploadIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">Upload</span>
+                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Upload") }}</span>
                           </div>
                           <span class="text-[11px] font-bold" :class="[themeClasses.appPropsInfoValue]">{{ formatBytes(app.networkTxBytes || 0) }}</span>
                         </div>
@@ -179,7 +179,7 @@
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-1">
                             <Icon :icon="containerIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">Image</span>
+                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Image") }}</span>
                           </div>
                           <div class="text-[9px] font-medium font-mono leading-none" :class="[themeClasses.appPropsInfoValue]">{{ getImageName(app) }}</div>
                         </div>
@@ -187,7 +187,7 @@
                         <div v-if="getImageTag(app)" class="flex items-center justify-between">
                           <div class="flex items-center gap-1">
                             <Icon :icon="containerIcon" width="12" height="12" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">Tag</span>
+                            <span class="text-[10px] font-semibold" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Tag") }}</span>
                           </div>
                           <div class="text-[9px] font-medium font-mono leading-none" :class="[themeClasses.appPropsInfoValue]">{{ getImageTag(app) }}</div>
                         </div>
@@ -202,17 +202,17 @@
       </Transition>
     </div>
 
-    <StatusBar :icon="nutIcon" message="Control Hub" :info="statusBarInfo" :showHelp="true">
+    <StatusBar :icon="nutIcon" :message="$t('Control Hub')" :info="statusBarInfo" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="nutIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Control Hub</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Control Hub") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Monitor and manage all your installed applications from a single interface. Click on any app to view detailed metrics and access management options.</p>
-            <p><strong>Running apps</strong> show CPU and RAM usage. <strong>Stopped apps</strong> show last activity status.</p>
+            <p>{{ $t("Monitor and manage all your installed applications from a single interface. Click on any app to view detailed metrics and access management options.") }}</p>
+            <p>{{ $t("Running apps show CPU and RAM usage. Stopped apps show last activity status.") }}</p>
           </div>
         </div>
       </template>
@@ -224,6 +224,7 @@
 import axios from "axios";
 
 import { computed, ref, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -253,6 +254,7 @@ import downloadIcon from "@iconify-icons/mdi/download";
 import uploadIcon from "@iconify-icons/mdi/upload";
 import containerIcon from "@iconify-icons/mdi/package-variant-closed";
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
@@ -372,9 +374,9 @@ const totalRAM = computed(() => {
 
 const statusBarInfo = computed(() => {
   if (runningAppsCount.value === 0) {
-    return "No apps running";
+    return t("No apps running");
   }
-  return `Total CPU ${totalCPU.value}% • Total RAM ${totalRAM.value}%`;
+  return `${t("Total CPU")} ${totalCPU.value}% • ${t("Total RAM")} ${totalRAM.value}%`;
 });
 
 function formatBytes(bytes: number): string {
@@ -396,7 +398,7 @@ function getRAM(app: any): string {
 }
 
 function getImageName(app: any): string {
-  if (!app.image) return "Unknown";
+  if (!app.image) return t("Unknown");
   const imageParts = app.image.split(":");
   return imageParts[0] || app.image;
 }
@@ -436,10 +438,10 @@ async function handleExport(app: any) {
 
     if (response.data?.data?.ymlContent && response.data.data.ymlContent.trim() !== "") {
       exportYMLFile(response.data.data.ymlContent, `${app.name}.yml`);
-      message.success(`Configuration exported successfully`);
+      message.success(t("Configuration exported successfully"));
     }
   } catch (error) {
-    message.error("Failed to export configuration");
+    message.error(t("Failed to export configuration"));
   }
 }
 
@@ -477,13 +479,13 @@ async function handleImport(app: any, { file, onSuccess, onError }: any) {
     if (response.ok) {
       const data = await response.json();
       onSuccess(data, file);
-      message.success(`Configuration imported successfully`);
+      message.success(t("Configuration imported successfully"));
     } else {
       throw new Error("Upload failed");
     }
   } catch (error) {
     onError(error);
-    message.error(`Failed to import configuration`);
+    message.error(t("Failed to import configuration"));
   }
 }
 

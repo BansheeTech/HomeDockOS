@@ -18,7 +18,7 @@
               <p class="text-sm opacity-70 m-0 overflow-hidden text-ellipsis whitespace-nowrap" :class="[themeClasses.notTextDown]">{{ app.image }}</p>
               <div :class="[...getStatusClasses(app.statusColor), 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border w-fit']">
                 <div :class="[getStatusDotClasses(app.status), 'w-1.5 h-1.5 rounded-full shadow-[0_0_6px_currentColor]', { 'animate-[pulse-success_2s_cubic-bezier(0.4,0,0.6,1)_infinite]': app.status === 'running' }]"></div>
-                <span class="text-[11px] font-semibold uppercase tracking-wide">{{ app.status }}</span>
+                <span class="text-[11px] font-semibold uppercase tracking-wide">{{ $t(app.status) }}</span>
               </div>
             </div>
           </div>
@@ -27,15 +27,15 @@
         <div class="flex gap-1.5 px-4 py-1.5" :class="[themeClasses.appPropsTabsContainerBg, themeClasses.appPropsTabsContainerBorder]">
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'general' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'general' }]" @click="activeTab = 'general'">
             <Icon :icon="infoIcon" width="15" height="15" />
-            <span>General</span>
+            <span>{{ $t("General") }}</span>
           </button>
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'files' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'files' }]" @click="activeTab = 'files'">
             <Icon :icon="folderIcon" width="15" height="15" />
-            <span>Files</span>
+            <span>{{ $t("Files") }}</span>
           </button>
           <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'actions' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'actions' }]" @click="activeTab = 'actions'">
             <Icon :icon="cogIcon" width="15" height="15" />
-            <span>Actions</span>
+            <span>{{ $t("Actions") }}</span>
           </button>
         </div>
 
@@ -46,7 +46,7 @@
                 <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                   <div class="flex items-center gap-2 mb-2.5">
                     <Icon :icon="cpuIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">CPU</span>
+                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("CPU") }}</span>
                   </div>
                   <div class="flex flex-col gap-1.5">
                     <span class="text-xl font-bold leading-none" :class="[themeClasses.appPropsInfoValue]">{{ app.usagePercent }}%</span>
@@ -59,7 +59,7 @@
                 <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                   <div class="flex items-center gap-2 mb-2.5">
                     <Icon :icon="memoryIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">RAM</span>
+                    <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("RAM") }}</span>
                   </div>
                   <div class="flex flex-col gap-1.5">
                     <span class="text-xl font-bold leading-none" :class="[themeClasses.appPropsInfoValue]">{{ app.memoryUsagePercent }}%</span>
@@ -73,7 +73,7 @@
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="networkIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Network</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Network") }}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div class="flex items-center gap-2">
@@ -90,11 +90,11 @@
               <div v-if="defaultCredentials" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="accountKeyIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Default Credentials</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Default Credentials") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex justify-between items-center py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Username</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Username") }}</span>
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.username }}</span>
                       <button @click="copyCredential(defaultCredentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
@@ -103,7 +103,7 @@
                     </div>
                   </div>
                   <div class="flex justify-between items-center py-1.5 border-b-0">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Password</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Password") }}</span>
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.password }}</span>
                       <button @click="copyCredential(defaultCredentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
@@ -112,28 +112,28 @@
                     </div>
                   </div>
                 </div>
-                <p class="text-[10px] mt-2 opacity-50" :class="[themeClasses.appPropsInfoLabel]">Please change these credentials after your first sign-in.</p>
+                <p class="text-[10px] mt-2 opacity-50" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Please change these credentials after your first sign-in.") }}</p>
               </div>
 
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="accesPointNetworkIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Access & Ports</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Access & Ports") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Host</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Host") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.host }}</span>
                   </div>
                   <div class="flex flex-col items-stretch gap-1.5 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Ports</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Ports") }}</span>
                     <div class="w-full text-left">
                       <PortRouter :key="app.ports.join(':')" :containerId="app.name" :initialPorts="app.ports.join(':')" :containerStatus="app.status" @update="handlePortsUpdate" />
                     </div>
                   </div>
                   <div v-if="app.service_url" class="flex items-center gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
                     <a :href="app.service_url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium transition-colors duration-200 hover:opacity-70" :class="[themeClasses.appPropsInfoLink, themeClasses.appPropsInfoLinkHover]" :title="app.service_url">
-                      <span>Access</span>
+                      <span>{{ $t("Access") }}</span>
                       <Icon :icon="openIcon" width="14" height="14" />
                     </a>
                   </div>
@@ -143,28 +143,28 @@
               <div v-if="showConfiguration" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="settingsIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">Configuration</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Configuration") }}</span>
                 </div>
                 <div class="flex flex-col">
                   <div v-if="app.HDGroup" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Group") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.HDGroup }}</span>
                   </div>
                   <div v-if="app.HDRole === 'dependency'" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Role</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border" :class="[themeClasses.appPropsBadgeDependency]">Dependency</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Role") }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border" :class="[themeClasses.appPropsBadgeDependency]">{{ $t("Dependency") }}</span>
                   </div>
                   <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Group Containers</span>
-                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ groupContainers.length + 1 }} containers</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Group Containers") }}</span>
+                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ groupContainers.length + 1 }} {{ $t("containers") }}</span>
                   </div>
                   <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">Related</span>
+                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Related") }}</span>
                     <div class="flex flex-col gap-0.5 flex-1">
                       <div v-for="container in groupContainers" :key="container.id" class="flex items-center gap-1.5" :class="[themeClasses.appPropsInfoValue]">
                         <Icon :icon="containerIcon" width="12" height="12" />
                         <span class="text-xs">{{ container.name }}</span>
-                        <span class="text-[10px] opacity-60">({{ container.status }})</span>
+                        <span class="text-[10px] opacity-60">({{ $t(container.status) }})</span>
                       </div>
                     </div>
                   </div>
@@ -176,7 +176,7 @@
               <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="cubeScanIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
-                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">App Drive Volumes</span>
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("App Drive Volumes") }}</span>
                 </div>
 
                 <div v-if="isLoadingMounts" class="flex items-center justify-center py-6">
@@ -190,7 +190,7 @@
 
                 <div v-else-if="mounts.length === 0" class="flex flex-col items-center justify-center py-6 gap-2">
                   <Icon :icon="folderIcon" width="32" height="32" :class="[themeClasses.appPropsInfoLabel]" class="opacity-50" />
-                  <span class="text-xs" :class="[themeClasses.appPropsInfoLabel]">No accessible volumes found</span>
+                  <span class="text-xs" :class="[themeClasses.appPropsInfoLabel]">{{ $t("No accessible volumes found") }}</span>
                 </div>
 
                 <div v-else class="flex flex-col gap-2">
@@ -198,7 +198,7 @@
                     <Icon :icon="mount.read_only ? lockIcon : folderOpenIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
                     <div class="flex-1 flex flex-col gap-0.5 min-w-0">
                       <span class="text-sm font-medium truncate" :class="[themeClasses.appPropsInfoValue]">{{ mount.container_path }}</span>
-                      <span class="text-[10px] opacity-60 truncate" :class="[themeClasses.appPropsInfoLabel]">{{ mount.read_only ? "Read-only" : "Read/Write" }}</span>
+                      <span class="text-[10px] opacity-60 truncate" :class="[themeClasses.appPropsInfoLabel]">{{ mount.read_only ? $t("Read-only") : $t("Read/Write") }}</span>
                     </div>
                     <Icon :icon="chevronRightIcon" width="16" height="16" :class="[themeClasses.appPropsInfoLabel]" />
                   </button>
@@ -208,43 +208,43 @@
 
             <div v-else-if="activeTab === 'actions'" key="actions" class="flex flex-col gap-4">
               <div class="flex flex-col gap-4">
-                <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">Quick Actions</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">{{ $t("Quick Actions") }}</h3>
                 <div class="grid md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] grid-cols-1 gap-3">
                   <button v-if="app.status === 'exited' || app.status === 'created'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover, themeClasses.aeroExtraScope]" @click="handleStart" :disabled="isProcessing">
                     <Icon :icon="isStarting ? loadingIcon : playIcon" width="20" height="20" :class="{ 'animate-spin': isStarting }" />
-                    <span>Start Application</span>
+                    <span>{{ $t("Start Application") }}</span>
                   </button>
 
                   <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonDangerBg, themeClasses.appPropsActionButtonDangerBorder, themeClasses.appPropsActionButtonDangerText, themeClasses.appPropsActionButtonDangerBgHover, themeClasses.appPropsActionButtonDangerBorderHover, themeClasses.aeroExtraScope]" @click="handleStop" :disabled="isProcessing">
                     <Icon :icon="isStopping ? loadingIcon : stopIcon" width="20" height="20" :class="{ 'animate-spin': isStopping }" />
-                    <span>Stop Application</span>
+                    <span>{{ $t("Stop Application") }}</span>
                   </button>
 
                   <button v-if="app.status === 'paused'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover, themeClasses.aeroExtraScope]" @click="handleUnpause" :disabled="isProcessing">
                     <Icon :icon="isUnpausing ? loadingIcon : unpauseIcon" width="20" height="20" :class="{ 'animate-spin': isUnpausing }" />
-                    <span>Unpause Application</span>
+                    <span>{{ $t("Unpause Application") }}</span>
                   </button>
 
                   <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="handleRestart" :disabled="isProcessing">
                     <Icon :icon="isRestarting ? loadingIcon : restartIcon" width="20" height="20" :class="{ 'animate-spin': isRestarting }" />
-                    <span>Restart Application</span>
+                    <span>{{ $t("Restart Application") }}</span>
                   </button>
 
                   <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="handlePause" :disabled="isProcessing">
                     <Icon :icon="isPausing ? loadingIcon : pauseIcon" width="20" height="20" :class="{ 'animate-spin': isPausing }" />
-                    <span>Pause Application</span>
+                    <span>{{ $t("Pause Application") }}</span>
                   </button>
                 </div>
               </div>
 
               <div v-if="app.service_url && app.status === 'running'" class="flex flex-col gap-4">
-                <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">Application</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">{{ $t("Application") }}</h3>
                 <div class="flex flex-col gap-2">
                   <button class="flex items-center gap-4 px-5 py-4 rounded-[10px] cursor-pointer transition-all duration-200 text-left border hover:translate-x-1 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionListItemBg, themeClasses.appPropsActionListItemBorder, themeClasses.appPropsActionListItemText, themeClasses.appPropsActionListItemBgHover, themeClasses.appPropsActionListItemBorderHover, themeClasses.aeroExtraScope]" @click="handleOpenUrl">
                     <Icon :icon="openIcon" width="20" height="20" />
                     <div class="flex-1 flex flex-col gap-1 min-w-0">
-                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">Open Application</span>
-                      <span class="text-xs opacity-70" :class="[themeClasses.appPropsInfoLabel]">Launch app in new tab</span>
+                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">{{ $t("Open Application") }}</span>
+                      <span class="text-xs opacity-70" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Launch app in new tab") }}</span>
                     </div>
                     <Icon :icon="chevronRightIcon" width="16" height="16" :class="[themeClasses.appPropsInfoLabel]" />
                   </button>
@@ -257,21 +257,21 @@
 
       <div v-else class="flex flex-col items-center justify-center h-full gap-4 px-6 py-12">
         <Icon :icon="alertIcon" width="64" height="64" class="opacity-30" />
-        <h3 class="text-xl font-semibold m-0" :class="[themeClasses.notTextUp]">No Data Available</h3>
-        <p class="text-sm opacity-60 m-0" :class="[themeClasses.notTextDown]">Application data could not be loaded</p>
+        <h3 class="text-xl font-semibold m-0" :class="[themeClasses.notTextUp]">{{ $t("No Data Available") }}</h3>
+        <p class="text-sm opacity-60 m-0" :class="[themeClasses.notTextDown]">{{ $t("Application data could not be loaded") }}</p>
       </div>
     </div>
 
-    <StatusBar v-if="app" :icon="infoIcon" message="App Properties" :info="`Viewing ${app.display_name || app.name}`" :showHelp="true">
+    <StatusBar v-if="app" :icon="infoIcon" :message="$t('App Properties')" :info="`${$t('Viewing')} ${app.display_name || app.name}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="infoIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Properties</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Properties") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>View detailed information about your application including real-time CPU and RAM usage, network traffic (sent/received data), detected port network configuration with editable ports, and grouped applications relationships. The General tab displays resource metrics and configuration details, while the Actions tab provides quick controls to start, stop, restart, pause, or unpause your application.</p>
+            <p>{{ $t("View detailed information about your application including real-time CPU and RAM usage, network traffic (sent/received data), detected port network configuration with editable ports, and grouped applications relationships. The General tab displays resource metrics and configuration details, while the Actions tab provides quick controls to start, stop, restart, pause, or unpause your application.") }}</p>
           </div>
         </div>
       </template>
@@ -282,6 +282,7 @@
 <script lang="ts" setup>
 import axios from "axios";
 import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
@@ -336,6 +337,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
 const appStore = useAppStore();
@@ -540,7 +542,7 @@ async function loadMounts() {
     });
     mounts.value = response.data.mounts || [];
   } catch (error: any) {
-    mountsError.value = error.response?.data?.error || "Failed to load mounts";
+    mountsError.value = t(error.response?.data?.error || "Failed to load mounts");
     mounts.value = [];
   } finally {
     isLoadingMounts.value = false;

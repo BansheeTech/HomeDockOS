@@ -17,4 +17,7 @@ export interface SettingsData {
   default_external_drive: string;
   require_protected_paths_password: boolean;
   disksplus_session_timeout_minutes: number;
+  selected_language: string;
+  clock_format: string;
+  week_start: string;
 }

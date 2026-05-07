@@ -4,98 +4,98 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsGroup header="USER ACCOUNT" footer="Your account identifier for logging into HomeDock OS.">
-    <SettingsItem :icon="accountIcon" icon-color="blue" title="Username" description="Must be alphanumeric only (a-z, A-Z, 0-9)">
-      <FormItem :validate-status="isUsernameValid ? 'success' : 'error'" class="mb-0">
+  <SettingsGroup :header="$t('USER ACCOUNT')" :footer="$t('Your account identifier for logging into HomeDock OS.')">
+    <SettingsItem :icon="accountIcon" icon-color="blue" :title="$t('Username')" :description="$t('Must be alphanumeric only (a-z, A-Z, 0-9)')">
+      <FormItem :validate-status="isUsernameValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
         <template #help>
-          <div v-if="!isUsernameValid" class="flex items-center text-xs mt-1">
-            <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+          <div v-if="!isUsernameValid" class="flex items-start text-xs mt-1">
+            <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1 mt-0.5" />
             <span>{{ usernameErrorMessage }}</span>
           </div>
         </template>
 
-        <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="usernameValue" placeholder="Username..." :maxlength="30" autocomplete="username" name="FormInputUsername" id="FormInputUsername" style="width: 240px" />
+        <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="usernameValue" :placeholder="$t('Username...')" :maxlength="30" autocomplete="username" name="FormInputUsername" id="FormInputUsername" style="width: 240px" />
       </FormItem>
     </SettingsItem>
   </SettingsGroup>
 
-  <SettingsGroup header="SECURITY" footer="Change your account password. Minimum 6 characters required.">
+  <SettingsGroup :header="$t('SECURITY')" :footer="$t('Change your account password. Minimum 6 characters required.')">
     <div class="px-4 py-3">
       <Checkbox :class="[themeClasses.scopeSelector, themeClasses.userCheckboxScope]" v-model:checked="passwordCheckbox">
         <div class="flex items-center gap-2">
           <Icon :icon="passIcon" class="text-red-500" size="18px" />
-          <span :class="[themeClasses.settingsItemTitle]">Change Password</span>
+          <span :class="[themeClasses.settingsItemTitle]">{{ $t("Change Password") }}</span>
         </div>
       </Checkbox>
     </div>
   </SettingsGroup>
 
   <Transition name="fade-slide">
-    <SettingsGroup v-if="passwordCheckbox" header="NEW PASSWORD">
-      <SettingsItem :icon="lockOpenIcon" icon-color="orange" title="New Password" description="Minimum 6 characters">
-        <FormItem :validate-status="isPasswordValid ? 'success' : 'error'" class="mb-0">
+    <SettingsGroup v-if="passwordCheckbox" :header="$t('NEW PASSWORD')">
+      <SettingsItem :icon="lockOpenIcon" icon-color="orange" :title="$t('New Password')" :description="$t('Minimum 6 characters')">
+        <FormItem :validate-status="isPasswordValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
           <template #help>
-            <div v-if="!isPasswordValid" class="flex items-center text-xs mt-1">
-              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+            <div v-if="!isPasswordValid" class="flex items-start text-xs mt-1">
+              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1 mt-0.5" />
               <span>{{ passwordErrorMessage }}</span>
             </div>
           </template>
 
-          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="passwordValue" placeholder="Password..." :maxlength="30" autocomplete="new-password" name="FormInputPassword" id="FormInputPassword" style="width: 240px" />
+          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="passwordValue" :placeholder="$t('Password...')" :maxlength="30" autocomplete="new-password" name="FormInputPassword" id="FormInputPassword" style="width: 240px" />
         </FormItem>
       </SettingsItem>
 
-      <SettingsItem :icon="lockCheckIcon" icon-color="green" title="Confirm Password" description="Must match new password" is-last>
-        <FormItem :validate-status="isConfirmPasswordValid ? 'success' : 'error'" class="mb-0">
+      <SettingsItem :icon="lockCheckIcon" icon-color="green" :title="$t('Confirm Password')" :description="$t('Must match new password')" is-last>
+        <FormItem :validate-status="isConfirmPasswordValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
           <template #help>
-            <div v-if="!isConfirmPasswordValid" class="flex items-center text-xs mt-1">
-              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1" />
+            <div v-if="!isConfirmPasswordValid" class="flex items-start text-xs mt-1">
+              <Icon :icon="alertIcon" size="14px" color="#FF4D4F" class="mr-1 mt-0.5" />
               <span>{{ confirmPasswordErrorMessage }}</span>
             </div>
           </template>
 
-          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="confirmPassword" placeholder="Confirm password..." :maxlength="30" autocomplete="new-password" name="FormConfirmPassword" id="FormConfirmPassword" style="width: 240px" />
+          <InputPassword :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="confirmPassword" :placeholder="$t('Confirm password...')" :maxlength="30" autocomplete="new-password" name="FormConfirmPassword" id="FormConfirmPassword" style="width: 240px" />
         </FormItem>
       </SettingsItem>
     </SettingsGroup>
   </Transition>
 
-  <SettingsGroup header="TWO-FACTOR AUTHENTICATION" footer="Add an extra layer of security using an authenticator app.">
-    <SettingsItem :icon="shieldLockIcon" icon-color="purple" title="Two-Factor Authentication" :description="is2FAEnabled ? 'Currently enabled' : 'Currently disabled'" :is-last="!is2FAEnabled">
+  <SettingsGroup :header="$t('TWO-FACTOR AUTHENTICATION')" :footer="$t('Add an extra layer of security using an authenticator app.')">
+    <SettingsItem :icon="shieldLockIcon" icon-color="purple" :title="$t('Two-Factor Authentication')" :description="is2FAEnabled ? $t('Currently enabled') : $t('Currently disabled')" :is-last="!is2FAEnabled">
       <Switch :checked="is2FAEnabled" :loading="loading2FA" @change="handle2FAToggle" />
     </SettingsItem>
 
-    <SettingsItem v-if="is2FAEnabled" :icon="refreshIcon" icon-color="blue" title="Regenerate Backup Codes" description="Generate new backup codes (invalidates old ones)" is-last>
+    <SettingsItem v-if="is2FAEnabled" :icon="refreshIcon" icon-color="blue" :title="$t('Regenerate Backup Codes')" :description="$t('Generate new backup codes (invalidates old ones)')" is-last>
       <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="openRegenerateModal">
         <Icon :icon="refreshIcon" width="14" height="14" />
-        Regenerate
+        {{ $t("Regenerate") }}
       </button>
     </SettingsItem>
   </SettingsGroup>
 
-  <AppDialog v-model:visible="show2FASetupModal" :title="setupDialogTitle" :icon="shieldLockIcon" type="info" :width="480" :ok-text="setupDialogOkText" :cancel-text="setupStep === 2 ? 'Back' : 'Cancel'" :ok-cancel="setupStep === 2" :loading="verifying" :reverse-buttons="setupStep === 2" :close-on-ok="false" @ok="handleSetupDialogOk" @cancel="handleSetupDialogCancel">
+  <AppDialog v-model:visible="show2FASetupModal" :title="setupDialogTitle" :icon="shieldLockIcon" type="info" :width="480" :ok-text="setupDialogOkText" :cancel-text="setupStep === 2 ? $t('Back') : $t('Cancel')" :ok-cancel="setupStep === 2" :loading="verifying" :reverse-buttons="setupStep === 2" :close-on-ok="false" @ok="handleSetupDialogOk" @cancel="handleSetupDialogCancel">
     <div v-if="setupStep === 1" class="text-center">
-      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
-      <img v-if="qrCodeData" :src="qrCodeData" alt="2FA QR Code" class="mx-auto mb-4 rounded-lg" style="max-width: 200px" />
+      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">{{ $t("Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)") }}</p>
+      <img v-if="qrCodeData" :src="qrCodeData" :alt="$t('2FA QR Code')" class="mx-auto mb-4 rounded-lg" style="max-width: 200px" />
       <div class="mb-2">
-        <p :class="[themeClasses.notTextDown]" class="text-xs opacity-70 mb-2">Or enter this code manually:</p>
+        <p :class="[themeClasses.notTextDown]" class="text-xs opacity-70 mb-2">{{ $t("Or enter this code manually:") }}</p>
         <code :class="[themeClasses.settingsGroupFooter]" class="px-3 py-1.5 rounded text-sm select-all font-mono">{{ manualSecret }}</code>
       </div>
     </div>
 
     <div v-if="setupStep === 2">
-      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">Enter the 6-digit code from your authenticator app to verify setup:</p>
-      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="verificationCode" placeholder="000000" :maxlength="6" size="large" class="text-center text-2xl" style="letter-spacing: 0.5em" @keyup.enter="verify2FASetup" />
+      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">{{ $t("Enter the 6-digit code from your authenticator app to verify setup:") }}</p>
+      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="verificationCode" :placeholder="$t('000000')" :maxlength="6" size="large" class="text-center text-2xl" style="letter-spacing: 0.5em" @keyup.enter="verify2FASetup" />
     </div>
 
     <div v-if="setupStep === 3">
       <div class="flex items-center gap-2 mb-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
         <Icon :icon="checkCircleIcon" class="text-green-500" width="20" height="20" />
-        <span :class="[themeClasses.notTextDown]" class="text-sm font-medium">2FA Enabled Successfully!</span>
+        <span :class="[themeClasses.notTextDown]" class="text-sm font-medium">{{ $t("2FA Enabled Successfully!") }}</span>
       </div>
       <div class="flex items-center gap-2 mb-4 p-3 rounded-lg border" :class="[themeClasses.appPropsStatusWarningBg, themeClasses.appPropsStatusWarningBorder]">
         <Icon :icon="alertIcon" :class="[themeClasses.appPropsStatusWarningText]" width="20" height="20" />
-        <span :class="[themeClasses.notTextDown]" class="text-sm">Save these backup codes securely. Each can only be used once.</span>
+        <span :class="[themeClasses.notTextDown]" class="text-sm">{{ $t("Save these backup codes securely. Each can only be used once.") }}</span>
       </div>
       <div :class="[themeClasses.settingsGroupFooter]" class="grid grid-cols-2 gap-2 p-4 rounded-lg">
         <code v-for="code in backupCodes" :key="code" :class="[themeClasses.notTextDown]" class="text-center py-1.5 font-mono text-sm">{{ code }}</code>
@@ -103,33 +103,33 @@
     </div>
   </AppDialog>
 
-  <AppDialog v-model:visible="show2FADisableModal" title="Disable Two-Factor Authentication" :icon="shieldOffIcon" type="warning" :width="420" ok-text="Disable 2FA" cancel-text="Cancel" :ok-cancel="true" :loading="disabling" @ok="disable2FA" @cancel="show2FADisableModal = false">
+  <AppDialog v-model:visible="show2FADisableModal" :title="$t('Disable Two-Factor Authentication')" :icon="shieldOffIcon" type="warning" :width="420" :ok-text="$t('Disable 2FA')" :cancel-text="$t('Cancel')" :ok-cancel="true" :loading="disabling" @ok="disable2FA" @cancel="show2FADisableModal = false">
     <div class="flex items-center gap-2 mb-4 p-3 rounded-lg border" :class="[themeClasses.appPropsStatusWarningBg, themeClasses.appPropsStatusWarningBorder]">
       <Icon :icon="alertIcon" :class="[themeClasses.appPropsStatusWarningText]" width="20" height="20" />
-      <span :class="[themeClasses.notTextDown]" class="text-sm">This will reduce your account security.</span>
+      <span :class="[themeClasses.notTextDown]" class="text-sm">{{ $t("This will reduce your account security.") }}</span>
     </div>
-    <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">Enter a verification code from your authenticator app or a backup code:</p>
-    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="disableCode" placeholder="Enter code" size="large" @keyup.enter="disable2FA" />
+    <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">{{ $t("Enter a verification code from your authenticator app or a backup code:") }}</p>
+    <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="disableCode" :placeholder="$t('Enter code')" size="large" @keyup.enter="disable2FA" />
   </AppDialog>
 
-  <AppDialog v-model:visible="showRegenerateModal" :title="regenerateStep === 1 ? 'Regenerate Backup Codes' : 'New Backup Codes'" :icon="refreshIcon" :type="regenerateStep === 1 ? 'confirm' : 'success'" :width="420" :ok-text="regenerateStep === 1 ? 'Regenerate' : 'I\'ve saved my codes'" cancel-text="Cancel" :ok-cancel="regenerateStep === 1" :loading="regenerating" :close-on-ok="false" @ok="handleRegenerateOk" @cancel="closeRegenerateModal">
+  <AppDialog v-model:visible="showRegenerateModal" :title="regenerateStep === 1 ? $t('Regenerate Backup Codes') : $t('New Backup Codes')" :icon="refreshIcon" :type="regenerateStep === 1 ? 'confirm' : 'success'" :width="420" :ok-text="regenerateStep === 1 ? $t('Regenerate') : $t('I\'ve saved my codes')" :cancel-text="$t('Cancel')" :ok-cancel="regenerateStep === 1" :loading="regenerating" :close-on-ok="false" @ok="handleRegenerateOk" @cancel="closeRegenerateModal">
     <div v-if="regenerateStep === 1">
       <div class="flex items-center gap-2 mb-4 p-3 rounded-lg border" :class="[themeClasses.appPropsStatusWarningBg, themeClasses.appPropsStatusWarningBorder]">
         <Icon :icon="alertIcon" :class="[themeClasses.appPropsStatusWarningText]" width="20" height="20" />
-        <span :class="[themeClasses.notTextDown]" class="text-sm">This will invalidate all existing backup codes.</span>
+        <span :class="[themeClasses.notTextDown]" class="text-sm">{{ $t("This will invalidate all existing backup codes.") }}</span>
       </div>
-      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">Enter a verification code from your authenticator app:</p>
-      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="regenerateCode" placeholder="Enter code" size="large" @keyup.enter="regenerateBackupCodes" />
+      <p :class="[themeClasses.notTextDown]" class="mb-4 text-sm">{{ $t("Enter a verification code from your authenticator app:") }}</p>
+      <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="regenerateCode" :placeholder="$t('Enter code')" size="large" @keyup.enter="regenerateBackupCodes" />
     </div>
 
     <div v-if="regenerateStep === 2">
       <div class="flex items-center gap-2 mb-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
         <Icon :icon="checkCircleIcon" class="text-green-500" width="20" height="20" />
-        <span :class="[themeClasses.notTextDown]" class="text-sm font-medium">Backup codes regenerated!</span>
+        <span :class="[themeClasses.notTextDown]" class="text-sm font-medium">{{ $t("Backup codes regenerated!") }}</span>
       </div>
       <div class="flex items-center gap-2 mb-4 p-3 rounded-lg border" :class="[themeClasses.appPropsStatusWarningBg, themeClasses.appPropsStatusWarningBorder]">
         <Icon :icon="alertIcon" :class="[themeClasses.appPropsStatusWarningText]" width="20" height="20" />
-        <span :class="[themeClasses.notTextDown]" class="text-sm">Save these backup codes securely. Each can only be used once.</span>
+        <span :class="[themeClasses.notTextDown]" class="text-sm">{{ $t("Save these backup codes securely. Each can only be used once.") }}</span>
       </div>
       <div :class="[themeClasses.settingsGroupFooter]" class="grid grid-cols-2 gap-2 p-4 rounded-lg">
         <code v-for="code in newBackupCodes" :key="code" :class="[themeClasses.notTextDown]" class="text-center py-1.5 font-mono text-sm">{{ code }}</code>
@@ -139,16 +139,20 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import { computed, ref, watch, onMounted, inject, type Ref } from "vue";
 import axios from "axios";
 import QRCode from "qrcode";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { generateSecureBase32, generateTOTPUri, encryptTOTPSecret } from "../__Utils__/TwoFactorAuth";
+import { clampToBytes, BCRYPT_MAX_BYTES } from "../__Utils__/StringByteClamp";
 
 import { Checkbox, Input, InputPassword, FormItem, Switch, message } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
+
+const { t } = useI18n();
 import accountIcon from "@iconify-icons/mdi/account";
 import passIcon from "@iconify-icons/mdi/lock";
 import lockOpenIcon from "@iconify-icons/mdi/lock-open";
@@ -179,23 +183,48 @@ const passwordCheckbox = ref<boolean>(props.modelValue.change_password || false)
 const passwordValue = ref<string>(props.modelValue.password || "");
 const confirmPassword = ref<string>(props.modelValue.confirm_password || "");
 
-const isUsernameValid = computed(() => /^[a-zA-Z0-9]+$/.test(usernameValue.value));
+watch(usernameValue, (next) => {
+  const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
+  if (clamped !== next) usernameValue.value = clamped;
+});
+watch(passwordValue, (next) => {
+  const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
+  if (clamped !== next) passwordValue.value = clamped;
+});
+watch(confirmPassword, (next) => {
+  const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
+  if (clamped !== next) confirmPassword.value = clamped;
+});
+
+// Block "user" and "passwd" independently. If either half is allowed to land
+// on disk alone, a later edit to the other half could combine into the legacy
+// duo and re-trigger is_fresh_install(). Refusing each on its own makes the
+// duo unreachable through the Settings save path.
+const isUsernameValid = computed(() => {
+  if (!/^[a-zA-Z0-9]+$/.test(usernameValue.value)) return false;
+  if (usernameValue.value.toLowerCase() === "user") return false;
+  return true;
+});
 
 const usernameErrorMessage = computed(() => {
-  if (!usernameValue.value) return "Username can't be blank!";
-  if (usernameValue.value.length > 30) return "Username can't exceed 30 characters";
-  if (!isUsernameValid.value) return "Only upper or lowercase letters and numbers";
+  if (!usernameValue.value) return t("Username can't be blank!");
+  if (usernameValue.value.length > 30) return t("Username can't exceed 30 characters");
+  if (!/^[a-zA-Z0-9]+$/.test(usernameValue.value)) return t("Only upper or lowercase letters and numbers");
+  if (usernameValue.value.toLowerCase() === "user") return t("Please choose a different username.");
   return "";
 });
 
 const isPasswordValid = computed(() => {
-  return passwordValue.value.length >= 6 && passwordValue.value.length <= 30;
+  if (passwordValue.value.length < 6 || passwordValue.value.length > 30) return false;
+  if (passwordValue.value === "passwd") return false;
+  return true;
 });
 
 const passwordErrorMessage = computed(() => {
-  if (!passwordValue.value) return "Password can't be blank!";
-  if (passwordValue.value.length < 6) return "Must be at least 6 characters long.";
-  if (passwordValue.value.length > 30) return "Password can't exceed 30 characters.";
+  if (!passwordValue.value) return t("Password can't be blank!");
+  if (passwordValue.value.length < 6) return t("Must be at least 6 characters long.");
+  if (passwordValue.value.length > 30) return t("Password can't exceed 30 characters.");
+  if (passwordValue.value === "passwd") return t("Please choose a different password.");
   return "";
 });
 
@@ -204,8 +233,8 @@ const isConfirmPasswordValid = computed(() => {
 });
 
 const confirmPasswordErrorMessage = computed(() => {
-  if (!confirmPassword.value) return "Confirm password can't be blank!";
-  if (confirmPassword.value !== passwordValue.value) return "Passwords do not match.";
+  if (!confirmPassword.value) return t("Confirm password can't be blank!");
+  if (confirmPassword.value !== passwordValue.value) return t("Passwords do not match.");
   return "";
 });
 
@@ -219,7 +248,7 @@ watch(
   (newValue) => {
     emit("update:modelValue", newValue);
   },
-  { deep: true }
+  { deep: true },
 );
 
 const csrfToken = inject<Ref<string>>("csrf-token");
@@ -245,26 +274,26 @@ const newBackupCodes = ref<string[]>([]);
 const setupDialogTitle = computed(() => {
   switch (setupStep.value) {
     case 1:
-      return "Scan QR Code";
+      return t("Scan QR Code");
     case 2:
-      return "Verify Code";
+      return t("Verify Code");
     case 3:
-      return "Backup Codes";
+      return t("Backup Codes");
     default:
-      return "Enable 2FA";
+      return t("Enable 2FA");
   }
 });
 
 const setupDialogOkText = computed(() => {
   switch (setupStep.value) {
     case 1:
-      return "I've scanned the code";
+      return t("I've scanned the code");
     case 2:
-      return "Verify & Enable";
+      return t("Verify & Enable");
     case 3:
-      return "I've saved my codes";
+      return t("I've saved my codes");
     default:
-      return "OK";
+      return t("OK");
   }
 });
 
@@ -321,7 +350,7 @@ const open2FASetupModal = async () => {
     setupStep.value = 1;
     show2FASetupModal.value = true;
   } catch (error: any) {
-    message.error("Failed to initialize 2FA setup");
+    message.error(t("Failed to initialize 2FA setup"));
   } finally {
     loading2FA.value = false;
   }
@@ -329,7 +358,7 @@ const open2FASetupModal = async () => {
 
 const verify2FASetup = async () => {
   if (verificationCode.value.length !== 6) {
-    message.warning("Please enter a 6-digit code");
+    message.warning(t("Please enter a 6-digit code"));
     return;
   }
 
@@ -345,14 +374,14 @@ const verify2FASetup = async () => {
       },
       {
         headers: { "X-HomeDock-CSRF-Token": csrfToken?.value },
-      }
+      },
     );
 
     backupCodes.value = response.data.backup_codes;
     is2FAEnabled.value = true;
     setupStep.value = 3;
   } catch (error: any) {
-    message.error(error.response?.data?.error || "Invalid verification code");
+    message.error(error.response?.data?.error || t("Invalid verification code"));
   } finally {
     verifying.value = false;
   }
@@ -371,7 +400,7 @@ const open2FADisableModal = () => {
 
 const disable2FA = async () => {
   if (!disableCode.value) {
-    message.warning("Please enter a verification code");
+    message.warning(t("Please enter a verification code"));
     return;
   }
 
@@ -382,14 +411,14 @@ const disable2FA = async () => {
       { code: disableCode.value },
       {
         headers: { "X-HomeDock-CSRF-Token": csrfToken?.value },
-      }
+      },
     );
 
     is2FAEnabled.value = false;
     show2FADisableModal.value = false;
-    message.success("Two-factor authentication has been disabled");
+    message.success(t("Two-factor authentication has been disabled"));
   } catch (error: any) {
-    message.error(error.response?.data?.error || "Failed to disable 2FA");
+    message.error(error.response?.data?.error || t("Failed to disable 2FA"));
   } finally {
     disabling.value = false;
   }
@@ -418,7 +447,7 @@ const handleRegenerateOk = () => {
 
 const regenerateBackupCodes = async () => {
   if (!regenerateCode.value) {
-    message.warning("Please enter a verification code");
+    message.warning(t("Please enter a verification code"));
     return;
   }
 
@@ -429,13 +458,13 @@ const regenerateBackupCodes = async () => {
       { code: regenerateCode.value },
       {
         headers: { "X-HomeDock-CSRF-Token": csrfToken?.value },
-      }
+      },
     );
 
     newBackupCodes.value = response.data.backup_codes;
     regenerateStep.value = 2;
   } catch (error: any) {
-    message.error(error.response?.data?.error || "Failed to regenerate backup codes");
+    message.error(error.response?.data?.error || t("Failed to regenerate backup codes"));
   } finally {
     regenerating.value = false;
   }
@@ -446,7 +475,10 @@ const regenerateBackupCodes = async () => {
 /* Animation Styles */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.5s, transform 0.5s, max-height 0.5s ease-in-out;
+  transition:
+    opacity 0.5s,
+    transform 0.5s,
+    max-height 0.5s ease-in-out;
   overflow: hidden;
   min-height: 0;
 }
@@ -478,5 +510,19 @@ const regenerateBackupCodes = async () => {
 
 .white-mode-theme :deep(.ant-checkbox-inner) {
   border-color: #d9d9d9 !important;
+}
+
+.settings-form-item-right :deep(.ant-form-item-control) {
+  align-items: flex-end;
+}
+.settings-form-item-right :deep(.ant-form-item-explain > div) {
+  justify-content: flex-end;
+}
+
+.settings-control-wrapper-stacked .settings-form-item-right :deep(.ant-form-item-control) {
+  align-items: stretch;
+}
+.settings-control-wrapper-stacked .settings-form-item-right :deep(.ant-form-item-explain > div) {
+  justify-content: flex-start;
 }
 </style>

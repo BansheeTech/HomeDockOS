@@ -11,27 +11,27 @@
       <div class="space-y-4">
         <div class="flex items-center gap-4">
           <div class="flex-1">
-            <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">Width (px)</label>
+            <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Width (px)") }}</label>
             <input v-model.number="resizeWidth" type="number" min="100" max="4000" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
           </div>
           <div class="flex-1">
-            <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">Height (px)</label>
+            <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Height (px)") }}</label>
             <input v-model.number="resizeHeight" type="number" min="100" max="4000" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
           </div>
         </div>
-        <p :class="['text-xs', themeClasses.windowTextMuted]">Current: {{ canvasWidth }} × {{ canvasHeight }}. Existing content will be preserved in the top-left corner.</p>
+        <p :class="['text-xs', themeClasses.windowTextMuted]">{{ $t("Current") }}: {{ canvasWidth }} × {{ canvasHeight }}. {{ $t("Existing content will be preserved in the top-left corner.") }}</p>
       </div>
     </AppDialog>
 
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">File</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="newCanvas">
               <div class="flex items-center gap-2">
                 <Icon :icon="fileIcon" class="w-4 h-4" />
-                <span>New</span>
+                <span>{{ $t("New") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+N</span>
               </div>
             </MenuItem>
@@ -39,7 +39,7 @@
             <MenuItem key="save" @click="saveImage">
               <div class="flex items-center gap-2">
                 <Icon :icon="saveIcon" class="w-4 h-4" />
-                <span>Save</span>
+                <span>{{ $t("Save") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+S</span>
               </div>
             </MenuItem>
@@ -47,7 +47,7 @@
             <MenuItem key="exit" @click="handleExit">
               <div class="flex items-center gap-2">
                 <Icon :icon="exitIcon" class="w-4 h-4" />
-                <span>Exit</span>
+                <span>{{ $t("Exit") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -55,20 +55,20 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">Edit</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Edit") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="undo" @click="undo" :disabled="historyIndex <= 0">
               <div class="flex items-center gap-2">
                 <Icon :icon="undoIcon" class="w-4 h-4" />
-                <span>Undo</span>
+                <span>{{ $t("Undo") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+Z</span>
               </div>
             </MenuItem>
             <MenuItem key="redo" @click="redo" :disabled="historyIndex >= history.length - 1">
               <div class="flex items-center gap-2">
                 <Icon :icon="redoIcon" class="w-4 h-4" />
-                <span>Redo</span>
+                <span>{{ $t("Redo") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+Y</span>
               </div>
             </MenuItem>
@@ -76,7 +76,7 @@
             <MenuItem key="clear" @click="clearCanvas">
               <div class="flex items-center gap-2">
                 <Icon :icon="deleteIcon" class="w-4 h-4" />
-                <span>Clear Canvas</span>
+                <span>{{ $t("Clear Canvas") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -84,13 +84,13 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">Image</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Image") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="resize" @click="openResizeDialog">
               <div class="flex items-center gap-2">
                 <Icon :icon="resizeIcon" class="w-4 h-4" />
-                <span>Resize Canvas...</span>
+                <span>{{ $t("Resize Canvas...") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -100,7 +100,7 @@
 
     <div class="toolbar flex items-center gap-2 px-2 py-1.5 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
       <div class="flex items-center gap-0.5">
-        <button v-for="tool in tools" :key="tool.id" @click="currentTool = tool.id" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, currentTool === tool.id ? 'ring-2 ring-blue-500 bg-blue-500/20' : '']" class="tool-btn p-1.5 rounded transition-colors" :title="tool.name">
+        <button v-for="tool in tools" :key="tool.id" @click="currentTool = tool.id" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, currentTool === tool.id ? 'ring-2 ring-blue-500 bg-blue-500/20' : '']" class="tool-btn p-1.5 rounded transition-colors" :title="$t(tool.name)">
           <Icon :icon="tool.icon" class="tool-icon" />
         </button>
       </div>
@@ -132,27 +132,27 @@
       <canvas ref="previewCanvasRef" class="absolute top-0 left-0 pointer-events-none"></canvas>
     </div>
 
-    <StatusBar :icon="brushIcon" :message="tools.find((t) => t.id === currentTool)?.name || 'Pencil'" :info="`${canvasWidth} × ${canvasHeight}${lastSaved ? ' · Saved: ' + lastSaved : ''}`">
+    <StatusBar :icon="brushIcon" :message="$t(tools.find((t) => t.id === currentTool)?.name || 'Pencil')" :info="`${canvasWidth} × ${canvasHeight}${lastSaved ? ' · ' + $t('Saved') + ': ' + lastSaved : ''}`">
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="brushIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Brusher</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Brusher") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>A simple drawing application for quick sketches and annotations.</p>
+            <p>{{ $t("A simple drawing application for quick sketches and annotations.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="pencilIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Tools:</strong> Pencil, Eraser, Line, Rectangle, and Circle tools available in the toolbar.</p>
+                <p>{{ $t("Tools: Pencil, Eraser, Line, Rectangle, and Circle tools available in the toolbar.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="undoIcon" class="w-3.5 h-3.5 mt-0.5 text-orange-500 flex-shrink-0" />
-                <p><strong>Undo/Redo:</strong> Use Ctrl+Z to undo and Ctrl+Y to redo your changes.</p>
+                <p>{{ $t("Undo/Redo: Use Ctrl+Z to undo and Ctrl+Y to redo your changes.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="saveIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>Save:</strong> Images are saved to Storage/Photos as PNG files.</p>
+                <p>{{ $t("Save: Images are saved to Storage/Photos as PNG files.") }}</p>
               </div>
             </div>
           </div>
@@ -166,6 +166,7 @@
 import axios from "axios";
 
 import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { Dropdown, Menu, MenuItem, MenuDivider, message } from "ant-design-vue";
 
@@ -194,6 +195,7 @@ import imageIcon from "@iconify-icons/mdi/image";
 import exitIcon from "@iconify-icons/mdi/exit-to-app";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
 
@@ -563,7 +565,7 @@ async function saveImage() {
     formData.append("file", blob, filename);
     formData.append("path", "Photos");
 
-    await axios.post("/api/storage/upload", formData, {
+    await axios.post("/api/storage/edit", formData, {
       headers: {
         "X-HomeDock-CSRF-Token": csrfToken.value,
         "Content-Type": "multipart/form-data",
@@ -572,7 +574,7 @@ async function saveImage() {
 
     lastSaved.value = new Date().toLocaleTimeString();
     hasUnsavedChanges.value = false;
-    message.success(`Saved to Storage/Photos/${filename}`);
+    message.success(t("Saved to Storage/Photos/{filename}", { filename }));
   } catch (error) {
     console.error("Failed to save image:", error);
     message.error("Failed to save image");
@@ -720,7 +722,7 @@ watch(
       loadImageFromBuffer(imgFile);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function handleIncomingFile(event: CustomEvent) {

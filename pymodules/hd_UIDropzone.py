@@ -7,8 +7,8 @@ https://www.banshee.pro
 
 import io
 import os
-import shutil
 import time
+import shutil
 import zipfile
 import hashlib
 
@@ -17,7 +17,16 @@ from flask_login import current_user, login_required
 
 from pymodules.hd_FunctionsGlobals import dropzone_folder, dropzone_folder_legacy
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
-from pymodules.hd_DropZoneEncryption import save_user_file, load_user_file
+from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, cleanup, is_temp_file, ChunkedUploadError
+from pymodules.hd_DropZoneEncryption import (
+    save_user_file,
+    load_user_file,
+    init_streaming_encryption,
+    encrypt_streaming_chunk,
+    finalize_streaming_encryption,
+    abort_streaming_encryption,
+    AES_GCM_NONCE_BYTES,
+)
 
 MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
@@ -130,7 +139,7 @@ def list_files():
 
 
 @login_required
-def upload_file():
+def edit_file():
     user_name = current_user.id.lower()
     user_dir = os.path.join(dropzone_folder, user_name)
 
@@ -194,6 +203,181 @@ def upload_file():
         if os.path.exists(encrypted_file_path):
             os.remove(encrypted_file_path)
         return jsonify({"error": "Error saving file"}), 500
+
+
+def _resolve_dropzone_target(user_dir, target_path, original_filename):
+    target_dir = validate_safe_path(user_dir, target_path) if target_path else user_dir
+    if os.path.exists(target_dir):
+        validate_no_symlinks(target_dir, user_dir)
+    safe_filename = validate_filename(original_filename)
+    return target_dir, safe_filename
+
+
+@login_required
+def upload_init():
+    user_name = current_user.id.lower()
+    user_dir = os.path.join(dropzone_folder, user_name)
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir, mode=0o700, exist_ok=True)
+
+    body = request.get_json(silent=True) or {}
+    filename = body.get("filename")
+    total_size = body.get("total_size")
+    total_chunks = body.get("total_chunks")
+    target_path = (body.get("target_path") or "").strip()
+
+    try:
+        target_dir, _safe = _resolve_dropzone_target(user_dir, target_path, filename or "")
+    except ValueError:
+        return jsonify({"error": "invalid_path"}), 400
+
+    if not os.path.exists(target_dir):
+        try:
+            os.makedirs(target_dir, mode=0o700, exist_ok=True)
+        except OSError:
+            return jsonify({"error": "cannot_create_target"}), 500
+        try:
+            validate_no_symlinks(target_dir, user_dir)
+        except ValueError:
+            return jsonify({"error": "security_violation"}), 403
+
+    try:
+        result = init_upload(user_name, "dropzone", filename, total_size, total_chunks, target_path, assembled_dir=target_dir)
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    upload_id = result["upload_id"]
+
+    try:
+        nonce = init_streaming_encryption(user_name, upload_id)
+    except Exception:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "encryption_init_failed"}), 500
+
+    manifest = get_manifest(user_name, upload_id, expected_kind="dropzone")
+    assembled_path = manifest["assembled_path"]
+    try:
+        fd = os.open(assembled_path, os.O_WRONLY)
+        try:
+            os.pwrite(fd, nonce, 0)
+        finally:
+            os.close(fd)
+    except OSError:
+        abort_streaming_encryption(upload_id)
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "cannot_write_nonce"}), 500
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def upload_chunk():
+    user_name = current_user.id.lower()
+    upload_id = request.args.get("upload_id", "")
+    try:
+        chunk_index = int(request.args.get("chunk_index", ""))
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid_chunk_index"}), 400
+
+    raw = request.get_data(cache=False, as_text=False)
+
+    def _encrypt(plaintext):
+        return encrypt_streaming_chunk(upload_id, plaintext)
+
+    try:
+        result = write_chunk(
+            user_name,
+            upload_id,
+            chunk_index,
+            raw,
+            transform=_encrypt,
+            prefix_size=AES_GCM_NONCE_BYTES,
+            require_in_order=True,
+        )
+    except KeyError:
+        return jsonify({"error": "no_active_stream"}), 400
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def upload_finalize():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id", "")
+
+    try:
+        manifest = get_manifest(user_name, upload_id, expected_kind="dropzone")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    if len(manifest["received_chunks"]) != manifest["total_chunks"]:
+        return jsonify({"error": "incomplete_upload"}), 400
+
+    user_dir = os.path.join(dropzone_folder, user_name)
+    target_path = (manifest.get("target_path") or "").strip()
+    filename = manifest.get("filename") or ""
+
+    try:
+        target_dir, safe_filename = _resolve_dropzone_target(user_dir, target_path, filename)
+    except ValueError:
+        abort_streaming_encryption(upload_id)
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "invalid_path"}), 400
+
+    assembled_path = manifest["assembled_path"]
+
+    try:
+        tag = finalize_streaming_encryption(upload_id)
+    except KeyError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "no_active_stream"}), 400
+
+    try:
+        fd = os.open(assembled_path, os.O_WRONLY)
+        try:
+            tag_offset = AES_GCM_NONCE_BYTES + manifest["total_size"]
+            os.pwrite(fd, tag, tag_offset)
+        finally:
+            os.close(fd)
+    except OSError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "cannot_write_tag"}), 500
+
+    final_path = os.path.join(target_dir, safe_filename)
+
+    try:
+        os.replace(assembled_path, final_path)
+    except OSError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "save_failed"}), 500
+
+    cleanup(user_name, upload_id)
+
+    if target_path:
+        relative_file_path = os.path.join(target_path, safe_filename).replace("\\", "/")
+    else:
+        relative_file_path = safe_filename
+
+    return jsonify({"success": True, "filename": safe_filename, "path": relative_file_path})
+
+
+@login_required
+def upload_abort():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id") or request.args.get("upload_id", "")
+
+    try:
+        get_manifest(user_name, upload_id, expected_kind="dropzone")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    abort_streaming_encryption(upload_id)
+    cleanup(user_name, upload_id)
+    return jsonify({"success": True})
 
 
 @login_required
@@ -470,6 +654,8 @@ def download_multiple():
                     for root, dirs, files in os.walk(file_path):
                         dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
                         for file in files:
+                            if is_temp_file(file):
+                                continue
                             file_count += 1
                             if file_count > MAX_FILES_FOR_ZIP:
                                 return jsonify({"error": "Too many files to download"}), 400

@@ -15,6 +15,7 @@ def shieldmode():
     config = read_config()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    selected_language = config["selected_language"]
     shield_mode_time = session.get("shield_mode_time", None)
 
-    return render_template("shieldmode.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, shield_mode_time=shield_mode_time, nonce=g.get("nonce", ""))
+    return render_template("shieldmode.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, selected_language=selected_language, shield_mode_time=shield_mode_time, nonce=g.get("nonce", ""))

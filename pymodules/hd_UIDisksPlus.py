@@ -7,19 +7,19 @@ https://www.banshee.pro
 
 import io
 import os
-import shutil
 import time
+import shutil
 import zipfile
 import hashlib
 
 import psutil
 from flask import send_file, jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from pymodules.hd_FunctionsDiskEnum import find_disk_by_id, enumerate_disks
-from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
+from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks
 from pymodules.hd_DisksPlusAuth import authorize_request, matching_danger_zone, is_danger_zone_path
-
+from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
 
 MAX_FILES_FOR_ZIP = 50000
 MAX_TIME_FOR_ZIP = 30.0
@@ -155,6 +155,8 @@ def disksplus_list_files():
         return jsonify({"error": "read_failed"}), 500
 
     for item in entries:
+        if is_temp_file(item):
+            continue
         item_path = os.path.join(current_dir, item)
         if os.path.normpath(item_path) in remote_mounts:
             continue
@@ -244,6 +246,8 @@ def _zip_directory(dir_path, base_dir):
             for root, dirs, files in os.walk(dir_path):
                 dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.normpath(os.path.join(root, d)) not in remote_mounts]
                 for file in files:
+                    if is_temp_file(file):
+                        continue
                     file_count += 1
                     if file_count > MAX_FILES_FOR_ZIP:
                         return jsonify({"error": "too_many_files"}), 400
@@ -268,7 +272,7 @@ def _zip_directory(dir_path, base_dir):
 
 
 @login_required
-def disksplus_upload_file():
+def disksplus_edit_file():
     disk, err = _resolve_disk()
     if err:
         return err
@@ -328,6 +332,153 @@ def disksplus_upload_file():
             except OSError:
                 pass
         return jsonify({"error": "save_failed"}), 500
+
+
+def _resolve_disksplus_target(disk, target_path, original_filename):
+    base_dir = disk["mountpoint"]
+    target_dir = _build_absolute(base_dir, target_path) if target_path else os.path.realpath(os.path.abspath(base_dir))
+    if os.path.exists(target_dir):
+        if not os.path.isdir(target_dir):
+            raise ValueError("target_not_a_directory")
+        validate_no_symlinks(target_dir, base_dir)
+    safe_filename = validate_filename(original_filename)
+    return base_dir, target_dir, safe_filename
+
+
+@login_required
+def disksplus_upload_init():
+    disk, err = _resolve_disk()
+    if err:
+        return err
+
+    body = request.get_json(silent=True) or {}
+    filename = body.get("filename")
+    total_size = body.get("total_size")
+    total_chunks = body.get("total_chunks")
+    target_path = (body.get("target_path") or "").strip()
+
+    try:
+        base_dir, target_dir, _safe = _resolve_disksplus_target(disk, target_path, filename or "")
+    except ValueError as ve:
+        msg = str(ve) if str(ve) in ("target_not_a_directory",) else "invalid_path"
+        return jsonify({"error": msg}), 400
+
+    access_err = _check_access(target_dir)
+    if access_err:
+        return access_err
+
+    if not os.path.exists(target_dir):
+        try:
+            os.makedirs(target_dir, exist_ok=True)
+        except OSError:
+            return jsonify({"error": "cannot_create_target"}), 500
+        try:
+            validate_no_symlinks(target_dir, base_dir)
+        except ValueError:
+            return jsonify({"error": "security_violation"}), 403
+
+    user_name = current_user.id.lower()
+    try:
+        result = init_upload(user_name, "disksplus", filename, total_size, total_chunks, target_path, assembled_dir=target_dir, extra={"disk_id": disk["id"]})
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def disksplus_upload_chunk():
+    ok, code, status = authorize_request(None)
+    if not ok:
+        return jsonify({"error": code}), status or 401
+
+    user_name = current_user.id.lower()
+    upload_id = request.args.get("upload_id", "")
+    try:
+        chunk_index = int(request.args.get("chunk_index", ""))
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid_chunk_index"}), 400
+
+    raw = request.get_data(cache=False, as_text=False)
+
+    try:
+        result = write_chunk(user_name, upload_id, chunk_index, raw)
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def disksplus_upload_finalize():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id", "")
+
+    try:
+        manifest = get_manifest(user_name, upload_id, expected_kind="disksplus")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    disk_id = (manifest.get("extra") or {}).get("disk_id")
+    if not disk_id:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "missing_disk"}), 400
+
+    disk = find_disk_by_id(disk_id)
+    if disk is None:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "disk_not_found"}), 404
+    mountpoint = disk.get("mountpoint") or ""
+    if not mountpoint or not os.path.isdir(mountpoint):
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "disk_not_mounted"}), 404
+
+    target_path = (manifest.get("target_path") or "").strip()
+    filename = manifest.get("filename") or ""
+
+    try:
+        base_dir, target_dir, safe_filename = _resolve_disksplus_target(disk, target_path, filename)
+    except ValueError as ve:
+        cleanup(user_name, upload_id)
+        msg = str(ve) if str(ve) in ("target_not_a_directory",) else "invalid_path"
+        return jsonify({"error": msg}), 400
+
+    access_err = _check_access(target_dir)
+    if access_err:
+        cleanup(user_name, upload_id)
+        return access_err
+
+    final_path = os.path.join(target_dir, safe_filename)
+
+    try:
+        assemble_to_path(user_name, upload_id, final_path)
+    except ChunkedUploadError as e:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": e.code, "message": e.message}), e.status
+    except OSError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "save_failed"}), 500
+
+    cleanup(user_name, upload_id)
+
+    rel_path = os.path.relpath(final_path, base_dir).replace("\\", "/")
+    return jsonify({"success": True, "filename": safe_filename, "path": rel_path})
+
+
+@login_required
+def disksplus_upload_abort():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id") or request.args.get("upload_id", "")
+
+    try:
+        get_manifest(user_name, upload_id, expected_kind="disksplus")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    cleanup(user_name, upload_id)
+    return jsonify({"success": True})
 
 
 @login_required
@@ -540,6 +691,8 @@ def disksplus_download_multiple():
                     for root, dirs, files in os.walk(abs_path):
                         dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.normpath(os.path.join(root, d)) not in remote_mounts]
                         for file in files:
+                            if is_temp_file(file):
+                                continue
                             file_count += 1
                             if file_count > MAX_FILES_FOR_ZIP:
                                 return jsonify({"error": "too_many_files"}), 400

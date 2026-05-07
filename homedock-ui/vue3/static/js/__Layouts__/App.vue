@@ -50,11 +50,11 @@
         <div v-if="isError" class="flex flex-col items-center space-y-2">
           <a target="_blank" href="https://docs.homedock.cloud/troubleshooting/app-not-available/" :class="[themeClasses.appDocsMessage]" class="flex items-center text-xs px-3 py-1 rounded-full transition duration-300">
             <Icon :icon="cursorDefaultClickIcon" class="text-xs mr-1" />
-            <span>Why is this app not loading?</span>
+            <span>{{ $t("Why is this app not loading?") }}</span>
           </a>
           <button @click="retryConnection" :class="[themeClasses.appDocsMessage]" class="flex items-center text-xs px-3 py-1 rounded-full transition duration-300 cursor-pointer">
             <Icon :icon="refreshIcon" class="text-xs mr-1" />
-            <span>Try Again</span>
+            <span>{{ $t("Try Again") }}</span>
           </button>
         </div>
       </Transition>
@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { inject, onMounted, ref, computed } from "vue";
 import axios from "axios";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import type { PortData } from "../__Types__/PortData";
@@ -88,6 +89,7 @@ import StatusFooter from "../__Components__/StatusFooter.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 
 const csrfToken = ref<string>(document.querySelector('meta[name="homedock_csrf_token"]')?.getAttribute("content") || "");
 
@@ -105,7 +107,7 @@ const isError = ref(false);
 
 const isHttps = ref(false);
 const errorMessage = ref<string | null>(null);
-const statusMessage = ref<string>("Initializing...");
+const statusMessage = ref<string>(t("Initializing..."));
 
 const maxRetries = 10;
 const retryCount = ref(0);
@@ -141,7 +143,7 @@ const resolveAppIcon = async (slug: string) => {
 
 if (appSlug) resolveAppIcon(appSlug);
 
-const steps = ["Connecting", "Verifying", "Launching"];
+const steps = computed(() => [t("Connecting"), t("Verifying"), t("Launching")]);
 
 const animatedStep = ref(0);
 
@@ -153,8 +155,8 @@ const currentStep = computed(() => {
 });
 
 const statusPillText = computed(() => {
-  if (isSuccess.value) return "Connection established";
-  if (isError.value) return `App not available on port ${port}`;
+  if (isSuccess.value) return t("Connection established");
+  if (isError.value) return t("App not available on port {port}", { port });
   if (errorMessage.value) return errorMessage.value;
   return null;
 });
@@ -186,12 +188,12 @@ const checkAppAvailability = async () => {
   if (!port) {
     isChecking.value = false;
     isError.value = true;
-    errorMessage.value = "Not valid port specified";
-    statusMessage.value = "Invalid app port";
+    errorMessage.value = t("Not valid port specified");
+    statusMessage.value = t("Invalid app port");
     return;
   }
 
-  statusMessage.value = "Checking app availability...";
+  statusMessage.value = t("Checking app availability...");
 
   try {
     const response = await axios.post(
@@ -209,7 +211,7 @@ const checkAppAvailability = async () => {
       isChecking.value = false;
       isSuccess.value = true;
       errorMessage.value = null;
-      statusMessage.value = "Connection established";
+      statusMessage.value = t("Connection established");
 
       animatedStep.value = 1;
       setTimeout(() => {
@@ -232,16 +234,16 @@ const checkAppAvailability = async () => {
     }
   } catch (error) {
     retryCount.value++;
-    errorMessage.value = `Retrying ${retryCount.value}/${maxRetries}`;
-    statusMessage.value = `Retrying ${retryCount.value}/${maxRetries}`;
+    errorMessage.value = t("Retrying {n}/{total}", { n: retryCount.value, total: maxRetries });
+    statusMessage.value = t("Retrying {n}/{total}", { n: retryCount.value, total: maxRetries });
 
     if (retryCount.value < maxRetries) {
       setTimeout(checkAppAvailability, 2500);
     } else {
       isChecking.value = false;
       isError.value = true;
-      errorMessage.value = `App not available on ${port}`;
-      statusMessage.value = "Application unavailable";
+      errorMessage.value = t("App not available on {port}", { port });
+      statusMessage.value = t("Application unavailable");
     }
   }
 };
@@ -253,7 +255,7 @@ const retryConnection = () => {
   isSuccess.value = false;
   isError.value = false;
   errorMessage.value = null;
-  statusMessage.value = "Checking app availability...";
+  statusMessage.value = t("Checking app availability...");
   checkAppAvailability();
 };
 

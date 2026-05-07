@@ -35,6 +35,7 @@ export default defineConfig(({ mode }) => ({
         global: resolve(__dirname, "homedock-ui/vue3/static/css/global.css"),
         __desktop__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"),
         __login__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__login__.ts"),
+        __onboarding__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__onboarding__.ts"),
         __limited__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__limited__.ts"),
         __shieldmode__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__shieldmode__.ts"),
         __errorcode__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts"),

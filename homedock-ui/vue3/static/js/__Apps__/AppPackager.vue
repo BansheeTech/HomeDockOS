@@ -10,7 +10,7 @@
         <template #label="{ payload }">
           <div class="flex items-center justify-center gap-1.5 px-1 py-1">
             <Icon :icon="payload.icon" class="w-4 h-4 flex-shrink-0" />
-            <span>{{ payload.label }}</span>
+            <span>{{ $t(payload.label) }}</span>
           </div>
         </template>
       </Segmented>
@@ -23,7 +23,7 @@
             <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
               <Icon :icon="fileCodeIcon" class="w-3 h-3 text-white" />
             </div>
-            <span>Source Files</span>
+            <span>{{ $t("Source Files") }}</span>
           </h3>
 
           <div class="space-y-2">
@@ -35,10 +35,10 @@
                   </div>
                   <div class="flex-1 min-w-0 text-left">
                     <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
-                      {{ composeFile ? composeFile.name : "Docker Compose *" }}
+                      {{ composeFile ? composeFile.name : $t("Docker Compose *") }}
                     </p>
                     <p :class="[composeFile && parsedData.image ? themeClasses.packagerSuccessText : themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">
-                      {{ composeFile && parsedData.image ? `Detected: ${parsedData.image}` : "Click or drag .yml/.yaml file here" }}
+                      {{ composeFile && parsedData.image ? `${$t("Detected")}: ${parsedData.image}` : $t("Click or drag .yml/.yaml file here") }}
                     </p>
                   </div>
                   <div class="flex-shrink-0">
@@ -48,7 +48,7 @@
                 <div v-if="composeFile" class="px-4 pb-3">
                   <button @click.stop="openComposeEditor" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
                     <Icon :icon="editIcon" class="w-3.5 h-3.5" />
-                    <span>Edit Compose</span>
+                    <span>{{ $t("Edit Compose") }}</span>
                   </button>
                 </div>
               </div>
@@ -62,10 +62,10 @@
                 </div>
                 <div class="flex-1 min-w-0 text-left">
                   <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
-                    {{ iconFile ? iconFile.name : "App Icon *" }}
+                    {{ iconFile ? iconFile.name : $t("App Icon *") }}
                   </p>
                   <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ iconFile ? ".jpg or .png" : "Click or drag image here (.jpg, .png)" }}
+                    {{ iconFile ? $t(".jpg or .png") : $t("Click or drag image here (.jpg, .png)") }}
                   </p>
                 </div>
                 <div class="flex-shrink-0">
@@ -79,55 +79,55 @@
             <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgPurple">
               <Icon :icon="shapeIcon" class="w-3 h-3 text-white" />
             </div>
-            <span>Package Metadata</span>
+            <span>{{ $t("Package Metadata") }}</span>
           </h3>
 
           <div class="grid packager-grid gap-2">
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">App Slug *</label>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("App Slug *") }}</label>
                 <Input v-model:value="newPackage.slug" placeholder="e.g., my-awesome-app" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                <p v-if="newPackage.slug && !isValidSlug(newPackage.slug)" :class="['text-[10px] mt-0.5', themeClasses.packagerErrorText]">Only lowercase letters, numbers and dashes. Cannot start or end with a dash.</p>
+                <p v-if="newPackage.slug && !isValidSlug(newPackage.slug)" :class="['text-[10px] mt-0.5', themeClasses.packagerErrorText]">{{ $t("Only lowercase letters, numbers and dashes. Cannot start or end with a dash.") }}</p>
               </div>
             </div>
 
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">App Name *</label>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("App Name *") }}</label>
                 <Input v-model:value="newPackage.display_name" placeholder="e.g., My Awesome App" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
             </div>
 
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Category *</label>
-                <Select v-model:value="newPackage.category" placeholder="Select Category" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`">
-                  <SelectOption value="AI">AI</SelectOption>
-                  <SelectOption value="Developer Tools">Developer Tools</SelectOption>
-                  <SelectOption value="Files & Productivity">Files & Productivity</SelectOption>
-                  <SelectOption value="Gaming">Gaming</SelectOption>
-                  <SelectOption value="Home & Automation">Home & Automation</SelectOption>
-                  <SelectOption value="Media">Media</SelectOption>
-                  <SelectOption value="Networking">Networking</SelectOption>
-                  <SelectOption value="Social">Social</SelectOption>
-                  <SelectOption value="Web Development">Web Development</SelectOption>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Category *") }}</label>
+                <Select v-model:value="newPackage.category" :placeholder="$t('Select Category')" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`">
+                  <SelectOption value="AI">{{ $t("AI") }}</SelectOption>
+                  <SelectOption value="Developer Tools">{{ $t("Developer Tools") }}</SelectOption>
+                  <SelectOption value="Files & Productivity">{{ $t("Files & Productivity") }}</SelectOption>
+                  <SelectOption value="Gaming">{{ $t("Gaming") }}</SelectOption>
+                  <SelectOption value="Home & Automation">{{ $t("Home & Automation") }}</SelectOption>
+                  <SelectOption value="Media">{{ $t("Media") }}</SelectOption>
+                  <SelectOption value="Networking">{{ $t("Networking") }}</SelectOption>
+                  <SelectOption value="Social">{{ $t("Social") }}</SelectOption>
+                  <SelectOption value="Web Development">{{ $t("Web Development") }}</SelectOption>
                 </Select>
               </div>
             </div>
 
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Type *</label>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Type *") }}</label>
                 <Input v-model:value="newPackage.type" placeholder="e.g., Media Server" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
             </div>
 
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Docker Image *</label>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Docker Image *") }}</label>
                 <div class="flex gap-2">
                   <Input v-model:value="newPackage.docker_image" placeholder="e.g., myuser/myapp" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
-                  <button v-if="parsedData.image" @click="newPackage.docker_image = parsedData.image.split(':')[0]" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" title="Use detected image">
+                  <button v-if="parsedData.image" @click="newPackage.docker_image = parsedData.image.split(':')[0]" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" :title="$t('Use detected image')">
                     <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -136,10 +136,10 @@
 
             <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Version *</label>
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Version *") }}</label>
                 <div class="flex gap-2">
                   <Input v-model:value="newPackage.version" placeholder="e.g., latest" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
-                  <button v-if="parsedData.tag" @click="newPackage.version = parsedData.tag" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" title="Use detected version">
+                  <button v-if="parsedData.tag" @click="newPackage.version = parsedData.tag" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" :title="$t('Use detected version')">
                     <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -148,15 +148,15 @@
 
             <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Creator (you) *</label>
-                <Input v-model:value="newPackage.author" placeholder="Your name or organization" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Creator (you) *") }}</label>
+                <Input v-model:value="newPackage.author" :placeholder="$t('Your name or organization')" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
               </div>
             </div>
 
             <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
               <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Description *</label>
-                <Input v-model:value="newPackage.description" placeholder="Describe what this application does..." :maxlength="130" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
+                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Description *") }}</label>
+                <Input v-model:value="newPackage.description" :placeholder="$t('Describe what this application does...')" :maxlength="130" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
                 <p :class="['text-[10px] mt-0.5 text-right', themeClasses.packagerTextMuted]">{{ newPackage.description.length }}/130</p>
               </div>
             </div>
@@ -167,7 +167,7 @@
               <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgOrange">
                 <Icon :icon="accountKeyIcon" class="w-3 h-3 text-white" />
               </div>
-              <span>Add Default Credentials</span>
+              <span>{{ $t("Add Default Credentials") }}</span>
             </span>
             <Switch v-model:checked="hasDefaultCredentials" :class="themeClasses.scopeSelector" />
           </div>
@@ -177,18 +177,18 @@
               <div class="grid packager-grid gap-2">
                 <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
                   <div class="px-3 py-3">
-                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Username</label>
+                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Username") }}</label>
                     <Input v-model:value="newPackage.default_username" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
                   </div>
                 </div>
                 <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
                   <div class="px-3 py-3">
-                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Password</label>
+                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Password") }}</label>
                     <Input v-model:value="newPackage.default_password" placeholder="e.g., admin123" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
                   </div>
                 </div>
               </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">If this app ships with hardcoded login credentials, specify them here so users know how to sign in.</p>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("If this app ships with hardcoded login credentials, specify them here so users know how to sign in.") }}</p>
             </div>
           </Transition>
 
@@ -197,7 +197,7 @@
               <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
                 <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
               </div>
-              <span>Add Suggested Port</span>
+              <span>{{ $t("Add Suggested Port") }}</span>
             </span>
             <Switch v-model:checked="hasSuggestedPort" :class="themeClasses.scopeSelector" />
           </div>
@@ -206,11 +206,11 @@
             <div v-if="hasSuggestedPort" class="space-y-2">
               <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
                 <div class="px-3 py-3">
-                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">Port</label>
+                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Port") }}</label>
                   <Input v-model:value="newPackage.suggested_port" placeholder="e.g., 8080" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
                 </div>
               </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">For apps using <code class="font-mono">network_mode: host</code> that don't expose ports explicitly. HomeDock OS will use this port for the access button when no port mappings are detected.</p>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("For apps using network_mode: host that don't expose ports explicitly. HomeDock OS will use this port for the access button when no port mappings are detected.") }}</p>
             </div>
           </Transition>
 
@@ -219,7 +219,7 @@
               <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
                 <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
               </div>
-              <span>Add Suggested Trail</span>
+              <span>{{ $t("Add Suggested Trail") }}</span>
             </span>
             <Switch v-model:checked="hasSuggestedTrail" :class="themeClasses.scopeSelector" />
           </div>
@@ -228,26 +228,26 @@
             <div v-if="hasSuggestedTrail" class="space-y-2">
               <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
                 <div class="px-3 py-3">
-                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">URL Trail</label>
+                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("URL Trail") }}</label>
                   <Input v-model:value="newPackage.suggested_trail" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
                 </div>
               </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">Path suffix appended after the port in the access URL. For apps that don't serve their UI at root — e.g., Pi-hole responds at <code class="font-mono">{port}/admin</code>, Plex at <code class="font-mono">{port}/web</code>.</p>
+              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("Path suffix appended after the port in the access URL. For apps that don't serve their UI at root.") }}</p>
             </div>
           </Transition>
 
           <button @click="createPackage" :disabled="!canCreate || isCreating" :class="['w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center gap-2', canCreate && !isCreating ? `${themeClasses.packagerSuccessButtonBg} ${themeClasses.packagerSuccessButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer` : `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed`]">
             <Icon :icon="isCreating ? loadingIcon : downloadIcon" :class="['w-4 h-4', isCreating ? 'animate-spin' : '']" />
-            {{ isCreating ? "Creating Package..." : "Create & Download .hds Package" }}
+            {{ isCreating ? $t("Creating Package...") : $t("Create & Download .hds Package") }}
           </button>
         </div>
 
         <div v-else-if="activeTab === 'stores'" key="stores" class="px-4 py-4 space-y-4">
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
             <Icon :icon="storePlusIcon" class="w-4 h-4" />
-            <span>Known Stores</span>
+            <span>{{ $t("Known Stores") }}</span>
             <div :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border">
-              <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">External</span>
+              <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("External") }}</span>
             </div>
           </h3>
 
@@ -276,11 +276,11 @@
                   <input v-model="thirdPartyUrl" :disabled="isImportingThirdPartyUrl" type="url" placeholder="https://github.com/…/archive/refs/heads/master.zip" :class="[themeClasses.windowTitleTextFocused]" class="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-40 disabled:opacity-50" @keydown.enter="importFromThirdParty" />
                   <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
                     <template v-if="thirdPartyProgress">{{ thirdPartyProgress }}</template>
-                    <template v-else>Paste any compatible Casa store ZIP URL</template>
+                    <template v-else>{{ $t("Paste any compatible Casa store ZIP URL") }}</template>
                   </p>
                 </div>
                 <button v-if="thirdPartyUrl.trim() && !isImportingThirdPartyUrl" @click="importFromThirdParty" :class="[themeClasses.settingsIconBgPurple, 'hover:opacity-90']" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-opacity">
-                  <span>Import</span>
+                  <span>{{ $t("Import") }}</span>
                 </button>
               </div>
             </div>
@@ -288,7 +288,7 @@
 
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
             <Icon :icon="fileCodeIcon" class="w-4 h-4" />
-            <span>Migrate Compose</span>
+            <span>{{ $t("Migrate Compose") }}</span>
           </h3>
 
           <div>
@@ -299,10 +299,10 @@
                 </div>
                 <div class="flex-1 min-w-0 text-left">
                   <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
-                    {{ isMigratingSingle ? "Migrating compose..." : "Migrate Casa Compose" }}
+                    {{ isMigratingSingle ? $t("Migrating compose...") : $t("Migrate Casa Compose") }}
                   </p>
                   <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ isMigratingSingle ? migrateProgress || "Please wait" : "Drop a compatible .yml compose file here or click to browse" }}
+                    {{ isMigratingSingle ? migrateProgress || $t("Please wait") : $t("Drop a compatible .yml compose file here or click to browse") }}
                   </p>
                 </div>
                 <div class="flex-shrink-0">
@@ -314,7 +314,7 @@
 
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
             <Icon :icon="shapeIcon" class="w-4 h-4" />
-            <span>How it works</span>
+            <span>{{ $t("How it works") }}</span>
           </h3>
 
           <div class="space-y-2">
@@ -324,8 +324,8 @@
                   <Icon :icon="checkIcon" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Automatic Conversion</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Metadata, icons, volumes, networks, and ports are automatically adapted for HomeDock OS. You preview and select which apps to import before anything is installed. Compose files are sanitized to remove fingerprinting and platform-specific extensions.</p>
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Automatic Conversion") }}</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Metadata, icons, volumes, networks, and ports are automatically adapted for HomeDock OS. You preview and select which apps to import before anything is installed. Compose files are sanitized to remove fingerprinting and platform-specific extensions.") }}</p>
                 </div>
               </div>
             </div>
@@ -336,8 +336,8 @@
                   <Icon :icon="packageIcon" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Package Manager</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Imported apps land in the Package Manager as .hds packages. From there you can install them from the App Store, export individually, or bundle them into .hdstore files to share entire collections with other users or across devices.</p>
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Package Manager") }}</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Imported apps land in the Package Manager as .hds packages. From there you can install them from the App Store, export individually, or bundle them into .hdstore files to share entire collections with other users or across devices.") }}</p>
                 </div>
               </div>
             </div>
@@ -348,8 +348,8 @@
                   <Icon :icon="shieldCheckIcon" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Open Format</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Both .hds and .hdstore files are standard ZIP archives signed with SHA-256 hashes to prevent tampering. They are not proprietary, you can always unzip them to inspect their contents or recover the original compose files.</p>
+                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Open Format") }}</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Both .hds and .hdstore files are standard ZIP archives signed with SHA-256 hashes to prevent tampering. They are not proprietary, you can always unzip them to inspect their contents or recover the original compose files.") }}</p>
                 </div>
               </div>
             </div>
@@ -359,7 +359,7 @@
         <div v-else key="manager" class="px-4 py-4 space-y-4">
           <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-4" :class="themeClasses.explorerGroupHeader">
             <Icon :icon="packageIcon" class="w-4 h-4" />
-            <span>Available Packages</span>
+            <span>{{ $t("Available Packages") }}</span>
             <span class="opacity-50 font-normal">{{ packageSearch && filteredExternalApps.length !== externalApps.length ? `(${filteredExternalApps.length}/${externalApps.length})` : `(${externalApps.length})` }}</span>
           </h3>
 
@@ -369,8 +369,8 @@
                 <Icon :icon="sparklesIcon" class="w-5 h-5 text-white" />
               </div>
               <div class="flex-1 min-w-0">
-                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Create your first .hds application package</p>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Use the Package Generator to get started</p>
+                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Create your first .hds application package") }}</p>
+                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Use the Package Generator to get started") }}</p>
               </div>
               <div class="flex-shrink-0">
                 <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
@@ -386,10 +386,10 @@
                 </div>
                 <div class="flex-1 min-w-0 text-left">
                   <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
-                    {{ isUploading ? "Importing package..." : "Import .hds Package" }}
+                    {{ isUploading ? $t("Importing package...") : $t("Import .hds Package") }}
                   </p>
                   <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ isUploading ? "Please wait" : "Drop .hds files here or click to browse" }}
+                    {{ isUploading ? $t("Please wait") : $t("Drop .hds files here or click to browse") }}
                   </p>
                 </div>
                 <div class="flex-shrink-0">
@@ -401,7 +401,7 @@
 
           <div v-if="externalApps.length > 5" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden flex items-center gap-2 px-3 py-2">
             <Icon :icon="magnifyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-4 h-4 flex-shrink-0" />
-            <input v-model="packageSearch" type="text" placeholder="Search packages by name, author or category..." :class="[themeClasses.windowTitleTextFocused]" class="flex-1 bg-transparent text-xs outline-none placeholder:opacity-50" />
+            <input v-model="packageSearch" type="text" :placeholder="$t('Search packages by name, author or category...')" :class="[themeClasses.windowTitleTextFocused]" class="flex-1 bg-transparent text-xs outline-none placeholder:opacity-50" />
             <button v-if="packageSearch" @click="packageSearch = ''" class="flex-shrink-0">
               <Icon :icon="closeCircleIcon" :class="[themeClasses.windowPlaceholderText]" class="w-3.5 h-3.5 opacity-50 hover:opacity-100 transition-opacity" />
             </button>
@@ -413,8 +413,8 @@
                 <Icon :icon="storeIcon" class="w-5 h-5 text-white" />
               </div>
               <div class="flex-1 min-w-0">
-                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">Browse App Store</p>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Find your apps on the App Store</p>
+                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Browse App Store") }}</p>
+                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Find your apps on the App Store") }}</p>
               </div>
               <div class="flex-shrink-0">
                 <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
@@ -435,8 +435,8 @@
                 <Icon :icon="packageIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" class="opacity-50" />
               </div>
               <div class="flex-1 min-w-0">
-                <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">No packages available</h4>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Drop a .hds file above to import your first package</p>
+                <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("No packages available") }}</h4>
+                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Drop a .hds file above to import your first package") }}</p>
               </div>
             </div>
           </div>
@@ -448,8 +448,8 @@
                   <Icon :icon="magnifyIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" class="opacity-50" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">No packages match "{{ packageSearch }}"</h4>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Try a different search term</p>
+                  <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("No packages match \"{search}\"", { search: packageSearch }) }}</h4>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Try a different search term") }}</p>
                 </div>
               </div>
             </div>
@@ -472,10 +472,10 @@
                           {{ app.manifest?.display_name || app.manifest?.name || app.filename }}
                         </h4>
                         <div v-if="app.is_installed" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                          <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">Installed</span>
+                          <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Installed") }}</span>
                         </div>
                       </div>
-                      <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">Packed by {{ app.manifest?.author || "Unknown author" }} &middot; {{ formatFileSize(app.size) }}</p>
+                      <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">{{ $t("Packed by") }} {{ app.manifest?.author || $t("Unknown author") }} &middot; {{ formatFileSize(app.size) }}</p>
                     </div>
 
                     <div class="flex-shrink-0">
@@ -493,27 +493,27 @@
                         <div :class="['rounded-lg px-3 py-2.5 space-y-1.5', themeClasses.explorerResultItem, themeClasses.windowBorder]" class="border">
                           <div v-if="app.manifest?.docker_image" class="flex items-center gap-2 text-xs">
                             <Icon :icon="dockerIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">Image</span>
+                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Image") }}</span>
                             <span :class="themeClasses.windowTitleTextFocused" class="font-mono truncate">{{ app.manifest.docker_image }}</span>
                           </div>
                           <div v-if="app.manifest?.version" class="flex items-center gap-2 text-xs">
                             <Icon :icon="tagIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">Version</span>
+                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Version") }}</span>
                             <span :class="themeClasses.windowTitleTextFocused">{{ app.manifest.version }}</span>
                           </div>
                           <div v-if="app.manifest?.category" class="flex items-center gap-2 text-xs">
                             <Icon :icon="shapeIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">Category</span>
+                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Category") }}</span>
                             <span :class="themeClasses.windowTitleTextFocused">{{ app.manifest.category }}</span>
                           </div>
                           <div class="flex items-center gap-2 text-xs">
                             <Icon :icon="fileIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">File</span>
+                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("File") }}</span>
                             <span :class="themeClasses.windowTitleTextFocused" class="truncate">{{ app.filename }}</span>
                           </div>
                           <div v-if="app.hash" class="flex items-center gap-2 text-xs">
                             <Icon :icon="fingerprintIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">Hash</span>
+                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Hash") }}</span>
                             <span :class="themeClasses.windowTitleTextFocused" class="font-mono truncate text-[10px]">{{ app.hash }}</span>
                           </div>
                         </div>
@@ -535,15 +535,15 @@
                             class="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs"
                           >
                             <Icon :icon="isExporting ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', isExporting ? 'animate-spin' : '']" />
-                            <span>{{ isExporting ? "Exporting..." : "Download .hds" }}</span>
+                            <span>{{ isExporting ? $t("Exporting...") : $t("Download .hds") }}</span>
                           </button>
-                          <button @click.stop="deletePackage(app.filename)" :disabled="app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename" :class="['flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs', app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename ? `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed border-transparent` : `${themeClasses.packagerDangerButtonBg} ${themeClasses.packagerDangerButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer border-transparent`]" :title="app.is_installed ? 'Cannot delete: App is installed. Uninstall it from App Store first.' : isPackageBeingInstalled(app.manifest?.name) ? 'Cannot delete: App is currently installing' : deletingApp === app.filename ? 'Deleting...' : 'Delete package'">
+                          <button @click.stop="deletePackage(app.filename)" :disabled="app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename" :class="['flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs', app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename ? `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed border-transparent` : `${themeClasses.packagerDangerButtonBg} ${themeClasses.packagerDangerButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer border-transparent`]" :title="app.is_installed ? $t('Cannot delete: App is installed. Uninstall it from App Store first.') : isPackageBeingInstalled(app.manifest?.name) ? $t('Cannot delete: App is currently installing') : deletingApp === app.filename ? $t('Deleting...') : $t('Delete package')">
                             <Icon :icon="deletingApp === app.filename ? loadingIcon : deleteIcon" :class="['w-3.5 h-3.5', deletingApp === app.filename ? 'animate-spin' : '']" />
-                            <span>{{ deletingApp === app.filename ? "Deleting..." : "Delete .hds" }}</span>
+                            <span>{{ deletingApp === app.filename ? $t("Deleting...") : $t("Delete .hds") }}</span>
                           </button>
                           <button v-if="app.is_valid" @click.stop="openBadgeDialog(app)" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="col-span-2 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
                             <Icon :icon="shareIcon" class="w-3.5 h-3.5" />
-                            <span>Share your .hds Package</span>
+                            <span>{{ $t("Share your .hds Package") }}</span>
                           </button>
                         </div>
                       </div>
@@ -557,7 +557,7 @@
           <div class="pt-2">
             <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-4" :class="themeClasses.explorerGroupHeader">
               <Icon :icon="storePlusIcon" class="w-4 h-4" />
-              <span>Full App Store Bundle</span>
+              <span>{{ $t("Full App Store Bundle") }}</span>
             </h3>
 
             <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="hdstore-card rounded-lg border overflow-hidden">
@@ -567,22 +567,22 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">HomeDock OS App Store</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">Bundle all your packages into a single file</p>
+                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Bundle all your packages into a single file") }}</p>
                 </div>
               </div>
-              <p :class="[themeClasses.windowPlaceholderText]" class="px-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider">Useful for:</p>
+              <p :class="[themeClasses.windowPlaceholderText]" class="px-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider">{{ $t("Useful for:") }}</p>
               <div :class="[themeClasses.windowPlaceholderText]" class="px-4 pb-3 grid hdstore-features gap-x-3 gap-y-1 text-[10px]">
-                <div class="flex items-center gap-1.5"><Icon :icon="exportIcon" class="w-3 h-3 flex-shrink-0" /><span>Export all your .hds packages</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="importIcon" class="w-3 h-3 flex-shrink-0" /><span>Import them on any instance</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="downloadIcon" class="w-3 h-3 flex-shrink-0" /><span>Back up your curated App Store</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="refreshIcon" class="w-3 h-3 flex-shrink-0" /><span>Migrate apps between your devices</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="shareIcon" class="w-3 h-3 flex-shrink-0" /><span>Share with any other user</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="packageIcon" class="w-3 h-3 flex-shrink-0" /><span>Up to 999 packages per .hdstore file</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="exportIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Export all your .hds packages") }}</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="importIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Import them on any instance") }}</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="downloadIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Back up your curated App Store") }}</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="refreshIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Migrate apps between your devices") }}</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="shareIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Share with any other user") }}</span></div>
+                <div class="flex items-center gap-1.5"><Icon :icon="packageIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Up to 999 packages per .hdstore file") }}</span></div>
               </div>
               <div class="px-4 pb-3 flex gap-2">
                 <label :class="[isPreviewingStore || isImportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
                   <Icon :icon="isPreviewingStore || isImportingStore ? loadingIcon : importIcon" :class="['w-3.5 h-3.5', isPreviewingStore || isImportingStore ? 'animate-spin' : '']" />
-                  <span>{{ isPreviewingStore ? "Reading..." : isImportingStore ? "Importing..." : "Import .hdstore" }}</span>
+                  <span>{{ isPreviewingStore ? $t("Reading...") : isImportingStore ? $t("Importing...") : $t("Import .hdstore") }}</span>
                   <input
                     type="file"
                     accept=".hdstore"
@@ -599,7 +599,7 @@
                 </label>
                 <button v-if="externalApps.filter((a) => a.is_valid).length > 0" @click="showExportStoreDialog = true" :disabled="isExportingStore" :class="[isExportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
                   <Icon :icon="isExportingStore ? loadingIcon : exportIcon" :class="['w-3.5 h-3.5', isExportingStore ? 'animate-spin' : '']" />
-                  <span>{{ isExportingStore ? "Exporting..." : "Export .hdstore" }}</span>
+                  <span>{{ isExportingStore ? $t("Exporting...") : $t("Export .hdstore") }}</span>
                 </button>
               </div>
             </div>
@@ -608,24 +608,24 @@
       </Transition>
     </div>
 
-    <AppDialog v-model:visible="isEditingCompose" type="info" title="Edit Docker Compose" ok-text="Save & Re-parse" cancel-text="Cancel" :ok-cancel="true" :width="1200" @ok="saveComposeEdit" @cancel="cancelComposeEdit">
+    <AppDialog v-model:visible="isEditingCompose" type="info" :title="$t('Edit Docker Compose')" :ok-text="$t('Save & Re-parse')" :cancel-text="$t('Cancel')" :ok-cancel="true" :width="1200" @ok="saveComposeEdit" @cancel="cancelComposeEdit">
       <div class="hidden lg:grid lg:grid-cols-2 gap-4" style="height: 480px">
         <div class="flex flex-col">
           <div class="flex items-center gap-2 mb-2">
             <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">Docker Compose Content</label>
+            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("Docker Compose Content") }}</label>
           </div>
-          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full flex-1 rounded-lg font-mono text-xs resize-none p-3']" placeholder="Paste your docker-compose.yml content here..." spellcheck="false"></textarea>
+          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full flex-1 rounded-lg font-mono text-xs resize-none p-3']" :placeholder="$t('Paste your docker-compose.yml content here...')" spellcheck="false"></textarea>
         </div>
 
         <div class="flex flex-col overflow-hidden">
           <div class="flex items-center gap-2 mb-2">
             <Icon :icon="codeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">DevHooks Reference</label>
-            <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} available</span>
+            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("DevHooks Reference") }}</label>
+            <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} {{ $t("available") }}</span>
           </div>
           <div class="flex-1 overflow-y-auto pr-2">
-            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.</p>
+            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">{{ $t("Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.") }}</p>
             <div class="space-y-3">
               <div v-for="hook in devHooks" :key="hook.placeholder" :class="['p-3 rounded-lg border', usedDevHooks.includes(hook.placeholder) ? 'border-green-600/50' : themeClasses.packagerCardBorder, themeClasses.packagerHookItemBg]">
                 <div class="flex items-start justify-between gap-3">
@@ -634,16 +634,16 @@
                       <code :class="['text-xs font-mono px-2 py-0.5 rounded font-semibold', themeClasses.packagerCodeBg, themeClasses.packagerCodeText]">
                         {{ hook.placeholder }}
                       </code>
-                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">Used</span>
+                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("Used") }}</span>
                     </div>
                     <p :class="['text-xs', themeClasses.packagerTextMuted]">
-                      {{ hook.description }}
+                      {{ $t(hook.description) }}
                     </p>
                     <div :class="['text-xs font-mono p-2 rounded border', themeClasses.packagerExampleBg, themeClasses.packagerExampleBorder]">
                       <p :class="['leading-relaxed', themeClasses.packagerExampleText]" style="white-space: pre-line">{{ hook.example }}</p>
                     </div>
                   </div>
-                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" title="Copy to clipboard">
+                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" :title="$t('Copy to clipboard')">
                     <Icon :icon="copyIcon" :class="['w-4 h-4', themeClasses.packagerCopyIcon]" />
                   </button>
                 </div>
@@ -657,23 +657,23 @@
         <div class="flex flex-col">
           <div class="flex items-center gap-2 mb-2">
             <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">Docker Compose Content</label>
+            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("Docker Compose Content") }}</label>
           </div>
-          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full rounded-lg font-mono text-xs resize-none p-3']" placeholder="Paste your docker-compose.yml content here..." spellcheck="false" rows="15"></textarea>
+          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full rounded-lg font-mono text-xs resize-none p-3']" :placeholder="$t('Paste your docker-compose.yml content here...')" spellcheck="false" rows="15"></textarea>
         </div>
 
         <div :class="['rounded-lg border', themeClasses.packagerCardBorder]">
           <button @click="showDevHooks = !showDevHooks" :class="['w-full px-4 py-3 flex items-center justify-between text-left transition-colors rounded-t-lg', 'hover:opacity-80']">
             <div class="flex items-center gap-2">
               <Icon :icon="codeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-              <span :class="['font-medium text-sm', themeClasses.packagerText]">DevHooks Reference</span>
-              <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} available</span>
+              <span :class="['font-medium text-sm', themeClasses.packagerText]">{{ $t("DevHooks Reference") }}</span>
+              <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} {{ $t("available") }}</span>
             </div>
             <Icon :icon="showDevHooks ? chevronUpIcon : chevronDownIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
           </button>
 
           <div v-if="showDevHooks" :class="['p-4 border-t max-h-96 overflow-y-auto', themeClasses.packagerCardBorder]">
-            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.</p>
+            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">{{ $t("Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.") }}</p>
             <div class="space-y-3">
               <div v-for="hook in devHooks" :key="hook.placeholder" :class="['p-3 rounded-lg border', usedDevHooks.includes(hook.placeholder) ? 'border-green-600/50' : themeClasses.packagerCardBorder, themeClasses.packagerHookItemBg]">
                 <div class="flex items-start justify-between gap-3">
@@ -682,16 +682,16 @@
                       <code :class="['text-xs font-mono px-2 py-0.5 rounded-xl', themeClasses.packagerCodeBg, themeClasses.packagerCodeText]">
                         {{ hook.placeholder }}
                       </code>
-                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">Used</span>
+                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("Used") }}</span>
                     </div>
                     <p :class="['text-xs', themeClasses.packagerTextMuted]">
-                      {{ hook.description }}
+                      {{ $t(hook.description) }}
                     </p>
                     <div :class="['text-xs font-mono p-2 rounded border', themeClasses.packagerExampleBg, themeClasses.packagerExampleBorder]">
                       <p :class="['leading-relaxed', themeClasses.packagerExampleText]" style="white-space: pre-line">{{ hook.example }}</p>
                     </div>
                   </div>
-                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" title="Copy to clipboard">
+                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" :title="$t('Copy to clipboard')">
                     <Icon :icon="copyIcon" :class="['w-4 h-4', themeClasses.packagerCopyIcon]" />
                   </button>
                 </div>
@@ -702,14 +702,14 @@
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showOverwriteDialog" type="error" title="Package Already Exists" ok-text="Close" :ok-cancel="false" @ok="closeConflictDialog">
+    <AppDialog v-model:visible="showOverwriteDialog" type="error" :title="$t('Package Already Exists')" :ok-text="$t('Close')" :ok-cancel="false" @ok="closeConflictDialog">
       <div class="space-y-4">
         <div class="flex items-start gap-3">
           <Icon :icon="alertIcon" :class="['w-6 h-6', themeClasses.packagerErrorText]" />
           <div class="flex-1">
-            <p :class="['font-semibold mb-2', themeClasses.packagerText]">Cannot import package</p>
+            <p :class="['font-semibold mb-2', themeClasses.packagerText]">{{ $t("Cannot import package") }}</p>
             <p :class="['text-sm mb-2', themeClasses.packagerTextMuted]">
-              The package <strong>{{ overwriteData?.displayName }}</strong> ({{ overwriteData?.appSlug }}) is already installed and has the following files:
+              {{ $t("The package {name} ({slug}) is already installed and has the following files:", { name: overwriteData?.displayName, slug: overwriteData?.appSlug }) }}
             </p>
             <ul :class="['text-sm -space-y-1 mb-2', themeClasses.packageConflictFileList]">
               <li v-for="file in overwriteData?.existingFiles" :key="file" class="flex items-start gap-1">
@@ -718,11 +718,11 @@
               </li>
             </ul>
             <div :class="[themeClasses.packageConflictInstructionBorder]">
-              <p :class="['text-sm font-semibold mb-1', themeClasses.packageConflictInstructionTitle]">To upload a new version:</p>
+              <p :class="['text-sm font-semibold mb-1', themeClasses.packageConflictInstructionTitle]">{{ $t("To upload a new version:") }}</p>
               <p :class="['text-xs', themeClasses.packageConflictInstructionText]">
-                1. Go to the <strong>"Imported Packages"</strong> section below<br />
-                2. Delete the existing package completely<br />
-                3. Then upload the new version
+                {{ $t("1. Go to the \"Imported Packages\" section below") }}<br />
+                {{ $t("2. Delete the existing package completely") }}<br />
+                {{ $t("3. Then upload the new version") }}
               </p>
             </div>
           </div>
@@ -735,9 +735,9 @@
     <AppDialog
       v-model:visible="showExportStoreDialog"
       type="info"
-      title="Export .hdstore App Store Bundle"
-      :ok-text="isExportingStore ? 'Exporting...' : 'Export Selected'"
-      cancel-text="Cancel"
+      :title="$t('Export .hdstore App Store Bundle')"
+      :ok-text="isExportingStore ? $t('Exporting...') : $t('Export Selected')"
+      :cancel-text="$t('Cancel')"
       :ok-cancel="true"
       :width="500"
       :ok-disabled="isExportingStore || selectedStoreApps.size === 0"
@@ -750,10 +750,10 @@
       :mask-closable="!isExportingStore"
     >
       <div class="space-y-3">
-        <p :class="['text-xs', themeClasses.packagerTextMuted]">Select packages to include in the .hdstore bundle (max 999).</p>
+        <p :class="['text-xs', themeClasses.packagerTextMuted]">{{ $t("Select packages to include in the .hdstore bundle (max 999).") }}</p>
 
         <button @click="selectAllStoreApps" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ selectedStoreApps.size === externalApps.filter((a) => a.is_valid).length ? "Deselect All" : "Select All" }}
+          {{ selectedStoreApps.size === externalApps.filter((a) => a.is_valid).length ? $t("Deselect All") : $t("Select All") }}
         </button>
 
         <div class="max-h-64 overflow-y-auto space-y-1.5">
@@ -764,7 +764,7 @@
             <BaseImage v-if="app.manifest?.icon" draggable="false" :src="`user-images/${app.manifest.name}${app.manifest.icon.substring(app.manifest.icon.lastIndexOf('.'))}`" :alt="app.manifest.display_name || app.manifest.name" :class="[themeClasses.storeCardImageBack]" class="flex-shrink-0 w-7 h-7 rounded-md object-cover ring-[1px]" />
             <div class="flex-1 min-w-0">
               <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ app.manifest.display_name || app.manifest.name }}</p>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">Packed by {{ app.manifest.author || "Unknown" }} &middot; {{ app.manifest.docker_image || "latest" }}</p>
+              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ $t("Packed by") }} {{ app.manifest.author || $t("Unknown") }} &middot; {{ app.manifest.docker_image || "latest" }}</p>
             </div>
             <span :class="themeClasses.packagerTextMuted" class="text-[10px] flex-shrink-0">{{ formatStoreSize(app.size) }}</span>
           </div>
@@ -772,7 +772,7 @@
 
         <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: selectedStoreApps.size > 0 ? '1fr' : '0fr' }">
           <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ selectedStoreApps.size }} package(s) selected</p>
+            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} package(s) selected", { n: selectedStoreApps.size }) }}</p>
           </div>
         </div>
       </div>
@@ -781,9 +781,9 @@
     <AppDialog
       v-model:visible="showImportStoreDialog"
       type="info"
-      title="Import .hdstore App Store Bundle"
-      :ok-text="isImportingStore ? 'Importing...' : `Import ${importStoreSelectedSlugs.size} Package(s)`"
-      cancel-text="Cancel"
+      :title="$t('Import .hdstore App Store Bundle')"
+      :ok-text="isImportingStore ? $t('Importing...') : $t('Import {n} Package(s)', { n: importStoreSelectedSlugs.size })"
+      :cancel-text="$t('Cancel')"
       :ok-cancel="true"
       :ok-disabled="isImportingStore || importStoreSelectedSlugs.size === 0"
       :loading="isImportingStore"
@@ -800,12 +800,12 @@
     >
       <div v-if="importStorePreview" class="space-y-3">
         <p :class="['text-xs', themeClasses.packagerTextMuted]">
-          {{ importStorePreview.package_count }} package(s) found in this bundle.
-          <template v-if="importStorePreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ importStorePreview.packages.filter((p: any) => p.already_exists).length }} already imported and cannot be selected.</template>
+          {{ $t("{n} package(s) found in this bundle.", { n: importStorePreview.package_count }) }}
+          <template v-if="importStorePreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ $t("{n} already imported and cannot be selected.", { n: importStorePreview.packages.filter((p: any) => p.already_exists).length }) }}</template>
         </p>
 
         <button @click="importStoreToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ importStoreSelectedSlugs.size === importStorePreview.packages.filter((p: any) => !p.already_exists).length ? "Deselect All" : "Select All" }}
+          {{ importStoreSelectedSlugs.size === importStorePreview.packages.filter((p: any) => !p.already_exists).length ? $t("Deselect All") : $t("Select All") }}
         </button>
 
         <div class="max-h-64 overflow-y-auto space-y-1.5">
@@ -820,17 +820,17 @@
               <div class="flex items-center gap-1.5">
                 <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ pkg.display_name || pkg.name || pkg.filename }}</p>
                 <div v-if="pkg.already_exists" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">Exists</span>
+                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Exists") }}</span>
                 </div>
               </div>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || "Unknown" }} &middot; {{ pkg.category || "Uncategorized" }} &middot; {{ pkg.version || "latest" }}</p>
+              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || $t("Unknown") }} &middot; {{ pkg.category || $t("Uncategorized") }} &middot; {{ pkg.version || "latest" }}</p>
             </div>
           </div>
         </div>
 
         <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: importStoreSelectedSlugs.size > 0 ? '1fr' : '0fr' }">
           <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ importStoreSelectedSlugs.size }} package(s) selected</p>
+            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} package(s) selected", { n: importStoreSelectedSlugs.size }) }}</p>
           </div>
         </div>
       </div>
@@ -839,9 +839,9 @@
     <AppDialog
       v-model:visible="showThirdPartyDialog"
       type="info"
-      title="Import from Third-Party Store"
-      :ok-text="isImportingThirdParty ? 'Importing...' : `Import ${thirdPartySelectedSlugs.size} App(s)`"
-      cancel-text="Cancel"
+      :title="$t('Import from Third-Party Store')"
+      :ok-text="isImportingThirdParty ? $t('Importing...') : $t('Import {n} App(s)', { n: thirdPartySelectedSlugs.size })"
+      :cancel-text="$t('Cancel')"
       :ok-cancel="true"
       :ok-disabled="isImportingThirdParty || thirdPartySelectedSlugs.size === 0"
       :loading="isImportingThirdParty"
@@ -859,12 +859,12 @@
     >
       <div v-if="thirdPartyPreview" class="space-y-3">
         <p :class="['text-xs', themeClasses.packagerTextMuted]">
-          {{ thirdPartyPreview.package_count }} app(s) found.
-          <template v-if="thirdPartyPreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ thirdPartyPreview.packages.filter((p: any) => p.already_exists).length }} already imported and cannot be selected.</template>
+          {{ $t("{n} app(s) found.", { n: thirdPartyPreview.package_count }) }}
+          <template v-if="thirdPartyPreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ $t("{n} already imported and cannot be selected.", { n: thirdPartyPreview.packages.filter((p: any) => p.already_exists).length }) }}</template>
         </p>
 
         <button @click="thirdPartyToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ thirdPartySelectedSlugs.size === thirdPartyPreview.packages.filter((p: any) => !p.already_exists).length ? "Deselect All" : "Select All" }}
+          {{ thirdPartySelectedSlugs.size === thirdPartyPreview.packages.filter((p: any) => !p.already_exists).length ? $t("Deselect All") : $t("Select All") }}
         </button>
 
         <div class="max-h-64 overflow-y-auto space-y-1.5">
@@ -879,34 +879,34 @@
               <div class="flex items-center gap-1.5">
                 <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ pkg.display_name || pkg.name }}</p>
                 <div v-if="pkg.already_exists" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">Exists</span>
+                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Exists") }}</span>
                 </div>
               </div>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || "Unknown" }} &middot; {{ pkg.category || "Uncategorized" }} &middot; {{ pkg.version || "latest" }}</p>
+              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || $t("Unknown") }} &middot; {{ pkg.category || $t("Uncategorized") }} &middot; {{ pkg.version || "latest" }}</p>
             </div>
           </div>
         </div>
 
         <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: thirdPartySelectedSlugs.size > 0 ? '1fr' : '0fr' }">
           <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ thirdPartySelectedSlugs.size }} app(s) selected</p>
+            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} app(s) selected", { n: thirdPartySelectedSlugs.size }) }}</p>
           </div>
         </div>
       </div>
     </AppDialog>
 
-    <StatusBar :icon="packageIcon" :message="activeTab === 'generator' ? 'Packager' : activeTab === 'stores' ? 'Third-Party Stores' : `${externalApps.length} ${externalApps.length === 1 ? 'package' : 'packages'} available`" :info="activeTab === 'generator' ? (usedDevHooks.length ? `${usedDevHooks.length} DevHooks detected` : 'Ready to create') : activeTab === 'stores' ? 'Casa and Zima Stores' : `${importedApps.length} imported apps`" :showHelp="true">
+    <StatusBar :icon="packageIcon" :message="activeTab === 'generator' ? $t('Packager') : activeTab === 'stores' ? $t('Third-Party Stores') : $t('{n} {unit} available', { n: externalApps.length, unit: externalApps.length === 1 ? $t('package') : $t('packages') })" :info="activeTab === 'generator' ? (usedDevHooks.length ? $t('{n} DevHooks detected', { n: usedDevHooks.length }) : $t('Ready to create')) : activeTab === 'stores' ? $t('Casa and Zima Stores') : $t('{n} imported apps', { n: importedApps.length })" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="packageIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Packager</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Packager") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p v-if="activeTab === 'generator'">Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.</p>
-            <p v-else-if="activeTab === 'stores'">Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.</p>
-            <p v-else>Import packages from others or export your already imported apps, share them, keep them private or publish your own .hds files on GitHub. Once exported, all packages are verified with SHA256 hashes to ensure integrity and avoid third party modifications.</p>
+            <p v-if="activeTab === 'generator'">{{ $t("Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.") }}</p>
+            <p v-else-if="activeTab === 'stores'">{{ $t("Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.") }}</p>
+            <p v-else>{{ $t("Import packages from others or export your already imported apps, share them, keep them private or publish your own .hds files on GitHub. Once exported, all packages are verified with SHA256 hashes to ensure integrity and avoid third party modifications.") }}</p>
           </div>
         </div>
       </template>
@@ -918,6 +918,7 @@
 import axios from "axios";
 
 import { ref, onMounted, computed, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDialog } from "../__Composables__/useDialog";
@@ -967,6 +968,7 @@ import linkIcon from "@iconify-icons/mdi/link-variant";
 import shieldCheckIcon from "@iconify-icons/mdi/shield-check";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const { confirm } = useDialog();
 const appStore = useAppStore();
@@ -1241,7 +1243,7 @@ const handleComposeChange = async (info: any) => {
     const file = fileList[0].originFileObj;
 
     if (file.size > MAX_COMPOSE_FILE_SIZE) {
-      message.error(`Compose file is too large. Maximum size: ${formatFileSize(MAX_COMPOSE_FILE_SIZE)}`);
+      message.error(t("Compose file is too large. Maximum size: {size}", { size: formatFileSize(MAX_COMPOSE_FILE_SIZE) }));
       composeFileList.value = [];
       return;
     }
@@ -1253,14 +1255,14 @@ const handleComposeChange = async (info: any) => {
       const content = e.target?.result as string;
 
       if (!content || content.trim().length === 0) {
-        message.error("File is empty. Please upload a valid Docker Compose file.");
+        message.error(t("File is empty. Please upload a valid Docker Compose file."));
         composeFileList.value = [];
         composeFile.value = null;
         return;
       }
 
       if (/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/.test(content.slice(0, 1024))) {
-        message.error("Binary file detected. Docker Compose must be a plain text YML file.");
+        message.error(t("Binary file detected. Docker Compose must be a plain text YML file."));
         composeFileList.value = [];
         composeFile.value = null;
         composeContent.value = "";
@@ -1268,7 +1270,7 @@ const handleComposeChange = async (info: any) => {
       }
 
       if (!/:\s*\S/.test(content)) {
-        message.error("Invalid YML format. File must contain YML key-value pairs (key: value).");
+        message.error(t("Invalid YML format. File must contain YML key-value pairs (key: value)."));
         composeFileList.value = [];
         composeFile.value = null;
         composeContent.value = "";
@@ -1278,7 +1280,7 @@ const handleComposeChange = async (info: any) => {
       const dangerousPatterns = ["<?php", "<script", "eval(", "exec(", "__import__"];
       for (const pattern of dangerousPatterns) {
         if (content.includes(pattern)) {
-          message.error(`Dangerous content detected: ${pattern}`);
+          message.error(t("Dangerous content detected: {pattern}", { pattern }));
           composeFileList.value = [];
           composeFile.value = null;
           composeContent.value = "";
@@ -1355,13 +1357,13 @@ const beforeIconUpload = (file: any) => {
   const isValidType = validTypes.includes(file.type);
 
   if (!isValidType) {
-    message.error("Please upload a .jpg, .jpeg, or .png file");
+    message.error(t("Please upload a .jpg, .jpeg, or .png file"));
     return false;
   }
 
   const isValidSize = file.size <= MAX_ICON_FILE_SIZE;
   if (!isValidSize) {
-    message.error(`Icon file is too large. Maximum size: ${formatFileSize(MAX_ICON_FILE_SIZE)}`);
+    message.error(t("Icon file is too large. Maximum size: {size}", { size: formatFileSize(MAX_ICON_FILE_SIZE) }));
     return false;
   }
 
@@ -1386,7 +1388,7 @@ const handleIconChange = (info: any) => {
       const isPNG = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
 
       if (!isJPEG && !isPNG) {
-        message.error("Invalid image format. Only JPG and PNG images are allowed.");
+        message.error(t("Invalid image format. Only JPG and PNG images are allowed."));
         iconFileList.value = [];
         iconFile.value = null;
         iconPreview.value = null;
@@ -1410,7 +1412,7 @@ const handleIconChange = (info: any) => {
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text);
-  message.success(`Copied: ${text}`);
+  message.success(t("Copied: {text}", { text }));
 };
 
 const predefinedStores = [
@@ -1432,20 +1434,20 @@ const handleMigrateChange = (info: any) => {
   reader.onload = async () => {
     const content = reader.result as string;
     isMigratingSingle.value = true;
-    migrateProgress.value = "Converting...";
+    migrateProgress.value = t("Converting...");
     try {
       const response = await axios.post("/api/pkg/migrate-compose", { compose_content: content }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
       const data = response.data;
       if (data.success) {
-        message.success(`Migrated: ${data.app}`);
+        message.success(t("Migrated: {app}", { app: data.app }));
         loadExternalApps();
         loadImportedApps();
         activeTab.value = "manager";
       } else {
-        message.error(data.message || "Migration failed");
+        message.error(data.message || t("Migration failed"));
       }
     } catch (error: any) {
-      message.error(error?.response?.data?.message || error?.message || "Migration failed");
+      message.error(error?.response?.data?.message || error?.message || t("Migration failed"));
     } finally {
       isMigratingSingle.value = false;
       migrateProgress.value = "";
@@ -1486,28 +1488,28 @@ const importFromThirdParty = async () => {
   if (!url || isImportingThirdPartyUrl.value) return;
 
   if (!url.toLowerCase().endsWith(".zip")) {
-    message.error("URL must point to a .zip archive. For individual compose files, use the Package Generator.");
+    message.error(t("URL must point to a .zip archive. For individual compose files, use the Package Generator."));
     return;
   }
 
   isImportingThirdPartyUrl.value = true;
-  thirdPartyProgress.value = "Downloading store archive...";
+  thirdPartyProgress.value = t("Downloading store archive...");
   try {
     const response = await axios.post("/api/pkg/preview-third-party", { url }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
 
     const data = response.data;
     if (!data.success) {
-      message.error(data.message || "Failed to fetch store");
+      message.error(data.message || t("Failed to fetch store"));
       return;
     }
 
-    thirdPartyProgress.value = `Found ${data.package_count} app(s). Select which ones to import.`;
+    thirdPartyProgress.value = t("Found {n} app(s). Select which ones to import.", { n: data.package_count });
     thirdPartyCacheId.value = data.cache_id;
     thirdPartyPreview.value = data;
     thirdPartySelectedSlugs.value = new Set(data.packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
     showThirdPartyDialog.value = true;
   } catch (error: any) {
-    message.error(error?.response?.data?.message || error?.message || "Failed to fetch store");
+    message.error(error?.response?.data?.message || error?.message || t("Failed to fetch store"));
     thirdPartyProgress.value = "";
   } finally {
     isImportingThirdPartyUrl.value = false;
@@ -1526,7 +1528,7 @@ const confirmThirdPartyImport = async () => {
 
     const data = response.data;
     if (data.success) {
-      message.success(`Imported ${data.imported} app(s)${data.skipped > 0 ? `, ${data.skipped} skipped` : ""}`);
+      message.success(t("Imported {n} app(s)", { n: data.imported }) + (data.skipped > 0 ? `, ${t("{n} skipped", { n: data.skipped })}` : ""));
       thirdPartyUrl.value = "";
       thirdPartyProgress.value = "";
       showThirdPartyDialog.value = false;
@@ -1536,10 +1538,10 @@ const confirmThirdPartyImport = async () => {
       loadImportedApps();
       activeTab.value = "manager";
     } else {
-      message.error(data.message || "Import failed");
+      message.error(data.message || t("Import failed"));
     }
   } catch (error: any) {
-    message.error(error?.response?.data?.message || "Import failed");
+    message.error(error?.response?.data?.message || t("Import failed"));
   } finally {
     isImportingThirdParty.value = false;
   }
@@ -1598,7 +1600,7 @@ const createPackage = async () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    message.success(`Successfully created ${newPackage.value.slug}.hds`);
+    message.success(t("Successfully created {name}.hds", { name: newPackage.value.slug }));
 
     composeFile.value = null;
     composeFileList.value = [];
@@ -1626,7 +1628,7 @@ const createPackage = async () => {
     hasSuggestedTrail.value = false;
   } catch (error) {
     console.error("Creation error:", error);
-    message.error("Creation failed. Please try again.");
+    message.error(t("Creation failed. Please try again."));
   } finally {
     isCreating.value = false;
   }
@@ -1655,10 +1657,10 @@ const exportImported = async () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    message.success(`Successfully exported ${selectedImportedApp.value}.hds`);
+    message.success(t("Successfully exported {name}.hds", { name: selectedImportedApp.value }));
   } catch (error) {
     console.error("Export error:", error);
-    message.error("Export failed. Please try again.");
+    message.error(t("Export failed. Please try again."));
   } finally {
     isExporting.value = false;
   }
@@ -1674,11 +1676,11 @@ let processingQueue = false;
 const validateHdsFile = (file: File): Promise<boolean> => {
   return new Promise((resolve) => {
     if (!file.name.endsWith(".hds")) {
-      message.error(`"${file.name}" is not a .hds file`);
+      message.error(t('"{name}" is not a .hds file', { name: file.name }));
       return resolve(false);
     }
     if (file.size > MAX_HDS_PACKAGE_SIZE) {
-      message.error(`"${file.name}" is too large. Maximum size: ${formatFileSize(MAX_HDS_PACKAGE_SIZE)}`);
+      message.error(t('"{name}" is too large. Maximum size: {size}', { name: file.name, size: formatFileSize(MAX_HDS_PACKAGE_SIZE) }));
       return resolve(false);
     }
     const reader = new FileReader();
@@ -1686,7 +1688,7 @@ const validateHdsFile = (file: File): Promise<boolean> => {
       const bytes = new Uint8Array(e.target?.result as ArrayBuffer);
       const isZIP = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
       if (!isZIP) {
-        message.error(`"${file.name}" is not a valid HDS package`);
+        message.error(t('"{name}" is not a valid HDS package', { name: file.name }));
         return resolve(false);
       }
       resolve(true);
@@ -1706,12 +1708,12 @@ const uploadSinglePackage = async (file: File) => {
   });
 
   if (!response.data.success) {
-    message.error(`Upload failed: ${response.data.message}`);
+    message.error(t("Upload failed: {msg}", { msg: response.data.message }));
     return;
   }
 
   const displayName = response.data.display_name || file.name;
-  message.success(`Successfully imported ${displayName}!`);
+  message.success(t("Successfully imported {name}!", { name: displayName }));
 };
 
 const processUploadQueue = async () => {
@@ -1738,7 +1740,7 @@ const processUploadQueue = async () => {
           };
           showOverwriteDialog.value = true;
         } else {
-          message.error(`Failed to import "${file.name}".`);
+          message.error(t('Failed to import "{name}".', { name: file.name }));
         }
       }
     }
@@ -1785,7 +1787,7 @@ const uploadPackage = async () => {
       };
       showOverwriteDialog.value = true;
     } else {
-      message.error("Upload failed. Please try again.");
+      message.error(t("Upload failed. Please try again."));
     }
   } finally {
     isUploading.value = false;
@@ -1882,11 +1884,11 @@ const exportStore = async () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    message.success(`Exported ${selectedStoreApps.value.size} package(s)`);
+    message.success(t("Exported {n} package(s)", { n: selectedStoreApps.value.size }));
     showExportStoreDialog.value = false;
     selectedStoreApps.value = new Set();
   } catch {
-    message.error("Export failed. Please try again.");
+    message.error(t("Export failed. Please try again."));
   } finally {
     isExportingStore.value = false;
   }
@@ -1894,7 +1896,7 @@ const exportStore = async () => {
 
 const importStore = async (file: File) => {
   if (!file.name.endsWith(".hdstore")) {
-    message.error("File must be a .hdstore package");
+    message.error(t("File must be a .hdstore package"));
     return;
   }
   isPreviewingStore.value = true;
@@ -1920,10 +1922,10 @@ const importStore = async (file: File) => {
       importStoreSelectedSlugs.value = new Set(packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
       showImportStoreDialog.value = true;
     } else {
-      message.error(response.data.message || "Preview failed");
+      message.error(t(response.data.message || "Preview failed"));
     }
   } catch (error: any) {
-    message.error(error.response?.data?.message || "Failed to read .hdstore file.");
+    message.error(error.response?.data?.message || t("Failed to read .hdstore file."));
   } finally {
     isPreviewingStore.value = false;
   }
@@ -1944,18 +1946,18 @@ const confirmImportStore = async () => {
 
     if (response.data.success) {
       const { imported, skipped } = response.data;
-      message.success(`Imported ${imported.length} package(s)`);
+      message.success(t("Imported {n} package(s)", { n: imported.length }));
       if (skipped.length > 0) {
-        message.warning(`${skipped.length} package(s) skipped`);
+        message.warning(t("{n} package(s) skipped", { n: skipped.length }));
       }
       loadExternalApps();
       loadImportedApps();
       await appStore.loadApps(csrfToken.value);
     } else {
-      message.error(response.data.message || "Import failed");
+      message.error(t(response.data.message || "Import failed"));
     }
   } catch (error: any) {
-    message.error(error.response?.data?.message || "Import failed. Please try again.");
+    message.error(error.response?.data?.message || t("Import failed. Please try again."));
   } finally {
     isImportingStore.value = false;
     showImportStoreDialog.value = false;
@@ -1977,20 +1979,20 @@ const deletePackage = async (filename: string) => {
   const appSlug = app?.manifest?.name;
 
   if (app?.is_installed) {
-    message.error("Cannot delete this package: The app is currently installed. Please uninstall it from the App Store first.");
+    message.error(t("Cannot delete this package: The app is currently installed. Please uninstall it from the App Store first."));
     return;
   }
 
   if (appSlug && isPackageBeingInstalled(appSlug)) {
-    message.error("Cannot delete this package: The app is currently installing. Please wait for the installation to complete.");
+    message.error(t("Cannot delete this package: The app is currently installing. Please wait for the installation to complete."));
     return;
   }
 
   confirm({
-    title: "Confirm Deletion",
-    content: `Are you sure you want to completely delete ${filename}? This will remove it from the App Store.`,
-    okText: "Delete",
-    cancelText: "Cancel",
+    title: t("Confirm Deletion"),
+    content: t("Are you sure you want to completely delete {filename}? This will remove it from the App Store.", { filename }),
+    okText: t("Delete"),
+    cancelText: t("Cancel"),
     onOk: async () => {
       await performDelete(filename);
     },
@@ -2013,11 +2015,11 @@ const performDelete = async (filename: string) => {
     );
 
     if (!response.data.success) {
-      message.error(`Deletion failed: ${response.data.message}`);
+      message.error(t("Deletion failed: {msg}", { msg: response.data.message }));
       return;
     }
 
-    message.success("Package and all associated files deleted successfully");
+    message.success(t("Package and all associated files deleted successfully"));
 
     loadExternalApps();
     loadImportedApps();
@@ -2027,9 +2029,9 @@ const performDelete = async (filename: string) => {
     console.error("Deletion error:", error);
 
     if (error.response?.status === 409) {
-      message.error(error.response.data.message || "Cannot delete: App is currently installed");
+      message.error(t(error.response.data.message || "Cannot delete: App is currently installed"));
     } else {
-      message.error("Deletion failed. Please try again.");
+      message.error(t("Deletion failed. Please try again."));
     }
   } finally {
     deletingApp.value = null;

@@ -4,13 +4,13 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsGroup header="TRACKED EXTERNAL DISK" footer="Track a secondary disk for historical usage charts in System Logs.">
-    <SettingsItem :icon="harddiskIcon" icon-color="purple" title="Track External Disk" description="Secondary disk shown in System Logs" is-last>
+  <SettingsGroup :header="$t('TRACKED EXTERNAL DISK')" :footer="$t('Track a secondary disk for historical usage charts in System Logs.')">
+    <SettingsItem :icon="harddiskIcon" icon-color="purple" :title="$t('Track External Disk')" :description="$t('Secondary disk shown in System Logs')" is-last>
       <Select class="rounded-xl" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" v-model:value="externalDriveValue" name="FormInputTrackExternalDisk" id="FormInputTrackExternalDisk" :popup-class-name="themeClasses.scopeSelector" :show-search="false" style="width: 320px">
         <SelectOption :class="[themeClasses.scopeSelector]" value="disabled">
           <div class="flex items-center gap-2">
             <Icon :icon="disabledIcon" :class="[themeClasses.formIcon]" size="16px" />
-            Disabled
+            {{ $t('Disabled') }}
           </div>
         </SelectOption>
         <SelectOption :class="[themeClasses.scopeSelector]" v-for="disk in selectableDisks" :key="disk.device" :value="disk.device">
@@ -24,46 +24,47 @@
     </SettingsItem>
   </SettingsGroup>
 
-  <SettingsGroup header="DISKS+ SECURITY" footer="Configure Disks+ session timeout and protected path access.">
-    <SettingsItem :icon="shieldLockIcon" icon-color="orange" title="Password for Protected Paths" description="Require password re-entry to access system-critical directories">
+  <SettingsGroup :header="$t('DISKS+ SECURITY')" :footer="$t('Configure Disks+ session timeout and protected path access.')">
+    <SettingsItem :icon="shieldLockIcon" icon-color="orange" :title="$t('Password for Protected Paths')" :description="$t('Require password re-entry to access system-critical directories')">
       <Switch v-model:checked="requireProtectedPathsPassword" name="FormInputProtectedPathsPassword" id="FormInputProtectedPathsPassword" />
     </SettingsItem>
 
-    <SettingsItem :icon="timerIcon" icon-color="blue" title="Disks+ Session Timeout" description="How long an unlocked Disks+ session stays active" is-last>
+    <SettingsItem :icon="timerIcon" icon-color="blue" :title="$t('Disks+ Session Timeout')" :description="$t('How long an unlocked Disks+ session stays active')" is-last>
       <Select class="rounded-xl" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :value="disksplusSessionTimeoutMinutes" @change="handleTimeoutChange" name="FormInputDisksPlusSessionTimeout" id="FormInputDisksPlusSessionTimeout" :popup-class-name="themeClasses.scopeSelector" :show-search="false" style="width: 180px">
-        <SelectOption :class="[themeClasses.scopeSelector]" :value="0">Disabled</SelectOption>
-        <SelectOption :class="[themeClasses.scopeSelector]" :value="3">3 minutes</SelectOption>
-        <SelectOption :class="[themeClasses.scopeSelector]" :value="5">5 minutes</SelectOption>
-        <SelectOption :class="[themeClasses.scopeSelector]" :value="10">10 minutes</SelectOption>
-        <SelectOption :class="[themeClasses.scopeSelector]" :value="15">15 minutes</SelectOption>
+        <SelectOption :class="[themeClasses.scopeSelector]" :value="0">{{ $t('Disabled') }}</SelectOption>
+        <SelectOption :class="[themeClasses.scopeSelector]" :value="3">{{ $t('3 minutes') }}</SelectOption>
+        <SelectOption :class="[themeClasses.scopeSelector]" :value="5">{{ $t('5 minutes') }}</SelectOption>
+        <SelectOption :class="[themeClasses.scopeSelector]" :value="10">{{ $t('10 minutes') }}</SelectOption>
+        <SelectOption :class="[themeClasses.scopeSelector]" :value="15">{{ $t('15 minutes') }}</SelectOption>
       </Select>
     </SettingsItem>
   </SettingsGroup>
 
-  <AppDialog v-model:visible="showDisableTimeoutWarning" type="warning" title="Disable Session Timeout" ok-text="I Understand, Disable" cancel-text="Cancel" @ok="confirmDisableTimeout" @cancel="cancelDisableTimeout" :icon="alertIcon" :width="480" :reverse-buttons="true">
+  <AppDialog v-model:visible="showDisableTimeoutWarning" type="warning" :title="$t('Disable Session Timeout')" :ok-text="$t('I Understand, Disable')" :cancel-text="$t('Cancel')" @ok="confirmDisableTimeout" @cancel="cancelDisableTimeout" :icon="alertIcon" :width="480" :reverse-buttons="true">
     <div class="space-y-3">
-      <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">Disabling the session timeout means your Disks+ session will <strong>never expire automatically</strong>. The session will remain active until you manually lock it or log out.</p>
+      <p :class="[themeClasses.notTextDown]" class="text-sm leading-relaxed">{{ $t('Disabling the session timeout means your Disks+ session will never expire automatically. The session will remain active until you manually lock it or log out.') }}</p>
 
       <div :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-lg p-3.5 space-y-2.5">
         <p class="text-sm font-bold flex items-center gap-2">
           <Icon :icon="shieldLockIcon" class="w-5 h-5" />
-          <span>Security Risks</span>
+          <span>{{ $t('Security Risks') }}</span>
         </p>
-        <p class="text-xs leading-relaxed">With the session timeout disabled:</p>
+        <p class="text-xs leading-relaxed">{{ $t('With the session timeout disabled:') }}</p>
         <ul class="text-xs space-y-1.5 ml-4 list-disc">
-          <li>Any security breach could expose the <strong>entire contents of all mounted disks</strong></li>
-          <li>System-critical paths behind <strong>danger zones</strong> remain accessible indefinitely</li>
-          <li>An unattended session is an <strong>open door</strong> to your filesystem</li>
+          <li>{{ $t('Any security breach could expose the entire contents of all mounted disks') }}</li>
+          <li>{{ $t('System-critical paths behind danger zones remain accessible indefinitely') }}</li>
+          <li>{{ $t('An unattended session is an open door to your filesystem') }}</li>
         </ul>
       </div>
 
-      <p :class="[themeClasses.notTextDown]" class="text-xs leading-relaxed font-semibold">We recommend keeping a timeout enabled. Sessions renew automatically on every interaction, so the timeout only triggers during prolonged inactivity.</p>
+      <p :class="[themeClasses.notTextDown]" class="text-xs leading-relaxed font-semibold">{{ $t('We recommend keeping a timeout enabled. Sessions renew automatically on every interaction, so the timeout only triggers during prolonged inactivity.') }}</p>
     </div>
   </AppDialog>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
@@ -84,6 +85,8 @@ import disabledIcon from "@iconify-icons/mdi/close-circle";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
 import timerIcon from "@iconify-icons/mdi/timer-outline";
 import alertIcon from "@iconify-icons/mdi/alert";
+
+const { t } = useI18n();
 
 const { themeClasses } = useTheme();
 const diskStore = useDisksPlusStore();

@@ -19,8 +19,8 @@ const AppHome = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
-const AppExplorer = defineAsyncComponent({
-  loader: () => import("../__Apps__/AppExplorer.vue"),
+const AppFinder = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppFinder.vue"),
   loadingComponent: WindowLoading,
   delay: 200,
 });
@@ -87,15 +87,15 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: false,
   },
   {
-    id: "explorer",
-    name: "Explorer",
+    id: "finder",
+    name: "Finder",
     description: "Search apps, files, and more",
     icon: fileSearchIcon,
-    component: AppExplorer,
+    component: AppFinder,
     defaultWidth: 1024,
     defaultHeight: 768,
     minWidth: 400,
@@ -106,7 +106,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -125,7 +125,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -144,7 +144,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -163,7 +163,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "tools",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -182,7 +182,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -201,7 +201,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -220,7 +220,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "settings",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
   {
@@ -239,7 +239,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     closeable: true,
     category: "system",
     showInStartMenu: true,
-    showInExplorerApp: true,
+    showInFinderApp: true,
     showInMyHomeApp: true,
   },
 ];
@@ -271,8 +271,8 @@ export function getStandaloneApps(): SystemApp[] {
   return SYSTEM_APPS.filter((app) => app.showInMyHomeApp !== false);
 }
 
-export function getExplorerApps(): SystemApp[] {
-  return SYSTEM_APPS.filter((app) => app.showInExplorerApp !== false);
+export function getFinderApps(): SystemApp[] {
+  return SYSTEM_APPS.filter((app) => app.showInFinderApp !== false);
 }
 
 export function getStartMenuApps(): SystemApp[] {

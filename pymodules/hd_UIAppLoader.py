@@ -142,9 +142,10 @@ def app_loader(port, subpath=""):
     config = read_config()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    selected_language = config["selected_language"]
 
     container_name = get_container_name_by_port_direct(port)
     app_slug = container_name if container_name else None
     app_display_name = get_display_name_for_container(container_name) if container_name else None
 
-    return render_template("app.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, nonce=g.get("nonce", ""), port=port, subpath=subpath, app_slug=app_slug, app_display_name=app_display_name)
+    return render_template("app.html", version_hash=version_hash, selected_theme=selected_theme, selected_back=selected_back, selected_language=selected_language, nonce=g.get("nonce", ""), port=port, subpath=subpath, app_slug=app_slug, app_display_name=app_display_name)

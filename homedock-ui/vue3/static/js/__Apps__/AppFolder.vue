@@ -7,17 +7,17 @@
   <div class="folder-view-container" :class="themeClasses.folderContainerBg">
     <div class="folder-breadcrumb" :class="[themeClasses.folderBreadcrumbBg, themeClasses.folderBreadcrumbBorder]">
       <Icon :icon="desktopIcon" class="breadcrumb-icon" :class="themeClasses.folderBreadcrumbIcon" />
-      <span class="breadcrumb-text" :class="themeClasses.folderBreadcrumbText">Desktop</span>
+      <span class="breadcrumb-text" :class="themeClasses.folderBreadcrumbText">{{ $t("Desktop") }}</span>
       <Icon :icon="chevronRightIcon" class="breadcrumb-separator" :class="themeClasses.folderBreadcrumbSeparator" />
       <Icon :icon="folderIcon" class="breadcrumb-icon" :class="themeClasses.folderBreadcrumbIcon" />
       <span class="breadcrumb-text folder-name" :class="themeClasses.folderBreadcrumbText">{{ folderName }}</span>
-      <span class="app-count" :class="themeClasses.folderAppCount">({{ folderApps.length }} apps)</span>
+      <span class="app-count" :class="themeClasses.folderAppCount">({{ folderApps.length }} {{ $t("apps") }})</span>
     </div>
 
     <div v-if="folderApps.length === 0" class="empty-folder-state">
       <Icon :icon="folderOpenOutlineIcon" class="empty-icon" :class="themeClasses.folderEmptyIcon" />
-      <h3 class="empty-title" :class="themeClasses.folderEmptyTitle">Empty folder</h3>
-      <p class="empty-description" :class="themeClasses.folderEmptyDescription">Drag apps here to organize them</p>
+      <h3 class="empty-title" :class="themeClasses.folderEmptyTitle">{{ $t("Empty folder") }}</h3>
+      <p class="empty-description" :class="themeClasses.folderEmptyDescription">{{ $t("Drag apps here to organize them") }}</p>
     </div>
 
     <div class="folder-apps-grid" ref="containerRef" @contextmenu="handleDesktopContextMenu" @mousedown="handleGridMouseDown">
@@ -41,16 +41,16 @@
 
     <ContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y" :items="contextMenuItems" @close="closeContextMenu" />
 
-    <StatusBar :icon="folderOpenIcon" :message="`${folderName}`" :info="`${folderApps.length} ${folderApps.length === 1 ? 'app' : 'apps'}`" :showHelp="true">
+    <StatusBar :icon="folderOpenIcon" :message="`${folderName}`" :info="`${folderApps.length} ${folderApps.length === 1 ? $t('app') : $t('apps')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="folderOpenIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Folder</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Folder") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Folders help you organize your apps by grouping related applications together. Create folders by dragging apps on top of each other on the desktop, making it easier to manage and access your installed applications.</p>
+            <p>{{ $t("Folders help you organize your apps by grouping related applications together. Create folders by dragging apps on top of each other on the desktop, making it easier to manage and access your installed applications.") }}</p>
           </div>
         </div>
       </template>
@@ -62,6 +62,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
@@ -108,6 +109,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
 const desktopStore = useDesktopStore();
 const windowStore = useWindowStore();
 const { isMobile } = useResponsive();
@@ -223,7 +225,7 @@ const contextMenu = ref({
 });
 
 const folder = computed(() => desktopStore.getFolderById(props.folderId));
-const folderName = computed(() => folder.value?.name || "Unknown Folder");
+const folderName = computed(() => folder.value?.name || t("Unknown Folder"));
 const folderApps = computed(() => {
   const apps = desktopStore.getAppsInFolder(props.folderId);
 
@@ -575,7 +577,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
   }
 
   items.push({
-    label: isRunning ? "Stop" : "Start",
+    label: isRunning ? "Stop" : t("Start", 2),
     icon: isRunning ? stopIcon : playIcon,
     action: async () => {
       if (!contextMenuApp.value) return;
@@ -683,10 +685,10 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
       const appToUninstall = contextMenuApp.value;
 
       confirm({
-        title: "Confirm Uninstall",
-        content: `Are you sure you want to uninstall ${appToUninstall.display_name || appToUninstall.name}? This action cannot be undone.`,
-        okText: "Uninstall",
-        cancelText: "Cancel",
+        title: t("Confirm Uninstall"),
+        content: t("Are you sure you want to uninstall {name}? This action cannot be undone.", { name: appToUninstall.display_name || appToUninstall.name }),
+        okText: t("Uninstall"),
+        cancelText: t("Cancel"),
         onOk: async () => {
           await uninstallContainer(appToUninstall, csrfToken.value, themeClasses.value.scopeSelector);
         },

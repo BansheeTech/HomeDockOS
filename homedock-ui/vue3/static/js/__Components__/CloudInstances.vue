@@ -11,7 +11,7 @@
       </span>
       <a target="_blank" href="https://www.homedock.cloud" class="flex items-center justify-center">
         <Icon :icon="openIcon" class="mr-1 text-current" width="14" height="14" />
-        <span>Check out our HomeDock OS Cloud Instances!</span>
+        <span>{{ $t("Check out our HomeDock OS Cloud Instances!") }}</span>
       </a>
     </div>
   </transition>

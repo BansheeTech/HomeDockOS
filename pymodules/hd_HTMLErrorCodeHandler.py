@@ -100,6 +100,7 @@ def setup_error_handlers(app, read_config, version_hash):
         config = read_config()
         selected_theme = config["selected_theme"]
         selected_back = config["selected_back"]
+        selected_language = config["selected_language"]
 
         if request.is_json or request.accept_mimetypes["application/json"] >= request.accept_mimetypes["text/html"]:
             return (
@@ -120,6 +121,7 @@ def setup_error_handlers(app, read_config, version_hash):
                 version_hash=version_hash,
                 selected_theme=selected_theme,
                 selected_back=selected_back,
+                selected_language=selected_language,
                 error_code=error_code,
                 error_message=error_message,
                 details=exposed_details,

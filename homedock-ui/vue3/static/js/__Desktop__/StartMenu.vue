@@ -10,7 +10,7 @@
         <div class="p-3 max-md:!p-3 max-md:!px-4 max-md:!pt-4" :class="themeClasses.startMenuSectionBg">
           <div class="relative flex items-center gap-3">
             <Icon :icon="searchIcon" :class="themeClasses.startMenuSearchIcon" class="absolute left-4 w-5 h-5 pointer-events-none" />
-            <input ref="searchInputRef" v-model="searchQuery" type="text" placeholder="Search apps..." class="flex-1 py-3 pr-4 pl-12 rounded-lg border text-sm outline-none transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
+            <input ref="searchInputRef" v-model="searchQuery" type="text" :placeholder="$t('Search apps...')" class="flex-1 py-3 pr-4 pl-12 rounded-lg border text-sm outline-none transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
             <button v-if="searchQuery" @click="clearSearch" class="absolute right-2 p-2 border-none bg-transparent cursor-pointer rounded transition-all duration-150" :class="[themeClasses.startMenuClearButton, themeClasses.startMenuClearButtonHover]">
               <Icon :icon="closeIcon" class="w-4 h-4" />
             </button>
@@ -19,7 +19,7 @@
 
         <!-- Pinned Apps (Not Implemented Yet for Future use) -->
         <div v-if="pinnedApps.length > 0" class="flex-shrink-0 px-6 py-3 max-md:!px-4 max-md:!py-2 md:overflow-y-auto max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
-          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">Pinned</h3>
+          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">{{ $t("Pinned") }}</h3>
           <div class="md:grid md:gap-3 w-full max-md:flex max-md:overflow-x-auto max-md:gap-3 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
             <div v-for="app in pinnedApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
               <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110" :class="[{ 'bg-transparent p-0': app.type === 'docker' }, app.type === 'system' ? themeClasses.startMenuAppIconBg : '', getContainerClasses(app)]">
@@ -27,13 +27,13 @@
                 <Icon v-else-if="app.type === 'system'" :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 <BaseImage v-else-if="app.type === 'docker' && app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
               </div>
-              <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
+              <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ $t(app.name) }}</span>
             </div>
           </div>
         </div>
-        <div class="flex-shrink-0 px-6 py-2 pt-4 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
-          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">System Applications</h3>
-          <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
+        <div class="flex-shrink-0 px-6 py-2 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
+          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">{{ $t("System Applications") }}</h3>
+          <div class="md:max-h-[13rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
               <EnterpriseStartMenuSlots @close-menu="close" @open-window="handleEnterpriseOpenWindow" />
 
@@ -42,22 +42,22 @@
                   <Icon v-if="app.icon" :icon="app.icon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                   <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 </div>
-                <span class="text-xs text-center w-full overflow-hidden whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
+                <span class="text-xs text-center w-full line-clamp-2 leading-none max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ $t(app.name) }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div v-if="filteredInstalledApps.length > 0" class="flex-shrink-0 px-6 py-2 max-md:!px-4 max-md:!py-2 max-md:overflow-y-visible" :class="themeClasses.startMenuSectionBg">
-          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">Installed Applications</h3>
-          <div class="md:max-h-[11.5rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
+          <h3 class="text-[0.6875rem] font-semibold uppercase tracking-wide m-0 mb-3 max-md:!text-xs max-md:!mb-2" :class="themeClasses.startMenuSectionTitle">{{ $t("Installed Applications") }}</h3>
+          <div class="md:max-h-[11rem] md:overflow-y-auto md:pr-2 apps-section-scroll max-md:overflow-y-visible">
             <div class="md:grid md:gap-1 w-full max-md:flex max-md:overflow-x-auto max-md:gap-1 apps-scroll-container" :style="isMobile ? {} : { gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }">
               <div v-for="app in filteredInstalledApps" :key="app.id" class="group flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 w-full min-w-0 hover:-translate-y-0.5 max-md:py-2 max-md:px-1 max-md:gap-1.5 max-md:w-[90px] max-md:min-w-[90px] max-md:flex-shrink-0" :class="[themeClasses.startMenuAppItemBg, themeClasses.startMenuAppItemBgHover]" @click="openApp(app)">
                 <div class="flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-200 overflow-hidden max-md:w-[44px] max-md:h-[44px] group-hover:scale-110 bg-transparent p-0" :class="getContainerClasses(app)">
                   <BaseImage v-if="app.image_path" :src="app.image_path" alt="" class="w-full h-full object-cover rounded-[10px]" draggable="false" />
                   <Icon v-else :icon="defaultAppIcon" width="32" height="32" :class="themeClasses.startMenuAppIconColor" />
                 </div>
-                <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
+                <span class="text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap leading-none max-md:!text-xs" :class="themeClasses.startMenuAppNameText">{{ app.name }}</span>
               </div>
             </div>
           </div>
@@ -67,10 +67,10 @@
           <a href="https://github.com/BansheeTech/HomeDockOS" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" title="GitHub">
             <Icon :icon="githubIcon" width="16" height="16" />
           </a>
-          <a href="https://www.homedock.cloud" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" title="Website">
+          <a href="https://www.homedock.cloud" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" :title="$t('Website')">
             <Icon :icon="websiteIcon" width="16" height="16" />
           </a>
-          <a href="https://docs.homedock.cloud" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" title="Documentation">
+          <a href="https://docs.homedock.cloud" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" :title="$t('Documentation')">
             <Icon :icon="docsIcon" width="16" height="16" />
           </a>
           <a href="https://discord.gg/Zj3JCYsRWw" target="_blank" class="flex items-center justify-center w-6 h-6 rounded-full transition-all hover:-translate-y-0.5" :class="[themeClasses.startMenuSocialLinkBg, themeClasses.startMenuSocialLinkText, themeClasses.startMenuSocialLinkBgHover, themeClasses.startMenuSocialLinkTextHover]" title="Discord">
@@ -93,7 +93,7 @@
               </div>
             </div>
           </div>
-          <button class="flex items-center justify-center w-9 h-9 rounded-lg border-0 cursor-pointer transition-all max-md:!w-10 max-md:!h-10" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" @click="handleLogout" title="Logout">
+          <button class="flex items-center justify-center w-9 h-9 rounded-lg border-0 cursor-pointer transition-all max-md:!w-10 max-md:!h-10" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" @click="handleLogout" :title="$t('Logout')">
             <Icon :icon="logoutIcon" width="20" height="20" />
           </button>
         </div>
@@ -325,7 +325,7 @@ const contextMenuSystemApp = ref<CombinedApp | null>(null);
 
 const systemAppIconMap: Record<string, string> = {
   apphome: "mdi:cloud",
-  explorer: "mdi:file-search",
+  finder: "mdi:file-search",
   fileexplorer: "mdi:folder-multiple",
   appstore: "mdi:widgets-outline",
   appdrive: "mdi:cube-scan",
@@ -516,12 +516,17 @@ watch(
   .apps-scroll-container {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
+}
 
-  .apps-scroll-container::-webkit-scrollbar {
-    display: none;
-  }
+.apps-scroll-container,
+.apps-section-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.apps-scroll-container::-webkit-scrollbar,
+.apps-section-scroll::-webkit-scrollbar {
+  display: none;
 }
 </style>

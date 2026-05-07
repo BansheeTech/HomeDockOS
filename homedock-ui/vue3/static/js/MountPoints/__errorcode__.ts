@@ -7,6 +7,7 @@ import { createApp } from "vue";
 import { createHead } from "@unhead/vue/client";
 
 import ErrorCode from "../__Layouts__/ErrorCode.vue";
+import { i18n, bootstrapI18n } from "../__Languages__";
 
 import type { ThemeData } from "../__Types__/ThemeData";
 import type { ErrorData } from "../__Types__/ErrorData";
@@ -32,12 +33,15 @@ const errorData = parseBase64Data("data-error") as ErrorData | null;
 if (themeData && errorData) {
   const app = createApp(ErrorCode);
 
+  app.use(i18n);
+
   app.provide("data-theme", themeData);
   app.provide("data-error", errorData);
 
   const faviconHeadAdder = createHead();
   app.use(faviconHeadAdder);
 
+  await bootstrapI18n();
   app.mount("#app-errorcode-root");
 } else {
   console.error("Required data is missing or invalid. Cannot initialize ErrorCode.");

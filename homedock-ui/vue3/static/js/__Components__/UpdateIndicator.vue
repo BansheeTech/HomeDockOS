@@ -33,18 +33,18 @@
         <Teleport to="body">
           <div v-if="isExpanded" class="update-dropdown border" :class="[themeClasses.updateDropdownBg, themeClasses.updateDropdownBorder, themeClasses.updateDropdownShadow]">
             <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ isCheckingUpdates ? "Checking Updates" : "Updating Apps" }}</span>
+              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ isCheckingUpdates ? $t("Checking Updates") : $t("Updating Apps") }}</span>
             </div>
 
             <div v-if="isCheckingUpdates" class="update-section" :class="themeClasses.updateSectionBorder">
               <div class="app-item" :class="themeClasses.updateAppItemUpdating">
                 <div class="spinner border-2" :class="[themeClasses.updateSpinnerBorder, themeClasses.updateSpinnerTop]"></div>
-                <span class="app-name" :class="themeClasses.updateAppName">Checking for updates...</span>
+                <span class="app-name" :class="themeClasses.updateAppName">{{ $t("Checking for updates...") }}</span>
               </div>
             </div>
 
             <div v-if="updateStore.currentlyUpdating" class="update-section" :class="themeClasses.updateSectionBorder">
-              <div class="section-label" :class="themeClasses.updateSectionLabel">Currently Updating</div>
+              <div class="section-label" :class="themeClasses.updateSectionLabel">{{ $t("Currently Updating") }}</div>
               <TransitionGroup name="app-switch" tag="div">
                 <div class="app-item" :class="themeClasses.updateAppItemUpdating" :key="`updating-${updateStore.currentlyUpdating.name}`">
                   <BaseImage :key="`img-updating-${updateStore.currentlyUpdating.name}`" :src="updateStore.currentlyUpdating.image_path || `docker-icons/${updateStore.currentlyUpdating.name}.jpg`" class="app-icon rounded-md" alt="" draggable="false" />
@@ -55,7 +55,7 @@
             </div>
 
             <div v-if="updateStore.queue.length > 0" class="update-section" :class="themeClasses.updateSectionBorder">
-              <div class="section-label" :class="themeClasses.updateSectionLabel">In Queue ({{ updateStore.queue.length }})</div>
+              <div class="section-label" :class="themeClasses.updateSectionLabel">{{ $t("In Queue") }} ({{ updateStore.queue.length }})</div>
               <div class="app-list">
                 <TransitionGroup name="queue-item" tag="div">
                   <div v-for="(appInfo, index) in visibleQueue" :key="`queue-${appInfo.name}`" class="app-item" :class="[themeClasses.updateAppItemBg, themeClasses.updateAppItemBgHover]">
@@ -63,7 +63,7 @@
                     <span class="app-name" :class="themeClasses.updateAppName">{{ appInfo.display_name }}</span>
                   </div>
                 </TransitionGroup>
-                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.updateMoreApps">And {{ remainingCount }} more...</div>
+                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.updateMoreApps">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
               </div>
             </div>
           </div>

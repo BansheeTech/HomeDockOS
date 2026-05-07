@@ -9,6 +9,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
+import { t } from "../__Languages__";
 
 export default defineComponent({
   name: "WelcomeMessage",
@@ -21,7 +22,8 @@ export default defineComponent({
     const FADE_OUT_DELAY = 200;
     const STORAGE_KEY = "lastWelcomeMessage";
 
-    const welcomeMessages = ref(["Welcome to HomeDock OS", "Your private cloud, now truly multiplatform", "From macOS, Windows or Linux, all roads lead here", "Your infrastructure, simplified and secured", "Designed for professionals, built for control", "Desktop and Cloud, finally in sync", "A real cloud OS, without the lock-in", "Have you ever used Drop Zone storage?", "Workspaces that follow your path, not your steps", "This is what owning your cloud looks like", "Prism redefines the desktop experience"]);
+    // English keys used for storage/comparison; t() is called at display time
+    const welcomeKeys = ["Welcome to HomeDock OS", "Your private cloud, now truly multiplatform", "From macOS, Windows or Linux, all roads lead here", "Your infrastructure, simplified and secured", "Designed for professionals, built for control", "Desktop and Cloud, finally in sync", "A real cloud OS, without the lock-in", "Have you ever used Drop Zone storage?", "Workspaces that follow your path, not your steps", "This is what owning your cloud looks like", "Prism redefines the desktop experience"];
 
     const lastWelcomeMessage = ref("");
     const isChanging = ref(false);
@@ -29,15 +31,15 @@ export default defineComponent({
     const welcomeElement = ref<HTMLElement | null>(null);
 
     const getRandomWelcomeMessage = (): string => {
-      let newMessage;
+      let key;
       do {
-        const randomIndex = Math.floor(Math.random() * welcomeMessages.value.length);
-        newMessage = welcomeMessages.value[randomIndex];
-      } while (newMessage === lastWelcomeMessage.value && welcomeMessages.value.length > 1);
+        const randomIndex = Math.floor(Math.random() * welcomeKeys.length);
+        key = welcomeKeys[randomIndex];
+      } while (key === lastWelcomeMessage.value && welcomeKeys.length > 1);
 
-      lastWelcomeMessage.value = newMessage;
-      localStorage.setItem(STORAGE_KEY, newMessage);
-      return newMessage;
+      lastWelcomeMessage.value = key;
+      localStorage.setItem(STORAGE_KEY, key);
+      return t(key);
     };
 
     const typeWriter = (text: string, element: HTMLElement, callback: () => void, speed: number): void => {
@@ -114,12 +116,12 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      const storedMessage = localStorage.getItem(STORAGE_KEY);
-      if (storedMessage && welcomeMessages.value.includes(storedMessage)) {
-        lastWelcomeMessage.value = storedMessage;
-        displayWelcomeMessage(storedMessage, TYPE_SPEED_INITIAL);
+      const storedKey = localStorage.getItem(STORAGE_KEY);
+      if (storedKey && welcomeKeys.includes(storedKey)) {
+        lastWelcomeMessage.value = storedKey;
+        displayWelcomeMessage(t(storedKey), TYPE_SPEED_INITIAL);
       } else {
-        displayWelcomeMessage(DEFAULT_MESSAGE, TYPE_SPEED_CHANGE);
+        displayWelcomeMessage(t(DEFAULT_MESSAGE), TYPE_SPEED_CHANGE);
       }
       document.addEventListener("visibilitychange", handleVisibilityChange);
     });

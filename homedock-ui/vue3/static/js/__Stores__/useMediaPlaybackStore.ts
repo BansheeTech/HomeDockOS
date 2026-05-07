@@ -14,6 +14,7 @@ export interface MediaPlayerInfo {
   isMuted: boolean;
   currentTime: number;
   duration: number;
+  coverUrl?: string;
 }
 
 export const useMediaPlaybackStore = defineStore("MediaPlaybackStore", {

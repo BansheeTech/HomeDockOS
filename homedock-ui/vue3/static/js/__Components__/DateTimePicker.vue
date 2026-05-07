@@ -40,17 +40,17 @@
             </div>
           </div>
 
-          <div v-if="selectedDayEvents.length > 0" class="tray-events-section" :class="themeClasses.utilityToolbarBorder">
-            <div class="tray-events-header" :class="themeClasses.calendarWeekday">{{ selectedDate.isSame(dayjs(), "day") ? "Today's Events" : selectedDate.format("ddd, MMM D") }}</div>
+          <div v-if="selectedDayEvents.length > 0" class="tray-events-section" :class="themeClasses.taskbarContextMenuDivider">
+            <div class="tray-events-header" :class="themeClasses.calendarWeekday">{{ selectedDate.isSame(dayjs(), "day") ? t("Today's Events") : selectedDate.locale(djLocale).format("ddd, MMM D") }}</div>
             <div v-for="evt in selectedDayEvents.slice(0, 4)" :key="evt.id" class="tray-event-item">
               <span class="tray-event-color" :style="{ backgroundColor: eventColorHex(calendarStore.calendarColor(evt.calendar_id || 'personal')) }"></span>
-              <span class="tray-event-time" :class="themeClasses.calendarWeekday">{{ evt.time || "—" }}</span>
+              <span class="tray-event-time" :class="themeClasses.calendarWeekday">{{ formatEventTime(evt.time) }}</span>
               <span class="tray-event-title" :class="themeClasses.calendarDay">{{ evt.title }}</span>
             </div>
-            <div v-if="selectedDayEvents.length > 4" class="tray-events-more" :class="themeClasses.calendarWeekday">+{{ selectedDayEvents.length - 4 }} more</div>
+            <div v-if="selectedDayEvents.length > 4" class="tray-events-more" :class="themeClasses.calendarWeekday">+{{ selectedDayEvents.length - 4 }} {{ $t("more") }}</div>
           </div>
 
-          <button class="tray-open-calendar" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="openCalendarApp">Open Calendar</button>
+          <button class="tray-open-calendar" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="openCalendarApp">{{ $t("Open Calendar") }}</button>
         </div>
       </Teleport>
     </Transition>
@@ -58,8 +58,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, inject, onMounted, onUnmounted, watch } from "vue";
 import dayjs from "dayjs";
+import "dayjs/locale/es";
+import "dayjs/locale/en";
+import { useI18n } from "vue-i18n";
+import { getLanguage } from "../__Languages__";
+
+import type { SettingsData } from "../__Types__/SettingsData";
 
 import { Icon } from "@iconify/vue";
 import chevronLeftIcon from "@iconify-icons/mdi/chevron-left";
@@ -82,10 +88,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { isMobile } = useResponsive();
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const trayManager = useTrayManager();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
 const calendarStore = useCalendarStore();
+
+const djLocale = getLanguage();
+
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const clockFormat = computed(() => settingsData?.clock_format ?? "24h");
+const weekStart = computed<number>(() => (settingsData?.week_start === "sunday" ? 0 : 1));
 
 const TRAY_ID = "date-time-picker";
 
@@ -97,17 +110,25 @@ const currentDateFormatted = ref("");
 const selectedDate = ref(dayjs());
 const viewDate = ref(dayjs());
 
-const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const weekDays = computed(() =>
+  Array.from({ length: 7 }, (_, i) =>
+    dayjs()
+      .locale(djLocale)
+      .day((i + weekStart.value) % 7)
+      .format("dd"),
+  ),
+);
 
 const currentMonthYear = computed(() => {
-  return viewDate.value.format("MMMM YYYY");
+  const raw = viewDate.value.locale(djLocale).format("MMMM YYYY");
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 });
 
 const calendarDays = computed(() => {
   const days = [];
   const startOfMonth = viewDate.value.startOf("month");
   const endOfMonth = viewDate.value.endOf("month");
-  const startDay = startOfMonth.day(); // 0 = Sunday
+  const startDay = (startOfMonth.day() - weekStart.value + 7) % 7;
   const daysInMonth = endOfMonth.date();
 
   const prevMonthEnd = startOfMonth.subtract(1, "day");
@@ -204,9 +225,17 @@ watch(
 function updateClock() {
   const now = new Date();
 
-  const hours = now.getHours().toString().padStart(2, "0");
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-  currentTime.value = `${hours}:${minutes}`;
+  if (clockFormat.value === "12h") {
+    const h24 = now.getHours();
+    const period = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 || 12;
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    currentTime.value = `${h12}:${minutes} ${period}`;
+  } else {
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    currentTime.value = `${hours}:${minutes}`;
+  }
 
   const day = now.getDate().toString().padStart(2, "0");
   const month = (now.getMonth() + 1).toString().padStart(2, "0");
@@ -227,6 +256,18 @@ const EVENT_COLOR_MAP: Record<string, string> = {
 
 function eventColorHex(name: string): string {
   return EVENT_COLOR_MAP[name] || "#3b82f6";
+}
+
+function formatEventTime(raw: string | undefined | null): string {
+  if (!raw) return "—";
+  const [h, m] = raw.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return raw;
+  if (clockFormat.value === "12h") {
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+  }
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 function eventsForDate(date: string) {
@@ -479,7 +520,6 @@ onUnmounted(() => {
 }
 
 .tray-events-section {
-  border-top: 1px solid;
   padding: 0.75rem 1.5rem;
 }
 

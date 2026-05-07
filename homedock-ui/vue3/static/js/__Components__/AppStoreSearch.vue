@@ -21,7 +21,7 @@
           <span :class="[themeClasses.storeSearchCategory]" class="ml-auto text-xs truncate ellipsis">{{ item.type }}</span>
         </div>
       </template>
-      <InputSearch v-model:value="searchQuery" placeholder="Search for an app..." enter-button="Search" class="w-full text-sm !rounded-xl" autocomplete="new-password">
+      <InputSearch v-model:value="searchQuery" :placeholder="$t('Search for an app...')" :enter-button="$t('Search')" class="w-full text-sm !rounded-xl" autocomplete="new-password">
         <template #prefix>
           <Icon :icon="appsIcon" class="mx-1 text-stone-400" />
         </template>
@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -54,6 +55,7 @@ import { useAppStore } from "../__Stores__/useAppStore";
 const appStore = useAppStore();
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 
 const selectedApp = ref<App | null>(null);
 const currentPage = ref(1);
@@ -73,12 +75,12 @@ const autocompleteOptions = computed(() => {
   return [
     {
       value: "Reset",
-      label: "Reset",
-      options: [{ value: "", label: "Clear this view" }],
+      label: t("Reset"),
+      options: [{ value: "", label: t("Clear this view") }],
     },
     {
       value: "New",
-      label: `New (${newApps.length})`,
+      label: t("New ({n})", { n: newApps.length }),
       options: newApps.map((app) => ({
         value: app.name,
         label: app.display_name || app.name,
@@ -89,7 +91,7 @@ const autocompleteOptions = computed(() => {
     },
     {
       value: "Installed",
-      label: `Installed (${installedApps.length})`,
+      label: t("Installed ({n})", { n: installedApps.length }),
       options: installedApps.map((app) => ({
         value: app.name,
         label: app.display_name || app.name,
@@ -101,7 +103,7 @@ const autocompleteOptions = computed(() => {
     },
     {
       value: "Not Installed",
-      label: `Not Installed (${notInstalledApps.length})`,
+      label: t("Not Installed ({n})", { n: notInstalledApps.length }),
       options: notInstalledApps.map((app) => ({
         value: app.name,
         label: app.display_name || app.name,

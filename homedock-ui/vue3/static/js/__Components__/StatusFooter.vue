@@ -33,12 +33,12 @@
   <div :class="[themeClasses.statusBarAppScope]" class="fixed bottom-0 left-0 right-0 backdrop-blur-md h-8 flex items-center justify-between px-4 text-xs border-t z-50">
     <div class="flex items-center space-x-2">
       <div class="min-h-1.5 min-w-1.5 rounded-full" :class="statusIndicatorColor"></div>
-      <span class="font-semibold">{{ statusMessage }}</span>
+      <span class="font-semibold">{{ $t(statusMessage) }}</span>
     </div>
     <div class="flex items-center space-x-2">
       <div v-if="port" class="flex items-center space-x-1">
         <Icon :icon="serverNetworkIcon" class="text-xs min-h-3 min-w-3" />
-        <span class="font-semibold">Port: {{ port }}</span>
+        <span class="font-semibold">{{ $t("Port") }}: {{ port }}</span>
       </div>
     </div>
   </div>

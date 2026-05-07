@@ -13,8 +13,10 @@ import configparser
 from pymodules.hd_FunctionsGlobals import current_directory, compose_upload_folder, running_OS
 from pymodules.hd_ExternalDriveManager import get_default_external_drive
 
-
 ALLOWED_DISKSPLUS_SESSION_MINUTES = (0, 3, 5, 10, 15)
+ALLOWED_LANGUAGES = ("en", "es", "de", "fr", "it", "pt", "zh", "ru", "uk", "ja", "ko")
+ALLOWED_CLOCK_FORMATS = ("24h", "12h")
+ALLOWED_WEEK_STARTS = ("sunday", "monday")
 
 
 def _clamp_session_timeout(value):
@@ -23,6 +25,24 @@ def _clamp_session_timeout(value):
     except (TypeError, ValueError):
         return 10
     return minutes if minutes in ALLOWED_DISKSPLUS_SESSION_MINUTES else 10
+
+
+def _clamp_language(value):
+    if isinstance(value, str) and value in ALLOWED_LANGUAGES:
+        return value
+    return "en"
+
+
+def _clamp_clock_format(value):
+    if isinstance(value, str) and value in ALLOWED_CLOCK_FORMATS:
+        return value
+    return "24h"
+
+
+def _clamp_week_start(value):
+    if isinstance(value, str) and value in ALLOWED_WEEK_STARTS:
+        return value
+    return "monday"
 
 
 def check_and_generate_config():
@@ -54,6 +74,9 @@ def check_and_generate_config():
             "disksplus_session_timeout_minutes": "10",
             "selected_theme": "default",
             "selected_back": "back1.jpg",
+            "selected_language": "en",
+            "clock_format": "24h",
+            "week_start": "monday",
             "2fa_enabled": "False",
             "2fa_secret": "False",
             "2fa_backup_codes": "False",
@@ -139,6 +162,18 @@ def check_and_update_config():
             config.set("Config", "disksplus_session_timeout_minutes", "10")
             missing_options.append("disksplus_session_timeout_minutes")
 
+        if not config.has_option("Config", "selected_language"):
+            config.set("Config", "selected_language", "en")
+            missing_options.append("selected_language")
+
+        if not config.has_option("Config", "clock_format"):
+            config.set("Config", "clock_format", "24h")
+            missing_options.append("clock_format")
+
+        if not config.has_option("Config", "week_start"):
+            config.set("Config", "week_start", "monday")
+            missing_options.append("week_start")
+
         if missing_options:
             with open(config_file, "w") as configfile:
                 config.write(configfile)
@@ -146,6 +181,22 @@ def check_and_update_config():
 
     else:
         print("Configuration file does not exist. Generate it first.")
+
+
+def is_fresh_install():
+    try:
+        config = read_config()
+        user_name = config.get("user_name", "")
+        stored = config.get("user_password")
+        if not stored:
+            return False
+        if isinstance(stored, str):
+            stored = stored.encode("latin1")
+        if user_name.lower() != "user":
+            return False
+        return bcrypt.checkpw(b"passwd", stored)
+    except Exception:
+        return False
 
 
 def read_config():
@@ -184,6 +235,9 @@ def read_config():
         "reverse_proxy": config.getboolean("Config", "reverse_proxy", fallback=False),
         "require_protected_paths_password": config.getboolean("Config", "require_protected_paths_password", fallback=True),
         "disksplus_session_timeout_minutes": _clamp_session_timeout(config.get("Config", "disksplus_session_timeout_minutes", fallback="10")),
+        "selected_language": _clamp_language(config.get("Config", "selected_language", fallback="en")),
+        "clock_format": _clamp_clock_format(config.get("Config", "clock_format", fallback="24h")),
+        "week_start": _clamp_week_start(config.get("Config", "week_start", fallback="monday")),
     }
 
     return config_dict

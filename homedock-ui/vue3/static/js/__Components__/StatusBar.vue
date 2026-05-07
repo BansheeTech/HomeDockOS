@@ -35,11 +35,11 @@
         <template #content>
           <div class="max-w-[240px] px-2 py-1.5 select-none overflow-hidden">
             <slot name="help">
-              <p :class="['text-xs', themeClasses.statusBarText]">Placeholder, help information goes here D:</p>
+              <p :class="['text-xs', themeClasses.statusBarText]">{{ $t("Placeholder, help information goes here D:") }}</p>
             </slot>
           </div>
         </template>
-        <button :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" title="Help">
+        <button :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" :title="$t('Help')">
           <Icon :icon="helpCircleIcon" class="w-3.5 h-3.5 opacity-60 hover:opacity-100 transition-opacity" />
         </button>
       </Popover>

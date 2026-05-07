@@ -22,11 +22,11 @@
         </div>
         <div v-else class="empty-state-container">
           <AnimatedIcon :icons="[iconAnim1, iconAnim2, iconAnim3, iconAnim4, iconAnim3, iconAnim2]" :interval="1000" :iconSize="64" :containerClass="themeClasses.noAppsIcon" class="transition duration-500 hover:-translate-y-2 hover:scale-105" />
-          <p :class="[themeClasses.noAppsTextMain]" class="text-sm text-center text-balance empty-title">No apps installed yet</p>
-          <p :class="[themeClasses.noAppsTextMain]" class="text-sm text-center text-balance empty-description">Get started by installing your first application from the App Store</p>
+          <p :class="[themeClasses.noAppsTextMain]" class="text-sm text-center text-balance empty-title">{{ $t("No apps installed yet") }}</p>
+          <p :class="[themeClasses.noAppsTextMain]" class="text-sm text-center text-balance empty-description">{{ $t("Get started by installing your first application from the App Store") }}</p>
           <button class="install-app-button" @click="openAppStore">
             <Icon :icon="widgetsOutlineIcon" class="button-icon" />
-            <span>Browse App Store</span>
+            <span>{{ $t("Browse App Store") }}</span>
           </button>
         </div>
       </template>

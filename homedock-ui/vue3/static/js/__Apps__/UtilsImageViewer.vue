@@ -6,20 +6,20 @@
 <template>
   <div class="image-viewer flex flex-col h-full overflow-hidden">
     <div class="toolbar flex items-center gap-2 px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="zoomOut" :disabled="zoom <= 0.1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" title="Zoom Out (-)">
+      <button @click="zoomOut" :disabled="zoom <= 0.1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom Out (-)')">
         <Icon :icon="magnifyMinusIcon" class="w-4 h-4" />
       </button>
       <span :class="['text-xs min-w-[50px] text-center', themeClasses.windowText]">{{ Math.round(zoom * 100) }}%</span>
-      <button @click="zoomIn" :disabled="zoom >= 5" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" title="Zoom In (+)">
+      <button @click="zoomIn" :disabled="zoom >= 5" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom In (+)')">
         <Icon :icon="magnifyPlusIcon" class="w-4 h-4" />
       </button>
 
       <div class="w-px h-4 mx-1" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="fitToWindow" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'fit' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" title="Fit to Window">
+      <button @click="fitToWindow" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'fit' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" :title="$t('Fit to Window')">
         <Icon :icon="fitToPageIcon" class="w-4 h-4" />
       </button>
-      <button @click="actualSize" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'actual' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" title="Actual Size (1:1)">
+      <button @click="actualSize" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'actual' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" :title="$t('Actual Size (1:1)')">
         <Icon :icon="aspectRatioIcon" class="w-4 h-4" />
       </button>
 
@@ -32,7 +32,7 @@
       <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <Icon :icon="loadingIcon" class="w-8 h-8 animate-spin" :class="themeClasses.windowTextMuted" />
-          <span :class="['text-sm', themeClasses.windowTextMuted]">Loading image...</span>
+          <span :class="['text-sm', themeClasses.windowTextMuted]">{{ $t("Loading image...") }}</span>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/10">
             <Icon :icon="alertIcon" class="w-8 h-8 text-red-500" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">Cannot Display Image</h3>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("Cannot Display Image") }}</h3>
           <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ error }}</p>
         </div>
       </div>
@@ -51,8 +51,8 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center" :class="themeClasses.imageViewerBg">
             <Icon :icon="imageIcon" class="w-8 h-8" :class="themeClasses.windowTextMuted" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">No Image</h3>
-          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">Open an image file to view it here.</p>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("No Image") }}</h3>
+          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ $t("Open an image file to view it here.") }}</p>
         </div>
       </div>
 
@@ -74,33 +74,33 @@
       </div>
     </div>
 
-    <StatusBar :icon="fileImageIcon" :message="fileName || 'No image'" :info="imageType ? imageType.toUpperCase() : ''">
+    <StatusBar :icon="fileImageIcon" :message="fileName || $t('No Image')" :info="imageType ? imageType.toUpperCase() : ''">
       <template v-if="isValidated" #extra>
         <div class="flex items-center gap-1 text-green-500 text-[10px]">
           <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5" />
-          <span>Verified</span>
+          <span>{{ $t("Verified") }}</span>
         </div>
       </template>
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="imageIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Image Viewer</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Image Viewer") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>A secure image viewer with magic bytes validation.</p>
+            <p>{{ $t("A secure image viewer with magic bytes validation.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>Verified:</strong> Images are validated against their magic bytes to prevent spoofed files.</p>
+                <p>{{ $t("Verified: Images are validated against their magic bytes to prevent spoofed files.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="magnifyPlusIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Zoom:</strong> Use +/- keys or mouse wheel to zoom. Press F to fit to window.</p>
+                <p>{{ $t("Zoom: Use +/- keys or mouse wheel to zoom. Press F to fit to window.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="aspectRatioIcon" class="w-3.5 h-3.5 mt-0.5 text-purple-500 flex-shrink-0" />
-                <p><strong>Pan:</strong> Click and drag to pan around zoomed images.</p>
+                <p>{{ $t("Pan: Click and drag to pan around zoomed images.") }}</p>
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@
         <div v-for="(item, index) in items" :key="index" class="context-menu-item group" :class="[themeClasses.contextMenuItem, !item.disabled && !item.divider ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : '', item.disabled ? themeClasses.contextMenuItemDisabled : '', { divider: item.divider }]" @click="handleItemClick(item)">
           <template v-if="!item.divider">
             <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, themeClasses.contextMenuIconHover]" />
-            <span class="item-label">{{ item.label }}</span>
+            <span class="item-label">{{ item.label ? $t(item.label) : "" }}</span>
             <span v-if="item.shortcut" class="item-shortcut" :class="themeClasses.contextMenuShortcut">{{ item.shortcut }}</span>
           </template>
           <div v-else class="divider-line" :class="themeClasses.contextMenuDivider"></div>

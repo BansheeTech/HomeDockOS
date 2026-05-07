@@ -12,13 +12,13 @@
           <Icon v-else-if="item.value === userLabel" class="inline-flex mb-1" :icon="accountKeyIcon" color="#bbb" />
           <Icon v-else-if="item.value === clearLabel" class="inline-flex mb-1" :icon="deleteEmptyIcon" color="#bbb" />
           <Icon v-else-if="item.value === statusLabel" class="inline-flex mb-1" :icon="securityIcon" color="#bbb" />
-          {{ item.value }}
+          {{ $t(item.value) }}
         </span>
         <div v-else style="display: flex; justify-content: space-between">
           {{ item.label || item.value }}
         </div>
       </template>
-      <InputSearch placeholder="Search records..." enter-button="Search" class="w-full text-sm">
+      <InputSearch :placeholder="$t('Search records...')" :enter-button="$t('Search')" class="w-full text-sm">
         <template #prefix>
           <Icon :icon="magnifyExpandIcon" class="mx-1 text-stone-400" />
         </template>
@@ -29,19 +29,19 @@
         <tr>
           <th :class="[themeClasses.tableTextUp]" class="w-1/4 font-semibold">
             <Icon :icon="clockOutlineIcon" class="inline-block mb-0.5 mr-0.5" />
-            <span>Timestamp</span>
+            <span>{{ $t("Timestamp") }}</span>
           </th>
           <th :class="[themeClasses.tableTextUp]" class="w-1/5 font-semibold">
             <Icon :icon="securityIcon" class="inline-block mb-0.5 mr-0.5" />
-            <span>Status</span>
+            <span>{{ $t("Status") }}</span>
           </th>
           <th :class="[themeClasses.tableTextUp]" class="w-1/4 font-semibold">
             <Icon :icon="mapMarkerIcon" class="inline-block mb-0.5 mr-0.5" />
-            <span>IP</span>
+            <span>{{ $t("IP") }}</span>
           </th>
           <th :class="[themeClasses.tableTextUp]" class="w-1/4 font-semibold">
             <Icon :icon="accountKeyIcon" class="inline-block mb-0.5 mr-0.5" />
-            <span>User</span>
+            <span>{{ $t("User") }}</span>
           </th>
         </tr>
       </thead>
@@ -49,18 +49,18 @@
       <tbody class="contents">
         <TransitionGroup name="fade" tag="tbody" mode="out-in">
           <tr v-for="(log, index) in displayedLogs" :key="log.timestamp + '-' + index" :class="['border-b', themeClasses.tableBorder, getStatusClass(log.status), 'table-row']">
-            <td>{{ log.timestamp }}</td>
-            <td>{{ log.status }}</td>
+            <td>{{ formatLogTimestamp(log.timestamp) }}</td>
+            <td>{{ $t(log.status) }}</td>
 
             <td>
-              {{ log.ip }}
+              {{ $t(log.ip) }}
               <span v-if="log.isNew && isRealIP(log.ip)">
                 <Tooltip placement="bottom" trigger="click" :color="themeClasses.tooltipBackColor" :destroyTooltipOnHide="true">
                   <template #title>
                     <div class="text-[10px] max-w-48 py-1 transition-all duration-600 ease-in-out">
                       <div class="flex items-start">
                         <Icon class="h-3 w-3 min-h-3 min-w-3 mr-1 mt-0.5" :icon="shieldAlertOutlineIcon" />
-                        <span>The login attempt from the network address {{ log.ip }} has been detected for the first time.</span>
+                        <span>{{ $t("The login attempt from the network address {ip} has been detected for the first time.", { ip: log.ip }) }}</span>
                       </div>
 
                       <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
@@ -68,7 +68,7 @@
                       <div v-if="isPrivateIP(log.ip)" class="mt-1">
                         <div class="flex items-start">
                           <Icon :icon="flagIcon" class="h-3 w-3 min-h-3 min-w-3 mr-1 mt-0.5" />
-                          <span>This connection was made from a local/private network.</span>
+                          <span>{{ $t("This connection was made from a local/private network.") }}</span>
                         </div>
                         <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
                         <div class="mt-1 ml-4 opacity-50">
@@ -78,7 +78,7 @@
 
                       <div v-else>
                         <div class="mt-1" v-if="!ipData[log.ip]">
-                          <div class="flex items-center"><Icon :icon="loadingIcon" class="mr-1 mb-0.5 animate-spin" /> Gathering...</div>
+                          <div class="flex items-center"><Icon :icon="loadingIcon" class="mr-1 mb-0.5 animate-spin" /> {{ $t("Gathering...") }}</div>
                         </div>
 
                         <div class="mt-1" v-else-if="hasValidFields(log.ip)">
@@ -91,7 +91,7 @@
                         </div>
 
                         <div class="mt-1" v-else>
-                          <div><Icon :icon="alertIcon" class="inline-block" /> Unable to retrieve data</div>
+                          <div><Icon :icon="alertIcon" class="inline-block" /> {{ $t("Unable to retrieve data") }}</div>
                         </div>
 
                         <hr :class="[themeClasses.tooltipSeparator]" class="mt-1 h-[1px] border-0 w-full" />
@@ -99,7 +99,7 @@
                         <div :class="[themeClasses.tooltipViewMore]" class="transition-all duration-300 ease-in-out mt-1 hover:ml-1">
                           <a :href="'https://ip.guide/' + log.ip" class="mt-2 flex items-center space-x-1" target="_blank" rel="noreferrer">
                             <Icon :icon="checkDecagramIcon" :size="12" class="inline-block" />
-                            <span class="text-[10px] leading-none">View more</span>
+                            <span class="text-[10px] leading-none">{{ $t("View more") }}</span>
                           </a>
                         </div>
                       </div>
@@ -113,10 +113,10 @@
               </span>
             </td>
 
-            <td class="max-w-16 w-4 break-words">{{ log.users }}</td>
+            <td class="max-w-16 w-4 break-words">{{ $t(log.users) }}</td>
           </tr>
           <tr v-if="displayedLogs.length === 0">
-            <td colspan="4">Nothing to show yet</td>
+            <td colspan="4">{{ $t("Nothing to show yet") }}</td>
           </tr>
         </TransitionGroup>
       </tbody>
@@ -128,13 +128,13 @@
       <Button size="middle" type="primary" class="cursor-pointer shadow-none" @click="loadMore">
         <span class="px-2 flex items-center space-x-1">
           <Icon :icon="transferDownIcon" class="mr-1 inline-block hover:text-lime-800" />
-          <span class="text-[12px] leading-none">Load more</span>
+          <span class="text-[12px] leading-none">{{ $t("Load more") }}</span>
         </span>
       </Button>
       <Button size="middle" type="dashed" class="cursor-pointer shadow-none" @click="loadAll">
         <span class="px-2 flex items-center space-x-1">
           <Icon :icon="chevronDoubleDownIcon" :size="12" class="mr-1 inline-block" />
-          <span class="text-[12px] leading-none">Load everything</span>
+          <span class="text-[12px] leading-none">{{ $t("Load everything") }}</span>
         </span>
       </Button>
     </div>
@@ -142,7 +142,7 @@
       <Button size="middle" type="dashed" class="custom-dashed-clear cursor-pointer w-full shadow-none" @click="clearView">
         <span class="px-2">
           <Icon :icon="closeThickIcon" :size="12" class="mr-1 mb-0.5 inline-block" />
-          <span class="text-[12px] leading-none">Clear this view</span>
+          <span class="text-[12px] leading-none">{{ $t("Clear this view") }}</span>
         </span>
       </Button>
     </div>
@@ -152,10 +152,13 @@
 <script lang="ts" setup>
 import axios from "axios";
 
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed, inject, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+
+import type { SettingsData } from "../__Types__/SettingsData";
 
 import { AutoComplete, Button, InputSearch, Spin, Tooltip } from "ant-design-vue";
 
@@ -216,6 +219,24 @@ const ipData = reactive<IPData>({});
 
 const csrfToken = useCsrfToken();
 const { themeClasses } = useTheme();
+const { t } = useI18n();
+
+const settingsData = inject<SettingsData | null>("data-settings", null);
+const clockFormat = computed(() => settingsData?.clock_format ?? "24h");
+
+function formatLogTimestamp(ts: string): string {
+  if (!ts) return ts;
+  const match = ts.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
+  if (!match) return ts;
+  const [, date, hStr, m, s] = match;
+  if (clockFormat.value === "12h") {
+    const h = parseInt(hStr, 10);
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    return `${date} ${h12}:${m}:${s} ${period}`;
+  }
+  return ts;
+}
 
 // Computed properties
 const filteredData = computed(() => {
@@ -243,7 +264,7 @@ const fetchData = async () => {
     });
 
     const contentType = response.headers["content-type"];
-    if (response.status !== 200 || !contentType || !contentType.includes("application/json")) {
+    if (response.status !== 200 || typeof contentType !== "string" || !contentType.includes("application/json")) {
       throw new Error("Failed to fetch data");
     }
 
@@ -404,6 +425,7 @@ const getStatusClass = (status: string): string => {
   switch (status) {
     case "Failed":
     case "2FA Failed":
+    case "Defaults Blocked":
       return "text-yellow-600";
     case "Limited":
     case "2FA Errored":
@@ -423,7 +445,7 @@ const generateAutocompleteOptions = (data: Log[]) => {
     {
       value: clearLabel,
       label: clearLabel,
-      options: [{ value: "", label: "Clear this view" }],
+      options: [{ value: "", label: t("Clear this view") }],
     },
     {
       value: statusLabel,
@@ -466,7 +488,9 @@ onMounted(() => {
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .fade-enter-from,

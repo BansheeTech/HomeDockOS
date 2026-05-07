@@ -19,13 +19,13 @@
           <AnimatedIcon :icons="[_anim_confused, _anim_happy, _anim_normal, _anim_angry, _anim_dead]" :interval="1000" :iconSize="20" containerClass="mr-2" />
           <span>Error HDOS-{{ errorData.error_code }}</span>
         </h2>
-        <p :class="[themeClasses.errorMessage]" class="font-light mb-6 leading-3">{{ errorData.error_message }}</p>
+        <p :class="[themeClasses.errorMessage]" class="font-light mb-6 leading-3">{{ t(errorData.error_message) }}</p>
 
         <a href="/">
           <Button id="main_button_login" type="primary" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0 disabled:bg-blue-400 disabled:cursor-pointer disabled:text-white">
             <div class="flex items-center justify-center">
               <Icon :icon="backIcon" class="text-white" width="16" height="16" />
-              <span class="ml-1">Go Back</span>
+              <span class="ml-1">{{ $t("Go Back") }}</span>
             </div>
           </Button>
         </a>
@@ -35,8 +35,8 @@
             <a target="_blank" :class="[themeClasses.hyperLink]" class="flex items-center" :href="errorData && errorData.error_code ? `https://docs.homedock.cloud/troubleshooting/error-codes/#hdos-${errorData.error_code}` : 'https://docs.homedock.cloud'">
               <Icon :icon="openIcon" class="mr-1 text-current" width="14" height="14" />
               <span>
-                Click here for more information
-                <template v-if="errorData && errorData.error_code"> about HDOS-{{ errorData.error_code }}. </template>
+                {{ $t("Click here for more information") }}
+                <template v-if="errorData && errorData.error_code"> {{ $t("about HDOS-{code}.", { code: errorData.error_code }) }} </template>
                 <template v-else> . </template>
               </span>
             </a>
@@ -48,6 +48,7 @@
 </template>
 <script setup lang="ts">
 import { inject } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import type { ErrorData } from "../__Types__/ErrorData";
@@ -76,6 +77,7 @@ const errorData = inject<ErrorData | null>("data-error", null) || {
   error_message: "An unexpected error occurred.",
 };
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 </script>
 

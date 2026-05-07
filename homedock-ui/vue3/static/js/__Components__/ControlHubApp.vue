@@ -24,27 +24,27 @@
       <!-- Export -->
       <Button :class="[themeClasses.storeLinkHDOSButton]" ref="exportButton" @click="handleExport(app.name)" type="dashed" size="small" block class="flex items-center justify-center !rounded-xl py-1 transition-all duration-300">
         <Icon :icon="exportVariantIcon" class="mr-1 h-3 w-3" />
-        <span>Export</span>
+        <span>{{ $t("Export") }}</span>
       </Button>
 
       <!-- Import -->
       <Upload :custom-request="handleCustomRequest" v-model:file-list="fileList" accept="yml" :maxCount="1" :showUploadList="false" :headers="uploadHeaders">
         <Button :class="[themeClasses.storeLinkHDOSButton]" type="dashed" size="small" class="w-full flex items-center justify-center !rounded-xl py-1 transition-all duration-300">
           <Icon :icon="linkVariantIcon" class="mr-1 h-3 w-3" />
-          <span>Import</span>
+          <span>{{ $t("Import") }}</span>
         </Button>
       </Upload>
 
       <!-- Edit -->
       <Button ref="editButton" @click="showEditModal(app.name)" type="primary" size="small" block class="flex items-center justify-center !rounded-xl py-1 transition-all duration-300">
         <Icon :icon="codeBracesIcon" class="mr-1 h-3 w-3" />
-        <span>Edit</span>
+        <span>{{ $t("Edit") }}</span>
       </Button>
 
       <!-- Logs -->
       <Button ref="logsButton" @click="showLogsModal(app.name)" type="primary" size="small" block class="flex items-center justify-center !rounded-xl py-1 transition-all duration-300">
         <Icon :icon="scriptTextIcon" class="mr-1 h-3 w-3" />
-        <span>Logs</span>
+        <span>{{ $t("Logs") }}</span>
       </Button>
     </div>
   </div>
@@ -54,6 +54,7 @@
 import axios from "axios";
 
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useWindowStore } from "../__Stores__/windowStore";
@@ -84,11 +85,12 @@ const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.ge
 const uploadHeaders = { "X-HomeDock-CSRF-Token": csrfToken };
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const windowStore = useWindowStore();
 
 const showEditModal = (containerName: string) => {
   windowStore.openWindow("edit", {
-    title: `${props.app.display_name || containerName} - Edit Config`,
+    title: `${props.app.display_name || containerName} - ${t("Edit Config")}`,
     data: { appName: containerName },
     allowMultiple: true,
   });
@@ -96,7 +98,7 @@ const showEditModal = (containerName: string) => {
 
 const showLogsModal = (containerName: string) => {
   windowStore.openWindow("logs", {
-    title: `${props.app.display_name || containerName} - Logs`,
+    title: `${props.app.display_name || containerName} - ${t("Logs")}`,
     data: { appName: containerName },
     allowMultiple: true,
   });
@@ -117,7 +119,7 @@ const handleExport = async (containerName: string) => {
       exportYMLFile(response.data.data.ymlContent, `${containerName}.yml`);
     }
   } catch (error) {
-    message.error("Failed to fetch configuration for export.");
+    message.error(t("Failed to fetch configuration for export."));
   }
 };
 
@@ -155,13 +157,13 @@ const handleCustomRequest = async ({ file, onSuccess, onError }: any) => {
     if (response.ok) {
       const data = await response.json();
       onSuccess(data, file);
-      message.success(`${file.name} uploaded succesfully for ${props.app.display_name || props.app.name} application.`);
+      message.success(t("{file} uploaded successfully for {app} application.", { file: file.name, app: props.app.display_name || props.app.name }));
     } else {
       throw new Error("Upload failed");
     }
   } catch (error) {
     onError(error);
-    message.error(`${file.name} upload failed.`);
+    message.error(t("{file} upload failed.", { file: file.name }));
   }
 };
 </script>

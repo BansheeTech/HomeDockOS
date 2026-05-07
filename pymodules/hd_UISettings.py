@@ -14,7 +14,7 @@ from flask import jsonify, session, request
 from flask_login import login_required
 from urllib.parse import urlparse
 
-from pymodules.hd_FunctionsConfig import read_config, ALLOWED_DISKSPLUS_SESSION_MINUTES
+from pymodules.hd_FunctionsConfig import read_config, ALLOWED_DISKSPLUS_SESSION_MINUTES, ALLOWED_LANGUAGES, ALLOWED_CLOCK_FORMATS, ALLOWED_WEEK_STARTS
 from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_CryptoServer import decrypt_json_from_client
@@ -49,6 +49,9 @@ def api_save_settings():
             return jsonify({"error": "Username cannot exceed 30 characters."}), 400
         user_name = sanitized_username
 
+        if user_name.lower() == "user":
+            return jsonify({"error": "Please choose a different username."}), 400
+
         change_password_checkbox = user_data.get("change_password", False)
 
         if change_password_checkbox:
@@ -56,6 +59,12 @@ def api_save_settings():
 
             if len(user_password) < 6 or len(user_password) > 30:
                 return jsonify({"error": "Password must be between 6 and 30 characters."}), 400
+            if len(user_password.encode("utf-8")) > 72:
+                return jsonify({"error": "Password must be between 6 and 30 characters."}), 400
+
+            if user_password == "passwd":
+                return jsonify({"error": "Please choose a different password."}), 400
+
             password_input = user_password.encode("utf-8")
             salt = bcrypt.gensalt()
             hashed_password = bcrypt.hashpw(password_input, salt).decode("utf-8")
@@ -93,6 +102,18 @@ def api_save_settings():
 
         if selected_back not in allowed_wallpapers and not selected_back.startswith("_back_custom"):
             selected_back = "back1.jpg"
+
+        selected_language = theme_data.get("selected_language", "en")
+        if selected_language not in ALLOWED_LANGUAGES:
+            selected_language = "en"
+
+        clock_format = theme_data.get("clock_format", "24h")
+        if clock_format not in ALLOWED_CLOCK_FORMATS:
+            clock_format = "24h"
+
+        week_start = theme_data.get("week_start", "monday")
+        if week_start not in ALLOWED_WEEK_STARTS:
+            week_start = "monday"
 
         local_dns = "True" if bool(system_data.get("local_dns", False)) else "False"
         run_on_development = "True" if bool(system_data.get("run_on_development", False)) else "False"
@@ -142,6 +163,9 @@ def api_save_settings():
             "disksplus_session_timeout_minutes": disksplus_session_timeout_minutes,
             "selected_theme": selected_theme,
             "selected_back": selected_back,
+            "selected_language": selected_language,
+            "clock_format": clock_format,
+            "week_start": week_start,
             "2fa_enabled": two_fa_enabled,
             "2fa_secret": two_fa_secret,
             "2fa_backup_codes": two_fa_backup_codes,

@@ -23,6 +23,6 @@ export interface SystemApp {
   closeable: boolean;
   category: "system" | "tools" | "settings" | "media" | "utilities";
   showInStartMenu?: boolean;
-  showInExplorerApp?: boolean;
+  showInFinderApp?: boolean;
   showInMyHomeApp?: boolean;
 }

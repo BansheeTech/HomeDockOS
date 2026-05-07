@@ -59,13 +59,16 @@
               <div class="section-label px-4 pt-3 pb-1" :class="themeClasses.updateSectionLabel">Now Playing</div>
               <div class="players-list px-2 pb-2">
                 <div v-for="player in mediaStore.activePlayers" :key="player.windowId" class="player-item flex items-center gap-3 px-2 py-2 rounded-lg transition-colors cursor-pointer" :class="[themeClasses.updateAppItemBg, themeClasses.updateAppItemBgHover]" @click="focusPlayer(player.windowId)">
-                  <div class="player-icon w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" :class="player.isVideo ? 'bg-blue-500/20' : 'bg-purple-500/20'">
+                  <div class="player-icon w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 relative overflow-hidden" :class="player.isVideo ? 'bg-blue-500/20' : 'bg-purple-500/20'">
                     <svg v-if="player.isVideo" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" :class="player.isVideo ? 'text-blue-500' : 'text-purple-500'">
                       <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" />
                     </svg>
                     <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-purple-500">
                       <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                     </svg>
+                    <Transition name="fade">
+                      <img v-if="player.coverUrl" :src="player.coverUrl" alt="" draggable="false" class="absolute inset-0 w-full h-full object-cover" />
+                    </Transition>
                   </div>
                   <div class="player-info flex-1 min-w-0">
                     <div class="player-name text-xs font-medium truncate" :class="themeClasses.updateAppName">{{ player.fileName }}</div>
@@ -128,7 +131,7 @@ watch(
       isMuted.value = player.isMuted;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function toggleDropdown(e: MouseEvent) {
@@ -161,7 +164,7 @@ function onVolumeChange() {
     window.dispatchEvent(
       new CustomEvent(`homedock:media-control-${player.windowId}`, {
         detail: { action: "setVolume", value: currentVolume.value },
-      })
+      }),
     );
   });
 }
@@ -172,7 +175,7 @@ function toggleMute() {
     window.dispatchEvent(
       new CustomEvent(`homedock:media-control-${player.windowId}`, {
         detail: { action: "setMuted", value: isMuted.value },
-      })
+      }),
     );
   });
 }
@@ -181,7 +184,7 @@ function togglePlayerPlayback(windowId: string) {
   window.dispatchEvent(
     new CustomEvent(`homedock:media-control-${windowId}`, {
       detail: { action: "togglePlay" },
-    })
+    }),
   );
 }
 
@@ -205,7 +208,7 @@ watch(
     if (newTrayId !== TRAY_ID && isExpanded.value) {
       isExpanded.value = false;
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -393,6 +396,17 @@ onUnmounted(() => {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+/* Cover art fade-in */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* Taskbar item transitions */

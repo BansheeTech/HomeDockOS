@@ -34,11 +34,11 @@
         <Teleport to="body">
           <div v-if="isExpanded" class="updates-dropdown border" :class="[themeClasses.installDropdownBg, themeClasses.installDropdownBorder, themeClasses.installDropdownShadow]">
             <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">Updates Available</span>
+              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Updates Available") }}</span>
             </div>
 
             <div v-if="containersWithUpdates.length > 0" class="updates-section" :class="themeClasses.installSectionBorder">
-              <div class="section-label" :class="themeClasses.installSectionLabel">{{ updatesCount }} Update{{ updatesCount > 1 ? "s" : "" }} Available</div>
+              <div class="section-label" :class="themeClasses.installSectionLabel">{{ $t("{n} Updates Available", { n: updatesCount }) }}</div>
               <div class="app-list">
                 <TransitionGroup name="app-switch" tag="div">
                   <div v-for="container in visibleUpdates" :key="`update-${container.name}`" class="app-item" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover]" @click="updateContainer(container.name)">
@@ -51,7 +51,7 @@
                     </div>
                   </div>
                 </TransitionGroup>
-                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">And {{ remainingCount }} more...</div>
+                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
               </div>
             </div>
 
@@ -60,7 +60,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 5v14M19 12l-7 7-7-7" />
                 </svg>
-                Update All ({{ updatesCount }})
+                {{ $t("Update All ({n})", { n: updatesCount }) }}
               </button>
             </div>
           </div>

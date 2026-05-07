@@ -88,7 +88,6 @@ if __name__ == "__main__":
     start_app_updates_checker_thread()
     start_notifications_fetcher_thread()
 
-    user_name = globalConfig["user_name"]
     run_port = globalConfig["run_port"]
     local_dns = globalConfig["local_dns"]
     dynamic_dns = globalConfig["dynamic_dns"]
@@ -146,10 +145,6 @@ if __name__ == "__main__":
 
     print(" * CPU Type:", running_ARCH)
     print(" * Underlying OS:", running_OS)
-    print()
-
-    print(" * User Login:", user_name)
-    print(" * Default Password:", "passwd")
     print()
 
     if ssl_enabled_var:
@@ -239,6 +234,7 @@ if __name__ == "__main__":
 
             async def run_all_servers():
                 from concurrent.futures import ThreadPoolExecutor
+
                 asyncio.get_running_loop().set_default_executor(ThreadPoolExecutor(max_workers=50))
 
                 stop_event = asyncio.Event()

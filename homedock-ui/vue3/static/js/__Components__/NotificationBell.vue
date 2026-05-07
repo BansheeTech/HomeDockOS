@@ -17,9 +17,9 @@
               <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="w-4 h-4" />
             </div>
             <div>
-              <h3 class="font-semibold text-sm" :class="[themeClasses.notTextUp]">Notifications</h3>
+              <h3 class="font-semibold text-sm" :class="[themeClasses.notTextUp]">{{ $t("Notifications") }}</h3>
               <p class="text-xs opacity-70" :class="[themeClasses.notTextDown]">
-                {{ notifications.length > 0 ? `${notifications.length} new` : "All caught up" }}
+                {{ notifications.length > 0 ? `${notifications.length} ${$t("new")}` : $t("All caught up") }}
               </p>
             </div>
           </div>
@@ -48,7 +48,7 @@
                   <span v-if="notification.endDate">{{ formatDate(notification.endDate) }}</span>
                 </div>
                 <a v-if="notification.actionUrl" :href="notification.actionUrl" target="_blank" rel="noopener noreferrer" @click.stop class="inline-flex items-center mt-2 px-2.5 py-1 text-[10px] font-medium rounded-md transition-all duration-200 hover:scale-105" :class="[themeClasses.notInnerIcon, themeClasses.notTextUp]">
-                  {{ notification.actionText || "Ver más" }}
+                  {{ notification.actionText || $t("See more") }}
                   <Icon :icon="openInNewIcon" class="ml-1" size="10px" />
                 </a>
               </div>
@@ -60,8 +60,8 @@
               <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 opacity-60" :class="[themeClasses.notInnerIcon]">
                 <Icon :icon="checkIcon" class="w-6 h-6" />
               </div>
-              <p class="text-base font-semibold mb-1" :class="[themeClasses.notTextUp]">You're all caught up!</p>
-              <p class="text-sm opacity-70" :class="[themeClasses.notTextDown]">No new notifications at the moment</p>
+              <p class="text-base font-semibold mb-1" :class="[themeClasses.notTextUp]">{{ $t("You're all caught up!") }}</p>
+              <p class="text-sm opacity-70" :class="[themeClasses.notTextDown]">{{ $t("No new notifications at the moment") }}</p>
             </div>
           </TransitionGroup>
         </div>
@@ -74,6 +74,7 @@
 import axios from "axios";
 
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useTrayManager } from "../__Composables__/useTrayManager";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
@@ -93,6 +94,7 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const trayManager = useTrayManager();
 const csrfToken = useCsrfToken();
 
@@ -169,8 +171,8 @@ onMounted(async () => {
 
   if (updateStore.updateAvailable) {
     const updateNotification: Notification = {
-      title: `New version available!`,
-      message: `New update available! HomeDock OS v${updateStore.latestVersion} is ready to install. Click here to update now.`,
+      title: t("New version available!"),
+      message: t("New update available! HomeDock OS v{version} is ready to install. Click here to update now.", { version: updateStore.latestVersion }),
       permanent: true,
       allowRemove: false,
       startDate: null,
@@ -178,15 +180,15 @@ onMounted(async () => {
       isUpdate: true,
       onClick: async function () {
         this.isUpdating = true;
-        this.title = "Updating HomeDock OS...";
-        this.message = "Installing HomeDock OS update... Please wait until your HomeDock OS instance is back online...";
+        this.title = t("Updating HomeDock OS...");
+        this.message = t("Installing HomeDock OS update... Please wait until your HomeDock OS instance is back online...");
 
         try {
           await updateStore.triggerUpdate(csrfToken.value);
         } catch (error) {
           this.isUpdating = false;
-          this.title = "Update Failed";
-          this.message = "Something went wrong while updating HomeDock OS. Please reload and restart HomeDock OS.";
+          this.title = t("Update Failed");
+          this.message = t("Something went wrong while updating HomeDock OS. Please reload and restart HomeDock OS.");
         }
       },
     };

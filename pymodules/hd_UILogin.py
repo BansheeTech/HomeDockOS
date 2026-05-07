@@ -18,7 +18,7 @@ from flask import render_template, request, session, g, jsonify, redirect, url_f
 from flask_login import UserMixin, login_user, current_user, LoginManager
 
 from pymodules.hd_HDOSWebServerInit import homedock_www
-from pymodules.hd_FunctionsConfig import read_config
+from pymodules.hd_FunctionsConfig import read_config, is_fresh_install
 from pymodules.hd_FunctionsMain import sanitize_input
 from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
@@ -157,10 +157,14 @@ def complete_login_session(user_name, ip_address):
 
 
 def login_page():
+    if is_fresh_install():
+        return redirect(url_for("onboarding_page"))
+
     ip_address = request.remote_addr
     aux_config = read_config()
     selected_theme = aux_config["selected_theme"]
     selected_back = aux_config["selected_back"]
+    selected_language = aux_config["selected_language"]
 
     shield_response = handle_shield_mode()
     if shield_response:
@@ -177,7 +181,7 @@ def login_page():
     if "homedock_csrf_token" not in session:
         session["homedock_csrf_token"] = generate_csrf_token()
 
-    return render_template("login.html", version_hash=version_hash, homedock_csrf_token=session["homedock_csrf_token"], attempts=remaining_attempts, selected_theme=selected_theme, selected_back=selected_back, nonce=g.get("nonce", ""))
+    return render_template("login.html", version_hash=version_hash, homedock_csrf_token=session["homedock_csrf_token"], attempts=remaining_attempts, selected_theme=selected_theme, selected_back=selected_back, selected_language=selected_language, nonce=g.get("nonce", ""))
 
 
 def api_login():
@@ -185,6 +189,9 @@ def api_login():
     global shield_mode_active
     global shield_mode_timestamp
     global shield_mode_count
+
+    if is_fresh_install():
+        return jsonify({"status": "onboarding_required", "message": "Onboarding required, redirecting...", "redirect_url": "/onboarding"}), 423
 
     ip_address = request.remote_addr
 
@@ -234,6 +241,13 @@ def api_login():
 
     if len(given_password) > 30 or len(given_username) > 30:
         return jsonify({"status": "bad_request", "message": "Username or password exceeds lenght limit."}), 400
+    if len(given_password.encode("utf-8")) > 72:
+        return jsonify({"status": "bad_request", "message": "Username or password exceeds lenght limit."}), 400
+
+    if given_username == "user" and given_password == "passwd":
+        failed_attempts[ip_address].append(datetime.now())
+        log_attempt(ip_address, "Defaults Blocked", given_username)
+        return jsonify({"status": "default_credentials_blocked", "message": "Default credentials are not accepted anymore."}), 403
 
     if os.path.exists(os.path.join(current_directory, ".is_updating")):
         return jsonify({"status": "service_unavailable", "message": "Update in progress, please wait..."}), 503

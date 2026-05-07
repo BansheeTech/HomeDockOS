@@ -598,9 +598,9 @@ export const useDesktopStore = defineStore("desktop", {
 
       sanitized = sanitized.replace(/\s+/g, " ");
 
-      sanitized = sanitized.replace(/[^a-zA-Z0-9\s\-_()áéíóúÁÉÍÓÚñÑüÜ]/g, "");
+      sanitized = sanitized.replace(/[^\p{L}\p{N}\p{M}\s\-_()]/gu, "");
 
-      sanitized = sanitized.substring(0, 20);
+      sanitized = sanitized.substring(0, 32);
 
       if (!sanitized || sanitized.length === 0) {
         sanitized = "New Folder";

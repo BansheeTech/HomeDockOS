@@ -20,9 +20,26 @@ endpoint_limits = {
     "/api/2fa/status": 1 * 1024,  # 1KB
     "/api/2fa/disable": 2 * 1024,  # 2KB
     "/api/upload_wallpaper": 10 * 1024 * 1024,  # 10MB
-    "/api/storage/upload": 1 * 1024 * 1024 * 1024,  # 1GB
-    "/api/dropzone/upload": 1 * 1024 * 1024 * 1024,  # 1GB
-    "/api/appdrive/upload": 1 * 1024 * 1024 * 1024,  # 1GB
+    "/api/storage/edit": 100 * 1024 * 1024,  # 100MB
+    "/api/dropzone/edit": 100 * 1024 * 1024,  # 100MB
+    "/api/appdrive/edit": 100 * 1024 * 1024,  # 100MB
+    "/api/disksplus/edit": 100 * 1024 * 1024,  # 100MB
+    "/api/storage/upload/init": 4 * 1024,  # 4KB
+    "/api/storage/upload/chunk": 6 * 1024 * 1024,  # 6MB
+    "/api/storage/upload/finalize": 4 * 1024,  # 4KB
+    "/api/storage/upload/abort": 4 * 1024,  # 4KB
+    "/api/dropzone/upload/init": 4 * 1024,  # 4KB
+    "/api/dropzone/upload/chunk": 6 * 1024 * 1024,  # 6MB
+    "/api/dropzone/upload/finalize": 4 * 1024,  # 4KB
+    "/api/dropzone/upload/abort": 4 * 1024,  # 4KB
+    "/api/appdrive/upload/init": 4 * 1024,  # 4KB
+    "/api/appdrive/upload/chunk": 6 * 1024 * 1024,  # 6MB
+    "/api/appdrive/upload/finalize": 4 * 1024,  # 4KB
+    "/api/appdrive/upload/abort": 4 * 1024,  # 4KB
+    "/api/disksplus/upload/init": 4 * 1024,  # 4KB
+    "/api/disksplus/upload/chunk": 6 * 1024 * 1024,  # 6MB
+    "/api/disksplus/upload/finalize": 4 * 1024,  # 4KB
+    "/api/disksplus/upload/abort": 4 * 1024,  # 4KB
     "/api/pkg/upload": 5 * 1024 * 1024,  # 5MB (.hds)
     "/api/pkg/create": 16 * 1024 * 1024,  # 16MB (.hds upload)
     "/api/pkg/parse-compose": 10 * 1024 * 1024,  # 10MB (compose file)

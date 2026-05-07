@@ -17,15 +17,15 @@
         </div>
         <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2 flex items-center">
           <AnimatedIcon :icons="[_anim_slow, _anim_medium, _anim_high, _anim_medium]" :interval="1000" :iconSize="20" containerClass="mr-2" />
-          <span>You've been limited</span>
+          <span>{{ $t("You've been limited") }}</span>
         </h2>
-        <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">Please wait 60 minutes to try again.</p>
+        <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">{{ $t("Please wait 60 minutes to try again.") }}</p>
 
         <a href="/">
           <Button id="main_button_login" type="primary" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0 disabled:bg-blue-400 disabled:cursor-pointer disabled:text-white">
             <div class="flex items-center justify-center">
               <Icon :icon="backIcon" class="text-white" width="16" height="16" />
-              <span class="ml-1">Go Back</span>
+              <span class="ml-1">{{ $t("Go Back") }}</span>
             </div>
           </Button>
         </a>
@@ -34,7 +34,7 @@
           <p :class="[themeClasses.subText]" class="mt-4 text-xs">
             <a target="_blank" :class="[themeClasses.hyperLink]" class="flex items-center" href="https://docs.homedock.cloud/homedock-os/system-logs/#login-attempts">
               <Icon :icon="openIcon" class="mr-1 text-current" width="14" height="14" />
-              <span>Click here for more information.</span>
+              <span>{{ $t("Click here for more information.") }}</span>
             </a>
           </p>
         </div>

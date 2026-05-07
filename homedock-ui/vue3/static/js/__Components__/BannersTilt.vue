@@ -22,7 +22,7 @@
       <Button ref="installButton" size="small" type="primary" class="tilt-install" @click="handleLearnMore">
         <div class="flex items-center">
           <Icon :icon="bookOpenBlankVariantIcon" class="optionsIcon mr-2" />
-          <span class="text-white">Install</span>
+          <span class="text-white">{{ $t("Install") }}</span>
         </div>
       </Button>
     </div>
@@ -31,6 +31,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useAppStore } from "../__Stores__/useAppStore";
 import { useWindowStore } from "../__Stores__/windowStore";
@@ -41,6 +42,8 @@ import VanillaTilt from "vanilla-tilt";
 
 import { Icon } from "@iconify/vue";
 import bookOpenBlankVariantIcon from "@iconify-icons/mdi/arrow-expand-all";
+
+const { t } = useI18n();
 
 const appStore = useAppStore();
 const windowStore = useWindowStore();
@@ -102,7 +105,7 @@ const handleLearnMore = () => {
   }
 
   windowStore.openWindow("installconfig", {
-    title: `Install ${app.display_name || app.name}`,
+    title: t("Install {name}", { name: app.display_name || app.name }),
     data: { app: app },
     allowMultiple: true,
   });

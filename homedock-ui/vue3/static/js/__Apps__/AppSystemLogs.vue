@@ -47,16 +47,16 @@
       </div>
     </div>
 
-    <StatusBar :icon="chartTimelineVariantIcon" message="System Logs" info="Logs retained for 48 hours" :showHelp="true">
+    <StatusBar :icon="chartTimelineVariantIcon" :message="$t('System Logs')" :info="$t('Logs retained for 48 hours')" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="chartTimelineVariantIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">System Logs</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("System Logs") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>Track login attempts and system performance metrics over time. Login logs are fully relational and searchable by IP, username, or status. HomeDock OS includes Shield Mode, a proprietary security feature that detects coordinated attacks and activates progressive lockout measures to prevent brute-force attempts while keeping legitimate access available.</p>
+            <p>{{ $t("Track login attempts and system performance metrics over time. Login logs are fully relational and searchable by IP, username, or status. HomeDock OS includes Shield Mode, a proprietary security feature that detects coordinated attacks and activates progressive lockout measures to prevent brute-force attempts while keeping legitimate access available.") }}</p>
           </div>
         </div>
       </template>
@@ -66,6 +66,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
@@ -89,18 +90,19 @@ import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant"
 const csrfToken = useCsrfToken();
 const diskStore = useDisksPlusStore();
 
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 
 const systemDiskChartTitle = computed(() => {
   const label = diskStore.osDisk?.label?.trim();
-  if (label) return `${label} Usage`;
-  return "System Disk Usage";
+  if (label) return `${label} ${t("Usage")}`;
+  return t("System Disk Usage");
 });
 
 const trackedDiskChartTitle = computed(() => {
   const label = diskStore.trackedExternalDisk?.label?.trim();
-  if (label) return `${label} Usage`;
-  return "Tracked Disk Usage";
+  if (label) return `${label} ${t("Usage")}`;
+  return t("Tracked Disk Usage");
 });
 
 const externalDiskDisabled = computed(() => !diskStore.isTrackedExternalDiskActive);

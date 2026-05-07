@@ -19,12 +19,12 @@
         <div class="flip-card-container" :class="{ flipped: requires2FA }">
           <div class="flip-card-inner">
             <div class="flip-card-face flip-card-front">
-              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
-              <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">Sign in to continue</p>
+              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">{{ $t("Welcome to HomeDock OS") }}</h2>
+              <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">{{ $t("Sign in to continue") }}</p>
               <Form layout="vertical" :model="formState" :rules="rules" @finish="handleFinish" @finishFailed="handleFinishFailed">
                 <Form.Item name="username">
-                  <label class="text-gray-300" for="username">Username</label>
-                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser" autocomplete="username" v-model:value="formState.username" placeholder="Username..." :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
+                  <label class="text-gray-300" for="username">{{ $t("Username") }}</label>
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser" autocomplete="username" v-model:value="formState.username" :placeholder="$t('Username...')" :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
                     <template #prefix>
                       <Icon :icon="accountIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
                     </template>
@@ -32,7 +32,7 @@
                 </Form.Item>
                 <div class="mt-2"></div>
                 <Form.Item name="">
-                  <label class="text-gray-300" for="password">Password</label>
+                  <label class="text-gray-300" for="password">{{ $t("Password") }}</label>
                   <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group" autocomplete="current-password" v-model:value="formState.password" :type="passwordVisible ? 'text' : 'password'" placeholder="••••••••" :status="validationStatus" :maxlength="30" required @focus="showCloudInstances">
                     <template #prefix>
                       <Icon :icon="passIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
@@ -45,50 +45,50 @@
                     </template>
                   </Input>
                 </Form.Item>
-                <Button id="main_button_login" @click="triggerBounce" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" :loading="isSubmitting" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0" :disabled="isSubmitting || isLoginSuccessful">
+                <Button id="main_button_login" @click="triggerBounce" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0" :disabled="isSubmitting || isLoginSuccessful">
                   <div v-if="!isLoginSuccessful" class="flex items-center justify-center">
-                    <Icon :icon="passIcon" class="text-white" width="16" height="16" />
-                    <span class="ml-1">Sign In</span>
+                    <Icon :icon="isSubmitting ? loadingIcon : passIcon" :class="['text-white', { 'animate-spin': isSubmitting }]" width="16" height="16" />
+                    <span class="ml-1">{{ $t("Sign In") }}</span>
                   </div>
-                  <span v-else>
+                  <span v-else class="flex items-center justify-center">
                     <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
                   </span>
                 </Button>
                 <Transition name="slide-down-error">
-                  <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">Remaining attempts: {{ remainingAttempts }}</p>
+                  <p v-if="remainingAttempts !== null" :class="[themeClasses.subText, 'animated-attempts']" class="text-xs mt-2">{{ $t("Remaining attempts") }}: {{ remainingAttempts }}</p>
                 </Transition>
               </Form>
             </div>
 
             <div class="flip-card-face flip-card-back">
-              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">Welcome to HomeDock OS</h2>
-              <p :class="[themeClasses.subText]" class="font-light mb-4 leading-3">Two-factor verification</p>
+              <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2">{{ $t("Welcome to HomeDock OS") }}</h2>
+              <p :class="[themeClasses.subText]" class="font-light mb-4 leading-3">{{ $t("Two-factor verification") }}</p>
               <div class="flex items-center gap-2 mb-2">
                 <Icon :icon="shieldKeyIcon" :class="[themeClasses.mainText]" width="24" height="24" />
-                <h3 :class="[themeClasses.mainText]" class="text-lg font-medium">Two-Factor Authentication</h3>
+                <h3 :class="[themeClasses.mainText]" class="text-lg font-medium">{{ $t("Two-Factor Authentication") }}</h3>
               </div>
-              <p :class="[themeClasses.subText]" class="text-sm mb-4">Enter the 6-digit code from your authenticator app or a backup code.</p>
-              <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-14 text-center text-xl tracking-wide mb-4" v-model:value="totpCode" placeholder="Ex: 123456" :maxlength="12" autocomplete="one-time-code" @keyup.enter="handle2FAVerify" />
+              <p :class="[themeClasses.subText]" class="text-sm mb-4">{{ $t("Enter the 6-digit code from your authenticator app or a backup code:") }}</p>
+              <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-14 text-center text-xl tracking-wide mb-4" v-model:value="totpCode" :placeholder="$t('Ex: 123456')" :maxlength="12" autocomplete="one-time-code" @keyup.enter="handle2FAVerify" />
               <div :class="[themeClasses.subText]" class="flex items-center gap-2 select-none mb-2">
                 <Switch v-model:checked="trustDevice" size="small" />
-                <span class="text-sm">Don't ask on this device for 30 days</span>
+                <span class="text-sm">{{ $t("Don't ask on this device for 30 days") }}</span>
               </div>
               <div class="flex gap-2 mt-4">
                 <Button :class="[themeClasses.loginSecondaryButton]" class="flex items-center h-14" @click="cancel2FA" :disabled="verifying2FA || isLoginSuccessful">
                   <Icon :icon="arrowLeftIcon" width="16" height="16" class="mr-1" />
-                  Back
+                  {{ $t("Back") }}
                 </Button>
                 <Button id="main_button_login_2fa" class="flex-1 h-14 border-0" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" @click="handle2FAVerify" :disabled="verifying2FA || isLoginSuccessful">
                   <div v-if="!isLoginSuccessful && !verifying2FA" class="flex items-center justify-center">
                     <Icon :icon="checkIcon" class="text-white" width="16" height="16" />
-                    <span class="ml-1">Verify</span>
+                    <span class="ml-1">{{ $t("Verify") }}</span>
                   </div>
                   <span v-else>
                     <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
                   </span>
                 </Button>
               </div>
-              <p :class="[themeClasses.subText]" class="text-xs mt-2 text-center opacity-70">Lost your device? Use a backup code instead.</p>
+              <p :class="[themeClasses.subText]" class="text-xs mt-2 text-center opacity-70">{{ $t("Lost your device? Use a backup code instead.") }}</p>
             </div>
           </div>
         </div>
@@ -118,8 +118,46 @@
 import axios from "axios";
 
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
+
+const { t } = useI18n();
+
+function getLoginMessage(status: string, data: any): string {
+  switch (status) {
+    case "success":
+      return t("Login successful, welcome to HomeDock OS.");
+    case "2fa_required":
+      return t("Two-factor authentication required.");
+    case "failed":
+      return t("Incorrect credentials, remaining attempts: {n}.", { n: data.remaining_attempts ?? "?" });
+    case "limited":
+      return t("You've been limited, please try again later.");
+    case "service_unavailable":
+      return t("Update in progress, please wait...");
+    case "shield_mode":
+      return t("Shield Mode active, please try again later.");
+    case "already_authenticated":
+      return t("Already authenticated, redirecting...");
+    default:
+      return data.message || t("Unexpected error, please contact support.");
+  }
+}
+
+function get2FAErrorMessage(error: any): string {
+  const status = error.response?.status;
+  if (status === 429) return t("Too many failed 2FA attempts. Please login again.");
+  if (status === 403) return t("Invalid or expired 2FA session. Please login again.");
+  const msg: string = error.response?.data?.error || "";
+  if (msg.includes("Invalid verification code")) {
+    const match = msg.match(/(\d+) attempt/);
+    return match ? t("Invalid verification code. {n} attempt(s) remaining.", { n: match[1] }) : t("Invalid verification code.");
+  }
+  return msg || t("Invalid verification code.");
+}
+
 import { getServerKeyAndToken, encryptWithKey } from "../__Utils__/CryptoClient";
+import { clampToBytes, BCRYPT_MAX_BYTES } from "../__Utils__/StringByteClamp";
 
 import { AxiosError } from "axios";
 
@@ -154,6 +192,21 @@ const formState = ref({
   password: "",
 });
 
+watch(
+  () => formState.value.username,
+  (next) => {
+    const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
+    if (clamped !== next) formState.value.username = clamped;
+  },
+);
+watch(
+  () => formState.value.password,
+  (next) => {
+    const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
+    if (clamped !== next) formState.value.password = clamped;
+  },
+);
+
 const isBouncing = ref(false);
 
 const triggerBounce = () => {
@@ -167,8 +220,8 @@ const triggerBounce = () => {
 };
 
 const rules: Record<string, Rule[]> = {
-  username: [{ required: true, message: "Username is required", trigger: "blur" }],
-  password: [{ required: true, message: "Password is required", trigger: "blur" }],
+  username: [{ required: true, message: t("Username is required"), trigger: "blur" }],
+  password: [{ required: true, message: t("Password is required"), trigger: "blur" }],
 };
 
 const passwordVisible = ref<boolean>(false);
@@ -207,7 +260,7 @@ const showCloudInstances = (): void => {
 
 const handleFinish = async () => {
   if (!csrfToken.value) {
-    message.error("CSRF token missing.");
+    message.error(t("CSRF token missing."));
     return;
   }
 
@@ -241,7 +294,7 @@ const handleFinish = async () => {
     );
 
     if (pcryptResponse.data.status !== "success") {
-      message.error(pcryptResponse.data.message || "Error encrypting password.");
+      message.error(t("Error encrypting password."));
       return;
     }
 
@@ -261,30 +314,30 @@ const handleFinish = async () => {
       },
     );
 
-    if (loginResponse.data.message) {
-      if (loginResponse.data.status === "success") {
-        message.success(loginResponse.data.message);
-
+    const loginStatus = loginResponse.data.status;
+    if (loginStatus) {
+      if (loginStatus === "success") {
+        message.success(getLoginMessage(loginStatus, loginResponse.data));
         isLoginSuccessful.value = true;
 
         setTimeout(() => {
           window.location.href = loginResponse.data.redirect_url;
         }, 2500);
-      } else if (loginResponse.data.status === "2fa_required") {
+      } else if (loginStatus === "2fa_required") {
         requires2FA.value = true;
         pending2FAToken.value = loginResponse.data.pending_token;
-        message.info(loginResponse.data.message);
+        message.info(getLoginMessage(loginStatus, loginResponse.data));
       } else {
         if (loginResponse.data.remaining_attempts !== undefined) {
           remainingAttempts.value = loginResponse.data.remaining_attempts;
         }
 
-        message.error(loginResponse.data.message);
+        message.error(getLoginMessage(loginStatus, loginResponse.data));
         validationStatus.value = "error";
         flashLoginError();
       }
     } else {
-      message.error("Unexpected error, please contact support.");
+      message.error(t("Unexpected error, please contact support."));
     }
 
     if (loginResponse.data.redirect_url) {
@@ -299,11 +352,12 @@ const handleFinish = async () => {
         const { message: backendMessage, redirect_url } = error.response.data;
 
         if (error.response.status === 403 && window.location.protocol === "http:") {
-          message.error("Login only permitted from a valid HTTPS source.", 5);
+          message.error(t("Login only permitted from a valid HTTPS source."), 5);
           validationStatus.value = "error";
           flashLoginError();
-        } else if (backendMessage) {
-          message.error(backendMessage);
+        } else {
+          const errStatus = error.response.data?.status;
+          message.error(errStatus ? getLoginMessage(errStatus, error.response.data) : backendMessage || t("Unexpected error, please contact support."));
           validationStatus.value = "error";
           flashLoginError();
         }
@@ -320,7 +374,7 @@ const handleFinish = async () => {
           return;
         }
       } else {
-        message.error("There was an error while signing in.");
+        message.error(t("There was an error while signing in."));
       }
     }
   } finally {
@@ -341,7 +395,7 @@ const handleFinishFailed = (errors: any): void => {};
 const handle2FAVerify = async () => {
   const codeLength = totpCode.value.length;
   if (codeLength !== 6 && codeLength !== 12) {
-    message.warning("Please enter a 6-digit code or backup code");
+    message.warning(t("Please enter a 6-digit code or backup code"));
     return;
   }
 
@@ -365,11 +419,11 @@ const handle2FAVerify = async () => {
     );
 
     if (response.data.status === "success") {
-      message.success(response.data.message);
+      message.success(getLoginMessage("success", response.data));
       isLoginSuccessful.value = true;
 
       if (response.data.used_backup) {
-        message.warning("You used a backup code. Consider generating new backup codes in Settings.", 5);
+        message.warning(t("You used a backup code. Consider generating new backup codes in Settings."), 5);
       }
 
       setTimeout(() => {
@@ -378,7 +432,7 @@ const handle2FAVerify = async () => {
     }
   } catch (error) {
     if (error instanceof AxiosError && error.response?.data) {
-      message.error(error.response.data.error || "Invalid verification code");
+      message.error(get2FAErrorMessage(error));
       flashLoginError();
       if (error.response.status === 429 || error.response.status === 403) {
         cancel2FA();

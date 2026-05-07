@@ -36,13 +36,14 @@
         </div>
       </div>
 
-      <Empty v-else :class="[themeClasses.storeEmptyText]" description="No applications available under this search term"></Empty>
+      <Empty v-else :class="[themeClasses.storeEmptyText]" :description="$t('No applications available under this search term')"></Empty>
     </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVirtualizer } from "@tanstack/vue-virtual";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
@@ -60,6 +61,7 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import AppStoreAppCard from "../__Components__/AppStoreAppCard.vue";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 
 const appStore = useAppStore();
 const windowStore = useWindowStore();
@@ -179,7 +181,7 @@ const openModal = (app: App) => {
   const displayName = selectedAppFromStore.display_name || selectedAppFromStore.name;
 
   windowStore.openWindow("installconfig", {
-    title: `Install ${displayName}`,
+    title: t("Install {name}", { name: displayName }),
     data: { app: selectedAppFromStore },
     allowMultiple: true,
   });

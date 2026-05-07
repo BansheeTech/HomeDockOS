@@ -26,7 +26,7 @@
     >
       <div class="window-header" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
         <div class="window-header-draggable" @mousedown="handleHeaderMouseDown" @dblclick="handleHeaderDblClick">
-          <div v-if="window.icon" class="window-icon-container transition duration-150" :class="isActive ? themeClasses.windowIconContainerBgFocused : themeClasses.windowIconContainerBg" @contextmenu.stop.prevent="handleIconClick" title="System menu">
+          <div v-if="window.icon" class="window-icon-container transition duration-150" :class="isActive ? themeClasses.windowIconContainerBgFocused : themeClasses.windowIconContainerBg" @contextmenu.stop.prevent="handleIconClick" :title="$t('System menu')">
             <Icon :icon="window.icon" class="window-icon" :class="isActive ? themeClasses.windowTitleTextFocused : themeClasses.windowTitleText" width="16" height="16" />
           </div>
 
@@ -37,13 +37,13 @@
         </div>
 
         <div class="window-controls">
-          <button v-if="appConfig?.minimizable !== false" class="window-control minimize" :class="[themeClasses.windowButtonText, themeClasses.windowButtonBgHover, themeClasses.windowButtonTextHover]" @click.stop="handleMinimize" title="Minimize">
+          <button v-if="appConfig?.minimizable !== false" class="window-control minimize" :class="[themeClasses.windowButtonText, themeClasses.windowButtonBgHover, themeClasses.windowButtonTextHover]" @click.stop="handleMinimize" :title="$t('Minimize')">
             <Icon :icon="minimizeIcon" :width="isMobile ? 14 : 12" :height="isMobile ? 14 : 12" />
           </button>
-          <button v-if="!isMobile && appConfig?.maximizable !== false" class="window-control maximize" :class="[themeClasses.windowButtonText, themeClasses.windowButtonBgHover, themeClasses.windowButtonTextHover]" @click.stop="handleToggleMaximize" title="Maximize">
+          <button v-if="!isMobile && appConfig?.maximizable !== false" class="window-control maximize" :class="[themeClasses.windowButtonText, themeClasses.windowButtonBgHover, themeClasses.windowButtonTextHover]" @click.stop="handleToggleMaximize" :title="$t(window.isMaximized ? 'Restore' : 'Maximize')">
             <Icon :icon="window.isMaximized ? restoreIcon : maximizeIcon" width="12" height="12" />
           </button>
-          <button v-if="appConfig?.closeable !== false" class="window-control close" :class="[themeClasses.windowButtonText, themeClasses.windowCloseButtonBgHover, themeClasses.windowCloseButtonTextHover]" @click.stop="handleClose" title="Close">
+          <button v-if="appConfig?.closeable !== false" class="window-control close" :class="[themeClasses.windowButtonText, themeClasses.windowCloseButtonBgHover, themeClasses.windowCloseButtonTextHover]" @click.stop="handleClose" :title="$t('Close')">
             <Icon :icon="closeIcon" :width="isMobile ? 14 : 12" :height="isMobile ? 14 : 12" />
           </button>
         </div>
@@ -72,6 +72,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, markRaw } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
 import minimizeIcon from "@iconify-icons/mdi/window-minimize";
 import maximizeIcon from "@iconify-icons/mdi/window-maximize";
@@ -104,6 +105,7 @@ const emit = defineEmits<{
 const windowStore = useWindowStore();
 const { isMobile, isResizeEnabled, isDragEnabled, taskbarHeight, taskbarHeightPx, availableHeight } = useResponsive();
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 
 const { shouldKeepAlive } = useWindowRAMManager(() => props.window.isMinimized);
 

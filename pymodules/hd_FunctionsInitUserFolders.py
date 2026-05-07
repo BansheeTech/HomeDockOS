@@ -11,6 +11,7 @@ from pymodules.hd_FunctionsGlobals import (
     compose_upload_folder,
     dropzone_folder,
     storage_folder,
+    chunks_folder,
     user_storage_folder,
     logs_folder,
     user_packages_images_folder,
@@ -35,6 +36,7 @@ def init_all_directories():
     os.makedirs(user_storage_folder, exist_ok=True)
     os.makedirs(dropzone_folder, exist_ok=True)
     os.makedirs(storage_folder, exist_ok=True)
+    os.makedirs(chunks_folder, exist_ok=True)
 
     from pymodules.hd_UIDropzone import migrate_dropzone_data
 

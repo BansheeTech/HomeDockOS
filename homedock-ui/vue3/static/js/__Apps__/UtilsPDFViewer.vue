@@ -6,32 +6,32 @@
 <template>
   <div class="pdf-viewer flex flex-col h-full overflow-hidden @container">
     <div class="toolbar flex items-center gap-1 @[400px]:gap-2 px-2 @[400px]:px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="previousPage" :disabled="currentPage <= 1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" title="Previous Page">
+      <button @click="previousPage" :disabled="currentPage <= 1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Previous Page')">
         <Icon :icon="chevronLeftIcon" class="w-4 h-4" />
       </button>
       <span :class="['text-xs whitespace-nowrap', themeClasses.windowTextMuted]">{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage >= totalPages" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" title="Next Page">
+      <button @click="nextPage" :disabled="currentPage >= totalPages" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Next Page')">
         <Icon :icon="chevronRightIcon" class="w-4 h-4" />
       </button>
 
       <div class="w-px h-4 mx-0.5 @[400px]:mx-1" :class="themeClasses.utilityDivider"></div>
 
       <div class="flex items-center gap-0">
-        <button @click="zoomOut" :disabled="zoom <= 0.25" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" title="Zoom Out (-)">
+        <button @click="zoomOut" :disabled="zoom <= 0.25" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom Out (-)')">
           <Icon :icon="magnifyMinusIcon" class="w-4 h-4" />
         </button>
         <span :class="['text-xs min-w-[40px] text-center', themeClasses.windowText]">{{ Math.round(zoom * 100) }}%</span>
-        <button @click="zoomIn" :disabled="zoom >= 4" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" title="Zoom In (+)">
+        <button @click="zoomIn" :disabled="zoom >= 4" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom In (+)')">
           <Icon :icon="magnifyPlusIcon" class="w-4 h-4" />
         </button>
       </div>
 
       <div class="w-px h-4 mx-0.5 @[400px]:mx-1" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="fitToWidth" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'width' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" title="Fit to Width">
+      <button @click="fitToWidth" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'width' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" :title="$t('Fit to Width')">
         <Icon :icon="arrowExpandHorizontalIcon" class="w-4 h-4" />
       </button>
-      <button @click="fitToPage" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'page' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" title="Fit to Page">
+      <button @click="fitToPage" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'page' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" :title="$t('Fit to Page')">
         <Icon :icon="fitToPageIcon" class="w-4 h-4" />
       </button>
 
@@ -44,7 +44,7 @@
       <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <Icon :icon="loadingIcon" class="w-8 h-8 animate-spin" :class="themeClasses.windowTextMuted" />
-          <span :class="['text-sm', themeClasses.windowTextMuted]">Loading PDF...</span>
+          <span :class="['text-sm', themeClasses.windowTextMuted]">{{ $t("Loading PDF...") }}</span>
         </div>
       </div>
 
@@ -53,7 +53,7 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/10">
             <Icon :icon="alertIcon" class="w-8 h-8 text-red-500" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">Cannot Display PDF</h3>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("Cannot Display PDF") }}</h3>
           <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ error }}</p>
         </div>
       </div>
@@ -63,8 +63,8 @@
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center" :class="themeClasses.imageViewerBg">
             <Icon :icon="filePdfIcon" class="w-8 h-8" :class="themeClasses.windowTextMuted" />
           </div>
-          <h3 :class="['text-lg font-medium', themeClasses.windowText]">No PDF</h3>
-          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">Open a PDF file to view it here.</p>
+          <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("No PDF") }}</h3>
+          <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ $t("Open a PDF file to view it here.") }}</p>
         </div>
       </div>
 
@@ -72,38 +72,38 @@
         <canvas v-for="pageNum in renderedPages" :key="pageNum" :ref="(el) => setCanvasRef(el as HTMLCanvasElement, pageNum)" class="shadow-lg flex-shrink-0" :class="themeClasses.pdfCanvasBg"></canvas>
 
         <div v-if="totalPages > MAX_CONTINUOUS_PAGES && currentBatchEnd < totalPages" class="py-4">
-          <button @click="loadNextBatch" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-4 py-2 rounded-lg border transition-colors text-sm font-medium">Load pages {{ currentBatchEnd + 1 }}-{{ Math.min(currentBatchEnd + MAX_CONTINUOUS_PAGES, totalPages) }}</button>
+          <button @click="loadNextBatch" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-4 py-2 rounded-lg border transition-colors text-sm font-medium">{{ $t("Load pages") }} {{ currentBatchEnd + 1 }}-{{ Math.min(currentBatchEnd + MAX_CONTINUOUS_PAGES, totalPages) }}</button>
         </div>
       </div>
     </div>
 
-    <StatusBar :icon="filePdfIcon" :message="fileName || 'No PDF'" :info="totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : ''">
+    <StatusBar :icon="filePdfIcon" :message="fileName || $t('No PDF')" :info="totalPages > 0 ? $t('Page {n} of {total}', { n: currentPage, total: totalPages }) : ''">
       <template v-if="isValidated" #extra>
         <div class="flex items-center gap-1 text-green-500 text-[10px]">
           <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5" />
-          <span>Verified</span>
+          <span>{{ $t("Verified") }}</span>
         </div>
       </template>
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="filePdfIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">PDF Viewer</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("PDF Viewer") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>A secure PDF viewer powered by PDF.js.</p>
+            <p>{{ $t("A secure PDF viewer powered by PDF.js.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="shieldCheckIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>Secure:</strong> PDFs are rendered safely without executing embedded scripts.</p>
+                <p>{{ $t("Secure: PDFs are rendered safely without executing embedded scripts.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="magnifyPlusIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Zoom:</strong> Use +/- keys or toolbar buttons to zoom in and out.</p>
+                <p>{{ $t("Zoom: Use +/- keys or toolbar buttons to zoom in and out.") }}</p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="chevronLeftIcon" class="w-3.5 h-3.5 mt-0.5 text-purple-500 flex-shrink-0" />
-                <p><strong>Navigate:</strong> Use arrow keys or toolbar buttons to change pages.</p>
+                <p>{{ $t("Navigate: Use arrow keys or toolbar buttons to change pages.") }}</p>
               </div>
             </div>
           </div>

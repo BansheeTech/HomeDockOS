@@ -4,38 +4,65 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsGroup header="APPEARANCE" footer="Choose a visual theme for HomeDock OS interface.">
-    <SettingsItem :icon="bright4Icon" icon-color="blue" title="Interface Theme" description="Select your preferred color scheme" is-last control-type="stack">
-      <RadioGroup v-model:value="themeValue" :class="[themeClasses.scopeSelector]" style="width: auto">
-        <RadioButton value="default" name="themeMode" :class="[themeClasses.radioGroupSelector, themeClasses.scopeSelector]" id="defaultMode">
-          <div class="flex items-center">
-            <Icon :icon="bright4Icon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
-            <span>Default</span>
-          </div>
-        </RadioButton>
-        <RadioButton value="noir" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="noirMode">
-          <div class="flex items-center">
-            <Icon :icon="sunAngleOutlineIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
-            <span>Noir</span>
-          </div>
-        </RadioButton>
-        <RadioButton value="aeroplus" name="themeMode" :class="[themeClasses.radioGroupSelector]" id="aeroPlusMode">
-          <div class="flex items-center">
-            <Icon :icon="squareOpacityIcon" :class="[themeClasses.radioGroupIconSelector]" class="mr-1" />
-            <span>Aero+</span>
-          </div>
-        </RadioButton>
-      </RadioGroup>
+  <SettingsGroup :header="$t('LANGUAGE')" :footer="$t('Choose your preferred language for the HomeDock OS interface.')">
+    <SettingsItem :icon="translateIcon" icon-color="purple" :title="$t('Interface Language')" :description="$t('Pick the language used across the entire UI')" is-last control-type="always-stack">
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
+          <button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.code" @click="onSelectLanguage(lang.code)" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, languageValue === lang.code ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="lang.name">
+            <span class="text-xl leading-none shrink-0" aria-hidden="true">{{ lang.flag }}</span>
+            <span :lang="lang.code" class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ lang.nativeName }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="languageValue === lang.code ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+  </SettingsGroup>
+
+  <SettingsGroup :header="$t('TIME &amp; CALENDAR')" :footer="$t('Choose how times and weeks are displayed across HomeDock OS.')">
+    <SettingsItem :icon="clockOutlineIcon" icon-color="cyan" :title="$t('Clock Format')" :description="$t('Display times in 24-hour or 12-hour (AM/PM) format')" control-type="always-stack">
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
+          <button v-for="opt in CLOCK_FORMAT_OPTIONS" :key="opt.value" @click="clockFormatValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, clockFormatValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="clockFormatValue === opt.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+
+    <SettingsItem :icon="calendarWeekIcon" icon-color="pink" :title="$t('Week Starts On')" :description="$t('First day of the week in calendars')" is-last control-type="always-stack">
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
+          <button v-for="opt in WEEK_START_OPTIONS" :key="opt.value" @click="weekStartValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, weekStartValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="weekStartValue === opt.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+  </SettingsGroup>
+
+  <SettingsGroup :header="$t('APPEARANCE')" :footer="$t('Choose a visual theme for HomeDock OS interface.')">
+    <SettingsItem :icon="bright4Icon" icon-color="blue" :title="$t('Interface Theme')" :description="$t('Select your preferred color scheme')" is-last control-type="always-stack">
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
+          <button v-for="theme in THEME_OPTIONS" :key="theme.value" @click="themeValue = theme.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, themeValue === theme.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(theme.label)">
+            <Icon :icon="theme.icon" class="text-xl leading-none shrink-0" aria-hidden="true" />
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(theme.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="themeValue === theme.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
     </SettingsItem>
   </SettingsGroup>
 
   <Transition name="fade-slide">
-    <SettingsGroup v-if="themeValue === 'aeroplus'" header="WALLPAPER" footer="Select from preset wallpapers or upload your own custom image.">
-      <SettingsItem :icon="imageAreaIcon" icon-color="green" title="Preset Wallpapers" description="Choose from built-in wallpaper collection" is-last control-type="always-stack">
+    <SettingsGroup v-if="themeValue === 'aeroplus'" :header="$t('WALLPAPER')" :footer="$t('Select from preset wallpapers or upload your own custom image.')">
+      <SettingsItem :icon="imageAreaIcon" icon-color="green" :title="$t('Preset Wallpapers')" :description="$t('Choose from built-in wallpaper collection')" is-last control-type="always-stack">
         <div class="wallpaper-grid-wrapper">
           <div class="wallpaper-grid">
             <button v-for="option in wallpaperOptions" :key="option.value" @click="wallValue = option.value" :class="['wallpaper-option', { 'wallpaper-selected': wallValue === option.value }, themeClasses.scopeSelector]" type="button">
-              <img :src="option.payload.src" :alt="option.payload.alt" class="wallpaper-thumbnail" />
+              <img :src="option.payload.src" :alt="option.payload.alt" draggable="false" class="wallpaper-thumbnail" />
             </button>
           </div>
         </div>
@@ -44,8 +71,8 @@
   </Transition>
 
   <Transition name="fade-slide">
-    <SettingsGroup v-if="themeValue === 'aeroplus'" header="CUSTOM WALLPAPER">
-      <SettingsItem :icon="uploadIcon" icon-color="orange" title="Upload Your Own" description="Upload a custom wallpaper (JPG/PNG, min 800x600px, max 10MB)" is-last control-type="stack">
+    <SettingsGroup v-if="themeValue === 'aeroplus'" :header="$t('CUSTOM WALLPAPER')">
+      <SettingsItem :icon="uploadIcon" icon-color="orange" :title="$t('Upload Your Own')" :description="$t('Upload a custom wallpaper (JPG/PNG, min 800x600px, max 10MB)')" is-last control-type="stack">
         <div class="w-full">
           <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="wallpaperFileList" name="wallpaper" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleWallpaperUpload" @change="handleWallpaperChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeWallpaperUpload" class="compact-dragger h-[140px]">
             <div class="flex items-center align-center justify-center flex-col h-full">
@@ -54,9 +81,9 @@
                 <img v-else :src="wallpaperPreview" class="w-32 h-20 rounded object-cover" />
               </p>
               <p :class="[themeClasses.dropZoneDragUpText, 'px-4 text-balance text-sm']">
-                {{ wallpaperFile ? wallpaperFile.name : "Click or drag wallpaper here" }}
+                {{ wallpaperFile ? wallpaperFile.name : $t("Click or drag wallpaper here") }}
               </p>
-              <p :class="[themeClasses.dropZoneDragDownText, 'px-4 text-balance text-xs']">.jpg or .png (min 800x600px)</p>
+              <p :class="[themeClasses.dropZoneDragDownText, 'px-4 text-balance text-xs']">{{ $t(".jpg or .png (min 800x600px)") }}</p>
             </div>
           </UploadDragger>
 
@@ -71,13 +98,15 @@
 
 <script lang="ts" setup>
 import { ref, watch, inject, onMounted, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
 import type { ThemeData } from "../__Types__/ThemeData";
+import type { SettingsData } from "../__Types__/SettingsData";
 
-import { RadioGroup, RadioButton, Upload, message } from "ant-design-vue";
+import { Upload, message } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import bright4Icon from "@iconify-icons/mdi/brightness-4";
@@ -85,15 +114,23 @@ import sunAngleOutlineIcon from "@iconify-icons/mdi/sun-angle-outline";
 import squareOpacityIcon from "@iconify-icons/mdi/square-opacity";
 import imageAreaIcon from "@iconify-icons/mdi/image-area";
 import uploadIcon from "@iconify-icons/mdi/upload";
+import translateIcon from "@iconify-icons/mdi/translate";
+import checkIcon from "@iconify-icons/mdi/check-circle";
+import clockOutlineIcon from "@iconify-icons/mdi/clock-outline";
+import calendarWeekIcon from "@iconify-icons/mdi/calendar-week";
 
 import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
 
+import { SUPPORTED_LANGUAGES, setLanguage } from "../__Languages__";
+
 const UploadDragger = Upload.Dragger;
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 
 const updateTheme = inject<(newTheme: Partial<ThemeData>) => void>("update-theme");
+const updateSettings = inject<(newSettings: Partial<SettingsData>) => void>("update-settings");
 
 const props = defineProps({
   modelValue: {
@@ -104,13 +141,41 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "wallpaper-pending"]);
 
+const THEME_OPTIONS = [
+  { value: "default", label: "Default", icon: bright4Icon },
+  { value: "noir", label: "Noir", icon: sunAngleOutlineIcon },
+  { value: "aeroplus", label: "Aero+", icon: squareOpacityIcon },
+];
+
 const themeValue = ref<string>(props.modelValue.selected_theme || "default");
 const wallValue = ref<string>(props.modelValue.selected_back || "back1.jpg");
+const languageValue = ref<string>(props.modelValue.selected_language || "en");
+const clockFormatValue = ref<string>(props.modelValue.clock_format || "24h");
+const weekStartValue = ref<string>(props.modelValue.week_start || "monday");
+
+const CLOCK_FORMAT_OPTIONS = [
+  { value: "24h", label: "24-hour" },
+  { value: "12h", label: "12-hour (AM/PM)" },
+];
+
+const WEEK_START_OPTIONS = [
+  { value: "monday", label: "Monday" },
+  { value: "sunday", label: "Sunday" },
+];
+
+const onSelectLanguage = (code: string) => {
+  if (code === languageValue.value) return;
+  setLanguage(code);
+  languageValue.value = code;
+};
 
 watch(
   () => ({
     selected_theme: themeValue.value,
     selected_back: wallValue.value,
+    selected_language: languageValue.value,
+    clock_format: clockFormatValue.value,
+    week_start: weekStartValue.value,
   }),
   (newValue) => {
     if (updateTheme) {
@@ -119,10 +184,16 @@ watch(
         selected_back: newValue.selected_back,
       });
     }
+    if (updateSettings) {
+      updateSettings({
+        clock_format: newValue.clock_format,
+        week_start: newValue.week_start,
+      });
+    }
 
     emit("update:modelValue", newValue);
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(themeValue, (newTheme, oldTheme) => {
@@ -192,20 +263,20 @@ const beforeWallpaperUpload = (file: File) => {
   const isValidType = validTypes.includes(file.type);
 
   if (!isValidType) {
-    message.error("Please upload a .jpg, .jpeg, or .png file");
+    message.error(t("Please upload a .jpg, .jpeg, or .png file"));
     return false;
   }
 
   const isValidSize = file.size <= MAX_WALLPAPER_SIZE;
   if (!isValidSize) {
-    message.error(`File too large. Maximum size is ${MAX_WALLPAPER_SIZE / 1024 / 1024}MB`);
+    message.error(t("File too large") + `. ${t("Maximum size is")} ${MAX_WALLPAPER_SIZE / 1024 / 1024}MB`);
     return false;
   }
 
   return true;
 };
 
-const handleWallpaperUpload = async ({ file }: any) => {
+const handleWallpaperUpload = async ({ file: _file }: any) => {
   return false;
 };
 
@@ -224,7 +295,7 @@ const handleWallpaperChange = (info: any) => {
     emit("wallpaper-pending", file);
     uploadStatus.value = {
       type: "success",
-      message: "Wallpaper ready to upload. Click 'Save Settings' to apply.",
+      message: t("Wallpaper ready to upload. Click 'Save Settings' to apply."),
     };
   }
 };
@@ -251,7 +322,7 @@ const uploadWallpaper = async (file: File) => {
         type: "success",
         message: `Wallpaper uploaded successfully! (${data.file_type.toUpperCase()})`,
       };
-      message.success("Custom wallpaper uploaded successfully!");
+      message.success(t("Custom wallpaper uploaded successfully!"));
 
       const filename = data.wallpaper_url.split("/").pop();
 
@@ -275,15 +346,15 @@ const uploadWallpaper = async (file: File) => {
         type: "error",
         message: data.message || "Failed to upload wallpaper",
       };
-      message.error(data.message || "Failed to upload wallpaper");
-      throw new Error(data.message || "Failed to upload wallpaper");
+      message.error(data.message || t("Failed to upload wallpaper"));
+      throw new Error(data.message || t("Failed to upload wallpaper"));
     }
   } catch (error: any) {
     uploadStatus.value = {
       type: "error",
       message: error.message || "Error uploading wallpaper",
     };
-    message.error(error.message || "Error uploading wallpaper");
+    message.error(error.message || t("Error uploading wallpaper"));
     throw error;
   }
 };
@@ -295,7 +366,7 @@ const addCustomWallpaperOption = (filename: string) => {
     value: filename,
     payload: {
       src: `/images/user-wallpaper/${filename}?t=${Date.now()}`,
-      alt: "Custom Wallpaper",
+      alt: t("Custom Wallpaper"),
     },
   });
 };
@@ -328,7 +399,10 @@ defineExpose({
 /* Animation Styles */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out,
+    max-height 0.3s ease-in-out;
   overflow: hidden;
   min-height: 0;
 }

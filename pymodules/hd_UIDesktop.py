@@ -31,6 +31,9 @@ def desktop():
     interface_name = get_active_network_interface()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    selected_language = config["selected_language"]
+    clock_format = config["clock_format"]
+    week_start = config["week_start"]
 
     run_port = config["run_port"]
     dynamic_dns = config["dynamic_dns"]
@@ -57,6 +60,9 @@ def desktop():
         user_name=user_name,
         selected_theme=selected_theme,
         selected_back=selected_back,
+        selected_language=selected_language,
+        clock_format=clock_format,
+        week_start=week_start,
         run_port=run_port,
         dynamic_dns=dynamic_dns,
         local_dns=local_dns,

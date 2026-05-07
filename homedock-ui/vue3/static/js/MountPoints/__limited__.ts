@@ -7,6 +7,7 @@ import { createApp } from "vue";
 import { createHead } from "@unhead/vue/client";
 
 import Limited from "../__Layouts__/Limited.vue";
+import { i18n, bootstrapI18n } from "../__Languages__";
 
 import type { ThemeData } from "../__Types__/ThemeData";
 
@@ -30,11 +31,14 @@ const themeData = parseBase64Data("data-theme") as ThemeData | null;
 if (themeData) {
   const app = createApp(Limited);
 
+  app.use(i18n);
+
   app.provide("data-theme", themeData);
 
   const faviconHeadAdder = createHead();
   app.use(faviconHeadAdder);
 
+  await bootstrapI18n();
   app.mount("#app-limited-root");
 } else {
   console.error("Required data is missing or invalid. Cannot initialize Limited.");

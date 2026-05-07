@@ -8,7 +8,7 @@
     <div v-if="isLoading" class="flex-1 flex items-center justify-center">
       <div class="flex flex-col items-center gap-3">
         <div class="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" :class="themeClasses.spinnerBorder"></div>
-        <span class="text-sm opacity-70" :class="themeClasses.textMuted">Loading enterprise module...</span>
+        <span class="text-sm opacity-70" :class="themeClasses.textMuted">{{ $t("Loading enterprise module...") }}</span>
       </div>
     </div>
 
@@ -17,7 +17,7 @@
         <div class="w-16 h-16 rounded-full flex items-center justify-center" :class="themeClasses.errorBg">
           <Icon :icon="shieldAlertIcon" width="32" height="32" :class="themeClasses.errorText" />
         </div>
-        <h3 class="text-lg font-semibold m-0" :class="themeClasses.textPrimary">Enterprise Module Unavailable</h3>
+        <h3 class="text-lg font-semibold m-0" :class="themeClasses.textPrimary">{{ $t("Enterprise Module Unavailable") }}</h3>
         <p class="text-sm m-0 opacity-70" :class="themeClasses.textMuted">{{ error }}</p>
       </div>
     </div>
@@ -28,11 +28,14 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, watch, type Component } from "vue";
+import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import EnterpriseSRILoader from "../__Utils__/EnterpriseSRILoader";
 
 import shieldAlertIcon from "@iconify-icons/mdi/shield-alert";
+
+const { t } = useI18n();
 
 interface Props {
   module?: string;
@@ -52,7 +55,7 @@ function loadEnterpriseModule(): void {
   const moduleName = props.module || props.data?.module;
 
   if (!moduleName) {
-    error.value = "No enterprise module specified.";
+    error.value = t("No enterprise module specified.");
     isLoading.value = false;
     return;
   }
@@ -65,13 +68,13 @@ function loadEnterpriseModule(): void {
   const entry = EnterpriseSRILoader.getModuleByName(moduleName);
 
   if (!entry) {
-    error.value = `Module "${moduleName}" is not available. It may not be licensed or properly signed.`;
+    error.value = t('Module "{name}" is not available. It may not be licensed or properly signed.', { name: moduleName });
     isLoading.value = false;
     return;
   }
 
   if (!entry.component) {
-    error.value = `Module "${moduleName}" does not expose a component.`;
+    error.value = t('Module "{name}" does not expose a component.', { name: moduleName });
     isLoading.value = false;
     return;
   }

@@ -3,14 +3,12 @@ hd_UIStorage.py
 Copyright © 2023-2026 Banshee, All Rights Reserved
 See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
-
-Unencrypted storage API for File Explorer.
 """
 
 import io
 import os
-import shutil
 import time
+import shutil
 import zipfile
 import hashlib
 
@@ -19,6 +17,7 @@ from flask_login import current_user, login_required
 
 from pymodules.hd_FunctionsGlobals import storage_folder
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
+from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
 
 MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
@@ -94,7 +93,7 @@ def list_files():
 
 
 @login_required
-def upload_file():
+def edit_file():
     user_name = current_user.id.lower()
     user_dir = os.path.join(storage_folder, user_name)
 
@@ -156,6 +155,130 @@ def upload_file():
         if os.path.exists(file_path):
             os.remove(file_path)
         return jsonify({"error": "Error saving file"}), 500
+
+
+def _resolve_storage_target(user_dir, target_path, original_filename):
+    if target_path:
+        target_dir = validate_safe_path(user_dir, target_path)
+    else:
+        target_dir = user_dir
+    if os.path.exists(target_dir):
+        validate_no_symlinks(target_dir, user_dir)
+    safe_filename = validate_filename(original_filename)
+    return target_dir, safe_filename
+
+
+@login_required
+def upload_init():
+    user_name = current_user.id.lower()
+    user_dir = os.path.join(storage_folder, user_name)
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir, mode=0o700, exist_ok=True)
+
+    body = request.get_json(silent=True) or {}
+    filename = body.get("filename")
+    total_size = body.get("total_size")
+    total_chunks = body.get("total_chunks")
+    target_path = (body.get("target_path") or "").strip()
+
+    try:
+        target_dir, _safe = _resolve_storage_target(user_dir, target_path, filename or "")
+    except ValueError:
+        return jsonify({"error": "invalid_path"}), 400
+
+    if not os.path.exists(target_dir):
+        try:
+            os.makedirs(target_dir, mode=0o700, exist_ok=True)
+        except OSError:
+            return jsonify({"error": "cannot_create_target"}), 500
+        try:
+            validate_no_symlinks(target_dir, user_dir)
+        except ValueError:
+            return jsonify({"error": "security_violation"}), 403
+
+    try:
+        result = init_upload(user_name, "storage", filename, total_size, total_chunks, target_path, assembled_dir=target_dir)
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def upload_chunk():
+    user_name = current_user.id.lower()
+    upload_id = request.args.get("upload_id", "")
+    try:
+        chunk_index = int(request.args.get("chunk_index", ""))
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid_chunk_index"}), 400
+
+    raw = request.get_data(cache=False, as_text=False)
+
+    try:
+        result = write_chunk(user_name, upload_id, chunk_index, raw)
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    return jsonify({"success": True, **result})
+
+
+@login_required
+def upload_finalize():
+    user_name = current_user.id.lower()
+    user_dir = os.path.join(storage_folder, user_name)
+
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id", "")
+
+    try:
+        manifest = get_manifest(user_name, upload_id, expected_kind="storage")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    target_path = (manifest.get("target_path") or "").strip()
+    filename = manifest.get("filename") or ""
+
+    try:
+        target_dir, safe_filename = _resolve_storage_target(user_dir, target_path, filename)
+    except ValueError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "invalid_path"}), 400
+
+    final_path = os.path.join(target_dir, safe_filename)
+
+    try:
+        assemble_to_path(user_name, upload_id, final_path)
+    except ChunkedUploadError as e:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": e.code, "message": e.message}), e.status
+    except OSError:
+        cleanup(user_name, upload_id)
+        return jsonify({"error": "save_failed"}), 500
+
+    cleanup(user_name, upload_id)
+
+    if target_path:
+        relative_file_path = os.path.join(target_path, safe_filename).replace("\\", "/")
+    else:
+        relative_file_path = safe_filename
+
+    return jsonify({"success": True, "filename": safe_filename, "path": relative_file_path})
+
+
+@login_required
+def upload_abort():
+    user_name = current_user.id.lower()
+    body = request.get_json(silent=True) or {}
+    upload_id = body.get("upload_id") or request.args.get("upload_id", "")
+
+    try:
+        get_manifest(user_name, upload_id, expected_kind="storage")
+    except ChunkedUploadError as e:
+        return jsonify({"error": e.code, "message": e.message}), e.status
+
+    cleanup(user_name, upload_id)
+    return jsonify({"success": True})
 
 
 @login_required
@@ -430,6 +553,8 @@ def download_multiple():
                     for root, dirs, files in os.walk(file_path):
                         dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
                         for file in files:
+                            if is_temp_file(file):
+                                continue
                             file_count += 1
                             if file_count > MAX_FILES_FOR_ZIP:
                                 return jsonify({"error": "Too many files to download"}), 400

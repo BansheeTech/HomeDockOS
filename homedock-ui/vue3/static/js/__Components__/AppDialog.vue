@@ -12,48 +12,48 @@
             <div class="dialog-header flex items-center gap-3 px-4 py-3 border-b" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder, { 'cursor-grab': canDrag && !isDragging, 'cursor-grabbing': isDragging }]" @mousedown="handleDragStart">
               <div class="flex items-center gap-2.5 flex-1 min-w-0">
                 <Icon v-if="displayIcon" :icon="displayIcon" class="flex-shrink-0" :class="[iconColorClass, themeClasses.windowTitleTextFocused]" width="20" height="20" />
-                <span class="text-sm font-semibold truncate" :class="themeClasses.windowTitleTextFocused">{{ title }}</span>
+                <span class="text-sm font-semibold truncate" :class="themeClasses.windowTitleTextFocused">{{ $t(title) }}</span>
               </div>
 
-              <button class="dialog-close-btn flex items-center justify-center w-8 h-8 rounded-md transition-all duration-150" :class="[themeClasses.windowButtonText, themeClasses.windowCloseButtonBgHover, themeClasses.windowCloseButtonTextHover]" @click="handleCancel" title="Close">
+              <button class="dialog-close-btn flex items-center justify-center w-8 h-8 rounded-md transition-all duration-150" :class="[themeClasses.windowButtonText, themeClasses.windowCloseButtonBgHover, themeClasses.windowCloseButtonTextHover]" @click="handleCancel" :title="$t('Close')">
                 <Icon :icon="closeIcon" width="14" height="14" />
               </button>
             </div>
 
             <div class="dialog-body flex-1 px-6 py-5 overflow-auto">
               <slot>
-                <p class="text-sm leading-relaxed m-0" :class="[themeClasses.notTextDown]">{{ content }}</p>
+                <p class="text-sm leading-relaxed m-0" :class="[themeClasses.notTextDown]">{{ content ? $t(content) : "" }}</p>
               </slot>
             </div>
 
             <div class="dialog-footer flex items-center justify-end gap-3 px-6 py-4 border-t" :class="[themeClasses.windowTitleBarBorder]">
               <template v-if="!reverseButtons">
                 <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
-                  {{ cancelText }}
+                  {{ $t(cancelText) }}
                 </button>
 
                 <button v-if="dismissText" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleDismiss">
-                  {{ dismissText }}
+                  {{ $t(dismissText) }}
                 </button>
 
                 <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading || okDisabled">
                   <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
-                  <span v-else>{{ okText }}</span>
+                  <span v-else>{{ $t(okText) }}</span>
                 </button>
               </template>
 
               <template v-else>
                 <button class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="okButtonClasses" @click="handleOk" :disabled="loading || okDisabled">
                   <Icon v-if="loading" :icon="loadingIcon" width="16" height="16" class="animate-spin" />
-                  <span v-else>{{ okText }}</span>
+                  <span v-else>{{ $t(okText) }}</span>
                 </button>
 
                 <button v-if="dismissText" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleDismiss">
-                  {{ dismissText }}
+                  {{ $t(dismissText) }}
                 </button>
 
                 <button v-if="okCancel" class="dialog-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
-                  {{ cancelText }}
+                  {{ $t(cancelText) }}
                 </button>
               </template>
             </div>

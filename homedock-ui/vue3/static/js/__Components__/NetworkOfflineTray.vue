@@ -26,15 +26,15 @@
       <Transition name="dropdown">
         <div v-if="isExpanded" class="network-dropdown border" :class="[themeClasses.networkDropdownBg, themeClasses.networkDropdownBorder, themeClasses.networkDropdownShadow]">
           <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-            <span class="dropdown-title" :class="themeClasses.notTextUp">Connection Status</span>
+            <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Connection Status") }}</span>
           </div>
 
           <div class="network-section" :class="themeClasses.networkSectionBorder">
             <div class="status-item" :class="themeClasses.networkStatusItem">
               <Icon :icon="connectionIcon" class="status-icon" :class="themeClasses.networkStatusIconOffline" width="20" height="20" />
               <div class="status-info">
-                <span class="status-label" :class="themeClasses.networkStatusLabel">Network Status</span>
-                <span class="status-value offline" :class="themeClasses.networkStatusOffline">Disconnected</span>
+                <span class="status-label" :class="themeClasses.networkStatusLabel">{{ $t("Network Status") }}</span>
+                <span class="status-value offline" :class="themeClasses.networkStatusOffline">{{ $t("Disconnected") }}</span>
               </div>
             </div>
           </div>
@@ -42,14 +42,14 @@
           <div class="network-section" :class="themeClasses.networkSectionBorder">
             <div class="help-text" :class="themeClasses.networkHelpText">
               <Icon :icon="infoIcon" class="help-icon" width="16" height="16" />
-              <span>Unable to communicate with HomeDock OS. Please check your internet connection.</span>
+              <span>{{ $t("Unable to communicate with HomeDock OS. Please check your internet connection.") }}</span>
             </div>
           </div>
 
           <div v-if="lastOnlineTime" class="network-section">
             <div class="time-info" :class="themeClasses.networkTimeInfo">
               <Icon :icon="clockIcon" class="time-icon" width="14" height="14" />
-              <span class="time-text">Last online: {{ formatTime(lastOnlineTime) }}</span>
+              <span class="time-text">{{ $t("Last online") }}: {{ formatTime(lastOnlineTime) }}</span>
             </div>
           </div>
         </div>

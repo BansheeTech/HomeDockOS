@@ -7,13 +7,13 @@
   <div class="utils-notepad flex flex-col h-full overflow-hidden">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">File</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="handleNewTab">
               <div class="flex items-center gap-2">
                 <Icon :icon="fileIcon" class="w-4 h-4" />
-                <span>New Tab</span>
+                <span>{{ $t("New Tab") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+N</span>
               </div>
             </MenuItem>
@@ -21,21 +21,21 @@
             <MenuItem key="save" @click="handleSave" :disabled="!activeTab?.content?.trim()">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveIcon" class="w-4 h-4" />
-                <span>Save</span>
+                <span>{{ $t("Save") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+S</span>
               </div>
             </MenuItem>
             <MenuItem key="saveas" @click="openSaveAsDialog" :disabled="!activeTab?.content?.trim()">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveEditIcon" class="w-4 h-4" />
-                <span>Save As...</span>
+                <span>{{ $t("Save As...") }}</span>
               </div>
             </MenuItem>
             <MenuDivider />
             <MenuItem key="closetab" @click="closeTab(activeTabId)" :disabled="tabs.length <= 1">
               <div class="flex items-center gap-2">
                 <Icon :icon="closeIcon" class="w-4 h-4" />
-                <span>Close Tab</span>
+                <span>{{ $t("Close Tab") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+W</span>
               </div>
             </MenuItem>
@@ -43,7 +43,7 @@
             <MenuItem key="exit" @click="handleExit">
               <div class="flex items-center gap-2">
                 <Icon :icon="exitIcon" class="w-4 h-4" />
-                <span>Exit</span>
+                <span>{{ $t("Exit") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -51,13 +51,13 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">Edit</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Edit") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="find" @click="toggleFindReplace">
               <div class="flex items-center gap-2">
                 <Icon :icon="magnifyIcon" class="w-4 h-4" />
-                <span>Find & Replace</span>
+                <span>{{ $t("Find & Replace") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+F</span>
               </div>
             </MenuItem>
@@ -65,7 +65,7 @@
             <MenuItem key="selectall" @click="selectAll">
               <div class="flex items-center gap-2">
                 <Icon :icon="selectAllIcon" class="w-4 h-4" />
-                <span>Select All</span>
+                <span>{{ $t("Select All") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+A</span>
               </div>
             </MenuItem>
@@ -74,20 +74,20 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">View</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("View") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="zoomin" @click="zoomIn">
               <div class="flex items-center gap-2">
                 <Icon :icon="magnifyPlusIcon" class="w-4 h-4" />
-                <span>Zoom In</span>
+                <span>{{ $t("Zoom In") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl++</span>
               </div>
             </MenuItem>
             <MenuItem key="zoomout" @click="zoomOut">
               <div class="flex items-center gap-2">
                 <Icon :icon="magnifyMinusIcon" class="w-4 h-4" />
-                <span>Zoom Out</span>
+                <span>{{ $t("Zoom Out") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+-</span>
               </div>
             </MenuItem>
@@ -95,7 +95,7 @@
             <MenuItem key="resetzoom" @click="resetZoom">
               <div class="flex items-center gap-2">
                 <Icon :icon="magnifyIcon" class="w-4 h-4" />
-                <span>Reset Zoom</span>
+                <span>{{ $t("Reset Zoom") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+0</span>
               </div>
             </MenuItem>
@@ -103,7 +103,7 @@
             <MenuItem key="wordwrap" @click="wordWrap = !wordWrap">
               <div class="flex items-center gap-2">
                 <Icon :icon="wordWrap ? checkIcon : wrapIcon" class="w-4 h-4" />
-                <span>Word Wrap</span>
+                <span>{{ $t("Word Wrap") }}</span>
               </div>
             </MenuItem>
           </Menu>
@@ -115,7 +115,7 @@
       <div class="flex items-center min-w-0">
         <div v-for="tab in tabs" :key="tab.id" @click="activeTabId = tab.id" @auxclick.middle.prevent="tabs.length > 1 && closeTab(tab.id)" :class="['group flex items-center gap-1 px-2 py-1.5 text-xs cursor-pointer border-r transition-colors min-w-0 max-w-[160px] overflow-hidden', themeClasses.utilityToolbarBorder, activeTabId === tab.id ? 'bg-blue-500/20 border-blue-500/30' : 'hover:bg-white/5 border-transparent']" :title="getTabTooltip(tab)">
           <Icon :icon="getStorageIcon(tab)" :class="['w-3 h-3 flex-shrink-0', getStorageIconColor(tab)]" :title="getStorageLabel(tab)" />
-          <span :class="[themeClasses.windowText]" class="truncate flex-1 min-w-0">{{ tab.title }}{{ tab.isModified ? " *" : "" }}</span>
+          <span :class="[themeClasses.windowText]" class="truncate flex-1 min-w-0">{{ $t(tab.title) }}{{ tab.isModified ? " *" : "" }}</span>
           <button v-if="tabs.length > 1" @click.stop="closeTab(tab.id)" :class="[themeClasses.windowButtonBgHover]" class="p-0.5 rounded opacity-0 group-hover:opacity-60 hover:!opacity-100 flex-shrink-0 transition-opacity">
             <Icon :icon="closeIcon" :class="['w-2.5 h-2.5', themeClasses.windowText]" />
           </button>
@@ -128,11 +128,11 @@
 
     <Transition name="slide-down">
       <div v-if="showFindReplace" class="flex items-center gap-2 px-3 py-2 border-b" :class="themeClasses.utilityToolbarBorder">
-        <input v-model="findText" type="text" placeholder="Find..." :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" @keyup.enter="findNext" />
-        <input v-model="replaceText" type="text" placeholder="Replace..." :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" />
-        <button @click="findNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">Find</button>
-        <button @click="replaceNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">Replace</button>
-        <button @click="replaceAllInTab" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">Replace All</button>
+        <input v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" @keyup.enter="findNext" />
+        <input v-model="replaceText" type="text" :placeholder="$t('Replace...')" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" />
+        <button @click="findNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Find") }}</button>
+        <button @click="replaceNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace") }}</button>
+        <button @click="replaceAllInTab" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace All") }}</button>
         <button @click="showFindReplace = false" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded">
           <Icon :icon="closeIcon" class="w-4 h-4" />
         </button>
@@ -161,29 +161,37 @@
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Code</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Code") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>A code editor with syntax highlighting.</p>
+            <p>{{ $t("A code editor with syntax highlighting.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
                 <Icon :icon="sourceCodeIcon" class="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" />
-                <p><strong>Sources:</strong> New files are saved to your Storage/Sources folder.</p>
+                <p>
+                  <strong>{{ $t("Sources:") }}</strong> {{ $t("New files are saved to your Storage/Sources folder.") }}
+                </p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="cubeIcon" class="w-3.5 h-3.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                <p><strong>Drop Zone:</strong> Files opened from Drop Zone are saved back to their original location (encrypted).</p>
+                <p>
+                  <strong>{{ $t("Drop Zone:") }}</strong> {{ $t("Files opened from Drop Zone are saved back to their original location (encrypted).") }}
+                </p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="cubeScanIcon" class="w-3.5 h-3.5 mt-0.5 text-purple-500 flex-shrink-0" />
-                <p><strong>App Drive:</strong> Files opened from App Drive are saved back to the container's storage.</p>
+                <p>
+                  <strong>{{ $t("App Drive:") }}</strong> {{ $t("Files opened from App Drive are saved back to the container's storage.") }}
+                </p>
               </div>
               <div class="flex items-start gap-2">
                 <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 mt-0.5 text-orange-500 flex-shrink-0" />
-                <p><strong>Disks+:</strong> Files opened from a mounted disk are saved back to that disk.</p>
+                <p>
+                  <strong>{{ $t("Disks+:") }}</strong> {{ $t("Files opened from a mounted disk are saved back to that disk.") }}
+                </p>
               </div>
             </div>
-            <p class="opacity-70">The colored icon on each tab indicates where that file will be saved.</p>
+            <p class="opacity-70">{{ $t("The colored icon on each tab indicates where that file will be saved.") }}</p>
           </div>
         </div>
       </template>
@@ -194,7 +202,7 @@
         <input v-model="saveAsFilename" type="text" placeholder="filename.py" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none font-mono" @keyup.enter="handleSaveAs" />
         <div class="flex items-center gap-1.5">
           <Icon :icon="sourceCodeIcon" :class="['w-3 h-3', themeClasses.windowText, 'opacity-40']" />
-          <span :class="['text-[11px]', themeClasses.windowText, 'opacity-40']">Saving in Storage/Sources</span>
+          <span :class="['text-[11px]', themeClasses.windowText, 'opacity-40']">{{ $t("Saving in Storage/Sources") }}</span>
         </div>
       </div>
     </AppDialog>
@@ -202,19 +210,21 @@
     <AppDialog v-model:visible="showCloseConfirmDialog" title="Unsaved Changes" ok-text="Close" cancel-text="Cancel" @ok="confirmCloseTab" @cancel="cancelCloseTab">
       <p :class="['text-sm', themeClasses.windowText]">
         "<strong>{{ pendingCloseTabTitle }}</strong
-        >" has unsaved changes. Are you sure you want to close it?
+        >" {{ $t("has unsaved changes. Are you sure you want to close it?") }}
       </p>
     </AppDialog>
 
     <AppDialog v-model:visible="showEncodingWarningDialog" title="Encoding Warning" ok-text="Save Anyway" cancel-text="Cancel" @ok="confirmEncodingSave" @cancel="cancelEncodingSave">
       <div :class="['text-sm space-y-2', themeClasses.windowText]">
-        <p>This file contains characters that may indicate a <strong>non-UTF-8 encoding</strong> or binary content.</p>
-        <p class="opacity-70">Saving this file will convert it to UTF-8, which could corrupt special characters or formatting.</p>
-        <p>Are you sure you want to continue?</p>
+        <p>
+          {{ $t("This file contains characters that may indicate a") }} <strong>{{ $t("non-UTF-8 encoding") }}</strong> {{ $t("or binary content.") }}
+        </p>
+        <p class="opacity-70">{{ $t("Saving this file will convert it to UTF-8, which could corrupt special characters or formatting.") }}</p>
+        <p>{{ $t("Are you sure you want to continue?") }}</p>
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showWindowCloseDialog" title="Unsaved Changes" :content="windowCloseDialogMessage" ok-text="Save All" cancel-text="Cancel" dismiss-text="Don't Save" type="warning" :mask-closable="false" @ok="handleSaveAllAndClose" @cancel="showWindowCloseDialog = false" @dismiss="handleDiscardAllAndClose" />
+    <AppDialog v-model:visible="showWindowCloseDialog" title="Unsaved Changes" :content="windowCloseDialogMessage" ok-text="Save All" cancel-text="Cancel" :dismiss-text="$t('Don\'t Save')" type="warning" :mask-closable="false" @ok="handleSaveAllAndClose" @cancel="showWindowCloseDialog = false" @dismiss="handleDiscardAllAndClose" />
   </div>
 </template>
 
@@ -222,6 +232,7 @@
 import axios from "axios";
 
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { Dropdown, Menu, MenuItem, MenuDivider } from "ant-design-vue";
 
@@ -349,6 +360,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
 const disksPlusStore = useDisksPlusStore();
@@ -547,21 +559,21 @@ const statusIcon = computed(() => {
 const statusMessage = computed(() => {
   const tab = activeTab.value;
   if (tab?.externalFile) {
-    if (tab.externalFile.source === "appdrive") return "Editing on App Drive";
-    if (tab.externalFile.source === "storage") return "Editing on Storage";
-    if (tab.externalFile.source === "disksplus") return "Editing on Disks+";
-    return "Editing on Drop Zone";
+    if (tab.externalFile.source === "appdrive") return t("Editing on App Drive");
+    if (tab.externalFile.source === "storage") return t("Editing on Storage");
+    if (tab.externalFile.source === "disksplus") return t("Editing on Disks+");
+    return t("Editing on Drop Zone");
   }
-  return "Editing in Sources";
+  return t("Editing in Sources");
 });
 const statusInfo = computed(() => `Ln ${lineCount.value} | Words ${wordCount.value} | ${charCount.value} chars`);
 
 const windowCloseDialogMessage = computed(() => {
-  const unsavedTabs = tabs.value.filter((t) => t.isModified);
+  const unsavedTabs = tabs.value.filter((tab) => tab.isModified);
   if (unsavedTabs.length === 1) {
-    return `"${unsavedTabs[0].title}" has unsaved changes. Do you want to save before closing?`;
+    return t('"{name}" has unsaved changes. Do you want to save before closing?', { name: t(unsavedTabs[0].title) });
   }
-  return `${unsavedTabs.length} files have unsaved changes. Do you want to save all before closing?`;
+  return t("{n} files have unsaved changes. Do you want to save all before closing?", { n: unsavedTabs.length });
 });
 
 function getStorageIcon(tab: Tab) {
@@ -590,8 +602,8 @@ function getStorageLabel(tab: Tab): string {
 
 function getTabTooltip(tab: Tab): string {
   if (!tab.externalFile) {
-    const path = tab.originalFilename ? `Sources/${tab.originalFilename}` : "Not saved yet";
-    return `${tab.title}\nPath: ${path}\nSaved to: Sources`;
+    const path = tab.originalFilename ? `Sources/${tab.originalFilename}` : t("Not saved yet");
+    return `${tab.title}\n${t("Path:")} ${path}\n${t("Saved to:")} ${t("Sources")}`;
   }
   const sourceNames: Record<string, string> = {
     appdrive: "App Drive",
@@ -600,7 +612,7 @@ function getTabTooltip(tab: Tab): string {
     disksplus: "Disks+",
   };
   const source = sourceNames[tab.externalFile.source] || "Unknown";
-  return `${tab.title}\nPath: ${tab.externalFile.path}\nSaved to: ${source}`;
+  return `${tab.title}\n${t("Path:")} ${tab.externalFile.path}\n${t("Saved to:")} ${source}`;
 }
 
 function hasEncodingIssues(content: string): boolean {
@@ -629,9 +641,9 @@ function updateWindowTitle() {
   const tab = activeTab.value;
   if (!tab) return;
 
-  const hasModified = tabs.value.some((t) => t.isModified);
-  const title = tab.title + (hasModified ? " *" : "");
-  windowStore.updateWindowTitle(props._windowId, `Code - ${title}`);
+  const hasModified = tabs.value.some((tab) => tab.isModified);
+  const title = t(tab.title) + (hasModified ? " *" : "");
+  windowStore.updateWindowTitle(props._windowId, `${t("Code")} - ${title}`);
 }
 
 watch([activeTabId, () => activeTab.value?.title, () => activeTab.value?.isModified], updateWindowTitle);
@@ -664,7 +676,7 @@ function closeTab(tabId: string) {
 
   if (tab.isModified) {
     pendingCloseTabId.value = tabId;
-    pendingCloseTabTitle.value = tab.title;
+    pendingCloseTabTitle.value = t(tab.title);
     showCloseConfirmDialog.value = true;
     return;
   }
@@ -785,16 +797,16 @@ async function saveSourceToStorage(tab: Tab) {
     formData.append("file", blob, filename);
     formData.append("path", "Sources");
 
-    await axios.post("/api/storage/upload", formData, {
+    await axios.post("/api/storage/edit", formData, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
 
     tab.originalContent = tab.content;
     tab.isModified = false;
     tab.originalFilename = filename;
-    notifySuccess("Source saved", `Saved to Sources/${filename}`, themeClasses.value.scopeSelector);
+    notifySuccess(t("Source saved"), t("Saved to Sources/{f}", { f: filename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
-    notifyError(error.response?.data?.error || "Failed to save source");
+    notifyError(t(error.response?.data?.error || "Failed to save source"));
   }
 }
 
@@ -833,7 +845,7 @@ async function performSaveAs() {
       }
       counter++;
       if (counter > 100) {
-        notifyError("Too many files with this name");
+        notifyError(t("Too many files with this name"));
         return;
       }
     }
@@ -843,7 +855,7 @@ async function performSaveAs() {
     formData.append("file", blob, finalFilename);
     formData.append("path", "Sources");
 
-    await axios.post("/api/storage/upload", formData, {
+    await axios.post("/api/storage/edit", formData, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
 
@@ -853,9 +865,9 @@ async function performSaveAs() {
     tab.originalFilename = finalFilename;
     tab.externalFile = null;
     showSaveAsDialog.value = false;
-    notifySuccess("Source saved", `Saved to Sources/${finalFilename}`, themeClasses.value.scopeSelector);
+    notifySuccess(t("Source saved"), t("Saved to Sources/{f}", { f: finalFilename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
-    notifyError(error.response?.data?.error || "Failed to save source");
+    notifyError(t(error.response?.data?.error || "Failed to save source"));
   }
 }
 
@@ -884,7 +896,7 @@ async function autoSaveNewSource(tab: Tab) {
     formData.append("file", blob, finalFilename);
     formData.append("path", "Sources");
 
-    await axios.post("/api/storage/upload", formData, {
+    await axios.post("/api/storage/edit", formData, {
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
     });
 
@@ -892,7 +904,7 @@ async function autoSaveNewSource(tab: Tab) {
     tab.originalContent = tab.content;
     tab.isModified = false;
     tab.originalFilename = finalFilename;
-    notifySuccess("Source saved", `Saved to Sources/${finalFilename}`, themeClasses.value.scopeSelector);
+    notifySuccess(t("Source saved"), t("Saved to Sources/{f}", { f: finalFilename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
     throw new Error(error.response?.data?.error || error.message || "Failed to save source");
   }
@@ -916,7 +928,7 @@ async function handleSaveToExternal() {
         formData.append("path", pathParts.join("/"));
       }
 
-      await axios.post("/api/storage/upload", formData, {
+      await axios.post("/api/storage/edit", formData, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
     } else if (ext.source === "dropzone") {
@@ -930,7 +942,7 @@ async function handleSaveToExternal() {
         formData.append("path", pathParts.join("/"));
       }
 
-      await axios.post("/api/dropzone/upload", formData, {
+      await axios.post("/api/dropzone/edit", formData, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
     } else if (ext.source === "appdrive") {
@@ -946,12 +958,12 @@ async function handleSaveToExternal() {
         formData.append("path", pathParts.join("/"));
       }
 
-      await axios.post("/api/appdrive/upload", formData, {
+      await axios.post("/api/appdrive/edit", formData, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
     } else if (ext.source === "disksplus") {
       if (!ext.disk) {
-        notifyError("Disks+ save failed: missing disk id");
+        notifyError(t("Disks+ save failed: missing disk id"));
         return;
       }
       const formData = new FormData();
@@ -965,7 +977,7 @@ async function handleSaveToExternal() {
         formData.append("path", pathParts.join("/"));
       }
 
-      await axios.post("/api/disksplus/upload", formData, {
+      await axios.post("/api/disksplus/edit", formData, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
       disksPlusStore.slideSession();
@@ -980,9 +992,9 @@ async function handleSaveToExternal() {
       disksplus: "Disks+",
     };
     const storageName = sourceNames[ext.source] || "Unknown";
-    notifySuccess("File saved", `Saved to ${storageName}: ${ext.path}`, themeClasses.value.scopeSelector);
+    notifySuccess(t("File saved"), t("Saved to {storage}: {path}", { storage: storageName, path: ext.path }), themeClasses.value.scopeSelector);
   } catch (error: any) {
-    notifyError(error.response?.data?.error || "Failed to save file");
+    notifyError(t(error.response?.data?.error || "Failed to save file"));
   }
 }
 
@@ -1037,7 +1049,7 @@ function replaceAllInTab() {
   const count = (activeTabContent.value.match(new RegExp(escapeRegex(findText.value), "g")) || []).length;
   activeTabContent.value = activeTabContent.value.split(findText.value).join(replaceText.value);
   handleInput();
-  notifySuccess("Replace all", `Replaced ${count} occurrences`, themeClasses.value.scopeSelector);
+  notifySuccess(t("Replace all"), t("Replaced {n} occurrences", { n: count }), themeClasses.value.scopeSelector);
 }
 
 function escapeRegex(str: string) {
@@ -1164,7 +1176,7 @@ async function handleSaveAllAndClose() {
       }
     } catch (error) {
       console.error("Failed to save tab:", tab.title, error);
-      notifyError("Failed to save: " + tab.title);
+      notifyError(t("Failed to save: {name}", { name: tab.title }));
       return;
     }
   }

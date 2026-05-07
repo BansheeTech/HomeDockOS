@@ -8,7 +8,7 @@
     <div id="cloudScreen" class="cloud-screen">
       <div id="cloudImage" class="flex flex-col items-center justify-center" @click="handleCloudImageClick">
         <AnimatedIcon :class="[themeClasses.splashColor]" :icons="[cloudIcon, cloudUploadIcon]" :interval="1000" :iconSize="96" />
-        <div :class="[themeClasses.splashColor]" class="cloudtext text-center">Click to Start</div>
+        <div :class="[themeClasses.splashColor]" class="cloudtext text-center">{{ $t("Click to Start") }}</div>
       </div>
       <span class="banshee-cloud">
         <a target="_blank" href="https://banshee.pro">

@@ -4,7 +4,9 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div v-if="isVisible" class="aero-plus-wallpaper" :style="backgroundStyle"></div>
+  <template v-if="isVisible">
+    <div v-for="layer in layers" :key="layer.id" class="aero-plus-wallpaper" :class="{ 'aero-plus-wallpaper-incoming': layer.animate }" :style="{ backgroundImage: `url('${layer.url}')` }" @animationend="onLayerDone(layer.id, $event)"></div>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -44,21 +46,45 @@ watch(
   { immediate: true },
 );
 
-const backgroundStyle = computed(() => {
-  let wallpaperUrl = "/images/back1.jpg";
-
+const resolvedUrl = computed(() => {
   if (themeData?.selected_back) {
     if (themeData.selected_back.startsWith("_back_custom")) {
-      wallpaperUrl = `/images/user-wallpaper/${themeData.selected_back}${wallpaperHash.value ? `?h=${wallpaperHash.value}` : ""}`;
-    } else {
-      wallpaperUrl = `/images/wallpapers/${themeData.selected_back}`;
+      return `/images/user-wallpaper/${themeData.selected_back}${wallpaperHash.value ? `?h=${wallpaperHash.value}` : ""}`;
     }
+    return `/images/wallpapers/${themeData.selected_back}`;
   }
-
-  return {
-    backgroundImage: `url('${wallpaperUrl}')`,
-  };
+  return "/images/back1.jpg";
 });
+
+type Layer = { id: number; url: string; animate: boolean };
+
+let nextId = 0;
+const layers = ref<Layer[]>(isVisible.value ? [{ id: ++nextId, url: resolvedUrl.value, animate: false }] : []);
+
+function preload(url: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = url;
+  });
+}
+
+async function pushLayer(url: string) {
+  await preload(url);
+  if (!isVisible.value || resolvedUrl.value !== url) return;
+  if (layers.value.at(-1)?.url === url) return;
+  layers.value.push({ id: ++nextId, url, animate: true });
+}
+
+watch(resolvedUrl, (next) => isVisible.value && pushLayer(next));
+
+watch(isVisible, (visible) => (visible ? pushLayer(resolvedUrl.value) : (layers.value = [])));
+
+function onLayerDone(id: number, e: AnimationEvent) {
+  if (e.animationName !== "aero-wallpaper-zoom") return;
+  const top = layers.value.at(-1);
+  if (top?.id === id) layers.value = [{ ...top, animate: false }];
+}
 </script>
 
 <style scoped>
@@ -75,5 +101,32 @@ const backgroundStyle = computed(() => {
   background-position: center center;
   opacity: 1;
   z-index: 0;
+}
+
+.aero-plus-wallpaper-incoming {
+  z-index: 1;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  animation:
+    aero-wallpaper-fade 750ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    aero-wallpaper-zoom 1250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes aero-wallpaper-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes aero-wallpaper-zoom {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

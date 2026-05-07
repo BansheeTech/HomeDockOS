@@ -9,14 +9,14 @@
       <div class="app-details flex items-center space-x-4 mb-4">
         <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
         <div class="flex flex-col justify-center">
-          <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-sm">{{ displayName }} logs</p>
-          <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">Real-time container logs</p>
+          <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-sm">{{ displayName }} {{ $t("logs") }}</p>
+          <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">{{ $t("Real-time container logs") }}</p>
         </div>
       </div>
 
       <hr :class="[themeClasses.hubSeparator]" class="border-0 h-px mb-4" />
 
-      <textarea :class="[themeClasses.hubTextArea]" class="flex-1 rounded-lg w-full font-mono text-xs resize-none p-3" v-model="containerLogs" readonly placeholder="Loading logs..."></textarea>
+      <textarea :class="[themeClasses.hubTextArea]" class="flex-1 rounded-lg w-full font-mono text-xs resize-none p-3" v-model="containerLogs" readonly :placeholder="$t('Loading logs...')"></textarea>
 
       <div class="mt-3 flex items-center gap-2">
         <Switch v-model:checked="autoRefresh" size="small">
@@ -26,25 +26,25 @@
             </span>
           </template>
           <template #unCheckedChildren>
-            <span class="switch-text">Auto</span>
+            <span class="switch-text">{{ $t("Auto") }}</span>
           </template>
         </Switch>
         <span :class="[themeClasses.hubCardTextRepo]" class="text-xs">
-          {{ autoRefresh ? "Auto-refreshing every 3s" : "Auto-refresh disabled" }}
+          {{ autoRefresh ? $t("Auto-refreshing every 3s") : $t("Auto-refresh disabled") }}
         </span>
       </div>
     </div>
 
-    <StatusBar :icon="scriptTextIcon" message="Logs" :info="`Viewing ${displayName}`" :showHelp="true">
+    <StatusBar :icon="scriptTextIcon" :message="$t('Logs')" :info="`${$t('Viewing')} ${displayName}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
             <Icon :icon="scriptTextIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
-            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">Logs</h4>
+            <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Logs") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>View real-time logs from your applications to monitor activity and troubleshoot issues. Enable auto-refresh to automatically update the logs every 3 seconds, ensuring you always see the latest output without manual intervention. Perfect for debugging and monitoring container behavior in real-time.</p>
+            <p>{{ $t("View real-time logs from your applications to monitor activity and troubleshoot issues. Enable auto-refresh to automatically update the logs every 3 seconds, ensuring you always see the latest output without manual intervention. Perfect for debugging and monitoring container behavior in real-time.") }}</p>
           </div>
         </div>
       </template>
@@ -56,6 +56,7 @@
 import axios from "axios";
 
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
@@ -76,6 +77,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
 
@@ -108,12 +110,12 @@ const fetchContainerLogs = async () => {
     });
 
     if (response.data?.logs && response.data.logs.trim() !== "") {
-      containerLogs.value = response.data.logs;
+      containerLogs.value = response.data.logs.replaceAll("⌂ [HomeDock OS > Big log found, truncating output]", t("⌂ [HomeDock OS > Big log found, truncating output]")).replaceAll("⌂ [HomeDock OS > End of file]", t("⌂ [HomeDock OS > End of file]"));
     } else {
-      containerLogs.value = "No logs found for this application.";
+      containerLogs.value = t("No logs found for this application.");
     }
   } catch (error) {
-    containerLogs.value = "Failed to fetch logs for this application.";
+    containerLogs.value = t("Failed to fetch logs for this application.");
   }
 };
 

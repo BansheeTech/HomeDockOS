@@ -25,6 +25,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { t } from "../__Languages__";
 
 import { Vue3Marquee } from "vue3-marquee";
 
@@ -47,19 +48,19 @@ export default defineComponent({
   data() {
     return {
       bannerData: [
-        { alt: "Pi-Hole", container: "pihole", text: "It's getting annoying... Block it!" },
-        { alt: "Plex", container: "plex", text: "Stream everything, everywhere." },
-        { alt: "WordPress", container: "wordpress", text: "You're awesome, let the world know." },
-        { alt: "WireGuard", container: "wireguard", text: "The state-of-the-art VPN solution." },
-        { alt: "Immich", container: "immich", text: "Where memories safely sleep." },
-        { alt: "WPS Office", container: "wps-office", text: "Edit your sensitive data on the go." },
-        { alt: "File Browser", container: "filebrowser", text: "Access all your data. Everywhere." },
-        { alt: "Vaultwarden", container: "vaultwarden", text: "One password to rule them all." },
-        { alt: "Drawio", container: "drawio", text: "It may be complex, try with a flowchart." },
-        { alt: "Stirling PDF", container: "stirling-pdf", text: "All-in-one PDF Editor, anywhere." },
-        { alt: "Ollama GPT", container: "ollama-gpt", text: "Your private AI Large Language Models." },
-        { alt: "ownCloud", container: "owncloud", text: "So... Let's talk about storage, you good?" },
-        { alt: "Home Assistant", container: "homeassistant", text: "Its name is clear enough. You need it." },
+        { alt: "Pi-Hole", container: "pihole", text: t("It's getting annoying... Block it!") },
+        { alt: "Plex", container: "plex", text: t("Stream everything, everywhere.") },
+        { alt: "WordPress", container: "wordpress", text: t("You're awesome, let the world know.") },
+        { alt: "WireGuard", container: "wireguard", text: t("The state-of-the-art VPN solution.") },
+        { alt: "Immich", container: "immich", text: t("Where memories safely sleep.") },
+        { alt: "WPS Office", container: "wps-office", text: t("Edit your sensitive data on the go.") },
+        { alt: "File Browser", container: "filebrowser", text: t("Access all your data. Everywhere.") },
+        { alt: "Vaultwarden", container: "vaultwarden", text: t("One password to rule them all.") },
+        { alt: "Drawio", container: "drawio", text: t("It may be complex, try with a flowchart.") },
+        { alt: "Stirling PDF", container: "stirling-pdf", text: t("All-in-one PDF Editor, anywhere.") },
+        { alt: "Ollama GPT", container: "ollama-gpt", text: t("Your private AI Large Language Models.") },
+        { alt: "ownCloud", container: "owncloud", text: t("So... Let's talk about storage, you good?") },
+        { alt: "Home Assistant", container: "homeassistant", text: t("Its name is clear enough. You need it.") },
       ].map((banner) => ({
         ...banner,
         src: `/images/banners-bg/${banner.container}.jpg`,

@@ -36,7 +36,7 @@
             </div>
 
             <div v-if="currentlyUploading.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
-              <div class="section-label" :class="themeClasses.uploadSectionLabel">Currently Uploading ({{ currentlyUploading.length }})</div>
+              <div class="section-label" :class="themeClasses.uploadSectionLabel">{{ $t("Currently Uploading ({n})", { n: currentlyUploading.length }) }}</div>
               <div class="file-list">
                 <div v-for="file in currentlyUploading" class="file-item" :class="themeClasses.uploadFileItemUploading" :key="`uploading-${file.uid}`">
                   <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
@@ -52,14 +52,14 @@
             </div>
 
             <div v-if="queue.length > 0" class="upload-section" :class="themeClasses.uploadSectionBorder">
-              <div class="section-label" :class="themeClasses.uploadSectionLabel">In Queue ({{ queue.length }})</div>
+              <div class="section-label" :class="themeClasses.uploadSectionLabel">{{ $t("In Queue ({n})", { n: queue.length }) }}</div>
               <div class="file-list">
                 <div v-for="(file, index) in visibleQueue" :key="`queue-${index}-${file.uid}`" class="file-item" :class="[themeClasses.uploadFileItemBg, themeClasses.uploadFileItemBgHover]">
                   <Icon :icon="fileIcon(file.name)" class="file-icon" :class="themeClasses.uploadFileIcon" />
                   <span class="file-name" :class="themeClasses.uploadFileName">{{ file.name }}</span>
                   <span class="file-size" :class="themeClasses.uploadFileSize">{{ formatSize(file.size) }}</span>
                 </div>
-                <div v-if="remainingCount > 0" class="more-files" :class="themeClasses.uploadMoreFiles">And {{ remainingCount }} more...</div>
+                <div v-if="remainingCount > 0" class="more-files" :class="themeClasses.uploadMoreFiles">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
               </div>
             </div>
           </div>

@@ -25,7 +25,7 @@
     <!-- Actions Menu -->
     <div class="flex-shrink-0 ml-auto">
       <Dropdown :trigger="['click']" placement="bottomRight">
-        <button :class="[themeClasses.windowBorder, themeClasses.windowPlaceholderText]" class="p-2 rounded-lg border bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center" title="Actions">
+        <button :class="[themeClasses.windowBorder, themeClasses.windowPlaceholderText]" class="p-2 rounded-lg border bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center" :title="$t('Actions')">
           <Icon :icon="dotsVerticalIcon" class="w-5 h-5" />
         </button>
         <template #overlay>
@@ -33,13 +33,13 @@
             <!-- Edit -->
             <div @click="handleEdit" :class="[themeClasses.contextMenuItem, themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover]" class="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-all duration-150 text-sm">
               <Icon :icon="editIcon" :class="[themeClasses.contextMenuIcon]" class="w-4 h-4 flex-shrink-0" />
-              <span>Edit Config</span>
+              <span>{{ $t("Edit Config") }}</span>
             </div>
 
             <!-- Logs -->
             <div @click="handleLogs" :class="[themeClasses.contextMenuItem, themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover]" class="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-all duration-150 text-sm">
               <Icon :icon="logsIcon" :class="[themeClasses.contextMenuIcon]" class="w-4 h-4 flex-shrink-0" />
-              <span>View Logs</span>
+              <span>{{ $t("View Logs") }}</span>
             </div>
 
             <!-- Divider -->
@@ -50,14 +50,14 @@
             <!-- Export -->
             <div @click="handleExport" :class="[themeClasses.contextMenuItem, themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover]" class="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-all duration-150 text-sm">
               <Icon :icon="exportIcon" :class="[themeClasses.contextMenuIcon]" class="w-4 h-4 flex-shrink-0" />
-              <span>Export Config</span>
+              <span>{{ $t("Export Config") }}</span>
             </div>
 
             <!-- Import -->
             <Upload :custom-request="handleCustomRequest" v-model:file-list="fileList" accept="yml" :maxCount="1" :showUploadList="false" :headers="uploadHeaders" class="block w-full">
               <div :class="[themeClasses.contextMenuItem, themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover]" class="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-all duration-150 text-sm w-full">
                 <Icon :icon="importIcon" :class="[themeClasses.contextMenuIcon]" class="w-4 h-4 flex-shrink-0" />
-                <span>Import Config</span>
+                <span>{{ $t("Import Config") }}</span>
               </div>
             </Upload>
           </div>
@@ -72,6 +72,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { Icon } from "@iconify/vue";
 import { Dropdown, Upload, message } from "ant-design-vue";
+import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useWindowStore } from "../__Stores__/windowStore";
@@ -98,6 +99,7 @@ const props = defineProps<{
 }>();
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const windowStore = useWindowStore();
 
 const fileList = ref([]);
@@ -136,10 +138,10 @@ async function handleExport() {
 
     if (response.data?.data?.ymlContent && response.data.data.ymlContent.trim() !== "") {
       exportYMLFile(response.data.data.ymlContent, `${props.app.name}.yml`);
-      message.success(`Configuration exported successfully`);
+      message.success(t("Configuration exported successfully"));
     }
   } catch (error) {
-    message.error("Failed to export configuration");
+    message.error(t("Failed to export configuration"));
   }
 }
 
@@ -177,13 +179,13 @@ async function handleCustomRequest({ file, onSuccess, onError }: any) {
     if (response.ok) {
       const data = await response.json();
       onSuccess(data, file);
-      message.success(`Configuration imported successfully`);
+      message.success(t("Configuration imported successfully"));
     } else {
       throw new Error("Upload failed");
     }
   } catch (error) {
     onError(error);
-    message.error(`Failed to import configuration`);
+    message.error(t("Failed to import configuration"));
   }
 }
 </script>

@@ -10,7 +10,7 @@
 
   <aside :class="['window-sidebar flex flex-col border-r overflow-hidden transition-transform duration-200 ease-out', themeClasses.fileExplorerSidebar, 'fixed sm:relative inset-y-0 left-0 z-50 sm:z-auto', isOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" :style="{ width: `${width}px`, minWidth: `${minWidth}px` }">
     <div v-if="showMobileHeader" class="flex items-center justify-between px-3 py-2 sm:hidden border-b" :class="[themeClasses.fileExplorerToolbar]">
-      <span :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-xs font-semibold">{{ mobileTitle }}</span>
+      <span :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-xs font-semibold">{{ $t(mobileTitle) }}</span>
       <button @click="$emit('close')" :class="[themeClasses.fileExplorerSidebarItem]" class="p-1.5 rounded-md hover:opacity-80 transition-opacity">
         <Icon :icon="closeIcon" class="w-4 h-4" />
       </button>

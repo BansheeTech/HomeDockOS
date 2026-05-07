@@ -17,15 +17,15 @@
         </div>
         <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2 flex items-center">
           <AnimatedIcon :icons="[_anim1_bug, _anim2_alert, _anim3_search]" :interval="1000" :iconSize="20" containerClass="mr-2" />
-          <span>Shield Mode Active</span>
+          <span>{{ $t("Shield Mode Active") }}</span>
         </h2>
-        <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">Only <u>known hosts</u> will be able to sign in.</p>
+        <p :class="[themeClasses.subText]" class="font-light mb-6 leading-3">{{ $t("Only known hosts will be able to sign in.") }}</p>
 
         <a href="/">
           <Button id="main_button_login" type="primary" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0 disabled:bg-blue-400 disabled:cursor-pointer disabled:text-white">
             <div class="flex items-center justify-center">
               <Icon :icon="backIcon" class="text-white" width="16" height="16" />
-              <span class="ml-1">Go Back</span>
+              <span class="ml-1">{{ $t("Go Back") }}</span>
             </div>
           </Button>
         </a>
@@ -33,7 +33,7 @@
           <p :class="[themeClasses.subText]" class="mt-4 text-xs">
             <a target="_blank" :class="[themeClasses.hyperLink]" class="flex items-center" href="https://docs.homedock.cloud/introduction/features/#shield-mode">
               <Icon :icon="openIcon" class="mr-1 text-current" width="14" height="14" />
-              <span>Click here for more information.</span>
+              <span>{{ $t("Click here for more information.") }}</span>
             </a>
           </p>
         </div>

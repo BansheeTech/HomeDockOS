@@ -183,9 +183,9 @@ def process_config():
 
         yml_str, _ = process_devhooks(yaml.dump(ymlContent_dict))
 
-        is_valid, error_message, problematic_ports = validate_ports(yml_str, allow_container_name=None)
+        is_valid, error_messages, problematic_ports = validate_ports(yml_str, allow_container_name=None)
         if not is_valid:
-            return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
+            return jsonify({"success": False, "messages": error_messages, "problematic_ports": problematic_ports}), 400
 
         yml_bytes = yml_str.encode("utf-8")
         content_hash = hashlib.sha256(yml_bytes).hexdigest()[:16]
@@ -310,9 +310,9 @@ def process_config():
 
         yml_str, _ = process_devhooks(yaml.dump(yml_data))
 
-        is_valid, error_message, problematic_ports = validate_ports(yml_str, allow_container_name=None)
+        is_valid, error_messages, problematic_ports = validate_ports(yml_str, allow_container_name=None)
         if not is_valid:
-            return jsonify({"success": False, "message": error_message, "problematic_ports": problematic_ports}), 400
+            return jsonify({"success": False, "messages": error_messages, "problematic_ports": problematic_ports}), 400
 
         yml_bytes = yml_str.encode("utf-8")
         content_hash = hashlib.sha256(yml_bytes).hexdigest()[:16]
