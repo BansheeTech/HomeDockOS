@@ -1,6 +1,11 @@
 # CHANGELOG
 
-- **2.1.6.142** (Latest): Full UI i18n across 10 languages, regional time and week formats, wallpaper transitions, onboarding and sweep fixes.
+- **2.1.6.144** (Latest): urllib3 security dependency upgrade.
+  - **Patched urllib3 CVE-2026-44431** (Decompression-bomb safeguards bypassed in parts of the streaming API **opened 38 hours ago**) and **CVE-2026-44432** (Sensitive headers forwarded across origins in proxied low-level redirects **opened 24 hours ago**) by upgrading `urllib3` (pip) from 2.6.3 to 2.7.0 in `requirements.txt`. Closes the Brotli-streaming and `drain_conn()` decompression paths that could let a small highly-compressed response detonate into massive CPU and memory usage on the client (CWE-409), and stops `Authorization`, `Cookie` and `Proxy-Authorization` headers from leaking across origins when redirects are followed through `ProxyManager.connection_from_url().urlopen(..., assert_same_host=False)` (CWE-200).
+
+---
+
+- **2.1.6.142**: Full UI i18n across 10 languages, regional time and week formats, wallpaper transitions, onboarding and sweep fixes.
   - **HomeDock OS now speaks 10 languages**: English, Spanish, German, French, Italian, Portuguese, Chinese, Russian, Ukrainian, Japanese, and Korean. Pick yours from Settings > Theme; the choice persists per user, drives the `<html lang>` attribute, and survives a reload with zero flash.
   - **Lazy-loaded locales**. Each language ships as its own chunk, so the main bundle doesn't carry 1.4 MB of strings you'll never read. Only the active locale is fetched at startup, the rest stream on demand when the user switches language.
   - **Han Unification correctness**. Each language pill in the selector declares its own `lang` attribute so that "中文 / 日本語 / 한국어" render with their regionally-correct CJK glyphs regardless of the document language. That wat characters doesn't subtly shapeshift when you swap locale.
@@ -26,8 +31,6 @@
   - **Favorited files now show a star badge** in File Explorer (bottom-right corner of the icon in grid view, just before the size in list view), so you can tell at a glance which items are starred without switching to the Favorites section.
   - **Favoriting from search results no longer creates broken entries**. Adding a file to Favorites or Recents from a search hit used to record an empty parent path while keeping the full-path filename (because the explorer was still at the search-from location) and the resulting entry couldn't be verified, deduplicated or removed cleanly. The parent is now always derived from the file's actual path, so the same file added from a search and from manual navigation lands as a single coherent entry.
   - **Album art in the Media Player and the volume tray**. When opening an audio file, embedded cover art (ID3v2 APIC, FLAC PICTURE, M4A iTunes, OGG/Opus Vorbis comments) is extracted from the already-fetched buffer. The cover fades in over the music note icon in the player and on the now-playing card inside the volume tray dropdown. Magic byte sniffing on the extracted bytes (same defensive pattern as the Image Viewer) means a tag claiming `image/jpeg` but shipping arbitrary bytes is rejected before reaching the `<img>` decoder, only a real JPEG, PNG, GIF, WebP and BMP signatures pass through. Files without cover art keep the existing icon untouched.
-
----
 
 - **2.1.4.686**: Filter Docker-injected bind mounts from Disks+.
   - **Excluded `/etc/hosts`, `/etc/resolv.conf`, and `/etc/hostname`** from the disk list when running inside a container. These are internal bind mounts injected by the Docker runtime for network configuration and were incorrectly surfacing as mounted disks in Disks+. The filter should apply identically on Linux, Docker Desktop for macOS, and Docker Desktop for Windows.
