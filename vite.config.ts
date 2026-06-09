@@ -30,7 +30,9 @@ export default defineConfig(({ mode }) => ({
     outDir: "homedock-ui/vue3/dist",
     manifest: true,
     minify: true,
+    cssMinify: "esbuild", // tempfix (https://github.com/parcel-bundler/lightningcss/issues/695) rolldown-vite (Vite 8) defaults cssMinify to lightningcss, which drops the unprefixed backdrop-filter (keeps only -webkit-) and breaks frosted-glass surfaces; esbuild minifies CSS without mangling vendor prefixes
     rollupOptions: {
+      checks: { pluginTimings: false },
       input: {
         global: resolve(__dirname, "homedock-ui/vue3/static/css/global.css"),
         __desktop__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"),
