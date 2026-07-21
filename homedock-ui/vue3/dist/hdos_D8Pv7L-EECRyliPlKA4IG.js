@@ -1,0 +1,1 @@
+import{A as e,g as t}from"./hdos_CCe84IEk6G0_d_yhWjoHo.js";function n(){let n=e(`csrf-token`);return t(()=>n?.value||``)}export{n as t};

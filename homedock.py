@@ -9,7 +9,6 @@ import os
 import signal
 import logging
 import asyncio
-import threading
 
 from datetime import timedelta
 from flask import g
@@ -163,16 +162,7 @@ if __name__ == "__main__":
     print(f"           └─ \x1b[4m{format_url(protocol, dynamic_dns, run_port)}\x1b[0m")
 
     if local_dns:
-        thread_result = {"success": False}
-
-        def run_service():
-            thread_result["success"] = announce_homedock_service()
-
-        thread = threading.Thread(target=run_service, daemon=True)
-        thread.start()
-        thread.join()
-
-        if thread_result["success"]:
+        if announce_homedock_service():
             print(f"            > \x1b[4m{format_url(protocol, 'homedock.local', run_port)}\x1b[0m")
         else:
             print("            ! homedock.local unavailable")

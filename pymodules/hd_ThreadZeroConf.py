@@ -7,10 +7,21 @@ https://www.banshee.pro
 
 import socket
 
-from zeroconf import Zeroconf, ServiceInfo, NonUniqueNameException
-
 from pymodules.hd_FunctionsNetwork import local_ip
 from pymodules.hd_FunctionsConfig import read_config
+
+try:
+    from zeroconf import Zeroconf, ServiceInfo, NonUniqueNameException
+
+    ZEROCONF_AVAILABLE = True
+    ZEROCONF_UNAVAILABLE_REASON = None
+except Exception as e:
+    ZEROCONF_AVAILABLE = False
+    ZEROCONF_UNAVAILABLE_REASON = str(e)
+    Zeroconf = ServiceInfo = None
+
+    class NonUniqueNameException(Exception):
+        pass
 
 
 def format_url(protocol, host, port):
@@ -20,6 +31,10 @@ def format_url(protocol, host, port):
 
 
 def announce_homedock_service():
+    if not ZEROCONF_AVAILABLE:
+        print(" * mDNS support is unavailable on this system")
+        return False
+
     config = read_config()
     local_ip_address = local_ip
 
@@ -62,7 +77,16 @@ def announce_homedock_service():
             print(" * Please read: https://docs.homedock.cloud/troubleshooting/multicast-dns/")
         else:
             print(f"\n[Unexpected error] {e}")
-            zeroconf.close()
 
         if zeroconf:
             zeroconf.close()
+
+        return False
+
+    except Exception as e:
+        print(f" ! homedock.local announcement failed: {e}")
+
+        if zeroconf:
+            zeroconf.close()
+
+        return False

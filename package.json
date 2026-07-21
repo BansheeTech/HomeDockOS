@@ -1,6 +1,6 @@
 {
   "name": "homedock_os",
-  "version": "2.1.6.148",
+  "version": "2.1.6.162",
   "description": "![HomeDock OS Banner](https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-banner-rhino.png)",
   "type": "module",
   "scripts": {
@@ -20,7 +20,7 @@
     "@unhead/vue": "^2.1.12",
     "@vitejs/plugin-vue": "^6.0.3",
     "ant-design-vue": "^4.2.6",
-    "axios": "1.17.0",
+    "axios": "1.18.0",
     "dayjs": "^1.11.19",
     "dompurify": "^3.4.1",
     "highlight.js": "^11.11.1",
@@ -52,6 +52,7 @@
     "@types/qrcode": "^1.5.6",
     "@vitejs/plugin-basic-ssl": "2.3.0",
     "autoprefixer": "^10.4.22",
+    "esbuild": "^0.28.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
     "typescript": "6.0.3"
