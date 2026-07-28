@@ -1499,5 +1499,10 @@
   "There was an error during setup.": "Під час налаштування виникла помилка.",
   "Setup complete, redirecting to login...": "Налаштування завершено, переспрямування на вхід...",
   "Setup complete. Click below to sign in.": "Налаштування завершено. Натисніть нижче, щоб увійти.",
-  "Get started": "Почнемо"
+  "Get started": "Почнемо",
+  "Setup window closed": "Вікно налаштування закрито",
+  "Restart required.": "Потрібен перезапуск.",
+  "For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.": "З міркувань безпеки початкове налаштування приймається лише невдовзі після запуску HomeDock OS. Перезапустіть HomeDock OS, щоб відкрити нове вікно налаштування.",
+  "The setup window has closed, restart HomeDock OS to try again.": "Вікно налаштування закрито, перезапустіть HomeDock OS, щоб спробувати ще раз.",
+  "What does this mean?": "Що це означає?"
 }

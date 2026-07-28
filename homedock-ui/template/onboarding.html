@@ -23,6 +23,10 @@
       {{ { "selected_theme": selected_theme, "selected_back": selected_back } | b64encode }}
     </script>
 
+    <script id="data-onboarding" type="application/json">
+      {{ { "window_open": window_open, "window_remaining": window_remaining } | b64encode }}
+    </script>
+
     {{ vitejs("__onboarding__") | safe }}
 
     {% include 'partials/hd_UIPartialNoJavascript.html' %}

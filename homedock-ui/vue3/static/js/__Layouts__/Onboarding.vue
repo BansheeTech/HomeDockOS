@@ -40,8 +40,32 @@
       </div>
     </Transition>
 
+    <Transition name="onb-final">
+      <div v-if="!windowOpen" class="absolute inset-0 z-[6] flex items-center justify-center p-8">
+        <div class="text-center max-w-[560px]">
+          <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-16 sm:h-20 mx-auto mb-10 onb-final-logo" />
+          <p :class="[themeClasses.subText]" class="text-[11px] tracking-[0.32em] uppercase font-medium opacity-70 m-0 mb-4">{{ $t("Setup window closed") }}</p>
+          <h1 :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.045em] leading-[0.95] text-[clamp(2.5rem,7vw,4.5rem)] m-0 mb-5">{{ $t("Restart required.") }}</h1>
+          <p :class="[themeClasses.subText]" class="text-base font-light opacity-85 m-0 mb-10">
+            {{ $t("For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.") }}
+          </p>
+          <a
+            id="main_button_onboarding_docs"
+            href="https://docs.homedock.cloud/troubleshooting/restart-required/"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="[themeClasses.loginSecondaryButton]"
+            class="h-12 px-8 rounded-lg no-underline inline-flex items-center justify-center onb-final-cta"
+          >
+            <Icon :icon="helpIcon" width="18" height="18" class="mr-2" />
+            <span>{{ $t("What does this mean?") }}</span>
+          </a>
+        </div>
+      </div>
+    </Transition>
+
     <Transition name="splash-out">
-      <div v-if="!hasStarted && !isSetupSuccessful" class="absolute inset-0 z-[4] flex items-center justify-center px-6 py-8">
+      <div v-if="windowOpen && !hasStarted && !isSetupSuccessful" class="absolute inset-0 z-[4] flex items-center justify-center px-6 py-8">
         <canvas ref="auroraRef" class="absolute left-0 bottom-0 w-full h-full pointer-events-none z-0" style="transform: scaleY(-1)" aria-hidden="true"></canvas>
         <div class="onb-splash-inner relative z-[1] text-center max-w-[640px] w-full">
           <p :class="[themeClasses.subText]" class="text-xs tracking-[0.32em] uppercase font-medium opacity-70 m-0 mb-5">{{ $t("Welcome") }}</p>
@@ -62,7 +86,7 @@
       </div>
     </Transition>
 
-    <div v-show="hasStarted && !isSetupSuccessful" class="relative z-[2] flex flex-col h-full lg:flex-row" :class="{ 'onb-split-rising': hasStarted }">
+    <div v-show="windowOpen && hasStarted && !isSetupSuccessful" class="relative z-[2] flex flex-col h-full lg:flex-row" :class="{ 'onb-split-rising': hasStarted }">
       <section class="relative flex-none flex items-center justify-center overflow-hidden min-h-[24vh] max-h-[36vh] py-6 px-5 lg:flex lg:basis-[56%] lg:min-w-[460px] lg:min-h-0 lg:max-h-none lg:py-16 lg:px-20 lg:items-center lg:justify-start" aria-hidden="true">
         <div class="hidden lg:flex lg:absolute lg:top-10 lg:left-20 lg:items-center lg:gap-2 lg:z-[3]">
           <BaseImage src="/images/logo_trans.svg" alt="" :class="[themeClasses.logo]" class="h-7 opacity-90" />
@@ -322,6 +346,7 @@ import { AxiosError } from "axios";
 import { Icon } from "@iconify/vue";
 import accountIcon from "@iconify-icons/mdi/account";
 import alertIcon from "@iconify-icons/mdi/alert-circle";
+import helpIcon from "@iconify-icons/mdi/help-circle-outline";
 import passIcon from "@iconify-icons/mdi/lock";
 import openEye from "@iconify-icons/mdi/eye-outline";
 import closedEye from "@iconify-icons/mdi/eye-closed";
@@ -345,6 +370,9 @@ const { t, locale } = useI18n();
 
 const themeData = inject<ThemeData>("data-theme") as ThemeData;
 const { themeClasses } = useTheme();
+
+const onboardingData = inject<{ window_open: boolean; window_remaining: number }>("data-onboarding", { window_open: true, window_remaining: 0 });
+const windowOpen = ref(onboardingData.window_open !== false);
 
 const stepLabels = computed(() => [t("Language"), t("Account"), t("Appearance"), t("Time"), t("Done")]);
 const currentStep = ref(0);
@@ -734,6 +762,8 @@ function getOnboardingErrorMessage(code: string): string {
       return t("Invalid request.");
     case "onboarding_unavailable":
       return t("Onboarding is no longer available.");
+    case "onboarding_window_expired":
+      return t("The setup window has closed, restart HomeDock OS to try again.");
     default:
       return t("Unexpected error, please contact support.");
   }
@@ -787,6 +817,13 @@ async function handleFinish() {
       const code = error.response.data.error || "";
       const redirect = error.response.data.redirect_url;
       message.error(getOnboardingErrorMessage(code));
+      if (code === "onboarding_window_expired") {
+        // Reload rather than flipping windowOpen here: the server re-renders the
+        // real state, which is the wizard again if HomeDock OS was restarted.
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
       if (redirect) {
         setTimeout(() => {
           window.location.href = redirect;

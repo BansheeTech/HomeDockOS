@@ -1499,5 +1499,10 @@
   "There was an error during setup.": "Hubo un error durante la configuración.",
   "Setup complete, redirecting to login...": "Configuración completada, redirigiendo al inicio de sesión...",
   "Setup complete. Click below to sign in.": "Configuración completada. Haz clic abajo para iniciar sesión.",
-  "Get started": "Comenzar"
+  "Get started": "Comenzar",
+  "Setup window closed": "Ventana de configuración cerrada",
+  "Restart required.": "Reinicio necesario.",
+  "For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.": "Por seguridad, la configuración inicial solo se acepta poco después de que HomeDock OS arranque. Reinicia HomeDock OS para abrir una nueva ventana de configuración.",
+  "The setup window has closed, restart HomeDock OS to try again.": "La ventana de configuración se ha cerrado, reinicia HomeDock OS para intentarlo de nuevo.",
+  "What does this mean?": "¿Qué significa esto?"
 }

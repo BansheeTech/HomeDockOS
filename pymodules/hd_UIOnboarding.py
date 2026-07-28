@@ -17,11 +17,14 @@ from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
 from pymodules.hd_CryptoServer import decrypt_json_from_client
 from pymodules.hd_ConfigEventManager import notify_config_changed
+from pymodules.hd_OnboardingWindow import is_window_open, remaining_seconds, window_minutes
 
 
 def onboarding_page():
     if not is_fresh_install():
         return redirect(url_for("login_page"))
+
+    window_open = is_window_open()
 
     aux_config = read_config()
     selected_theme = aux_config["selected_theme"]
@@ -38,6 +41,8 @@ def onboarding_page():
         selected_theme=selected_theme,
         selected_back=selected_back,
         selected_language=selected_language,
+        window_open=window_open,
+        window_remaining=remaining_seconds(),
         nonce=g.get("nonce", ""),
     )
 
@@ -45,6 +50,10 @@ def onboarding_page():
 def api_onboarding_setup():
     if not is_fresh_install():
         return jsonify({"error": "onboarding_unavailable", "redirect_url": "/"}), 409
+
+    if not is_window_open():
+        print(f" * Onboarding rejected from {request.remote_addr}: setup window closed ({window_minutes()} min), restart HomeDock OS to reopen it.")
+        return jsonify({"error": "onboarding_window_expired"}), 403
 
     try:
         encrypted_data = request.json.get("encrypted_data") if request.is_json else None
@@ -102,6 +111,9 @@ def api_onboarding_setup():
 
         if not is_fresh_install():
             return jsonify({"error": "onboarding_unavailable", "redirect_url": "/"}), 409
+
+        if not is_window_open():
+            return jsonify({"error": "onboarding_window_expired"}), 403
 
         config_path = os.path.join(current_directory, "homedock_server.conf")
         config = configparser.ConfigParser()

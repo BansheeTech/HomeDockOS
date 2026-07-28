@@ -1499,5 +1499,10 @@
   "There was an error during setup.": "설정 중 오류가 발생했습니다.",
   "Setup complete, redirecting to login...": "설정 완료, 로그인 페이지로 이동 중...",
   "Setup complete. Click below to sign in.": "설정 완료. 아래를 클릭하여 로그인하세요.",
-  "Get started": "시작하기"
+  "Get started": "시작하기",
+  "Setup window closed": "설정 창이 닫혔습니다",
+  "Restart required.": "재시작이 필요합니다.",
+  "For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.": "보안을 위해 초기 설정은 HomeDock OS가 시작된 직후에만 허용됩니다. HomeDock OS를 재시작하여 새 설정 창을 여세요.",
+  "The setup window has closed, restart HomeDock OS to try again.": "설정 창이 닫혔습니다. HomeDock OS를 재시작한 후 다시 시도하세요.",
+  "What does this mean?": "무슨 의미인가요?"
 }

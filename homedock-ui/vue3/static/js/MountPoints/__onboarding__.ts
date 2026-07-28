@@ -27,6 +27,7 @@ function parseBase64Data(id: string): any {
 }
 
 const initialThemeData = parseBase64Data("data-theme") as ThemeData | null;
+const onboardingData = parseBase64Data("data-onboarding") as { window_open: boolean; window_remaining: number } | null;
 
 if (initialThemeData) {
   const themeData = reactive({ ...initialThemeData });
@@ -36,6 +37,7 @@ if (initialThemeData) {
   app.use(i18n);
 
   app.provide("data-theme", themeData);
+  app.provide("data-onboarding", reactive({ window_open: onboardingData?.window_open ?? true, window_remaining: onboardingData?.window_remaining ?? 0 }));
 
   const faviconHeadAdder = createHead();
   app.use(faviconHeadAdder);

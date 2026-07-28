@@ -11,6 +11,10 @@ We deeply value the contributions of our community in making HomeDock OS a secur
 
 ## Security Update History
 
+- `✦ Unbounded Fresh-Install Onboarding Window Lets a Stranger Complete Setup First`
+
+  - **Reported by @EQSTLab (SK Shieldus)** – Fixed in v2.1.6.164
+
 - `✦ Configuration Injection via Newline in Port Routing container_id`
 
   - **Reported by Jupiter Belic** – Fixed in v2.1.0.490

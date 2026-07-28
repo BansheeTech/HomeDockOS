@@ -1499,5 +1499,10 @@
   "There was an error during setup.": "セットアップ中にエラーが発生しました。",
   "Setup complete, redirecting to login...": "セットアップが完了しました。ログイン画面にリダイレクトしています...",
   "Setup complete. Click below to sign in.": "セットアップが完了しました。下のボタンをクリックしてサインインしてください。",
-  "Get started": "はじめる"
+  "Get started": "はじめる",
+  "Setup window closed": "セットアップ期間は終了しました",
+  "Restart required.": "再起動が必要です。",
+  "For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.": "セキュリティのため、初期セットアップは HomeDock OS の起動直後のみ受け付けられます。HomeDock OS を再起動して、新しいセットアップ期間を開始してください。",
+  "The setup window has closed, restart HomeDock OS to try again.": "セットアップ期間が終了しました。HomeDock OS を再起動してからもう一度お試しください。",
+  "What does this mean?": "これはどういう意味ですか？"
 }

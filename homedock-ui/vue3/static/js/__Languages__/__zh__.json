@@ -1499,5 +1499,10 @@
   "There was an error during setup.": "设置过程中出错。",
   "Setup complete, redirecting to login...": "设置完成，正在重定向到登录...",
   "Setup complete. Click below to sign in.": "设置完成。点击下方登录。",
-  "Get started": "开始使用"
+  "Get started": "开始使用",
+  "Setup window closed": "设置窗口已关闭",
+  "Restart required.": "需要重启。",
+  "For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.": "出于安全考虑，仅在 HomeDock OS 启动后的短时间内接受首次设置。请重启 HomeDock OS 以打开新的设置窗口。",
+  "The setup window has closed, restart HomeDock OS to try again.": "设置窗口已关闭，请重启 HomeDock OS 后重试。",
+  "What does this mean?": "这是什么意思？"
 }

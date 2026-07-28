@@ -26,6 +26,7 @@ from pymodules.hd_FunctionsGlobals import current_directory, version, version_ha
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_PublicKeySender import send_public_key
 from pymodules.hd_FunctionsConfig import check_and_generate_config, read_config
+from pymodules.hd_OnboardingWindow import mark_process_start
 from pymodules.hd_FunctionsActiveInstance import active_instance
 
 from pymodules.hd_FunctionsMain import validate_docker_installation, validate_docker_compose_installation, init_color_if_windows
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     start_resource_usage_thread()
     start_app_updates_checker_thread()
     start_notifications_fetcher_thread()
+    mark_process_start()
 
     run_port = globalConfig["run_port"]
     local_dns = globalConfig["local_dns"]
