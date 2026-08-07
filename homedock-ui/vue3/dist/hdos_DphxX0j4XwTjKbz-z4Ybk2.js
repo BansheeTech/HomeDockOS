@@ -1,0 +1,1 @@
+var e=class extends Error{constructor(){super(`End-Of-Stream`),this.name=`EndOfStreamError`}},t=class extends Error{constructor(e=`The operation was aborted`){super(e),this.name=`AbortError`}};export{e as n,t};

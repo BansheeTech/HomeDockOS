@@ -34,14 +34,14 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       checks: { pluginTimings: false },
       input: {
-        global: resolve(__dirname, "homedock-ui/vue3/static/css/global.css"),
-        __desktop__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"),
-        __login__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__login__.ts"),
-        __onboarding__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__onboarding__.ts"),
-        __limited__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__limited__.ts"),
-        __shieldmode__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__shieldmode__.ts"),
-        __errorcode__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts"),
-        __app__: resolve(__dirname, "homedock-ui/vue3/static/js/MountPoints/__app__.ts"),
+        global: resolve(import.meta.dirname, "homedock-ui/vue3/static/css/global.css"),
+        __desktop__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__desktop__.ts"),
+        __login__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__login__.ts"),
+        __onboarding__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__onboarding__.ts"),
+        __limited__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__limited__.ts"),
+        __shieldmode__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__shieldmode__.ts"),
+        __errorcode__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts"),
+        __app__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__app__.ts"),
       },
       output: {
         chunkFileNames: "hdos_[hash:21].js",
