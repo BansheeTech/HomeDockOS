@@ -60,7 +60,6 @@ const AppAbout = defineAsyncComponent({
   delay: 200,
 });
 
-import cloudIcon from "@iconify-icons/mdi/cloud";
 import fileSearchIcon from "@iconify-icons/mdi/file-search";
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline";
 import packageVariantIcon from "@iconify-icons/mdi/package-variant";
@@ -70,12 +69,14 @@ import tuneIcon from "@iconify-icons/mdi/tune";
 import informationOutlineIcon from "@iconify-icons/mdi/cloud-question";
 import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
 
+import { homedockIcon } from "./HomeDockIcon";
+
 const MAIN_SYSTEM_APPS: SystemApp[] = [
   {
     id: "apphome",
     name: "My Home",
     description: "View system information and access applications",
-    icon: cloudIcon,
+    icon: homedockIcon,
     component: AppHome,
     defaultWidth: 1024,
     defaultHeight: 768,

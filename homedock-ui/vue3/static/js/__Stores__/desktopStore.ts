@@ -3,13 +3,19 @@
 // See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
+import axios from "axios";
+
 import { defineStore } from "pinia";
 import { useWindowStore } from "./windowStore";
 import { appExists } from "../__Config__/WindowDefaultDetails";
+import { appWindowsAvailable, isLocalNetworkHost, buildDirectPortUrl } from "../__Composables__/useAppSubdomain";
+
+import type { FileExplorerLocation } from "./useFileExplorerStore";
 
 export interface DockerApp {
   id: string;
   name: string;
+  slug?: string;
   display_name?: string;
   image: string;
   image_path: string;
@@ -52,6 +58,54 @@ export interface DesktopFolder {
   createdAt: number;
 }
 
+export const SHORTCUT_LOCATIONS = ["storage", "dropzone", "appdrive", "disksplus"] as const satisfies readonly FileExplorerLocation[];
+
+export type ShortcutLocation = (typeof SHORTCUT_LOCATIONS)[number];
+
+export function isShortcutLocation(value: string): value is ShortcutLocation {
+  return (SHORTCUT_LOCATIONS as readonly string[]).includes(value);
+}
+
+export interface ShortcutTarget {
+  location: ShortcutLocation;
+  path: string;
+  fileName: string;
+  isDirectory: boolean;
+  container?: string;
+  mountIndex?: number;
+  diskId?: string;
+}
+
+export interface ShortcutData {
+  shortcutId: string;
+  type: "url" | "file";
+  url: string;
+  iconType: "preset" | "image" | "file";
+  iconValue: string;
+  target?: ShortcutTarget;
+}
+
+export interface ShortcutPayload {
+  name: string;
+  url: string;
+  icon_type: "preset" | "image";
+  icon_value: string;
+}
+
+export interface FileShortcutPayload {
+  name: string;
+  type: "file";
+  target: {
+    location: ShortcutLocation;
+    path: string;
+    file_name: string;
+    is_directory: boolean;
+    container?: string;
+    mount_index?: number;
+    disk_id?: string;
+  };
+}
+
 export interface SystemDesktopIcon {
   id: string;
   appId: string;
@@ -64,9 +118,25 @@ export interface SystemDesktopIcon {
   page?: number;
   isPermanent?: boolean;
   moduleName?: string;
+  shortcut?: ShortcutData;
+  folderId?: string | null;
 }
 
 export type DesktopItemType = "app" | "folder" | "systemicon";
+
+export function shortcutTargetData(target: ShortcutTarget, shortcutId?: string): Record<string, unknown> {
+  const relativePath = target.path ? `${target.path}/${target.fileName}` : target.fileName;
+
+  return {
+    initialShortcutId: shortcutId,
+    initialLocation: target.location,
+    initialPath: target.isDirectory ? relativePath : target.path,
+    initialFileName: target.isDirectory ? undefined : relativePath,
+    initialContainer: target.container,
+    initialMountIndex: target.mountIndex,
+    initialDiskId: target.diskId,
+  };
+}
 
 export const useDesktopStore = defineStore("desktop", {
   state: () => ({
@@ -76,6 +146,9 @@ export const useDesktopStore = defineStore("desktop", {
     systemDesktopIcons: [] as SystemDesktopIcon[],
     recentApps: [] as string[],
     pinnedApps: [] as string[],
+    appViewModes: {} as Record<string, "window" | "tab" | "port">,
+    appViewSchemes: {} as Record<string, "http" | "https">,
+    subdomainCertificate: { ssl: false, selfSigned: false, coversApps: false },
     desktopLayout: "grid" as "grid" | "list",
     iconSize: "medium" as "small" | "medium" | "large",
     draggedAppIds: [] as string[],
@@ -83,6 +156,9 @@ export const useDesktopStore = defineStore("desktop", {
   }),
 
   getters: {
+    // HDOS00116
+    certificateBlocksAppWindows: (state) => state.subdomainCertificate.ssl && (state.subdomainCertificate.selfSigned || !state.subdomainCertificate.coversApps),
+
     runningDockerApps: (state) => state.dockerApps.filter((app) => app.status === "running"),
 
     stoppedDockerApps: (state) => state.dockerApps.filter((app) => app.status === "exited"),
@@ -93,6 +169,12 @@ export const useDesktopStore = defineStore("desktop", {
 
     getAppsInFolder: (state) => (folderId: string) => {
       return state.dockerApps.filter((app) => app.folderId === folderId && app.HDRole !== "dependency");
+    },
+
+    desktopRootSystemIcons: (state) => state.systemDesktopIcons.filter((icon) => !icon.folderId),
+
+    getShortcutsInFolder: (state) => (folderId: string) => {
+      return state.systemDesktopIcons.filter((icon) => icon.shortcut && icon.folderId === folderId);
     },
 
     getFolderById: (state) => (folderId: string) => {
@@ -122,6 +204,19 @@ export const useDesktopStore = defineStore("desktop", {
     openSystemApp(appId: string) {
       const windowStore = useWindowStore();
 
+      if (appId.startsWith("shortcut-")) {
+        const shortcut = this.systemDesktopIcons.find((icon) => icon.appId === appId)?.shortcut;
+
+        if (shortcut?.type === "file" && shortcut.target) {
+          windowStore.openFileInApp("fileexplorer", { data: shortcutTargetData(shortcut.target, shortcut.shortcutId) });
+        } else if (shortcut) {
+          window.open(shortcut.url, "_blank", "noopener,noreferrer");
+        }
+
+        this.closeStartMenu();
+        return;
+      }
+
       if (appId.startsWith("enterprise-")) {
         const systemIcon = this.systemDesktopIcons.find((icon) => icon.appId === appId);
         if (systemIcon?.moduleName) {
@@ -140,15 +235,74 @@ export const useDesktopStore = defineStore("desktop", {
       this.addToRecent(appId);
     },
 
+    async loadAppViewModes(csrfToken: string) {
+      try {
+        const { data } = await axios.get<{ modes: Record<string, "window" | "tab" | "port">; schemes: Record<string, "http" | "https"> }>("/api/app-view-mode", {
+          headers: { "X-HomeDock-CSRF-Token": csrfToken },
+        });
+
+        this.appViewModes = data?.modes ?? {};
+        this.appViewSchemes = data?.schemes ?? {};
+      } catch {
+        // Halp!
+      }
+    },
+
+    async loadCertificateTrust() {
+      try {
+        const { data } = await axios.get<{ ssl: boolean; self_signed: boolean; covers_apps: boolean }>("/api/subdomain-diagnostics");
+
+        this.subdomainCertificate = { ssl: Boolean(data?.ssl), selfSigned: Boolean(data?.self_signed), coversApps: Boolean(data?.covers_apps) };
+      } catch {
+        this.subdomainCertificate = { ssl: false, selfSigned: false, coversApps: false };
+      }
+    },
+
+    launchDockerApp(app: DockerApp) {
+      if (!app.service_url) return;
+
+      const mode = this.appViewModes[app.name] ?? "window";
+
+      // HDOS00115
+      if (mode === "port" && isLocalNetworkHost()) {
+        const port = app.ports?.find((value) => value && value !== "disabled" && value !== "hostmode");
+
+        if (port) {
+          // HDOS00118
+          const scheme = this.appViewSchemes[app.name] ?? "http";
+
+          window.open(buildDirectPortUrl(port, scheme), "_blank", "noopener,noreferrer");
+          return;
+        }
+      }
+
+      if (mode === "tab" || !appWindowsAvailable(this.certificateBlocksAppWindows)) {
+        window.open(app.service_url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      this.openDockerWindow(app);
+    },
+
+    // HDOS00119
+    openDockerWindow(app: DockerApp) {
+      const windowStore = useWindowStore();
+
+      windowStore.openUniqueWindow("docker-view", app.name, {
+        title: app.display_name || app.name,
+        icon: app.image_path,
+        data: { appName: app.name },
+      });
+    },
+
     openDockerApp(app: DockerApp) {
       if (app.service_url && app.status === "running") {
-        window.open(app.service_url, "_blank", "noopener,noreferrer");
+        this.launchDockerApp(app);
       } else {
         const windowStore = useWindowStore();
-        windowStore.openWindow("properties", {
+        windowStore.openUniqueWindow("properties", app.id, {
           title: `${app.display_name || app.name} - Properties`,
           data: { appId: app.id },
-          allowMultiple: true,
         });
       }
 
@@ -292,6 +446,8 @@ export const useDesktopStore = defineStore("desktop", {
       const additionalIcons = this.loadSystemIconsList();
       const removedDefaultIcons = this.loadRemovedDefaultIcons();
 
+      const existingShortcuts = this.systemDesktopIcons.filter((icon) => icon.shortcut);
+
       const defaultIcons: SystemDesktopIcon[] = [];
 
       if (!removedDefaultIcons.includes("apphome")) {
@@ -299,7 +455,7 @@ export const useDesktopStore = defineStore("desktop", {
           id: "system-icon-apphome",
           appId: "apphome",
           name: "My Home",
-          icon: "mdi:cloud",
+          icon: "homedock:logo",
           isPermanent: false,
           ...savedPositions["system-icon-apphome"],
         });
@@ -348,20 +504,143 @@ export const useDesktopStore = defineStore("desktop", {
       if (needsCleanup) {
         this.saveSystemIconsList();
       }
+
+      this.systemDesktopIcons.push(...existingShortcuts);
+    },
+
+    buildShortcutIcon(shortcut: any, savedPositions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }>): SystemDesktopIcon {
+      const isFile = shortcut.type === "file" && shortcut.target;
+
+      const data: ShortcutData = isFile
+        ? {
+            shortcutId: shortcut.id,
+            type: "file",
+            url: "",
+            iconType: "file",
+            iconValue: shortcut.target.file_name || "",
+            target: {
+              location: shortcut.target.location,
+              path: shortcut.target.path || "",
+              fileName: shortcut.target.file_name || "",
+              isDirectory: !!shortcut.target.is_directory,
+              container: shortcut.target.container,
+              mountIndex: shortcut.target.mount_index,
+              diskId: shortcut.target.disk_id,
+            },
+          }
+        : {
+            shortcutId: shortcut.id,
+            type: "url",
+            url: shortcut.url,
+            iconType: shortcut.icon_type,
+            iconValue: shortcut.icon_value,
+          };
+
+      return {
+        id: `shortcut-${shortcut.id}`,
+        appId: `shortcut-${shortcut.id}`,
+        name: shortcut.name,
+        icon: "shortcut",
+        isPermanent: false,
+        shortcut: data,
+        ...savedPositions[`shortcut-${shortcut.id}`],
+      };
+    },
+
+    async loadShortcuts(csrfToken: string) {
+      try {
+        const response = await axios.get("/api/shortcuts", {
+          headers: { "X-HomeDock-CSRF-Token": csrfToken },
+        });
+
+        const savedPositions = this.loadSystemIconPositions();
+
+        this.systemDesktopIcons = this.systemDesktopIcons.filter((icon) => !icon.shortcut);
+        (response.data.shortcuts || []).forEach((shortcut: any) => {
+          this.systemDesktopIcons.push(this.buildShortcutIcon(shortcut, savedPositions));
+        });
+
+        this.syncFolderItems();
+      } catch (error) {
+        console.error("Error loading shortcuts:", error);
+      }
+    },
+
+    async addShortcut(payload: ShortcutPayload | FileShortcutPayload, csrfToken: string): Promise<boolean> {
+      try {
+        const response = await axios.post("/api/shortcuts/add", payload, {
+          headers: { "X-HomeDock-CSRF-Token": csrfToken },
+        });
+
+        if (response.data.shortcut) {
+          this.systemDesktopIcons.push(this.buildShortcutIcon(response.data.shortcut, {}));
+        }
+        return true;
+      } catch (error) {
+        console.error("Error adding shortcut:", error);
+        return false;
+      }
+    },
+
+    async updateShortcut(shortcutId: string, payload: ShortcutPayload, csrfToken: string): Promise<boolean> {
+      try {
+        const response = await axios.post(
+          "/api/shortcuts/update",
+          { id: shortcutId, ...payload },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken },
+          },
+        );
+
+        const icon = this.systemDesktopIcons.find((i) => i.shortcut?.shortcutId === shortcutId);
+        if (icon && response.data.shortcut) {
+          const rebuilt = this.buildShortcutIcon(response.data.shortcut, {});
+          icon.name = rebuilt.name;
+          icon.shortcut = rebuilt.shortcut;
+        }
+        return true;
+      } catch (error) {
+        console.error("Error updating shortcut:", error);
+        return false;
+      }
+    },
+
+    async removeShortcut(shortcutId: string, csrfToken: string): Promise<boolean> {
+      try {
+        await axios.post(
+          "/api/shortcuts/remove",
+          { id: shortcutId },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken },
+          },
+        );
+
+        const index = this.systemDesktopIcons.findIndex((i) => i.shortcut?.shortcutId === shortcutId);
+        if (index !== -1) {
+          this.removeShortcutFromFolder(this.systemDesktopIcons[index].id);
+          this.systemDesktopIcons.splice(index, 1);
+        }
+        this.saveSystemIconPositions();
+        return true;
+      } catch (error) {
+        console.error("Error removing shortcut:", error);
+        return false;
+      }
     },
 
     saveSystemIconPositions() {
       try {
-        const positions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }> = {};
+        const positions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> = {};
 
         this.systemDesktopIcons.forEach((icon) => {
-          if (icon.x !== undefined || icon.y !== undefined || icon.gridRow !== undefined || icon.gridCol !== undefined || icon.page !== undefined) {
+          if (icon.x !== undefined || icon.y !== undefined || icon.gridRow !== undefined || icon.gridCol !== undefined || icon.page !== undefined || icon.folderId) {
             positions[icon.id] = {
               x: icon.x,
               y: icon.y,
               gridRow: icon.gridRow,
               gridCol: icon.gridCol,
               page: icon.page,
+              folderId: icon.folderId,
             };
           }
         });
@@ -372,7 +651,7 @@ export const useDesktopStore = defineStore("desktop", {
       }
     },
 
-    loadSystemIconPositions(): Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }> {
+    loadSystemIconPositions(): Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> {
       try {
         const stored = localStorage.getItem("homedock_system_icon_positions");
         if (stored) {
@@ -387,7 +666,7 @@ export const useDesktopStore = defineStore("desktop", {
     saveSystemIconsList() {
       try {
         const icons = this.systemDesktopIcons
-          .filter((icon) => !icon.isPermanent)
+          .filter((icon) => !icon.isPermanent && !icon.shortcut)
           .map((icon) => ({
             appId: icon.appId,
             name: icon.name,
@@ -634,8 +913,12 @@ export const useDesktopStore = defineStore("desktop", {
       const folder = this.desktopFolders.find((f) => f.id === folderId);
       if (!folder) return;
 
-      folder.items.forEach((appId) => {
-        this.removeAppFromFolder(appId);
+      folder.items.forEach((itemId) => {
+        if (itemId.startsWith("shortcut-")) {
+          this.removeShortcutFromFolder(itemId);
+        } else {
+          this.removeAppFromFolder(itemId);
+        }
       });
 
       const windowStore = useWindowStore();
@@ -693,6 +976,50 @@ export const useDesktopStore = defineStore("desktop", {
       this.saveIconPositions();
     },
 
+    addShortcutToFolder(iconId: string, folderId: string) {
+      const icon = this.systemDesktopIcons.find((i) => i.id === iconId && i.shortcut);
+      const folder = this.desktopFolders.find((f) => f.id === folderId);
+
+      if (!icon || !folder) return;
+
+      if (icon.folderId) {
+        this.removeShortcutFromFolder(iconId);
+      }
+
+      icon.folderId = folderId;
+      if (!folder.items.includes(iconId)) {
+        folder.items.push(iconId);
+      }
+
+      icon.x = undefined;
+      icon.y = undefined;
+      icon.gridRow = undefined;
+      icon.gridCol = undefined;
+
+      this.saveFolders();
+      this.saveSystemIconPositions();
+    },
+
+    removeShortcutFromFolder(iconId: string) {
+      const icon = this.systemDesktopIcons.find((i) => i.id === iconId);
+      if (!icon || !icon.folderId) return;
+
+      const folder = this.desktopFolders.find((f) => f.id === icon.folderId);
+      if (folder) {
+        folder.items = folder.items.filter((id) => id !== iconId);
+      }
+
+      icon.folderId = null;
+
+      icon.x = undefined;
+      icon.y = undefined;
+      icon.gridRow = undefined;
+      icon.gridCol = undefined;
+
+      this.saveFolders();
+      this.saveSystemIconPositions();
+    },
+
     removeAppFromFolder(appId: string) {
       const app = this.dockerApps.find((a) => a.id === appId);
       if (!app || !app.folderId) return;
@@ -743,6 +1070,15 @@ export const useDesktopStore = defineStore("desktop", {
         folder.items = [];
       });
 
+      this.systemDesktopIcons.forEach((icon) => {
+        if (icon.shortcut && icon.folderId) {
+          const folder = this.desktopFolders.find((f) => f.id === icon.folderId);
+          if (folder && !folder.items.includes(icon.id)) {
+            folder.items.push(icon.id);
+          }
+        }
+      });
+
       this.dockerApps.forEach((app) => {
         if (app.folderId) {
           const folder = this.desktopFolders.find((f) => f.id === app.folderId);
@@ -760,10 +1096,9 @@ export const useDesktopStore = defineStore("desktop", {
       if (!folder) return;
 
       const windowStore = useWindowStore();
-      windowStore.openWindow("folder-view", {
+      windowStore.openUniqueWindow("folder-view", folder.id, {
         title: folder.name,
         data: { folderId: folder.id },
-        allowMultiple: true,
       });
     },
 

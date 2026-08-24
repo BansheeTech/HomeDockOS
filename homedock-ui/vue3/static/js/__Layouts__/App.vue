@@ -184,6 +184,9 @@ const stepLineClass = (index: number) => {
   return "bg-gray-300/20";
 };
 
+// HDOS00105
+const resolveDestination = (portUrl: string): string => portUrl + (path ? `/${path}` : "");
+
 const checkAppAvailability = async () => {
   if (!port) {
     isChecking.value = false;
@@ -221,8 +224,9 @@ const checkAppAvailability = async () => {
         animatedStep.value = 3;
       }, 800);
 
+      const finalUrl = resolveDestination(response.data.url);
+
       setTimeout(() => {
-        const finalUrl = response.data.url + (path ? `/${path}` : "");
         const newWindow = window.open(finalUrl, "_self");
         if (newWindow) {
           newWindow.opener = null;

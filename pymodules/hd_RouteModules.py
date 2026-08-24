@@ -56,6 +56,36 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/app/<int:port>/<path:subpath>", "app_loader_subpath", app_loader)
     homedock_www.add_url_rule("/api/check-port", "check_port", CSRF_Protect(check_port), methods=["POST"])
 
+    from pymodules.hd_SubdomainAuth import api_app_token, api_subdomain_diagnostics
+
+    homedock_www.add_url_rule("/api/app-token", "api_app_token", CSRF_Protect(api_app_token), methods=["POST"])
+    homedock_www.add_url_rule("/api/subdomain-diagnostics", "api_subdomain_diagnostics", api_subdomain_diagnostics, methods=["GET"])
+
+    from pymodules.hd_UIAcme import api_acme_status, api_acme_issue
+
+    homedock_www.add_url_rule("/api/acme/status", "api_acme_status", api_acme_status, methods=["GET"])
+    homedock_www.add_url_rule("/api/acme/issue", "api_acme_issue", CSRF_Protect(api_acme_issue), methods=["POST"])
+
+    from pymodules.hd_AppViewMode import api_app_view_mode
+
+    homedock_www.add_url_rule("/api/app-view-mode", "api_app_view_mode", CSRF_Protect(api_app_view_mode), methods=["GET", "POST"])
+
+    from pymodules.hd_AppExposure import api_app_exposure
+
+    homedock_www.add_url_rule("/api/app-exposure", "api_app_exposure", CSRF_Protect(api_app_exposure), methods=["GET", "POST"])
+
+    from pymodules.hd_DesktopWidgets import api_desktop_widgets
+
+    homedock_www.add_url_rule("/api/desktop-widgets", "api_desktop_widgets", CSRF_Protect(api_desktop_widgets), methods=["GET", "POST"])
+
+    from pymodules.hd_WhatsNew import api_whats_new_seen
+
+    homedock_www.add_url_rule("/api/whats-new/seen", "api_whats_new_seen", CSRF_Protect(api_whats_new_seen), methods=["GET", "POST"])
+
+    from pymodules.hd_UIAppDenied import appdenied
+
+    homedock_www.add_url_rule("/appdenied", "appdenied", appdenied)
+
     from pymodules.hd_UIShieldMode import shieldmode
 
     homedock_www.add_url_rule("/shieldmode", "shieldmode", shieldmode)
@@ -235,6 +265,15 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/fileexplorer/recents/add", "add_recent", CSRF_Protect(add_recent), methods=["POST"])
     homedock_www.add_url_rule("/api/fileexplorer/recents/remove", "remove_recent", CSRF_Protect(remove_recent), methods=["POST"])
     homedock_www.add_url_rule("/api/fileexplorer/recents/clear", "clear_recents", CSRF_Protect(clear_recents), methods=["POST"])
+
+    from pymodules.hd_UIShortcuts import get_shortcuts, add_shortcut, update_shortcut, remove_shortcut, upload_shortcut_icon, serve_shortcut_icon
+
+    homedock_www.add_url_rule("/api/shortcuts", "get_shortcuts", CSRF_Protect(get_shortcuts), methods=["GET"])
+    homedock_www.add_url_rule("/api/shortcuts/add", "add_shortcut", CSRF_Protect(add_shortcut), methods=["POST"])
+    homedock_www.add_url_rule("/api/shortcuts/update", "update_shortcut", CSRF_Protect(update_shortcut), methods=["POST"])
+    homedock_www.add_url_rule("/api/shortcuts/remove", "remove_shortcut", CSRF_Protect(remove_shortcut), methods=["POST"])
+    homedock_www.add_url_rule("/api/shortcuts/upload-icon", "upload_shortcut_icon", CSRF_Protect(upload_shortcut_icon), methods=["POST"])
+    homedock_www.add_url_rule("/api/shortcuts/icon/<filename>", "serve_shortcut_icon", serve_shortcut_icon, methods=["GET"])
 
     from pymodules.hd_DisksPlusAuth import disksplus_status, disksplus_danger_zones, disksplus_unlock, disksplus_lock, disksplus_danger_auth
     from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files, disksplus_upload_init, disksplus_upload_chunk, disksplus_upload_finalize, disksplus_upload_abort, disksplus_edit_file

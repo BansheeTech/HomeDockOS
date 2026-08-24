@@ -12,7 +12,7 @@ import configparser
 
 from flask import render_template, request, session, g, jsonify, redirect, url_for
 
-from pymodules.hd_FunctionsConfig import read_config, is_fresh_install, ALLOWED_LANGUAGES, ALLOWED_CLOCK_FORMATS, ALLOWED_WEEK_STARTS
+from pymodules.hd_FunctionsConfig import read_config, write_config, is_fresh_install, ALLOWED_LANGUAGES, ALLOWED_CLOCK_FORMATS, ALLOWED_WEEK_STARTS, ALLOWED_APPEARANCES
 from pymodules.hd_FunctionsGlobals import version_hash, current_directory
 from pymodules.hd_FunctionsHandleCSRFToken import generate_csrf_token, regenerate_csrf_token
 from pymodules.hd_CryptoServer import decrypt_json_from_client
@@ -29,6 +29,7 @@ def onboarding_page():
     aux_config = read_config()
     selected_theme = aux_config["selected_theme"]
     selected_back = aux_config["selected_back"]
+    selected_appearance = aux_config["selected_appearance"]
     selected_language = aux_config["selected_language"]
 
     if "homedock_csrf_token" not in session:
@@ -40,6 +41,7 @@ def onboarding_page():
         homedock_csrf_token=session["homedock_csrf_token"],
         selected_theme=selected_theme,
         selected_back=selected_back,
+        selected_appearance=selected_appearance,
         selected_language=selected_language,
         window_open=window_open,
         window_remaining=remaining_seconds(),
@@ -95,8 +97,12 @@ def api_onboarding_setup():
             selected_theme = "default"
 
         selected_back = payload.get("selected_back") if isinstance(payload, dict) else None
-        if selected_back not in ("back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg"):
+        if selected_back not in ("back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg", "back7.jpg", "back8.jpg", "back9.jpg"):
             selected_back = "back1.jpg"
+
+        selected_appearance = payload.get("selected_appearance") if isinstance(payload, dict) else None
+        if selected_appearance not in ALLOWED_APPEARANCES:
+            selected_appearance = "redmond"
 
         clock_format = payload.get("clock_format") if isinstance(payload, dict) else None
         if not isinstance(clock_format, str) or clock_format not in ALLOWED_CLOCK_FORMATS:
@@ -123,10 +129,10 @@ def api_onboarding_setup():
         config.set("Config", "selected_language", selected_language)
         config.set("Config", "selected_theme", selected_theme)
         config.set("Config", "selected_back", selected_back)
+        config.set("Config", "selected_appearance", selected_appearance)
         config.set("Config", "clock_format", clock_format)
         config.set("Config", "week_start", week_start)
-        with open(config_path, "w") as configfile:
-            config.write(configfile)
+        write_config(config, config_path)
 
         new_config_dict = read_config()
         notify_config_changed(new_config_dict)

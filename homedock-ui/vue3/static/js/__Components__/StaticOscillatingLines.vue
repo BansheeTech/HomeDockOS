@@ -14,6 +14,7 @@ interface Point {
   x: number;
   yBase: number;
   phase: number;
+  jitterPhase: number;
   currentY: number;
   targetY: number;
 }
@@ -32,6 +33,9 @@ interface LineState {
   widthScale: number;
   targetWidthScale: number;
   survivor: boolean;
+  lock: number;
+  targetLock: number;
+  speedJitter: number;
 }
 
 export default defineComponent({
@@ -44,6 +48,8 @@ export default defineComponent({
     isSuccess: { type: Boolean, default: false },
     isError: { type: Boolean, default: false },
     isChecking: { type: Boolean, default: true },
+    isLimited: { type: Boolean, default: false },
+    lockdownLines: { type: Number, default: 24 },
   },
   setup(props) {
     const canvas = ref<HTMLCanvasElement | null>(null);
@@ -60,6 +66,13 @@ export default defineComponent({
     const opacityIncrement = 0.03;
 
     const errorSurvivorCount = 3;
+
+    const locked = ref(false);
+    const lockdownSpeed = 0.045;
+    const lockdownLinePx = 2.5;
+    const lockdownAmpFactor = 0.16;
+    const lockdownJitter = 14;
+    const lockdownEase = 0.11;
 
     const mouse = ref({ x: -1000, y: -1000 });
     const mouseRadius = 650;
@@ -89,35 +102,92 @@ export default defineComponent({
       return dy > 0 ? -force : force;
     };
 
+    const makeLineState = (): LineState => ({
+      yOffset: 0,
+      targetYOffset: 0,
+      opacity: 1,
+      targetOpacity: 1,
+      r: 11,
+      g: 11,
+      b: 11,
+      targetR: 11,
+      targetG: 11,
+      targetB: 11,
+      widthScale: 1,
+      targetWidthScale: 1,
+      survivor: false,
+      lock: 0,
+      targetLock: 0,
+      speedJitter: 0.7 + Math.random() * 0.9,
+    });
+
+    const makeLine = (yBase: number): Point[] => {
+      const w = canvas.value?.width || window.innerWidth;
+      const line: Point[] = [];
+      for (let j = 0; j < pointsPerLine; j++) {
+        const x = (j / (pointsPerLine - 1)) * w;
+        const phase = Math.random() * Math.PI * 2;
+        const initialY = yBase + amplitude * Math.sin(phase);
+        line.push({ x, yBase, phase, jitterPhase: Math.random() * Math.PI * 2, currentY: initialY, targetY: initialY });
+      }
+      return line;
+    };
+
+    const lineAmplitude = (state?: LineState): number => amplitude * (1 - (state?.lock ?? 0) * (1 - lockdownAmpFactor));
+
     const initLineStates = () => {
       lineStates.value = [];
       for (let i = 0; i < numLines; i++) {
-        lineStates.value.push({
-          yOffset: 0,
-          targetYOffset: 0,
-          opacity: 1,
-          targetOpacity: 1,
-          r: 11,
-          g: 11,
-          b: 11,
-          targetR: 11,
-          targetG: 11,
-          targetB: 11,
-          widthScale: 1,
-          targetWidthScale: 1,
-          survivor: false,
-        });
+        lineStates.value.push(makeLineState());
       }
     };
 
     const disperseAll = () => {
       const h = canvas.value?.height || window.innerHeight;
       lineStates.value.forEach((s, i) => {
-        const direction = i < numLines / 2 ? -1 : 1;
+        const direction = i < lineStates.value.length / 2 ? -1 : 1;
         s.targetYOffset = direction * h;
         s.targetOpacity = 0;
         s.survivor = false;
       });
+    };
+
+    const enterLockdown = () => {
+      if (locked.value) return;
+      locked.value = true;
+
+      const h = canvas.value?.height || window.innerHeight;
+      const w = canvas.value?.width || window.innerWidth;
+      const total = Math.max(lines.value.length, props.lockdownLines);
+
+      for (let i = 0; i < total; i++) {
+        const yBase = (h / (total + 1)) * (i + 1);
+        if (i < lines.value.length) {
+          for (let j = 0; j < lines.value[i].length; j++) {
+            lines.value[i][j].x = (j / (pointsPerLine - 1)) * w;
+            lines.value[i][j].yBase = yBase;
+          }
+        } else {
+          lines.value.push(makeLine(yBase));
+          const state = makeLineState();
+          state.yOffset = (i % 2 === 0 ? -1 : 1) * h * 0.35;
+          state.opacity = 0;
+          lineStates.value.push(state);
+        }
+      }
+
+      lineStates.value.forEach((s) => {
+        s.targetYOffset = 0;
+        s.targetOpacity = 1.7 + Math.random() * 0.5;
+        s.targetR = 255;
+        s.targetG = 30;
+        s.targetB = 30;
+        s.targetWidthScale = (lockdownLinePx * (0.7 + Math.random() * 0.9)) / props.lineWidth;
+        s.targetLock = 1;
+        s.survivor = false;
+      });
+
+      speed.value = lockdownSpeed;
     };
 
     const disperseWithSurvivors = () => {
@@ -156,15 +226,21 @@ export default defineComponent({
     };
 
     watch(
+      () => props.isLimited,
+      (val) => {
+        if (val) enterLockdown();
+      },
+    );
+    watch(
       () => props.isSuccess,
       (val) => {
-        if (val) disperseAll();
+        if (val && !locked.value) disperseAll();
       },
     );
     watch(
       () => props.isError,
       (val) => {
-        if (val) {
+        if (val && !locked.value) {
           disperseWithSurvivors();
           speed.value = errorSpeed;
         }
@@ -173,7 +249,7 @@ export default defineComponent({
     watch(
       () => props.isChecking,
       (val) => {
-        if (val) {
+        if (val && !locked.value) {
           resetLines();
           speed.value = baseSpeed;
         }
@@ -185,13 +261,15 @@ export default defineComponent({
         canvas.value.width = window.innerWidth;
         canvas.value.height = window.innerHeight;
 
-        for (let i = 0; i < lines.value.length; i++) {
-          const yBase = (canvas.value.height / (numLines + 1)) * (i + 1);
+        const total = lines.value.length;
+        for (let i = 0; i < total; i++) {
+          const yBase = (canvas.value.height / (total + 1)) * (i + 1);
+          const amp = lineAmplitude(lineStates.value[i]);
           for (let j = 0; j < lines.value[i].length; j++) {
             const point = lines.value[i][j];
             point.x = (j / (pointsPerLine - 1)) * canvas.value.width;
             point.yBase = yBase;
-            const newY = yBase + amplitude * Math.sin(point.phase);
+            const newY = yBase + amp * Math.sin(point.phase);
             point.currentY = newY;
             point.targetY = newY;
           }
@@ -234,7 +312,7 @@ export default defineComponent({
       ctx.value.lineWidth = props.lineWidth * state.widthScale;
       ctx.value.lineCap = "round";
       ctx.value.lineJoin = "round";
-      const finalOpacity = Math.min(opacity.value, 0.3) * state.opacity;
+      const finalOpacity = Math.min(1, Math.min(opacity.value, 0.3) * state.opacity);
       ctx.value.strokeStyle = `rgba(${Math.round(state.r)}, ${Math.round(state.g)}, ${Math.round(state.b)}, ${finalOpacity})`;
       ctx.value.stroke();
     };
@@ -252,23 +330,32 @@ export default defineComponent({
           const state = lineStates.value[i];
 
           if (state) {
-            state.yOffset += (state.targetYOffset - state.yOffset) * stateEase;
-            state.opacity += (state.targetOpacity - state.opacity) * stateEase;
+            state.lock += (state.targetLock - state.lock) * lockdownEase;
+            const ease = stateEase + state.lock * (lockdownEase - stateEase);
+            state.yOffset += (state.targetYOffset - state.yOffset) * ease;
+            state.opacity += (state.targetOpacity - state.opacity) * ease;
             state.r += (state.targetR - state.r) * colorEase;
             state.g += (state.targetG - state.g) * colorEase;
             state.b += (state.targetB - state.b) * colorEase;
-            state.widthScale += (state.targetWidthScale - state.widthScale) * stateEase;
+            state.widthScale += (state.targetWidthScale - state.widthScale) * ease;
           }
+
+          const lock = state?.lock ?? 0;
+          const amp = lineAmplitude(state);
+          const pointSpeed = speed.value * (1 + lock * ((state?.speedJitter ?? 1) - 1));
+          const pointSmoothing = smoothing + lock * 0.12;
+          const mouseScale = 1 - lock * 0.75;
 
           for (const point of line) {
-            point.phase += speed.value;
-            const baseY = point.yBase + amplitude * Math.sin(point.phase);
-            const mouseEffect = getMouseInfluence(point.x, point.currentY);
+            point.phase += pointSpeed;
+            point.jitterPhase += pointSpeed * 3.7;
+            const baseY = point.yBase + amp * Math.sin(point.phase) + lock * lockdownJitter * Math.sin(point.jitterPhase);
+            const mouseEffect = getMouseInfluence(point.x, point.currentY) * mouseScale;
             point.targetY = baseY + mouseEffect;
-            point.currentY += (point.targetY - point.currentY) * smoothing;
+            point.currentY += (point.targetY - point.currentY) * pointSmoothing;
           }
 
-          drawLine(line, state || { yOffset: 0, opacity: 1, r: 11, g: 11, b: 11, targetYOffset: 0, targetOpacity: 1, targetR: 11, targetG: 11, targetB: 11, survivor: false });
+          drawLine(line, state || makeLineState());
         }
 
         requestAnimationFrame(animate);
@@ -283,14 +370,7 @@ export default defineComponent({
 
         for (let i = 0; i < numLines; i++) {
           const yBase = (canvas.value.height / (numLines + 1)) * (i + 1);
-          const line: Point[] = [];
-          for (let j = 0; j < pointsPerLine; j++) {
-            const x = (j / (pointsPerLine - 1)) * canvas.value.width;
-            const phase = Math.random() * Math.PI * 2;
-            const initialY = yBase + amplitude * Math.sin(phase);
-            line.push({ x, yBase, phase, currentY: initialY, targetY: initialY });
-          }
-          lines.value.push(line);
+          lines.value.push(makeLine(yBase));
         }
 
         animate();

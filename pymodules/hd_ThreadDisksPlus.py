@@ -7,7 +7,6 @@ import psutil
 from flask import Response, session, stream_with_context
 from flask_login import login_required
 
-
 STREAM_MAX_LIFETIME = 300
 MAX_PER_SESSION = 2
 POLL_INTERVAL_SECONDS = 2
@@ -31,6 +30,7 @@ class DisksPlusWatcher:
         self._initialized = True
         self._clients = []
         self._clients_lock = threading.Lock()
+        self._shutdown = threading.Event()
         self._snapshot = set()
         self._snapshot_lock = threading.Lock()
         self._thread = None
@@ -129,6 +129,18 @@ class DisksPlusWatcher:
             self._clients = [e for e in self._clients if e[0] is not q]
         self._maybe_stop()
 
+    def is_shutting_down(self):
+        return self._shutdown.is_set()
+
+    def shutdown(self):
+        self._shutdown.set()
+        with self._clients_lock:
+            for q, _ in self._clients:
+                try:
+                    q.put_nowait(None)
+                except queue.Full:
+                    pass
+
 
 _watcher = None
 
@@ -138,6 +150,11 @@ def _get_watcher():
     if _watcher is None:
         _watcher = DisksPlusWatcher()
     return _watcher
+
+
+def shutdown_disksplus_streams():
+    if _watcher is not None:
+        _watcher.shutdown()
 
 
 @login_required
@@ -152,7 +169,7 @@ def disksplus_events_stream():
         try:
             yield "event: ready\ndata: {}\n\n"
 
-            while time.monotonic() < deadline:
+            while time.monotonic() < deadline and not watcher.is_shutting_down():
                 try:
                     data = client_queue.get(timeout=HEARTBEAT_INTERVAL_SECONDS)
                     if data is None:
@@ -163,7 +180,8 @@ def disksplus_events_stream():
                     yield ": heartbeat\n\n"
                     last_heartbeat = time.monotonic()
 
-            yield "event: reconnect\ndata: {}\n\n"
+            if not watcher.is_shutting_down():
+                yield "event: reconnect\ndata: {}\n\n"
         except GeneratorExit:
             pass
         finally:

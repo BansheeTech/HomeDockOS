@@ -1,12 +1,14 @@
 {
   "name": "homedock_os",
-  "version": "2.1.6.166",
+  "version": "2.4.2.120",
   "description": "![HomeDock OS Banner](https://raw.githubusercontent.com/BansheeTech/Logo/refs/heads/main/homedock-os/hdos-banner-rhino.png)",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "Banshee Technologies S.L.",
@@ -55,6 +57,7 @@
     "esbuild": "^0.28.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vue-tsc": "^3.3.9"
   }
 }

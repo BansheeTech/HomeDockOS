@@ -16,7 +16,6 @@ from flask_compress import Compress
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from hypercorn.middleware import AsyncioWSGIMiddleware
-from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vite_fusion import register_vite_assets
 
@@ -36,18 +35,25 @@ from pymodules.hd_ThreadContainerResourceUsage import start_resource_usage_threa
 from pymodules.hd_ThreadAutoPortRouting import start_auto_port_routing_thread
 from pymodules.hd_ThreadAppUpdatesChecker import start_app_updates_checker_thread
 from pymodules.hd_ThreadNotificationsFetcher import start_notifications_fetcher_thread
+from pymodules.hd_ThreadCertRenewal import start_cert_renewal_thread
+from pymodules.hd_ThreadDynamicDNS import start_dynamic_dns_thread
 
 from pymodules.hd_RouteModules import RouteAllModules
 from pymodules.hd_EnterpriseLoader import load_enterprise, print_enterprise_banner
 from pymodules.hd_UpdateDeps import check_and_update_dependencies
-from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info, get_ssl_cert_directory
+from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info, get_ssl_cert_directory, capture_ssl_context
 from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
+from pymodules.hd_SubdomainRouter import wrap_asgi_with_subdomain_router, subdomain_routing_available
+from pymodules.hd_SessionSecurity import SchemeAwareSessionInterface
+from pymodules.hd_TrustedProxy import TrustedProxyFix
+from pymodules.hd_LocalHTTPAccess import setup_local_http_access
 
 from pymodules.hd_HMRUpdate import set_updating_state
 from pymodules.hd_NonceGenerator import setup_nonce
 from pymodules.hd_CSPMaxed import setup_security_headers
+from pymodules.hd_LoopbackRedirect import setup_loopback_redirect
 from pymodules.hd_HTMLErrorCodeHandler import setup_error_handlers
-from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware, FlaskDevUploadLimitMiddleware
+from pymodules.hd_ApplyUploadLimits import ContentSizeLimitMiddleware
 
 from pymodules.hd_FunctionsHostSelector import is_docker
 
@@ -70,6 +76,7 @@ validate_docker_installation()
 validate_docker_compose_installation()
 
 setup_nonce(homedock_www)
+setup_loopback_redirect(homedock_www)
 setup_security_headers(homedock_www, globalConfig)
 setup_error_handlers(homedock_www, read_config, version_hash)
 active_instance()
@@ -87,6 +94,8 @@ if __name__ == "__main__":
     start_resource_usage_thread()
     start_app_updates_checker_thread()
     start_notifications_fetcher_thread()
+    start_cert_renewal_thread()
+    start_dynamic_dns_thread()
     mark_process_start()
 
     run_port = globalConfig["run_port"]
@@ -94,6 +103,7 @@ if __name__ == "__main__":
     dynamic_dns = globalConfig["dynamic_dns"]
     run_on_development = globalConfig["run_on_development"]
     reverse_proxy_enabled = globalConfig.get("reverse_proxy", False)
+    local_http_access = globalConfig.get("local_http_access", False) and not reverse_proxy_enabled
 
     ssl_enabled_var = ssl_enabled()
 
@@ -142,6 +152,8 @@ if __name__ == "__main__":
     print(" * Run on development mode:", run_on_development)
     if reverse_proxy_enabled:
         print(" * Reverse Proxy support:", reverse_proxy_enabled)
+    if local_http_access:
+        print(" * Plain HTTP on the local network: enabled")
     print()
 
     print(" * CPU Type:", running_ARCH)
@@ -169,6 +181,9 @@ if __name__ == "__main__":
         else:
             print("            ! homedock.local unavailable")
 
+    if not subdomain_routing_available():
+        print(" ! Per-app subdomains disabled: aiohttp is unavailable on this system")
+
     if is_docker:
         print()
         print(" \033[1;33;40m» Running in Docker-in-Docker mode\033[0m")
@@ -183,66 +198,87 @@ if __name__ == "__main__":
     homedock_www.config["SECRET_KEY"] = os.urandom(32)
     homedock_www.config["SESSION_REFRESH_EACH_REQUEST"] = False
     homedock_www.config["SESSION_COOKIE_HTTPONLY"] = True
-    homedock_www.config["SESSION_COOKIE_SAMESITE"] = "Strict"
+    homedock_www.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     homedock_www.config["SESSION_COOKIE_NAME"] = "homedock_session"
     homedock_www.config["SERVER_NAME"] = None
-    homedock_www.config["SESSION_TYPE"] = "filesystem"
 
-    if ssl_enabled() or reverse_proxy_enabled:
-        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure Flag for HTTPS or reverse proxy TLS termination
+    # HDOS00058
+    if ssl_enabled() and not local_http_access:
+        homedock_www.config["SESSION_COOKIE_SECURE"] = True  # Secure Flag for native SSL, every request is HTTPS
+
+    homedock_www.session_interface = SchemeAwareSessionInterface()
 
     try:
 
-        if run_on_development:
+        hypercorn_config = Config()
+        hypercorn_config.loglevel = "DEBUG"
+        hypercorn_config.include_server_header = False
+        hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
 
-            FlaskDevUploadLimitMiddleware(homedock_www)
-            homedock_www.run(host="0.0.0.0", port=run_port, debug=True, use_reloader=False)
+        redirect_app = redirect_config = None
+        if ssl_enabled_var:
+            ssl_cert_dir = get_ssl_cert_directory()
+            hypercorn_config.certfile = os.path.join(ssl_cert_dir, "fullchain.pem")
+            hypercorn_config.keyfile = os.path.join(ssl_cert_dir, "privkey.pem")
+            hypercorn_config.ca_certs = os.path.join(ssl_cert_dir, "chain.pem")
 
-        else:
+            # HDOS00122
+            hypercorn_config.alpn_protocols = ["http/1.1"]
 
-            hypercorn_config = Config()
-            hypercorn_config.loglevel = "DEBUG"
-            hypercorn_config.include_server_header = False
-            hypercorn_config.bind = [f"0.0.0.0:{run_port}"]
+            # HDOS00069
+            capture_ssl_context(hypercorn_config)
 
-            redirect_app = redirect_config = None
-            if ssl_enabled_var:
-                ssl_cert_dir = get_ssl_cert_directory()
-                hypercorn_config.certfile = os.path.join(ssl_cert_dir, "fullchain.pem")
-                hypercorn_config.keyfile = os.path.join(ssl_cert_dir, "privkey.pem")
-                hypercorn_config.ca_certs = os.path.join(ssl_cert_dir, "chain.pem")
-
-                if run_port == 443:
+            if run_port == 443:
+                # HDOS00074
+                if local_http_access:
+                    hypercorn_config.insecure_bind = ["0.0.0.0:80"]
+                    setup_local_http_access(homedock_www, True, reverse_proxy_enabled)
+                else:
                     from pymodules.hd_HTTPRedirector import start_http_redirect_server
 
                     redirect_app, redirect_config = start_http_redirect_server()
 
-            async def homedock_www_asgi(scope, receive, send):
-                wsgi_app = homedock_www
-                if reverse_proxy_enabled:
-                    wsgi_app = ProxyFix(homedock_www, x_for=1, x_proto=1, x_host=1, x_port=0, x_prefix=0)
-                app = AsyncioWSGIMiddleware(wsgi_app, max_body_size=1 * 1024 * 1024 * 1024)
-                await ContentSizeLimitMiddleware(app)(scope, receive, send)
+        wsgi_app = homedock_www
+        if reverse_proxy_enabled:
+            # HDOS00061
+            wsgi_app = TrustedProxyFix(homedock_www)
 
-            async def run_all_servers():
-                from concurrent.futures import ThreadPoolExecutor
+        if run_on_development:
+            # HDOS00032
+            homedock_www.config["TEMPLATES_AUTO_RELOAD"] = True
 
-                asyncio.get_running_loop().set_default_executor(ThreadPoolExecutor(max_workers=50))
+        flask_stack = ContentSizeLimitMiddleware(AsyncioWSGIMiddleware(wsgi_app, max_body_size=1 * 1024 * 1024 * 1024))
 
-                stop_event = asyncio.Event()
+        # HDOS00033
+        homedock_www_asgi = wrap_asgi_with_subdomain_router(flask_stack)
 
-                loop = asyncio.get_running_loop()
-                for sig in (signal.SIGINT, signal.SIGTERM):
-                    try:
-                        loop.add_signal_handler(sig, stop_event.set)
-                    except NotImplementedError:
-                        pass  # HDOS00001
+        async def run_all_servers():
+            from concurrent.futures import ThreadPoolExecutor
 
-                await asyncio.gather(*(serve(app, cfg, shutdown_trigger=stop_event.wait) for app, cfg in [(redirect_app, redirect_config), (homedock_www_asgi, hypercorn_config)] if app and cfg))
+            asyncio.get_running_loop().set_default_executor(ThreadPoolExecutor(max_workers=50))
 
-                print(" ✓ Servers shut down SIGTERM received")
+            stop_event = asyncio.Event()
 
-            asyncio.run(run_all_servers())
+            def trigger_shutdown():
+                stop_event.set()
+                from pymodules.hd_SSEStats import shutdown_stats_streams
+                from pymodules.hd_ThreadDisksPlus import shutdown_disksplus_streams
+
+                shutdown_stats_streams()
+                shutdown_disksplus_streams()
+
+            loop = asyncio.get_running_loop()
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                try:
+                    loop.add_signal_handler(sig, trigger_shutdown)
+                except NotImplementedError:
+                    pass  # HDOS00001
+
+            await asyncio.gather(*(serve(app, cfg, shutdown_trigger=stop_event.wait) for app, cfg in [(redirect_app, redirect_config), (homedock_www_asgi, hypercorn_config)] if app and cfg))
+
+            print(" ✓ Servers shut down SIGTERM received")
+
+        asyncio.run(run_all_servers())
 
     except OSError as e:
         if e.errno == 98:

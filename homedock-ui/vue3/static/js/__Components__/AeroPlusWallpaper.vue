@@ -5,7 +5,7 @@
 
 <template>
   <template v-if="isVisible">
-    <div v-for="layer in layers" :key="layer.id" class="aero-plus-wallpaper" :class="{ 'aero-plus-wallpaper-incoming': layer.animate }" :style="{ backgroundImage: `url('${layer.url}')` }" @animationend="onLayerDone(layer.id, $event)"></div>
+    <div v-for="layer in layers" :key="layer.id" class="aero-plus-wallpaper" :class="{ 'aero-plus-wallpaper-incoming': layer.animate, 'aero-plus-wallpaper-blurred': blurred }" :style="{ backgroundImage: `url('${layer.url}')` }" @animationend="onLayerDone(layer.id, $event)"></div>
   </template>
 </template>
 
@@ -13,6 +13,8 @@
 import { inject, computed, ref, watch } from "vue";
 
 import type { ThemeData } from "../__Types__/ThemeData";
+
+const { blurred = false } = defineProps<{ blurred?: boolean }>();
 
 const HASH_STORAGE_KEY = "wallpaperHash";
 
@@ -101,6 +103,16 @@ function onLayerDone(id: number, e: AnimationEvent) {
   background-position: center center;
   opacity: 1;
   z-index: 0;
+}
+
+.aero-plus-wallpaper-blurred {
+  top: -240px;
+  left: -240px;
+  right: -240px;
+  bottom: -240px;
+  width: auto;
+  height: auto;
+  filter: blur(120px) saturate(1.5) brightness(0.6);
 }
 
 .aero-plus-wallpaper-incoming {

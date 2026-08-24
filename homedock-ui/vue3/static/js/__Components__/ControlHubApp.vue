@@ -89,18 +89,16 @@ const { t } = useI18n();
 const windowStore = useWindowStore();
 
 const showEditModal = (containerName: string) => {
-  windowStore.openWindow("edit", {
+  windowStore.openUniqueWindow("edit", containerName, {
     title: `${props.app.display_name || containerName} - ${t("Edit Config")}`,
     data: { appName: containerName },
-    allowMultiple: true,
   });
 };
 
 const showLogsModal = (containerName: string) => {
-  windowStore.openWindow("logs", {
+  windowStore.openUniqueWindow("logs", containerName, {
     title: `${props.app.display_name || containerName} - ${t("Logs")}`,
     data: { appName: containerName },
-    allowMultiple: true,
   });
 };
 

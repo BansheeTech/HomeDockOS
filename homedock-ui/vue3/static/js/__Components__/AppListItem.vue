@@ -110,18 +110,16 @@ const csrfToken = document.querySelector('meta[name="homedock_csrf_token"]')?.ge
 const uploadHeaders = { "X-HomeDock-CSRF-Token": csrfToken };
 
 function handleEdit() {
-  windowStore.openWindow("edit", {
+  windowStore.openUniqueWindow("edit", props.app.name, {
     title: `${props.app.display_name || props.app.name} - Edit Config`,
     data: { appName: props.app.name },
-    allowMultiple: true,
   });
 }
 
 function handleLogs() {
-  windowStore.openWindow("logs", {
+  windowStore.openUniqueWindow("logs", props.app.name, {
     title: `${props.app.display_name || props.app.name} - Logs`,
     data: { appName: props.app.name },
-    allowMultiple: true,
   });
 }
 

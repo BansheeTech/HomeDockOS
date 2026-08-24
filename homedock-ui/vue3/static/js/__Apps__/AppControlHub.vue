@@ -410,18 +410,16 @@ function getImageTag(app: any): string {
 }
 
 function handleEdit(app: any) {
-  windowStore.openWindow("edit", {
+  windowStore.openUniqueWindow("edit", app.name, {
     title: `${app.display_name || app.name} - Edit Config`,
     data: { appName: app.name },
-    allowMultiple: true,
   });
 }
 
 function handleLogs(app: any) {
-  windowStore.openWindow("logs", {
+  windowStore.openUniqueWindow("logs", app.name, {
     title: `${app.display_name || app.name} - Logs`,
     data: { appName: app.name },
-    allowMultiple: true,
   });
 }
 

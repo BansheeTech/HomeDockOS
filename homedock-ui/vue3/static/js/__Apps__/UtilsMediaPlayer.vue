@@ -150,7 +150,7 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useMediaPlaybackStore } from "../__Stores__/useMediaPlaybackStore";
+import { useMediaPlaybackStore, type MediaOrigin } from "../__Stores__/useMediaPlaybackStore";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 
@@ -194,6 +194,7 @@ const props = defineProps<{
   _windowId?: string;
   externalFile?: ExternalFile;
   mediaFile?: MediaFile;
+  origin?: MediaOrigin;
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -201,6 +202,7 @@ const mediaRef = ref<HTMLVideoElement | HTMLAudioElement | null>(null);
 const mediaSrc = ref<string | null>(null);
 const coverUrl = ref<string | null>(null);
 const fileName = ref("");
+const currentOrigin = ref<MediaOrigin | null>(null);
 const originalWindowTitle = ref(props._windowId ? windowStore.getWindowById(props._windowId)?.title || "" : "");
 const mediaType = ref("");
 const isLoading = ref(false);
@@ -246,6 +248,7 @@ function registerInPlaybackStore() {
       currentTime: currentTime.value,
       duration: duration.value,
       coverUrl: coverUrl.value || undefined,
+      origin: currentOrigin.value ?? undefined,
     });
   }
 }
@@ -261,6 +264,7 @@ function updatePlaybackStore() {
       currentTime: currentTime.value,
       duration: duration.value,
       coverUrl: coverUrl.value || undefined,
+      origin: currentOrigin.value ?? undefined,
     });
   }
 }
@@ -430,6 +434,10 @@ function resetMediaElement() {
 async function loadMedia(extFile: ExternalFile) {
   resetMediaElement();
 
+  const parts = extFile.path.split("/");
+  parts.pop();
+  currentOrigin.value = { location: extFile.source, path: parts.join("/"), name: extFile.path, container: extFile.container };
+
   isLoading.value = true;
   error.value = null;
   isValidated.value = false;
@@ -497,8 +505,9 @@ async function loadMedia(extFile: ExternalFile) {
   }
 }
 
-function loadFromBuffer(file: MediaFile) {
+function loadFromBuffer(file: MediaFile, origin?: MediaOrigin) {
   resetMediaElement();
+  currentOrigin.value = origin ?? null;
 
   isLoading.value = true;
   error.value = null;
@@ -889,7 +898,7 @@ watch(
   (file) => {
     if (file) {
       cleanup();
-      loadFromBuffer(file);
+      loadFromBuffer(file, props.origin);
     }
   },
   { immediate: true },
@@ -899,7 +908,7 @@ function handleIncomingFile(event: CustomEvent) {
   const data = event.detail;
   if (data?.mediaFile) {
     cleanup();
-    loadFromBuffer(data.mediaFile);
+    loadFromBuffer(data.mediaFile, data.origin);
   } else if (data?.externalFile) {
     cleanup();
     loadMedia(data.externalFile);

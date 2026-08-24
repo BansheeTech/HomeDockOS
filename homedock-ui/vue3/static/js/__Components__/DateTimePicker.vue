@@ -40,7 +40,7 @@
             </div>
           </div>
 
-          <div v-if="selectedDayEvents.length > 0" class="tray-events-section" :class="themeClasses.taskbarContextMenuDivider">
+          <div v-if="selectedDayEvents.length > 0" class="tray-events-section" :class="themeClasses.traySectionBorder">
             <div class="tray-events-header" :class="themeClasses.calendarWeekday">{{ selectedDate.isSame(dayjs(), "day") ? t("Today's Events") : selectedDate.locale(djLocale).format("ddd, MMM D") }}</div>
             <div v-for="evt in selectedDayEvents.slice(0, 4)" :key="evt.id" class="tray-event-item">
               <span class="tray-event-color" :style="{ backgroundColor: eventColorHex(calendarStore.calendarColor(evt.calendar_id || 'personal')) }"></span>
@@ -58,10 +58,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, inject, onMounted, onUnmounted, watch } from "vue";
 import dayjs from "dayjs";
-import "dayjs/locale/es";
-import "dayjs/locale/en";
+import "../__Languages__/dayjsLocales";
+
+import { ref, computed, inject, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getLanguage } from "../__Languages__";
 

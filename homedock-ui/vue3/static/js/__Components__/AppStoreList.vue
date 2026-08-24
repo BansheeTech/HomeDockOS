@@ -180,10 +180,9 @@ const openModal = (app: App) => {
 
   const displayName = selectedAppFromStore.display_name || selectedAppFromStore.name;
 
-  windowStore.openWindow("installconfig", {
+  windowStore.openUniqueWindow("installconfig", selectedAppFromStore.name, {
     title: t("Install {name}", { name: displayName }),
     data: { app: selectedAppFromStore },
-    allowMultiple: true,
   });
 };
 </script>

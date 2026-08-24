@@ -9,7 +9,7 @@
   <ScrollBarThemeLoader />
   <TopComment />
   <SplashScreen />
-  <StaticOscillatingLines :isSuccess="isLoginSuccessful" :isError="loginError" :isChecking="!loginError && !isLoginSuccessful" />
+  <StaticOscillatingLines :isSuccess="isLoginSuccessful" :isError="loginError" :isLimited="isLockdown" :isChecking="!loginError && !isLoginSuccessful && !isLockdown" />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
     <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
       <div :class="[themeClasses.scopeSelector, themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
@@ -139,6 +139,10 @@ function getLoginMessage(status: string, data: any): string {
       return t("Shield Mode active, please try again later.");
     case "already_authenticated":
       return t("Already authenticated, redirecting...");
+    case "insecure_context":
+      return t("Login only permitted from a valid HTTPS source.");
+    case "session_lost":
+      return t("Your session expired, please reload the page and try again.");
     default:
       return data.message || t("Unexpected error, please contact support.");
   }
@@ -232,7 +236,14 @@ const validationStatus = ref<"error" | "warning" | undefined>(undefined);
 const remainingAttempts = ref<number | null>(null);
 const isLoginSuccessful = ref<boolean>(false);
 const loginError = ref<boolean>(false);
+const isLockdown = ref<boolean>(false);
 let loginErrorTimer: ReturnType<typeof setTimeout> | null = null;
+
+const LOCKDOWN_STATUSES = ["limited", "shield_mode"];
+
+const triggerLockdown = (status?: string): void => {
+  if (status && LOCKDOWN_STATUSES.includes(status)) isLockdown.value = true;
+};
 
 const flashLoginError = () => {
   loginError.value = true;
@@ -334,6 +345,7 @@ const handleFinish = async () => {
 
         message.error(getLoginMessage(loginStatus, loginResponse.data));
         validationStatus.value = "error";
+        triggerLockdown(loginStatus);
         flashLoginError();
       }
     } else {
@@ -351,16 +363,14 @@ const handleFinish = async () => {
       if (error.response && error.response.data) {
         const { message: backendMessage, redirect_url } = error.response.data;
 
-        if (error.response.status === 403 && window.location.protocol === "http:") {
-          message.error(t("Login only permitted from a valid HTTPS source."), 5);
-          validationStatus.value = "error";
-          flashLoginError();
-        } else {
-          const errStatus = error.response.data?.status;
-          message.error(errStatus ? getLoginMessage(errStatus, error.response.data) : backendMessage || t("Unexpected error, please contact support."));
-          validationStatus.value = "error";
-          flashLoginError();
-        }
+        const errStatus = error.response.data?.status;
+        const errText = errStatus ? getLoginMessage(errStatus, error.response.data) : backendMessage || t("Unexpected error, please contact support.");
+        const needsReading = errStatus === "insecure_context" || errStatus === "session_lost";
+
+        message.error(errText, needsReading ? 5 : undefined);
+        validationStatus.value = "error";
+        triggerLockdown(errStatus);
+        flashLoginError();
 
         if (error.response.data.remaining_attempts !== undefined) {
           remainingAttempts.value = error.response.data.remaining_attempts;

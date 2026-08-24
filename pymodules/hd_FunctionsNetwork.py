@@ -9,15 +9,7 @@ import re
 import socket
 import requests
 
-from requests.adapters import HTTPAdapter
-
 ip_error_message_shown = False
-
-
-class IPv4Adapter(HTTPAdapter):
-    def init_poolmanager(self, *args, **kwargs):
-        kwargs["socket_options"] = [(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]
-        return super().init_poolmanager(*args, **kwargs)
 
 
 def is_valid_ipv4(ip):
@@ -43,13 +35,14 @@ def get_local_ip():
 def get_internet_ip():
     global ip_error_message_shown
 
+    # HDOS00108
     ipv4_services = [
-        "https://ip.guide",
         "https://api.ipify.org?format=json",
+        "https://ipinfo.io/ip",
+        "https://ip.guide",
         "http://ip-api.com/json/",
         "https://jsonip.com",
         "https://ifconfig.me/ip",
-        "https://ipinfo.io/ip",
         "https://icanhazip.com/",
         "https://www.trackip.net/ip",
     ]
@@ -58,11 +51,7 @@ def get_internet_ip():
 
     for service in ipv4_services:
         try:
-            session = requests.Session()
-            session.mount("http://", IPv4Adapter())
-            session.mount("https://", IPv4Adapter())
-
-            response = session.get(service, timeout=2)
+            response = requests.get(service, timeout=2)
 
             if response.status_code == 200:
                 if "json" in service:

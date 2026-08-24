@@ -1,0 +1,34 @@
+{# homedock-ui/template/appdenied.html #}
+{# Copyright © 2023-2026 Banshee, All Rights Reserved #}
+{# See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/  #}
+{# https://www.banshee.pro #}
+
+<!DOCTYPE html>
+<html lang="{{ selected_language|default('en') }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, shrink-to-fit=no" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="homedock_csrf_token" content="{{ session['homedock_csrf_token'] }}" />
+    {{ vitecss("global") | safe }}
+    {{ vitecss("__appdenied__") | safe }}
+
+    <title>Application Access • HomeDock OS {{ version }}</title>
+  </head>
+
+  <body class="theme-{{ selected_theme }}">
+    <div id="app-appdenied-root"></div>
+
+    <script id="data-theme" type="application/json">
+      {{ { "selected_theme": selected_theme, "selected_back": selected_back } | b64encode }}
+    </script>
+
+    <script id="data-app" type="application/json">
+      {{ { "app_display_name": app_display_name } | b64encode }}
+    </script>
+
+    {{ vitejs("__appdenied__") | safe }}
+
+    {% include 'partials/hd_UIPartialNoJavascript.html' %}
+  </body>
+</html>

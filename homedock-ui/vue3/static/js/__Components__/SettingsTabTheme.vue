@@ -4,46 +4,11 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <SettingsGroup :header="$t('LANGUAGE')" :footer="$t('Choose your preferred language for the HomeDock OS interface.')">
-    <SettingsItem :icon="translateIcon" icon-color="purple" :title="$t('Interface Language')" :description="$t('Pick the language used across the entire UI')" is-last control-type="always-stack">
-      <div class="w-full">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
-          <button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.code" @click="onSelectLanguage(lang.code)" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, languageValue === lang.code ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="lang.name">
-            <span class="text-xl leading-none shrink-0" aria-hidden="true">{{ lang.flag }}</span>
-            <span :lang="lang.code" class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ lang.nativeName }}</span>
-            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="languageValue === lang.code ? 'opacity-85' : 'opacity-0'" />
-          </button>
-        </div>
-      </div>
-    </SettingsItem>
-  </SettingsGroup>
-
-  <SettingsGroup :header="$t('TIME &amp; CALENDAR')" :footer="$t('Choose how times and weeks are displayed across HomeDock OS.')">
-    <SettingsItem :icon="clockOutlineIcon" icon-color="cyan" :title="$t('Clock Format')" :description="$t('Display times in 24-hour or 12-hour (AM/PM) format')" control-type="always-stack">
-      <div class="w-full">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
-          <button v-for="opt in CLOCK_FORMAT_OPTIONS" :key="opt.value" @click="clockFormatValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, clockFormatValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
-            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
-            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="clockFormatValue === opt.value ? 'opacity-85' : 'opacity-0'" />
-          </button>
-        </div>
-      </div>
-    </SettingsItem>
-
-    <SettingsItem :icon="calendarWeekIcon" icon-color="pink" :title="$t('Week Starts On')" :description="$t('First day of the week in calendars')" is-last control-type="always-stack">
-      <div class="w-full">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
-          <button v-for="opt in WEEK_START_OPTIONS" :key="opt.value" @click="weekStartValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, weekStartValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
-            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
-            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="weekStartValue === opt.value ? 'opacity-85' : 'opacity-0'" />
-          </button>
-        </div>
-      </div>
-    </SettingsItem>
-  </SettingsGroup>
-
   <SettingsGroup :header="$t('APPEARANCE')" :footer="$t('Choose a visual theme for HomeDock OS interface.')">
     <SettingsItem :icon="bright4Icon" icon-color="blue" :title="$t('Interface Theme')" :description="$t('Select your preferred color scheme')" is-last control-type="always-stack">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Applies to the whole interface, the login screen included, so it is visible before anyone signs in. Windows drawn by HomeDock OS follow it; whatever runs inside an app window keeps its own theme.')" />
+      </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
           <button v-for="theme in THEME_OPTIONS" :key="theme.value" @click="themeValue = theme.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, themeValue === theme.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(theme.label)">
@@ -59,6 +24,9 @@
   <Transition name="fade-slide">
     <SettingsGroup v-if="themeValue === 'aeroplus'" :header="$t('WALLPAPER')" :footer="$t('Select from preset wallpapers or upload your own custom image.')">
       <SettingsItem :icon="imageAreaIcon" icon-color="green" :title="$t('Preset Wallpapers')" :description="$t('Choose from built-in wallpaper collection')" is-last control-type="always-stack">
+        <template #badge>
+          <SettingsHelpTooltip :text="$t('The wallpaper is also painted behind the login screen, so it is on show to anyone who reaches this address. Bear that in mind before picking something you would rather not have on display.')" />
+        </template>
         <div class="wallpaper-grid-wrapper">
           <div class="wallpaper-grid">
             <button v-for="option in wallpaperOptions" :key="option.value" @click="wallValue = option.value" :class="['wallpaper-option', { 'wallpaper-selected': wallValue === option.value }, themeClasses.scopeSelector]" type="button">
@@ -73,6 +41,9 @@
   <Transition name="fade-slide">
     <SettingsGroup v-if="themeValue === 'aeroplus'" :header="$t('CUSTOM WALLPAPER')">
       <SettingsItem :icon="uploadIcon" icon-color="orange" :title="$t('Upload Your Own')" :description="$t('Upload a custom wallpaper (JPG/PNG, min 800x600px, max 10MB)')" is-last control-type="stack">
+        <template #badge>
+          <SettingsHelpTooltip :text="$t('The image is stored on this machine and replaces whichever wallpaper was selected; the built-in ones stay available underneath. Like any wallpaper it is also painted behind the login screen, and it is served without asking anyone to sign in first, so pick something you would not mind a stranger seeing.')" />
+        </template>
         <div class="w-full">
           <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="wallpaperFileList" name="wallpaper" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleWallpaperUpload" @change="handleWallpaperChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeWallpaperUpload" class="compact-dragger h-[140px]">
             <div class="flex items-center align-center justify-center flex-col h-full">
@@ -94,6 +65,70 @@
       </SettingsItem>
     </SettingsGroup>
   </Transition>
+
+  <SettingsGroup :header="$t('WINDOW STYLE')" :footer="$t('Choose how window title bars and their controls are laid out.')">
+    <SettingsItem :icon="dockWindowIcon" icon-color="yellow" :title="$t('Window Controls')" :description="$t('Pick where the window buttons sit and how they look')" is-last control-type="always-stack">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Redmond puts the buttons on the right and squares them off. Cupertino puts them on the left as coloured circles. It only changes the window chrome HomeDock OS draws, never what runs inside the window.')" />
+      </template>
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
+          <button v-for="option in APPEARANCE_OPTIONS" :key="option.value" @click="appearanceValue = option.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, appearanceValue === option.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(option.label)">
+            <Icon :icon="option.icon" class="text-xl leading-none shrink-0" aria-hidden="true" />
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(option.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="appearanceValue === option.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+  </SettingsGroup>
+
+  <SettingsGroup :header="$t('TIME &amp; CALENDAR')" :footer="$t('Choose how times and weeks are displayed across HomeDock OS.')">
+    <SettingsItem :icon="clockOutlineIcon" icon-color="cyan" :title="$t('Clock Format')" :description="$t('Display times in 24-hour or 12-hour (AM/PM) format')" control-type="always-stack">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Applies to the clocks, the calendar, and the charts and access records that HomeDock OS shows you. Times written by the apps you install follow their own settings instead.')" />
+      </template>
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
+          <button v-for="opt in CLOCK_FORMAT_OPTIONS" :key="opt.value" @click="clockFormatValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, clockFormatValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="clockFormatValue === opt.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+
+    <SettingsItem :icon="calendarWeekIcon" icon-color="pink" :title="$t('Week Starts On')" :description="$t('First day of the week in calendars')" is-last control-type="always-stack">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Only moves the first column of the calendar. It changes nothing about how dates are stored or how any reminder or schedule is calculated.')" />
+      </template>
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
+          <button v-for="opt in WEEK_START_OPTIONS" :key="opt.value" @click="weekStartValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, weekStartValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+            <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="weekStartValue === opt.value ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+  </SettingsGroup>
+
+  <SettingsGroup :header="$t('LANGUAGE')" :footer="$t('Choose your preferred language for the HomeDock OS interface.')">
+    <SettingsItem :icon="translateIcon" icon-color="purple" :title="$t('Interface Language')" :description="$t('Pick the language used across the entire UI')" is-last control-type="always-stack">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Applies to HomeDock OS itself. The apps you install keep their own language settings, which are configured inside each one.')" />
+      </template>
+      <div class="w-full">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
+          <button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.code" @click="onSelectLanguage(lang.code)" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, languageValue === lang.code ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="lang.name">
+            <span class="text-xl leading-none shrink-0" aria-hidden="true">{{ lang.flag }}</span>
+            <span :lang="lang.code" class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ lang.nativeName }}</span>
+            <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="languageValue === lang.code ? 'opacity-85' : 'opacity-0'" />
+          </button>
+        </div>
+      </div>
+    </SettingsItem>
+  </SettingsGroup>
 </template>
 
 <script lang="ts" setup>
@@ -102,6 +137,8 @@ import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+
+import type { PrismAppearance } from "@prism-wm/core";
 
 import type { ThemeData } from "../__Types__/ThemeData";
 import type { SettingsData } from "../__Types__/SettingsData";
@@ -118,9 +155,13 @@ import translateIcon from "@iconify-icons/mdi/translate";
 import checkIcon from "@iconify-icons/mdi/check-circle";
 import clockOutlineIcon from "@iconify-icons/mdi/clock-outline";
 import calendarWeekIcon from "@iconify-icons/mdi/calendar-week";
+import dockWindowIcon from "@iconify-icons/mdi/dock-window";
+import microsoftWindowsIcon from "@iconify-icons/mdi/microsoft-windows";
+import appleIcon from "@iconify-icons/mdi/apple";
 
 import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
+import SettingsHelpTooltip from "../__Components__/SettingsHelpTooltip.vue";
 
 import { SUPPORTED_LANGUAGES, setLanguage } from "../__Languages__";
 
@@ -147,8 +188,14 @@ const THEME_OPTIONS = [
   { value: "aeroplus", label: "Aero+", icon: squareOpacityIcon },
 ];
 
+const APPEARANCE_OPTIONS: { value: PrismAppearance; label: string; icon: typeof microsoftWindowsIcon }[] = [
+  { value: "redmond", label: "Redmond", icon: microsoftWindowsIcon },
+  { value: "cupertino", label: "Cupertino", icon: appleIcon },
+];
+
 const themeValue = ref<string>(props.modelValue.selected_theme || "default");
 const wallValue = ref<string>(props.modelValue.selected_back || "back1.jpg");
+const appearanceValue = ref<PrismAppearance>(props.modelValue.selected_appearance === "cupertino" ? "cupertino" : "redmond");
 const languageValue = ref<string>(props.modelValue.selected_language || "en");
 const clockFormatValue = ref<string>(props.modelValue.clock_format || "24h");
 const weekStartValue = ref<string>(props.modelValue.week_start || "monday");
@@ -173,6 +220,7 @@ watch(
   () => ({
     selected_theme: themeValue.value,
     selected_back: wallValue.value,
+    selected_appearance: appearanceValue.value,
     selected_language: languageValue.value,
     clock_format: clockFormatValue.value,
     week_start: weekStartValue.value,
@@ -182,6 +230,7 @@ watch(
       updateTheme({
         selected_theme: newValue.selected_theme,
         selected_back: newValue.selected_back,
+        selected_appearance: newValue.selected_appearance,
       });
     }
     if (updateSettings) {
@@ -248,6 +297,27 @@ const wallpaperOptions = ref([
     payload: {
       src: "/images/wallpapers/thumb_back6.jpg",
       alt: "Wallpaper 6",
+    },
+  },
+  {
+    value: "back7.jpg",
+    payload: {
+      src: "/images/wallpapers/thumb_back7.jpg",
+      alt: "Wallpaper 7",
+    },
+  },
+  {
+    value: "back8.jpg",
+    payload: {
+      src: "/images/wallpapers/thumb_back8.jpg",
+      alt: "Wallpaper 8",
+    },
+  },
+  {
+    value: "back9.jpg",
+    payload: {
+      src: "/images/wallpapers/thumb_back9.jpg",
+      alt: "Wallpaper 9",
     },
   },
 ]);

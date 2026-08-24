@@ -44,8 +44,15 @@ homedock_dropzone.conf
 # Other
 otherfiles/
 unstaged_test.py
+.tests/
 HomeDockOS_Update.*.zip
 homedock-ui/static/images/wallpapers/back_custom.jpg
+
+# OEM Mini-PC & Manufacturer Licensing
+.oem/
+
+# BTC Crypto Integration
+.btc/
 
 # Enterprise & SME Modules
 __Enterprise__/

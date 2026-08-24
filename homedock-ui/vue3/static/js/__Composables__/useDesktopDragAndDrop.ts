@@ -6,6 +6,7 @@
 import { ref, computed, onUnmounted } from "vue";
 
 import { useDesktopStore, type DesktopFolder } from "../__Stores__/desktopStore";
+import { useWidgetsStore } from "../__Stores__/useWidgetsStore";
 
 import { useResponsive } from "./useResponsive";
 
@@ -35,9 +36,9 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
   } = options;
 
   const desktopStore = useDesktopStore();
+  const widgetsStore = useWidgetsStore();
   const { isMobile } = useResponsive();
 
-  // State
   const isDragging = ref(false);
   const hasMoved = ref(false);
   const currentDragItem = ref<DragItem | null>(null);
@@ -45,16 +46,15 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
   const dragStartMousePos = ref<Position>({ x: 0, y: 0 });
   const dragStartIconPos = ref<Position>({ x: 0, y: 0 });
 
-  // Mobile gesture tracking
   let longPressTimer: ReturnType<typeof setTimeout> | null = null;
   let touchStartPos: Position = { x: 0, y: 0 };
   let lastTapTime = 0;
   let lastTapItem: DragItem | null = null;
   let touchGestureMoved = false;
   let currentTouchItem: DragItem | null = null;
+
   const GESTURE_MOVE_THRESHOLD = 10;
 
-  // Items getters
   const mainDockerApps = computed(() => {
     if (containerId === "desktop") {
       return desktopStore.desktopRootApps;
@@ -64,9 +64,10 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
   });
 
   const desktopFolders = computed(() => desktopStore.desktopFolders);
-  const systemDesktopIcons = computed(() => desktopStore.systemDesktopIcons);
+  const systemDesktopIcons = computed(() => desktopStore.desktopRootSystemIcons);
 
-  // Grid Utilities
+  const isShortcutIconId = (id: string) => desktopStore.systemDesktopIcons.find((i) => i.id === id)?.shortcut !== undefined;
+
   function snapToGrid(x: number, y: number): GridPosition {
     const { sizeX, sizeY, padding } = gridConfig.value;
 
@@ -82,9 +83,19 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
   }
 
   function isPositionOccupied(x: number, y: number, excludeAppId?: string, excludeAppIds?: Set<string>, excludeFolderId?: string, excludeFolderIds?: Set<string>, excludeSystemIconId?: string, excludeSystemIconIds?: Set<string>): boolean {
-    const { sizeX, sizeY } = gridConfig.value;
+    const { sizeX, sizeY, padding } = gridConfig.value;
 
     if (containerId === "desktop") {
+      if (!isMobile.value) {
+        const widgetCollision = widgetsStore.instances.some((instance) => {
+          const rect = widgetsStore.instanceRect(instance);
+          const wx = padding + rect.col * sizeX;
+          const wy = padding + rect.row * sizeY;
+          return x < wx + rect.cols * sizeX && wx < x + sizeX && y < wy + rect.rows * sizeY && wy < y + sizeY;
+        });
+
+        if (widgetCollision) return true;
+      }
       const appCollision = mainDockerApps.value.some((app) => {
         if (excludeAppId && app.id === excludeAppId) return false;
         if (excludeAppIds && excludeAppIds.has(app.id)) return false;
@@ -173,7 +184,6 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     return null;
   }
 
-  // Position Management
   function getItemPosition(item: DragItem): Position | null {
     const { sizeX, sizeY, padding } = gridConfig.value;
     let found: any = null;
@@ -216,7 +226,6 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     desktopStore.updateItemPosition(item.type, item.id, pos.x, pos.y, pos.row, pos.col);
   }
 
-  // Drag Lifecycle
   function startDrag(item: DragItem, clientX: number, clientY: number): void {
     if (isMobile.value && !enableMobileDrag) {
       return;
@@ -264,9 +273,9 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
       }
     }
 
-    if (mode === "ghost" && item.type === "app") {
-      const appIds = isMultiSelect ? allSelected.filter((i) => i.type === "app").map((i) => i.id) : [item.id];
-      desktopStore.setDraggedApps(appIds, containerId);
+    if (mode === "ghost" && (item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id)))) {
+      const draggableIds = isMultiSelect ? allSelected.filter((i) => i.type === "app" || (i.type === "systemicon" && isShortcutIconId(i.id))).map((i) => i.id) : [item.id];
+      desktopStore.setDraggedApps(draggableIds, containerId);
     }
 
     onDragStart?.(item);
@@ -333,16 +342,18 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     let targetFolder: DesktopFolder | null = null;
 
     if (hasMoved.value && mode === "direct") {
-      if (mainItem.type === "app") {
+      const isDroppableInFolder = (item: DragItem) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id));
+
+      if (isDroppableInFolder(mainItem)) {
         const mainPos = getItemPosition(mainItem);
         if (mainPos) {
           targetFolder = checkDropOnFolder(mainPos.x + 50, mainPos.y + 65);
 
           if (targetFolder) {
             const allSelected = getSelectedItems();
-            const appIds = allSelected.length > 1 && allSelected.some((i) => i.type === "app" && i.id === mainItem.id) ? allSelected.filter((i) => i.type === "app").map((i) => i.id) : [mainItem.id];
+            const itemIds = allSelected.length > 1 && allSelected.some((i) => i.type === mainItem.type && i.id === mainItem.id) ? allSelected.filter(isDroppableInFolder).map((i) => i.id) : [mainItem.id];
 
-            onDropOnFolder?.(targetFolder, appIds);
+            onDropOnFolder?.(targetFolder, itemIds);
           }
         }
       }
@@ -504,7 +515,6 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     hasMoved.value = false;
   }
 
-  // Event Handlers
   let globalMoveHandler: ((e: MouseEvent) => void) | null = null;
   let globalUpHandler: ((e: MouseEvent) => void) | null = null;
   let globalTouchMoveHandler: ((e: TouchEvent) => void) | null = null;
@@ -641,13 +651,11 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     }
   }
 
-  // Cleanup
   onUnmounted(() => {
     cleanupMouseListeners();
     cleanupTouchListeners();
   });
 
-  // Return
   return {
     isDragging,
     hasMoved,

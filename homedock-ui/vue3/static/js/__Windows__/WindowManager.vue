@@ -4,165 +4,179 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="window-manager">
-    <Transition name="snap-preview-fade">
-      <div v-if="snapPreview" class="snap-preview" :class="[`snap-preview-${snapPreview}`, themeClasses.windowBorderFocused]" :style="snapPreviewStyle" />
-    </Transition>
-    <TransitionGroup name="window-fade">
-      <Window v-for="window in openWindows" :key="window.id" :window="window" :is-active="window.id === activeWindowId" @close="handleClose" @focus="handleFocus" @minimize="handleMinimize" @maximize="handleMaximize" />
-    </TransitionGroup>
-  </div>
+  <PrismWindowManager :store="prismStore" :resolveComponent="resolveComponent" :resolveConfig="resolveConfig" :taskbarHeight="taskbarHeightPx" :isMobile="isMobile" :labels="labels" :classes="prismClasses" :appearance="appearance">
+    <template #icon="{ window }">
+      <BaseImage v-if="isImageIcon(window.icon)" :src="window.icon" alt="" class="window-icon rounded-[3px]" width="16" height="16" draggable="false" :title="t('System menu')" @contextmenu.stop.prevent="(e: MouseEvent) => openSystemMenu(e, window)" />
+      <Icon v-else-if="window.icon" :icon="window.icon as string | IconifyIcon" class="window-icon" width="16" height="16" :title="t('System menu')" @contextmenu.stop.prevent="(e: MouseEvent) => openSystemMenu(e, window)" />
+    </template>
+
+    <template #titleBarExtra="{ window }">
+      <EnterpriseIndicator v-if="window.appId === 'enterprise-window'" size="mini" />
+    </template>
+
+    <template #loading>
+      <WindowLoading />
+    </template>
+
+    <template #minimize-icon>
+      <Icon :icon="minimizeIcon" :width="isMobile ? 18 : 16" :height="isMobile ? 18 : 16" />
+    </template>
+    <template #maximize-icon="{ window }">
+      <Icon :icon="window.isMaximized ? restoreIcon : maximizeIcon" width="12" height="12" />
+    </template>
+    <template #close-icon>
+      <Icon :icon="closeIcon" :width="isMobile ? 18 : 16" :height="isMobile ? 18 : 16" />
+    </template>
+  </PrismWindowManager>
+
+  <ContextMenu :visible="systemMenu.visible" :x="systemMenu.x" :y="systemMenu.y" :items="systemMenuItems" @close="closeSystemMenu" />
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted } from "vue";
-import Window from "./Window.vue";
-import { useWindowStore } from "../__Stores__/windowStore";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { Icon } from "@iconify/vue";
+import type { IconifyIcon } from "@iconify/vue";
+import minimizeIcon from "@iconify-icons/mdi/window-minimize";
+import maximizeIcon from "@iconify-icons/mdi/window-maximize";
+import restoreIcon from "@iconify-icons/mdi/window-restore";
+import closeIcon from "@iconify-icons/mdi/close";
+
+import { PrismWindowManager, type PrismClassMap, type WindowState } from "@prism-wm/vue";
+
+import { getPrismStore, useWindowStore, isImageIcon } from "../__Stores__/windowStore";
+import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
-
-interface Props {
-  showDebugInfo?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  showDebugInfo: false,
-});
+import BaseImage from "../__Components__/BaseImage.vue";
+import WindowLoading from "../__Components__/WindowLoading.vue";
+import EnterpriseIndicator from "../__Components__/EnterpriseIndicator.vue";
+import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 
 const windowStore = useWindowStore();
-const { taskbarHeightPx } = useResponsive();
-const { themeClasses } = useTheme();
+const prismStore = getPrismStore();
+const { isMobile, taskbarHeightPx } = useResponsive();
+const { themeClasses, appearance } = useTheme();
+const { t } = useI18n();
 
-const openWindows = computed(() => windowStore.windows);
-const activeWindowId = computed(() => windowStore.activeWindowId);
-const snapPreview = computed(() => windowStore.snapPreview);
+const resolveComponent = (win: WindowState) => getAppById(win.appId)?.component ?? null;
+const resolveConfig = (win: WindowState) => getAppById(win.appId);
 
-const snapPreviewStyle = computed(() => {
-  const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080;
-  const availableHeight = screenHeight - taskbarHeightPx.value;
+const labels = computed(() => ({
+  minimize: t("Minimize"),
+  maximize: t("Maximize"),
+  restore: t("Restore"),
+  close: t("Close"),
+}));
 
-  return {
-    height: `${availableHeight}px`,
-  };
-});
+const isCupertino = computed(() => appearance.value === "cupertino");
 
-function handleClose(windowId: string) {
-  windowStore.closeWindow(windowId);
+const prismClasses = computed<Partial<PrismClassMap>>(() => ({
+  window: `${themeClasses.value.windowBg} ${themeClasses.value.windowShadow}`,
+  windowInactive: themeClasses.value.windowBorder,
+  windowActive: themeClasses.value.windowBorderFocused,
+  titleBar: `${themeClasses.value.windowTitleBarBg} ${themeClasses.value.windowTitleBarBorder}`,
+  title: themeClasses.value.windowTitleText,
+  titleActive: themeClasses.value.windowTitleTextFocused,
+  iconContainer: isCupertino.value ? themeClasses.value.windowTitleText : `transition duration-150 ${themeClasses.value.windowIconContainerBg} ${themeClasses.value.windowTitleText}`,
+  iconContainerActive: isCupertino.value ? themeClasses.value.windowTitleTextFocused : `transition duration-150 ${themeClasses.value.windowIconContainerBgFocused} ${themeClasses.value.windowTitleTextFocused}`,
+  control: isCupertino.value ? "" : `${themeClasses.value.windowButtonText} ${themeClasses.value.windowButtonBgHover} ${themeClasses.value.windowButtonTextHover}`,
+  closeControl: isCupertino.value ? "" : `${themeClasses.value.windowButtonText} ${themeClasses.value.windowCloseButtonBgHover} ${themeClasses.value.windowCloseButtonTextHover}`,
+}));
+
+const systemMenu = ref({ visible: false, x: 0, y: 0, windowId: "" });
+
+const menuTarget = computed(() => (systemMenu.value.windowId ? windowStore.getWindowById(systemMenu.value.windowId) : null));
+
+function openSystemMenu(e: MouseEvent, win: WindowState) {
+  systemMenu.value = { visible: true, x: e.clientX, y: e.clientY, windowId: win.id };
 }
 
-function handleFocus(windowId: string) {
-  windowStore.focusWindow(windowId);
+function closeSystemMenu() {
+  systemMenu.value.visible = false;
 }
 
-function handleMinimize(windowId: string) {
-  windowStore.minimizeWindow(windowId);
-}
+const systemMenuItems = computed<ContextMenuItem[]>(() => {
+  const win = menuTarget.value;
+  if (!win) return [];
 
-function handleMaximize(windowId: string) {
-  windowStore.toggleMaximize(windowId);
-}
+  const config = getAppById(win.appId);
+  const items: ContextMenuItem[] = [];
 
-function requestCloseWindow(windowId: string) {
-  const event = new CustomEvent(`homedock:request-close-${windowId}`, {
-    cancelable: true,
-  });
-  const wasNotPrevented = window.dispatchEvent(event);
+  const isDialog = win.kind === "dialog";
 
-  if (wasNotPrevented) {
-    windowStore.closeWindow(windowId);
+  if (!isDialog && config?.minimizable !== false) {
+    items.push({
+      label: "Minimize",
+      icon: minimizeIcon,
+      action: () => {
+        windowStore.minimizeWindow(win.id);
+        closeSystemMenu();
+      },
+    });
   }
-}
 
-function handleKeyDown(e: KeyboardEvent) {
-  if (e.key === "Escape" && activeWindowId.value) {
-    requestCloseWindow(activeWindowId.value);
-    e.preventDefault();
+  if (!isDialog && !isMobile.value && config?.maximizable !== false) {
+    items.push({
+      label: win.isMaximized ? "Restore" : "Maximize",
+      icon: win.isMaximized ? restoreIcon : maximizeIcon,
+      action: () => {
+        windowStore.toggleMaximize(win.id);
+        closeSystemMenu();
+      },
+    });
   }
 
-  if (e.altKey && e.key === "F4" && activeWindowId.value) {
-    requestCloseWindow(activeWindowId.value);
-    e.preventDefault();
+  if (config?.closeable !== false) {
+    if (items.length > 0) {
+      items.push({ divider: true });
+    }
+    items.push({
+      label: "Close",
+      icon: closeIcon,
+      action: () => {
+        void windowStore.requestClose(win.id);
+        closeSystemMenu();
+      },
+    });
   }
-}
 
-onMounted(() => {
-  document.addEventListener("keydown", handleKeyDown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeyDown);
+  return items;
 });
 </script>
 
-<style scoped>
-.window-manager {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 100;
+<style>
+.pwm-window.pwm-active {
+  box-shadow:
+    0 8px 32px rgba(59, 130, 246, 0.2),
+    0 0 0 1px rgba(59, 130, 246, 0.3);
 }
 
-.window-manager > * {
-  pointer-events: auto !important;
+.pwm-window.pwm-maximized {
+  border: none;
+  box-shadow: none;
 }
 
-:deep(.window) {
-  pointer-events: auto !important;
+.pwm-window.pwm-fullscreen-mobile {
+  border: none !important;
 }
 
-.debug-info {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 0.5rem;
-  border-radius: 6px;
-  pointer-events: none;
-  z-index: 9999;
+.pwm-scrim,
+.pwm-window[data-pwm-blocked]::after {
+  background: rgba(0, 0, 0, 0.35);
 }
 
-.window-fade-enter-active {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: bottom center;
-}
-
-.window-fade-leave-active {
-  transition: all 0.25s cubic-bezier(0.4, 0, 1, 1);
-  transform-origin: bottom center;
-}
-
-.window-fade-enter-from {
-  opacity: 0;
-  transform: scale(0.7) translateY(100px);
-}
-
-.window-fade-leave-to {
-  opacity: 0;
-  transform: scale(0.3) translateY(200px);
-}
-
-.window-fade-move {
-  transition: transform 0.3s ease;
-}
-
-.snap-preview {
-  position: fixed;
-  top: 0;
-  width: 50%;
+.pwm-snap-preview {
   background: rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  pointer-events: none;
-  z-index: 99;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.5);
-  animation: snap-pulse 1.5s ease-in-out infinite;
+  animation:
+    pwm-snap-in 0.16s ease-out,
+    hdos-snap-pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes snap-pulse {
+@keyframes hdos-snap-pulse {
   0%,
   100% {
     background: rgba(59, 130, 246, 0.15);
@@ -174,26 +188,22 @@ onUnmounted(() => {
   }
 }
 
-.snap-preview-left {
-  left: 0;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+@media (prefers-reduced-motion: reduce) {
+  .pwm-snap-preview {
+    animation: none;
+  }
+}
+</style>
+
+<style scoped>
+.window-icon {
+  flex-shrink: 0;
 }
 
-.snap-preview-right {
-  right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.snap-preview-fade-enter-active,
-.snap-preview-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.snap-preview-fade-enter-from,
-.snap-preview-fade-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
+@media (max-width: 768px) {
+  .window-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 </style>

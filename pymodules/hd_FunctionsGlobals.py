@@ -11,7 +11,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "2.1.6.166"
+version = "2.4.2.120"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()
@@ -29,6 +29,15 @@ user_packages_wallpaper_folder = os.path.join(user_packages_folder, "_user_wallp
 user_packages_install_folder = os.path.join(user_packages_folder, "_install")
 
 user_packages_calendar_folder = os.path.join(user_packages_folder, "_calendar")
+user_packages_shortcuts_folder = os.path.join(user_packages_folder, "_shortcuts")
+
+user_packages_app_open_folder = os.path.join(user_packages_folder, "_app_default_open")
+user_packages_exposure_file = os.path.join(user_packages_folder, "_app_exposure.json")
+user_packages_desktop_widgets_folder = os.path.join(user_packages_folder, "_desktop_widgets")
+user_packages_whats_new_folder = os.path.join(user_packages_folder, "_whats_new")
+user_packages_acme_folder = os.path.join(user_packages_folder, "_acme")
+user_packages_acme_staging_folder = os.path.join(user_packages_acme_folder, "_staging")
+
 user_storage_folder = os.path.join(user_packages_folder, "_storage")
 dropzone_folder = os.path.join(user_storage_folder, "_dropzone")
 storage_folder = os.path.join(user_storage_folder, "_storage")

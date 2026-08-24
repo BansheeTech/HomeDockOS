@@ -6,6 +6,9 @@
 <template>
   <SettingsGroup :header="$t('USER ACCOUNT')" :footer="$t('Your account identifier for logging into HomeDock OS.')">
     <SettingsItem :icon="accountIcon" icon-color="blue" :title="$t('Username')" :description="$t('Must be alphanumeric only (a-z, A-Z, 0-9)')">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Anything that is not a letter or a digit is stripped rather than rejected, so what ends up saved may be shorter than what you typed. It cannot be left empty, cannot exceed 30 characters, and cannot be the factory value.')" />
+      </template>
       <FormItem :validate-status="isUsernameValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
         <template #help>
           <div v-if="!isUsernameValid" class="flex items-start text-xs mt-1">
@@ -33,6 +36,9 @@
   <Transition name="fade-slide">
     <SettingsGroup v-if="passwordCheckbox" :header="$t('NEW PASSWORD')">
       <SettingsItem :icon="lockOpenIcon" icon-color="orange" :title="$t('New Password')" :description="$t('Minimum 6 characters')">
+        <template #badge>
+          <SettingsHelpTooltip :text="$t('Between 6 and 30 characters. It is stored scrambled in a way that cannot be undone, so nobody, HomeDock OS included, can read it back. Leave the field alone and the current one stays untouched.')" />
+        </template>
         <FormItem :validate-status="isPasswordValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
           <template #help>
             <div v-if="!isPasswordValid" class="flex items-start text-xs mt-1">
@@ -46,6 +52,9 @@
       </SettingsItem>
 
       <SettingsItem :icon="lockCheckIcon" icon-color="green" :title="$t('Confirm Password')" :description="$t('Must match new password')" is-last>
+        <template #badge>
+          <SettingsHelpTooltip :text="$t('Only a check made in this browser before sending. Nothing is saved until both fields agree, and the password itself travels encrypted along with the rest of the settings.')" />
+        </template>
         <FormItem :validate-status="isConfirmPasswordValid ? 'success' : 'error'" class="mb-0 settings-form-item-right">
           <template #help>
             <div v-if="!isConfirmPasswordValid" class="flex items-start text-xs mt-1">
@@ -62,10 +71,16 @@
 
   <SettingsGroup :header="$t('TWO-FACTOR AUTHENTICATION')" :footer="$t('Add an extra layer of security using an authenticator app.')">
     <SettingsItem :icon="shieldLockIcon" icon-color="purple" :title="$t('Two-Factor Authentication')" :description="is2FAEnabled ? $t('Currently enabled') : $t('Currently disabled')" :is-last="!is2FAEnabled">
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Logging in asks for a code from your authenticator on top of the password. Turning it on hands you ten backup codes, and each one works once: without them, losing the phone means losing the way in.')" />
+      </template>
       <Switch :checked="is2FAEnabled" :loading="loading2FA" @change="handle2FAToggle" />
     </SettingsItem>
 
     <SettingsItem v-if="is2FAEnabled" :icon="refreshIcon" icon-color="blue" :title="$t('Regenerate Backup Codes')" :description="$t('Generate new backup codes (invalidates old ones)')" is-last>
+      <template #badge>
+        <SettingsHelpTooltip :text="$t('Backup codes are what gets you in when you lose the authenticator. Generating a new set kills the previous one immediately, so save these before closing the window: they are not shown again.')" />
+      </template>
       <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="openRegenerateModal">
         <Icon :icon="refreshIcon" width="14" height="14" />
         {{ $t("Regenerate") }}
@@ -165,6 +180,7 @@ import refreshIcon from "@iconify-icons/mdi/refresh";
 
 import SettingsGroup from "../__Components__/SettingsGroup.vue";
 import SettingsItem from "../__Components__/SettingsItem.vue";
+import SettingsHelpTooltip from "../__Components__/SettingsHelpTooltip.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
 
 const { themeClasses } = useTheme();

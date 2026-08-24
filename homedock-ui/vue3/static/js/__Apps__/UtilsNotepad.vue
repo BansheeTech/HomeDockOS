@@ -158,8 +158,8 @@
 
     <Transition name="slide-down">
       <div v-if="showFindReplace" class="flex items-center gap-2 px-3 py-2 border-b" :class="themeClasses.utilityToolbarBorder">
-        <input v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" @keyup.enter="findNext" />
-        <input v-model="replaceText" type="text" :placeholder="$t('Replace...')" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" />
+        <input v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" @keyup.enter="findNext" />
+        <input v-model="replaceText" type="text" :placeholder="$t('Replace...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" />
         <button @click="findNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Find") }}</button>
         <button @click="replaceNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace") }}</button>
         <button @click="replaceAllInTab" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace All") }}</button>
@@ -273,7 +273,7 @@
 
     <AppDialog v-model:visible="showSaveAsDialog" title="Save Note As" ok-text="Save" cancel-text="Cancel" @ok="handleSaveAs" @cancel="showSaveAsDialog = false">
       <div class="space-y-2">
-        <input v-model="saveAsTitle" type="text" :placeholder="$t('Note title...')" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" @keyup.enter="handleSaveAs" />
+        <input v-model="saveAsTitle" type="text" :placeholder="$t('Note title...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" @keyup.enter="handleSaveAs" />
         <div class="flex items-center gap-1.5">
           <Icon :icon="folderIcon" :class="['w-3 h-3', themeClasses.windowText, 'opacity-40']" />
           <span :class="['text-[11px]', themeClasses.windowText, 'opacity-40']">{{ $t("Saving in Storage/Notes") }}</span>

@@ -1,1 +1,0 @@
-import{a as e,i as t,o as n,r,s as i}from"./hdos_D2qX1cC_BnJIsZWDyGQTL2.js";export{t as attachTypeApi,r as default,e as getInstance,n as getKeyThenIncreaseKey,i as typeList};

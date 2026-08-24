@@ -61,6 +61,63 @@ def get_ssl_cert_info(cert_path):
         return {"error": str(e)}
 
 
+# HDOS00069
+_live_context = {"context": None}
+
+
+def capture_ssl_context(config):
+    original = config.create_ssl_context
+
+    def wrapper():
+        context = original()
+        _live_context["context"] = context
+        return context
+
+    config.create_ssl_context = wrapper
+
+
+def ssl_context_active():
+    return _live_context.get("context") is not None
+
+
+def restart_pending(cert_dir=None):
+
+    return ssl_enabled(cert_dir) and not ssl_context_active()
+
+
+def reload_ssl_context(cert_dir=None):
+    context = _live_context.get("context")
+
+    if context is None:
+        return False
+
+    cert_dir = cert_dir or get_ssl_cert_directory()
+
+    try:
+        context.load_cert_chain(os.path.join(cert_dir, "fullchain.pem"), os.path.join(cert_dir, "privkey.pem"))
+    except (OSError, ssl.SSLError):
+        return False
+
+    return True
+
+
+# HDOS00062
+def cert_covers_subdomains_of(host, cert_dir=None):
+
+    if not host:
+        return False
+
+    bare = host.strip().lower().split(":")[0].rstrip(".")
+    if not bare:
+        return False
+
+    target = f"*.{bare}"
+
+    domains = get_cert_domains_and_type(cert_dir).get("domains", [])
+
+    return any(domain.strip().lower() == target for domain in domains)
+
+
 def get_cert_domains_and_type(cert_dir=None):
     if cert_dir is None:
         cert_dir = get_ssl_cert_directory()

@@ -18,3 +18,4 @@ vite-fusion==0.0.9
 urllib3==2.7.0
 pyotp==2.9.0
 Hypercorn==0.17.3
+aiohttp==3.14.3

@@ -11,10 +11,10 @@
       <Icon :icon="chevronRightIcon" class="breadcrumb-separator" :class="themeClasses.folderBreadcrumbSeparator" />
       <Icon :icon="folderIcon" class="breadcrumb-icon" :class="themeClasses.folderBreadcrumbIcon" />
       <span class="breadcrumb-text folder-name" :class="themeClasses.folderBreadcrumbText">{{ folderName }}</span>
-      <span class="app-count" :class="themeClasses.folderAppCount">({{ folderApps.length }} {{ $t("apps") }})</span>
+      <span class="app-count" :class="themeClasses.folderAppCount">({{ totalItemCount }} {{ $t("apps") }})</span>
     </div>
 
-    <div v-if="folderApps.length === 0" class="empty-folder-state">
+    <div v-if="totalItemCount === 0" class="empty-folder-state">
       <Icon :icon="folderOpenOutlineIcon" class="empty-icon" :class="themeClasses.folderEmptyIcon" />
       <h3 class="empty-title" :class="themeClasses.folderEmptyTitle">{{ $t("Empty folder") }}</h3>
       <p class="empty-description" :class="themeClasses.folderEmptyDescription">{{ $t("Drag apps here to organize them") }}</p>
@@ -23,7 +23,7 @@
     <div class="folder-apps-grid" ref="containerRef" @contextmenu="handleDesktopContextMenu" @mousedown="handleGridMouseDown">
       <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
       <TransitionGroup name="icon-appear">
-        <div v-for="(app, index) in folderApps" :key="app.id" :data-app-id="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedApp === app.id || selectedApps.has(app.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(index)" @mousedown="handleMouseDown($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
+        <div v-for="(app, index) in folderApps" :key="app.id" :data-app-id="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedApp === app.id || selectedApps.has(app.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(folderShortcuts.length + index)" @mousedown="handleMouseDown($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
           <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
             <BaseImage :src="app.image_path" class="app-image rounded-xl" alt="" draggable="false" />
             <Transition name="loading-overlay-fade">
@@ -37,11 +37,30 @@
           <span class="app-name" :class="[themeClasses.desktopIconText]">{{ app.display_name || app.name }}</span>
         </div>
       </TransitionGroup>
+
+      <TransitionGroup name="icon-appear">
+        <div v-for="(shortcutIcon, index) in folderShortcuts" :key="shortcutIcon.id" :data-shortcut-id="shortcutIcon.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedShortcut === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(index)" @mousedown="handleShortcutMouseDown($event, shortcutIcon)" @click="handleShortcutClick(shortcutIcon, $event)" @dblclick="handleShortcutDoubleClick(shortcutIcon)" @contextmenu="handleShortcutContextMenu($event, shortcutIcon)" @touchstart="handleShortcutTouchStart($event, shortcutIcon)" :title="shortcutIcon.name">
+          <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]">
+            <Transition name="icon-switch" mode="out-in">
+              <BaseImage v-if="shortcutIcon.shortcut?.iconType === 'image'" :key="`image:${shortcutIcon.shortcut.iconValue}`" :src="getShortcutIconUrl(shortcutIcon.shortcut.iconValue)" class="app-image rounded-xl" alt="" draggable="false" />
+              <div v-else :key="`preset:${shortcutIcon.shortcut?.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
+                <Icon :icon="getShortcutGlyph(shortcutIcon.shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
+              </div>
+            </Transition>
+            <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
+              <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
+            </div>
+          </div>
+          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ shortcutIcon.name }}</span>
+        </div>
+      </TransitionGroup>
     </div>
 
     <ContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y" :items="contextMenuItems" @close="closeContextMenu" />
 
-    <StatusBar :icon="folderOpenIcon" :message="`${folderName}`" :info="`${folderApps.length} ${folderApps.length === 1 ? $t('app') : $t('apps')}`" :showHelp="true">
+    <ShortcutEditModal v-model:visible="showShortcutModal" mode="edit" :initial-name="shortcutModalInitial.name" :initial-url="shortcutModalInitial.url" :initial-icon-type="shortcutModalInitial.iconType" :initial-icon-value="shortcutModalInitial.iconValue" @save="handleShortcutSave" />
+
+    <StatusBar :icon="folderOpenIcon" :message="`${folderName}`" :info="`${totalItemCount} ${totalItemCount === 1 ? $t('app') : $t('apps')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
@@ -63,7 +82,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useDesktopStore, DockerApp } from "../__Stores__/desktopStore";
+import { useDesktopStore, DockerApp, SystemDesktopIcon } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
@@ -75,12 +94,15 @@ import { useDesktopDragGhost } from "../__Composables__/useDesktopDragGhost";
 
 import type { GridConfig, SelectionState } from "../__Composables__/desktopDragTypes";
 
-import DragGhost from "../__Components__/DragGhost.vue";
+import DragGhost, { type DragGhostItem } from "../__Components__/DragGhost.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+import ShortcutEditModal, { type ShortcutModalResult } from "../__Components__/ShortcutEditModal.vue";
+
+import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
 
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer, uninstallContainer, updateContainer } from "../__Services__/DockerActions";
 
@@ -102,6 +124,10 @@ import terminalIcon from "@iconify-icons/mdi/console";
 import refreshIcon from "@iconify-icons/mdi/refresh";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
 import exportIcon from "@iconify-icons/mdi/export";
+import pencilIcon from "@iconify-icons/mdi/pencil";
+import linkOffIcon from "@iconify-icons/mdi/link-variant-off";
+import arrowTopRightIcon from "@iconify-icons/mdi/arrow-top-right";
+import checkIcon from "@iconify-icons/mdi/check-circle";
 
 interface Props {
   folderId: string;
@@ -135,6 +161,8 @@ const gridConfig = computed<GridConfig>(() => ({
 const {
   selectedApp,
   selectedApps,
+  selectedSystemIcon,
+  selectedSystemIcons,
   isSelectingArea,
   selectionBox,
   selectionBoxStyle: composableSelectionBoxStyle,
@@ -152,8 +180,8 @@ const selectionState = computed<SelectionState>(() => ({
   selectedApps: selectedApps.value,
   selectedFolder: null,
   selectedFolders: new Set<string>(),
-  selectedSystemIcon: null,
-  selectedSystemIcons: new Set<string>(),
+  selectedSystemIcon: selectedSystemIcon.value,
+  selectedSystemIcons: selectedSystemIcons.value,
 }));
 
 const {
@@ -172,10 +200,19 @@ const {
   enableMobileDrag: false,
 
   onMobileTap: (item, _e) => {
+    if (item.type !== "app") return;
     selectItem({ type: "app", id: item.id });
   },
 
   onMobileDoubleTap: (item, _e) => {
+    if (item.type === "systemicon") {
+      const icon = folderShortcuts.value.find((i) => i.id === item.id);
+      if (icon) {
+        handleShortcutDoubleClick(icon, true);
+      }
+      return;
+    }
+
     const app = folderApps.value.find((a) => a.id === item.id);
     if (app) {
       handleDoubleClick(app, true);
@@ -183,18 +220,27 @@ const {
   },
 
   onMobileLongPress: (item, e) => {
+    const touch = e.touches?.[0] || e.changedTouches?.[0];
+    if (!touch) return;
+
+    const contextMenuEvent = new MouseEvent("contextmenu", {
+      bubbles: true,
+      cancelable: true,
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+    });
+
+    if (item.type === "systemicon") {
+      const icon = folderShortcuts.value.find((i) => i.id === item.id);
+      if (icon) {
+        handleShortcutContextMenu(contextMenuEvent, icon);
+      }
+      return;
+    }
+
     const app = folderApps.value.find((a) => a.id === item.id);
     if (app) {
-      const touch = e.touches?.[0] || e.changedTouches?.[0];
-      if (touch) {
-        const contextMenuEvent = new MouseEvent("contextmenu", {
-          bubbles: true,
-          cancelable: true,
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-        });
-        handleContextMenu(contextMenuEvent, app);
-      }
+      handleContextMenu(contextMenuEvent, app);
     }
   },
 });
@@ -202,20 +248,50 @@ const {
 const { ghostStyle, updatePosition: updateGhostPosition } = useDesktopDragGhost();
 
 const draggedApp = ref<string | null>(null);
+const draggedShortcut = ref<string | null>(null);
 
 const contextMenuApp = ref<DockerApp | null>(null);
+const contextMenuShortcut = ref<SystemDesktopIcon | null>(null);
 const maxCols = ref<number>(0);
+
+const showShortcutModal = ref(false);
+const editingShortcutId = ref<string | null>(null);
+const shortcutModalInitial = ref<{ name: string; url: string; iconType: "preset" | "image"; iconValue: string }>({ name: "", url: "", iconType: "preset", iconValue: "web" });
 
 const isHovering = ref(false);
 
-const draggedAppsForGhost = computed(() => {
-  if (!isDragging.value || !hasMoved.value || !draggedApp.value) return [];
-  const selected = selectedApps.value;
-  if (selected.size > 0 && selected.has(draggedApp.value)) {
-    return folderApps.value.filter((a) => selected.has(a.id));
+function shortcutToGhostItem(icon: SystemDesktopIcon): DragGhostItem {
+  if (icon.shortcut?.iconType === "image") {
+    return { name: icon.name, image_path: getShortcutIconUrl(icon.shortcut.iconValue) };
   }
-  const single = folderApps.value.find((a) => a.id === draggedApp.value);
-  return single ? [single] : [];
+  return { name: icon.name, presetIcon: getShortcutGlyph(icon.shortcut) };
+}
+
+const draggedAppsForGhost = computed<DragGhostItem[]>(() => {
+  if (!isDragging.value || !hasMoved.value) return [];
+
+  const activeId = draggedApp.value || draggedShortcut.value;
+  if (!activeId) return [];
+
+  const isMulti = (selectedApps.value.size > 0 && selectedApps.value.has(activeId)) || (selectedSystemIcons.value.size > 0 && selectedSystemIcons.value.has(activeId));
+
+  if (isMulti) {
+    const items: DragGhostItem[] = folderApps.value.filter((a) => selectedApps.value.has(a.id));
+    folderShortcuts.value.forEach((icon) => {
+      if (selectedSystemIcons.value.has(icon.id)) {
+        items.push(shortcutToGhostItem(icon));
+      }
+    });
+    return items;
+  }
+
+  if (draggedApp.value) {
+    const single = folderApps.value.find((a) => a.id === draggedApp.value);
+    return single ? [single] : [];
+  }
+
+  const singleIcon = folderShortcuts.value.find((i) => i.id === draggedShortcut.value);
+  return singleIcon ? [shortcutToGhostItem(singleIcon)] : [];
 });
 
 const contextMenu = ref({
@@ -248,6 +324,15 @@ const folderApps = computed(() => {
     return priorityA - priorityB;
   });
 });
+
+const folderShortcuts = computed(() => {
+  return desktopStore
+    .getShortcutsInFolder(props.folderId)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
+});
+
+const totalItemCount = computed(() => folderApps.value.length + folderShortcuts.value.length);
 
 const selectionBoxStyle = composableSelectionBoxStyle;
 
@@ -391,6 +476,7 @@ function updateSelectedAppsInBox() {
   const boxHeight = Math.abs(selectionBox.value.currentY - selectionBox.value.startY);
 
   selectedApps.value.clear();
+  selectedSystemIcons.value.clear();
 
   const boxLeft = boxX;
   const boxTop = boxY;
@@ -399,7 +485,7 @@ function updateSelectedAppsInBox() {
 
   const cols = maxCols.value || 1;
 
-  folderApps.value.forEach((app, index) => {
+  const intersectsIndex = (index: number): boolean => {
     const row = Math.floor(index / cols);
     const col = index % cols;
 
@@ -408,9 +494,17 @@ function updateSelectedAppsInBox() {
     const iconRight = iconLeft + 100;
     const iconBottom = iconTop + 130;
 
-    const intersects = boxLeft < iconRight && boxRight > iconLeft && boxTop < iconBottom && boxBottom > iconTop;
+    return boxLeft < iconRight && boxRight > iconLeft && boxTop < iconBottom && boxBottom > iconTop;
+  };
 
-    if (intersects) {
+  folderShortcuts.value.forEach((icon, index) => {
+    if (intersectsIndex(index)) {
+      selectedSystemIcons.value.add(icon.id);
+    }
+  });
+
+  folderApps.value.forEach((app, index) => {
+    if (intersectsIndex(folderShortcuts.value.length + index)) {
       selectedApps.value.add(app.id);
     }
   });
@@ -448,7 +542,7 @@ function handleMouseDown(e: MouseEvent, app: DockerApp) {
 }
 
 function handleMouseMove(e: MouseEvent) {
-  if (!draggedApp.value) return;
+  if (!draggedApp.value && !draggedShortcut.value) return;
 
   updateDrag(e.clientX, e.clientY);
 
@@ -466,6 +560,7 @@ function handleMouseUp(_e: MouseEvent) {
 
   composableEndDrag();
   draggedApp.value = null;
+  draggedShortcut.value = null;
 }
 
 function handleDragTouchMove(e: TouchEvent) {
@@ -503,12 +598,11 @@ function handleDoubleClick(app: DockerApp, fromMobileGesture = false) {
   const isRunning = app.status === "running";
 
   if (isRunning && app.service_url) {
-    window.open(app.service_url, "_blank", "noopener,noreferrer");
+    desktopStore.launchDockerApp(app);
   } else {
-    windowStore.openWindow("properties", {
+    windowStore.openUniqueWindow("properties", app.id, {
       title: `${app.display_name || app.name} - Properties`,
       data: { appId: app.id },
-      allowMultiple: true,
     });
   }
 }
@@ -517,14 +611,102 @@ function handleContextMenu(e: MouseEvent, app: DockerApp) {
   e.preventDefault();
   e.stopPropagation();
 
-  selectedApp.value = app.id;
+  if (!selectedApps.value.has(app.id)) {
+    selectedApp.value = app.id;
+    selectedApps.value.clear();
+  }
+
+  selectedSystemIcon.value = null;
+  selectedSystemIcons.value.clear();
+
   contextMenuApp.value = app;
+  contextMenuShortcut.value = null;
 
   contextMenu.value = {
     visible: true,
     x: e.clientX,
     y: e.clientY,
   };
+}
+
+function handleShortcutDoubleClick(icon: SystemDesktopIcon, fromMobileGesture = false) {
+  if (isMobile.value && !fromMobileGesture) return;
+  desktopStore.openSystemApp(icon.appId);
+}
+
+function handleShortcutClick(icon: SystemDesktopIcon, e?: MouseEvent) {
+  if (hasMoved.value) return;
+
+  const isCtrlPressed = e?.ctrlKey || e?.metaKey;
+  selectItem({ type: "systemicon", id: icon.id }, { ctrl: isCtrlPressed });
+}
+
+function startShortcutDrag(icon: SystemDesktopIcon, clientX: number, clientY: number) {
+  draggedShortcut.value = icon.id;
+
+  const iconElement = containerRef.value?.querySelector(`[data-shortcut-id="${icon.id}"]`);
+  if (iconElement) {
+    const rect = iconElement.getBoundingClientRect();
+    ghostOffset.value = {
+      x: clientX - rect.left - rect.width / 2,
+      y: clientY - rect.top - rect.height / 2,
+    };
+  } else {
+    ghostOffset.value = { x: 50, y: 60 };
+  }
+
+  composableStartDrag({ type: "systemicon", id: icon.id }, clientX, clientY);
+}
+
+function handleShortcutMouseDown(e: MouseEvent, icon: SystemDesktopIcon) {
+  if (isMobile.value) return;
+  if (e.button !== 0) return;
+
+  e.preventDefault();
+
+  startShortcutDrag(icon, e.clientX, e.clientY);
+
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+}
+
+function handleShortcutContextMenu(e: MouseEvent, icon: SystemDesktopIcon) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!selectedSystemIcons.value.has(icon.id)) {
+    selectedSystemIcons.value.clear();
+  }
+
+  selectedApp.value = null;
+  selectedApps.value.clear();
+  selectedSystemIcon.value = icon.id;
+
+  contextMenuApp.value = null;
+  contextMenuShortcut.value = icon;
+
+  contextMenu.value = {
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+  };
+}
+
+function handleShortcutTouchStart(e: TouchEvent, icon: SystemDesktopIcon) {
+  composableHandleTouchStart(e, { type: "systemicon", id: icon.id });
+}
+
+function openShortcutEditModal(icon: SystemDesktopIcon) {
+  if (!icon.shortcut || icon.shortcut.type === "file") return;
+  editingShortcutId.value = icon.shortcut.shortcutId;
+  shortcutModalInitial.value = { name: icon.name, url: icon.shortcut.url, iconType: icon.shortcut.iconType as "preset" | "image", iconValue: icon.shortcut.iconValue };
+  showShortcutModal.value = true;
+}
+
+async function handleShortcutSave(result: ShortcutModalResult) {
+  if (editingShortcutId.value) {
+    await desktopStore.updateShortcut(editingShortcutId.value, result, csrfToken.value);
+  }
 }
 
 function handleDesktopContextMenu(e: MouseEvent) {
@@ -535,8 +717,10 @@ function handleDesktopContextMenu(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
 
-  selectedApp.value = null;
+  clearSelection();
+
   contextMenuApp.value = null;
+  contextMenuShortcut.value = null;
 
   contextMenu.value = {
     visible: true,
@@ -546,6 +730,185 @@ function handleDesktopContextMenu(e: MouseEvent) {
 }
 
 const contextMenuItems = computed<ContextMenuItem[]>(() => {
+  const multiApps = folderApps.value.filter((a) => selectedApps.value.has(a.id) && a.HDRole !== "dependency");
+  const multiShortcuts = folderShortcuts.value.filter((i) => selectedSystemIcons.value.has(i.id));
+  const multiCount = multiApps.length + multiShortcuts.length;
+
+  if ((contextMenuApp.value || contextMenuShortcut.value) && multiCount > 1) {
+    const hasRunning = multiApps.some((a) => a.status === "running");
+    const hasStopped = multiApps.some((a) => a.status === "exited");
+    const hasPaused = multiApps.some((a) => a.status === "paused");
+
+    const items: ContextMenuItem[] = [
+      {
+        label: multiApps.length === multiCount ? t("Selected: {n} apps", { n: multiCount }) : t("Selected: {n} items", { n: multiCount }),
+        icon: checkIcon,
+        action: () => {},
+        disabled: true,
+      },
+    ];
+
+    if (multiApps.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: "Start All",
+        icon: playIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status !== "running") {
+              await startContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasStopped,
+      });
+      items.push({
+        label: "Stop All",
+        icon: stopIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "running") {
+              await stopContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasRunning,
+      });
+      items.push({
+        label: "Restart All",
+        icon: restartIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status !== "exited") {
+              await restartContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: multiApps.every((a) => a.status === "exited"),
+      });
+      items.push({ divider: true });
+      items.push({
+        label: "Pause All",
+        icon: pauseIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "running") {
+              await pauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasRunning,
+      });
+      items.push({
+        label: "Unpause All",
+        icon: unpauseIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "paused") {
+              await unpauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasPaused,
+      });
+      items.push({ divider: true });
+      items.push({
+        label: "Update All",
+        icon: updateIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            await updateContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+          }
+        },
+      });
+    }
+
+    items.push({ divider: true });
+    items.push({
+      label: t("Remove from Folder ({n})", { n: multiCount }),
+      icon: exportIcon,
+      action: () => {
+        for (const app of multiApps) {
+          desktopStore.removeAppFromFolder(app.id);
+        }
+        for (const icon of multiShortcuts) {
+          desktopStore.removeShortcutFromFolder(icon.id);
+        }
+        clearSelection();
+      },
+    });
+
+    if (multiShortcuts.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: t("Delete Shortcuts ({n})", { n: multiShortcuts.length }),
+        icon: linkOffIcon,
+        action: () => {
+          confirm({
+            title: t("Delete Shortcuts"),
+            content: t("Delete {n} shortcuts?", { n: multiShortcuts.length }),
+            okText: t("Delete"),
+            cancelText: t("Cancel"),
+            onOk: async () => {
+              for (const icon of multiShortcuts) {
+                await desktopStore.removeShortcut(icon.shortcut!.shortcutId, csrfToken.value);
+              }
+            },
+          });
+        },
+      });
+    }
+
+    return items;
+  }
+
+  if (contextMenuShortcut.value) {
+    const icon = contextMenuShortcut.value;
+    const shortcutId = icon.shortcut?.shortcutId || "";
+
+    return [
+      {
+        label: "Open",
+        icon: openIcon,
+        action: () => {
+          desktopStore.openSystemApp(icon.appId);
+        },
+      },
+      { divider: true },
+      {
+        label: "Edit Shortcut",
+        icon: pencilIcon,
+        action: () => {
+          openShortcutEditModal(icon);
+        },
+      },
+      { divider: true },
+      {
+        label: "Remove from Folder",
+        icon: exportIcon,
+        action: () => {
+          desktopStore.removeShortcutFromFolder(icon.id);
+        },
+      },
+      { divider: true },
+      {
+        label: "Delete Shortcut",
+        icon: linkOffIcon,
+        action: () => {
+          confirm({
+            title: t("Delete Shortcut"),
+            content: t(`Delete "{name}"?`, { name: icon.name }),
+            okText: t("Delete"),
+            cancelText: t("Cancel"),
+            onOk: async () => {
+              await desktopStore.removeShortcut(shortcutId, csrfToken.value);
+            },
+          });
+        },
+      },
+    ];
+  }
+
   if (!contextMenuApp.value) {
     return [
       {
@@ -569,7 +932,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
       icon: openIcon,
       action: () => {
         if (contextMenuApp.value?.service_url) {
-          window.open(contextMenuApp.value.service_url, "_blank", "noopener,noreferrer");
+          desktopStore.launchDockerApp(contextMenuApp.value);
         }
       },
     });
@@ -624,10 +987,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     icon: terminalIcon,
     action: () => {
       if (contextMenuApp.value) {
-        windowStore.openWindow("logs", {
+        windowStore.openUniqueWindow("logs", contextMenuApp.value.name, {
           title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Logs`,
           data: { appName: contextMenuApp.value.name },
-          allowMultiple: true,
         });
       }
     },
@@ -656,10 +1018,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     icon: propertiesIcon,
     action: () => {
       if (!contextMenuApp.value) return;
-      windowStore.openWindow("properties", {
+      windowStore.openUniqueWindow("properties", contextMenuApp.value.id, {
         title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Properties`,
         data: { appId: contextMenuApp.value.id },
-        allowMultiple: true,
       });
     },
   });
@@ -702,6 +1063,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
 function closeContextMenu() {
   contextMenu.value.visible = false;
   contextMenuApp.value = null;
+  contextMenuShortcut.value = null;
 }
 
 function handleTouchStart(e: TouchEvent, app: DockerApp) {
@@ -726,10 +1088,17 @@ function onGlobalMouseUp(e: MouseEvent) {
   if (isHovering.value && desktopStore.draggedAppIds.length > 0) {
     e.preventDefault();
 
-    desktopStore.draggedAppIds.forEach((appId) => {
-      const app = desktopStore.dockerApps.find((a) => a.id === appId);
-      if (app && app.folderId !== props.folderId) {
-        desktopStore.addAppToFolder(appId, props.folderId);
+    desktopStore.draggedAppIds.forEach((itemId) => {
+      if (itemId.startsWith("shortcut-")) {
+        const icon = desktopStore.systemDesktopIcons.find((i) => i.id === itemId);
+        if (icon?.shortcut && icon.folderId !== props.folderId) {
+          desktopStore.addShortcutToFolder(itemId, props.folderId);
+        }
+      } else {
+        const app = desktopStore.dockerApps.find((a) => a.id === itemId);
+        if (app && app.folderId !== props.folderId) {
+          desktopStore.addAppToFolder(itemId, props.folderId);
+        }
       }
     });
 
@@ -752,12 +1121,13 @@ watch(
       if (isDragging.value) {
         isDragging.value = false;
         draggedApp.value = null;
+        draggedShortcut.value = null;
         hasMoved.value = false;
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
       }
     }
-  }
+  },
 );
 
 watch(
@@ -768,7 +1138,7 @@ watch(
       windowStore.updateWindowTitle(folderWindow.id, newName);
     }
   },
-  { immediate: false }
+  { immediate: false },
 );
 
 function handleResize() {
@@ -779,7 +1149,7 @@ watch(
   () => isMobile.value,
   () => {
     calculateGridSettings();
-  }
+  },
 );
 
 onMounted(() => {
@@ -799,6 +1169,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   draggedApp.value = null;
+  draggedShortcut.value = null;
   composableEndDrag();
 
   window.removeEventListener("resize", handleResize);
@@ -918,7 +1289,9 @@ onUnmounted(() => {
 }
 
 .icon-container {
-  transition: background 0.15s ease, transform 0.2s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.2s ease;
 }
 
 .app-image {
@@ -985,6 +1358,22 @@ onUnmounted(() => {
 
 .icon-appear-move {
   transition: transform 0.4s ease;
+}
+
+/* Icon Switch Transition (matches DesktopFolderIcon customize animation) */
+.icon-switch-enter-active,
+.icon-switch-leave-active {
+  transition: all 0.2s ease;
+}
+
+.icon-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.5) rotate(-15deg);
+}
+
+.icon-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.5) rotate(15deg);
 }
 
 /* Loading Overlay Fade Animation */

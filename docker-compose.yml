@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - "13370:80"
+      - # "13371:443" Enable for Let's Encrypt SSL
     volumes:
       - ./_DATA/DATA:/DATA
       - ./_DATA/config:/homedock/config

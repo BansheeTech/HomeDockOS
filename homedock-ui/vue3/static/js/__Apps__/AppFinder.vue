@@ -382,7 +382,7 @@ const allResults = computed<SearchResult[]>(() => {
       icon: util.icon,
       category: "Utilities",
       score: 0,
-      action: () => windowStore.openWindow(util.id, { title: t(util.name), allowMultiple: true }),
+      action: () => windowStore.openWindow(util.id, { title: t(util.name) }),
     });
   });
 
@@ -669,10 +669,9 @@ function openAppStore(appName: string) {
     return;
   }
 
-  windowStore.openWindow("installconfig", {
+  windowStore.openUniqueWindow("installconfig", app.name, {
     title: t("Install {name}", { name: app.display_name || app.name }),
     data: { app },
-    allowMultiple: true,
   });
 }
 

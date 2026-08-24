@@ -1001,13 +1001,14 @@
 
 <script lang="ts" setup>
 import axios from "axios";
+
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useDesktopStore, isShortcutLocation, type FileShortcutPayload } from "../__Stores__/desktopStore";
 import { useFileExplorerStore, type FileExplorerLocation } from "../__Stores__/useFileExplorerStore";
 import { useUploadingStore, type UploadLocation } from "../__Stores__/useUploadingStore";
 import { useFileViewerPrefsStore } from "../__Stores__/useFileViewerPrefsStore";
@@ -1020,8 +1021,10 @@ import { getStartMenuApps } from "../__Config__/WindowDefaultDetails";
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
 
 import { message, Upload, AutoComplete, InputSearch, Progress, Select, SelectOption, Input } from "ant-design-vue";
+import { useDialog } from "../__Composables__/useDialog";
 
 import { Icon } from "@iconify/vue";
+import { FILE_ICONS as fileIconsMap } from "../__Config__/FileIcons";
 import folderIcon from "@iconify-icons/mdi/folder";
 import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import folderArrowLeftIcon from "@iconify-icons/mdi/folder-arrow-left";
@@ -1045,6 +1048,7 @@ import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
 import codeJsonIcon from "@iconify-icons/mdi/code-json";
 import unknownFileIcon from "@iconify-icons/mdi/file";
+import monitorIcon from "@iconify-icons/mdi/monitor";
 import cloudUploadIcon from "@iconify-icons/mdi/cloud-upload";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock";
 import lockIcon from "@iconify-icons/mdi/lock";
@@ -1127,12 +1131,14 @@ const props = defineProps<{
   initialDiskId?: string;
   initialPath?: string;
   initialFileName?: string;
+  initialShortcutId?: string;
 }>();
 
 const { themeClasses } = useTheme();
 const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const desktopStore = useDesktopStore();
+const { confirm } = useDialog();
 const fileExplorerStore = useFileExplorerStore();
 const uploadStore = useUploadingStore();
 const fileViewerPrefs = useFileViewerPrefsStore();
@@ -1188,6 +1194,7 @@ const windowStore = useWindowStore();
 const { sortBy, sortDirection, viewMode } = storeToRefs(fileViewerPrefs);
 
 const files = ref<FileEntry[]>([]);
+const lastLoadFailed = ref(false);
 const currentPath = ref("");
 const currentLocation = ref<FileExplorerLocation>("storage");
 const isLoading = ref(false);
@@ -1313,48 +1320,6 @@ const CODE_EXTENSIONS = new Set(["json", "yml", "yaml", "xml", "conf", "ini", "j
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico", "tif", "tiff"]);
 const MEDIA_EXTENSIONS = new Set(["mp4", "webm", "ogv", "ogg", "mp3", "wav", "aac", "flac", "m4a"]);
 const PDF_EXTENSIONS = new Set(["pdf"]);
-const fileIconsMap: Record<string, any> = {
-  folder: folderIcon,
-  txt: textFileIcon,
-  md: textFileIcon,
-  pdf: pdfFileIcon,
-  png: imageFileIcon,
-  jpg: imageFileIcon,
-  jpeg: imageFileIcon,
-  gif: imageFileIcon,
-  webp: imageFileIcon,
-  mp4: videoFileIcon,
-  mkv: videoFileIcon,
-  avi: videoFileIcon,
-  mp3: audioFileIcon,
-  wav: audioFileIcon,
-  flac: audioFileIcon,
-  zip: zipFileIcon,
-  rar: zipFileIcon,
-  "7z": zipFileIcon,
-  tar: zipFileIcon,
-  gz: zipFileIcon,
-  doc: wordFileIcon,
-  docx: wordFileIcon,
-  xls: excelFileIcon,
-  xlsx: excelFileIcon,
-  csv: excelFileIcon,
-  ppt: powerpointFileIcon,
-  pptx: powerpointFileIcon,
-  js: codeFileIcon,
-  ts: codeFileIcon,
-  py: codeFileIcon,
-  java: codeFileIcon,
-  cpp: codeFileIcon,
-  c: codeFileIcon,
-  h: codeFileIcon,
-  html: codeFileIcon,
-  css: codeFileIcon,
-  json: codeFileIcon,
-  xml: codeFileIcon,
-  sh: codeFileIcon,
-  sql: codeFileIcon,
-};
 const mainContainers = computed(() => {
   return containers.value
     .filter((container) => {
@@ -2108,6 +2073,13 @@ const contextMenuItems = computed(() => {
         icon: isFav ? starIcon : starOutlineIcon,
         action: () => toggleFavorite(file),
       });
+      if (isShortcutLocation(currentLocation.value)) {
+        items.push({
+          label: "Add to Desktop",
+          icon: monitorIcon,
+          action: () => addShortcutToDesktop(file),
+        });
+      }
 
       if (!isReadOnly.value && !isProtectedFolder(file)) {
         items.push({ divider: true });
@@ -2271,18 +2243,46 @@ async function openDisksPlusLocation() {
   }
 }
 
-function selectDisksPlusDisk(diskId: string) {
+// Returns the load so a caller landing on a shortcut can select the file once it is in.
+function selectDisksPlusDisk(diskId: string, path = "") {
   disksPlusStore.selectDisk(diskId);
   currentLocation.value = "disksplus";
-  currentPath.value = "";
+  currentPath.value = path;
   searchQuery.value = "";
   selectedFile.value = null;
   selectedFiles.value.clear();
   isNavPopoverOpen.value = false;
-  loadFiles();
+  return loadFiles();
 }
 
+const pendingDisksPlusTarget = ref<{ diskId: string; path: string; fileName?: string } | null>(null);
+
+async function openDisksPlusTarget(diskId: string, path: string, fileName?: string) {
+  isDisksPlusExpanded.value = true;
+
+  if (!disksPlusStore.unlocked) {
+    pendingDisksPlusTarget.value = { diskId, path, fileName };
+    disksPlusUnlockVisible.value = true;
+    return;
+  }
+
+  await selectDisksPlusDisk(diskId, path);
+  selectFileInList(fileName);
+}
+
+watch(disksPlusUnlockVisible, (visible) => {
+  if (!visible && !disksPlusStore.unlocked) pendingDisksPlusTarget.value = null;
+});
+
 async function onDisksPlusUnlocked() {
+  const pending = pendingDisksPlusTarget.value;
+  if (pending) {
+    pendingDisksPlusTarget.value = null;
+    await selectDisksPlusDisk(pending.diskId, pending.path);
+    selectFileInList(pending.fileName);
+    return;
+  }
+
   if (!disksPlusStore.selectedDisk && disksPlusStore.disks.length > 0) {
     disksPlusStore.selectDisk(disksPlusStore.disks[0].id);
   }
@@ -2300,7 +2300,6 @@ async function lockDisksPlus() {
 }
 function openApp(appId: string) {
   windowStore.openWindow(appId, {
-    allowMultiple: true,
   });
 }
 
@@ -2433,6 +2432,7 @@ function openFolder(file: FileEntry) {
 async function loadFiles() {
   if (isSpecialLocation.value) return;
 
+  lastLoadFailed.value = false;
   isLoading.value = true;
   try {
     let endpoint = "";
@@ -2497,6 +2497,7 @@ async function loadFiles() {
   } catch (error) {
     console.error("Failed to load files:", error);
     files.value = [];
+    lastLoadFailed.value = true;
   } finally {
     isLoading.value = false;
   }
@@ -2526,7 +2527,8 @@ async function loadMounts(containerName: string, initialMountIndex?: number) {
     mounts.value = response.data.mounts || [];
     const mountIdx = initialMountIndex ?? 0;
     selectedMountIndex.value = mountIdx < mounts.value.length ? mountIdx : 0;
-    loadFiles();
+    // Awaited: callers select a file right after, and that needs the list already in.
+    await loadFiles();
   } catch (error) {
     console.error("Failed to load mounts:", error);
     mounts.value = [];
@@ -3180,6 +3182,14 @@ async function openInMediaPlayer(file: FileEntry) {
           extension: extension,
           buffer: response.data,
         },
+        origin: {
+          location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
+          path: fileParentPath(file),
+          name: file.name,
+          container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
+          mountIndex: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+          disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
+        },
       },
     });
     if (!isSpecialLocation.value) {
@@ -3326,6 +3336,37 @@ async function openInBrusher(file: FileEntry) {
 function fileParentPath(file: { name: string }): string {
   const slashIdx = file.name.lastIndexOf("/");
   return slashIdx >= 0 ? file.name.slice(0, slashIdx) : currentPath.value;
+}
+
+async function addShortcutToDesktop(file: FileEntry) {
+  const location = currentLocation.value;
+  if (!isShortcutLocation(location)) return;
+
+  const fileName = file.name.split("/").pop() || file.name;
+
+  const target: FileShortcutPayload["target"] = {
+    location,
+    path: fileParentPath(file),
+    file_name: fileName,
+    is_directory: !!file.is_directory,
+  };
+
+  if (location === "appdrive") {
+    if (!selectedContainer.value) return;
+    target.container = selectedContainer.value;
+    target.mount_index = selectedMountIndex.value ?? 0;
+  }
+
+  if (location === "disksplus") {
+    const diskId = currentDiskInfo()?.id;
+    if (!diskId) return;
+    target.disk_id = diskId;
+  }
+
+  const name = getDisplayName(file).slice(0, 32);
+  const ok = await desktopStore.addShortcut({ name, type: "file", target }, csrfToken.value);
+
+  if (!ok) message.error(t("Could not add to Desktop"));
 }
 
 const favoriteKeys = computed(() => {
@@ -4482,9 +4523,8 @@ function closeContextMenu() {
 function showFileProperties(file: FileEntry) {
   closeContextMenu();
   const disk = currentLocation.value === "disksplus" ? currentDiskInfo() : null;
-  windowStore.openWindow("fileproperties", {
+  windowStore.openUniqueWindow("fileproperties", file.name, {
     title: `${getDisplayName(file)} - ${t("Properties")}`,
-    allowMultiple: true,
     data: {
       file: {
         name: file.name,
@@ -4775,36 +4815,41 @@ let filesResizeObserver: ResizeObserver | null = null;
 
 onMounted(async () => {
   await fileExplorerStore.initialize();
-  disksPlusStore.fetchStatus();
+
+  const disksPlusStatus = disksPlusStore.fetchStatus();
+  if (props.initialLocation === "disksplus") await disksPlusStatus;
+
   if (props.initialLocation === "appdrive" && props.initialContainer) {
     currentLocation.value = "appdrive";
     selectedContainer.value = props.initialContainer;
+    currentPath.value = props.initialPath || "";
     isAppDriveExpanded.value = true;
     await loadContainers();
     await loadMounts(props.initialContainer, props.initialMountIndex);
+    selectFileInList(props.initialFileName);
   } else if (props.initialLocation === "dropzone") {
     currentLocation.value = "dropzone";
     isDropZoneExpanded.value = true;
     if (props.initialPath) currentPath.value = props.initialPath;
-    loadFiles().then(() => selectFileInList(props.initialFileName));
+    await loadFiles();
+    selectFileInList(props.initialFileName);
     loadContainers();
   } else if (props.initialLocation === "disksplus" && props.initialDiskId) {
-    isDisksPlusExpanded.value = true;
-    if (disksPlusStore.unlocked) {
-      selectDisksPlusDisk(props.initialDiskId);
-    }
-    loadFiles();
+    await openDisksPlusTarget(props.initialDiskId, props.initialPath || "", props.initialFileName);
     loadContainers();
   } else if (props.initialLocation === "storage") {
     currentLocation.value = "storage";
     isStorageExpanded.value = true;
     if (props.initialPath) currentPath.value = props.initialPath;
-    loadFiles().then(() => selectFileInList(props.initialFileName));
+    await loadFiles();
+    selectFileInList(props.initialFileName);
     loadContainers();
   } else {
     loadFiles();
     loadContainers();
   }
+
+  await checkShortcutTarget(props);
 
   if (containerRef.value) {
     resizeObserver = new ResizeObserver((entries) => {
@@ -4838,10 +4883,7 @@ async function handleIncomingNavigation(event: CustomEvent) {
     await loadMounts(data.initialContainer, data.initialMountIndex);
     selectFileInList(data.initialFileName);
   } else if (data?.initialLocation === "disksplus" && data?.initialDiskId) {
-    isDisksPlusExpanded.value = true;
-    if (disksPlusStore.unlocked) {
-      selectDisksPlusDisk(data.initialDiskId);
-    }
+    await openDisksPlusTarget(data.initialDiskId, data.initialPath || "", data.initialFileName);
   } else if (data?.initialLocation === "storage") {
     currentLocation.value = "storage";
     isStorageExpanded.value = true;
@@ -4855,6 +4897,39 @@ async function handleIncomingNavigation(event: CustomEvent) {
     await loadFiles();
     selectFileInList(data.initialFileName);
   }
+
+  await checkShortcutTarget(data);
+}
+
+async function checkShortcutTarget(data: { initialShortcutId?: string; initialFileName?: string; initialPath?: string; initialLocation?: string } | undefined) {
+  const shortcutId = data?.initialShortcutId;
+  if (!shortcutId) return;
+
+  // HDOS00114
+  if (data?.initialLocation === "disksplus" && !disksPlusStore.unlocked) return;
+
+  const name = data.initialFileName;
+
+  if (name && lastLoadFailed.value) return;
+
+  const missing = name ? !files.value.some((f) => f.name === name) : lastLoadFailed.value;
+  if (!missing) return;
+
+  if (!name) {
+    const path = data.initialPath || "";
+    currentPath.value = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
+    await loadFiles();
+  }
+
+  confirm({
+    title: "Shortcut target missing",
+    content: t("This shortcut points to something that no longer exists. Remove it from the Desktop?"),
+    okText: "Delete Shortcut",
+    cancelText: "Keep",
+    onOk: async () => {
+      await desktopStore.removeShortcut(shortcutId, csrfToken.value);
+    },
+  });
 }
 
 function selectFileInList(fileName?: string) {

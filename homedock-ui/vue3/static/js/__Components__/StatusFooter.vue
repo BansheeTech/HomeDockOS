@@ -30,17 +30,20 @@
     </div>
   </Transition>
 
-  <div :class="[themeClasses.statusBarAppScope]" class="fixed bottom-0 left-0 right-0 backdrop-blur-md h-8 flex items-center justify-between px-4 text-xs border-t z-50">
-    <div class="flex items-center space-x-2">
-      <div class="min-h-1.5 min-w-1.5 rounded-full" :class="statusIndicatorColor"></div>
-      <span class="font-semibold">{{ $t(statusMessage) }}</span>
+  <div :class="[themeClasses.statusBarContainer, themeClasses.statusBarBorder]" class="fixed bottom-0 left-0 right-0 backdrop-blur-md h-7 pb-0.5 px-3 flex items-center gap-2 border-t z-50">
+    <div class="flex items-center gap-2 flex-1 min-w-0">
+      <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="statusIndicatorColor"></div>
+      <span :class="['text-[10px] leading-none truncate', themeClasses.statusBarText]">{{ $t(statusMessage) }}</span>
     </div>
-    <div class="flex items-center space-x-2">
-      <div v-if="port" class="flex items-center space-x-1">
-        <Icon :icon="serverNetworkIcon" class="text-xs min-h-3 min-w-3" />
-        <span class="font-semibold">{{ $t("Port") }}: {{ port }}</span>
+
+    <template v-if="port">
+      <div :class="['h-3.5 w-px flex-shrink-0', themeClasses.statusBarDivider]"></div>
+
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <Icon :icon="serverNetworkIcon" :class="['w-3.5 h-3.5 flex-shrink-0', themeClasses.statusBarIcon]" />
+        <span :class="['text-[10px] leading-none', themeClasses.statusBarInfo]">{{ $t("Port") }}: {{ port }}</span>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 

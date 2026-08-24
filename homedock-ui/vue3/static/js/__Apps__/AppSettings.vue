@@ -121,7 +121,29 @@ const { themeClasses } = useTheme();
 const windowStore = useWindowStore();
 const disksPlusStore = useDisksPlusStore();
 
+interface Props {
+  tab?: string;
+  _windowId?: string;
+}
+
+const props = defineProps<Props>();
+
 const activeKey = ref("1");
+
+const SETTINGS_TABS: Record<string, string> = { user: "1", system: "2", storage: "3", theme: "4" };
+
+watch(
+  () => props.tab,
+  (tab) => {
+    const key = tab ? SETTINGS_TABS[tab] : undefined;
+    if (!key) return;
+
+    activeKey.value = key;
+    if (props._windowId) windowStore.updateWindowData(props._windowId, { tab: undefined });
+  },
+  { immediate: true },
+);
+
 const segmentedOptions = computed(() => [
   { value: "1", payload: { label: t("User"), icon: accountIcon } },
   { value: "2", payload: { label: t("System"), icon: consoleIcon } },
@@ -217,6 +239,7 @@ interface SystemFormData {
   local_dns?: boolean;
   disable_usage_data?: boolean;
   reverse_proxy?: boolean;
+  local_http_access?: boolean;
 }
 
 interface StorageFormData {
@@ -228,6 +251,7 @@ interface StorageFormData {
 const originalTheme = {
   selected_theme: themeData!.selected_theme,
   selected_back: themeData!.selected_back,
+  selected_appearance: themeData!.selected_appearance ?? "redmond",
   selected_language: settingsData!.selected_language,
   clock_format: settingsData!.clock_format,
   week_start: settingsData!.week_start,
@@ -251,6 +275,7 @@ const formData = reactive({
     delete_internal_data_volumes: settingsData.delete_internal_data_volumes,
     local_dns: settingsData.local_dns,
     reverse_proxy: settingsData.reverse_proxy,
+    local_http_access: settingsData.local_http_access,
   } as SystemFormData,
 
   storage: {
@@ -262,6 +287,7 @@ const formData = reactive({
   theme: {
     selected_theme: themeData.selected_theme,
     selected_back: themeData.selected_back,
+    selected_appearance: themeData.selected_appearance ?? "redmond",
     selected_language: settingsData.selected_language,
     clock_format: settingsData.clock_format,
     week_start: settingsData.week_start,
@@ -270,10 +296,11 @@ const formData = reactive({
 
 onBeforeUnmount(() => {
   tabObserver?.disconnect();
-  if (updateTheme && (formData.theme.selected_theme !== originalTheme.selected_theme || formData.theme.selected_back !== originalTheme.selected_back)) {
+  if (updateTheme && (formData.theme.selected_theme !== originalTheme.selected_theme || formData.theme.selected_back !== originalTheme.selected_back || formData.theme.selected_appearance !== originalTheme.selected_appearance)) {
     updateTheme({
       selected_theme: originalTheme.selected_theme,
       selected_back: originalTheme.selected_back,
+      selected_appearance: originalTheme.selected_appearance,
     });
   }
   if (formData.theme.selected_language !== originalTheme.selected_language) {
@@ -346,6 +373,7 @@ const handleSubmit = async () => {
 
       originalTheme.selected_theme = formData.theme.selected_theme || "";
       originalTheme.selected_back = formData.theme.selected_back || "";
+      originalTheme.selected_appearance = formData.theme.selected_appearance || "redmond";
       originalTheme.selected_language = formData.theme.selected_language || "en";
       originalTheme.clock_format = formData.theme.clock_format || "24h";
       originalTheme.week_start = formData.theme.week_start || "monday";
@@ -362,6 +390,7 @@ const handleSubmit = async () => {
           delete_old_image_containers_after_uninstall: formData.system.delete_old_image_containers_after_uninstall,
           delete_internal_data_volumes: formData.system.delete_internal_data_volumes,
           reverse_proxy: formData.system.reverse_proxy,
+          local_http_access: formData.system.local_http_access,
           default_external_drive: formData.storage.default_external_drive,
           require_protected_paths_password: formData.storage.require_protected_paths_password,
           disksplus_session_timeout_minutes: formData.storage.disksplus_session_timeout_minutes,

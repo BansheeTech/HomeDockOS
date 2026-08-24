@@ -62,6 +62,66 @@ def dismiss_notification():
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 
+# HDOS00071
+def certificate_notifications():
+
+    try:
+        from pymodules.hd_CertManager import certificate_expiry, days_until_expiry, renewal_status, is_reserved_domain
+        from pymodules.hd_ThreadCertRenewal import get_last_renewal_error
+    except Exception:
+        return []
+
+    remaining = days_until_expiry()
+
+    if remaining is None:
+        return []
+
+    status = renewal_status()
+
+    if status["managed"]:
+        error = get_last_renewal_error()
+
+        if not error:
+            return []
+
+        return [
+            {
+                "title": "Automatic certificate renewal failed",
+                "message": f"HomeDock OS could not renew the certificate for {status['domain']}, which expires in {remaining} days. The DNS provider said: {str(error)[:160]}",
+                "permanent": True,
+                "allowRemove": False,
+            }
+        ]
+
+    if is_reserved_domain(status.get("domain")):
+        return []
+
+    if remaining > 30:
+        return []
+
+    expiry = certificate_expiry()
+    expires_on = expiry.strftime("%d %B %Y") if expiry else "soon"
+
+    if remaining <= 7:
+        return [
+            {
+                "title": "Your certificate expires this week",
+                "message": f"HTTPS stops working on {expires_on}. Set up automatic renewal in Settings, System, HTTPS and app windows.",
+                "permanent": True,
+                "allowRemove": False,
+            }
+        ]
+
+    return [
+        {
+            "title": "Your certificate expires soon",
+            "message": f"It expires on {expires_on} and nothing is set up to renew it. HomeDock OS can do it for you from Settings, System, HTTPS and app windows.",
+            "permanent": True,
+            "allowRemove": True,
+        }
+    ]
+
+
 @login_required
 def get_notifications():
     try:
@@ -81,6 +141,8 @@ def get_notifications():
 
         if is_docker and uptime_minutes >= 10080:
             all_notifications.append({"title": "Time to check for updates!", "message": "It's been a while! Check if there's a new version available and run docker pull to update.", "permanent": True, "allowRemove": True, "actionUrl": "https://hub.docker.com/r/bansheetech/homedock-os/tags", "actionText": "Check latest version"})
+
+        all_notifications.extend(certificate_notifications())
 
         external_notifications = get_external_notifications()
         all_notifications.extend(external_notifications)

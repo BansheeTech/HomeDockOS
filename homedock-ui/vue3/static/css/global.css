@@ -1,4 +1,5 @@
 @import "./antd.css";
+@import "@prism-wm/styles/prism-structure.css";
 
 @tailwind base;
 @tailwind components;
@@ -44,6 +45,23 @@ body.theme-noir {
 
 body.theme-aeroplus {
   background-color: rgb(39, 39, 42);
+}
+
+.pwm-window.pwm-cupertino .pwm-window-control {
+  background: #4a4a4a;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.pwm-window.pwm-cupertino.pwm-active .pwm-window-control.pwm-close {
+  background: #ff5f57;
+}
+
+.pwm-window.pwm-cupertino.pwm-active .pwm-window-control.pwm-minimize {
+  background: #febc2e;
+}
+
+.pwm-window.pwm-cupertino.pwm-active .pwm-window-control.pwm-maximize {
+  background: #28c840;
 }
 
 a img {

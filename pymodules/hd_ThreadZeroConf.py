@@ -6,9 +6,11 @@ https://www.banshee.pro
 """
 
 import socket
+import threading
 
 from pymodules.hd_FunctionsNetwork import local_ip
 from pymodules.hd_FunctionsConfig import read_config
+from pymodules.hd_AppSubdomains import BASE_HOSTNAME
 
 try:
     from zeroconf import Zeroconf, ServiceInfo, NonUniqueNameException
@@ -24,13 +26,43 @@ except Exception as e:
         pass
 
 
+_zeroconf_lock = threading.Lock()
+_zeroconf_instance = None
+
+
 def format_url(protocol, host, port):
     if (protocol == "http" and port == 80) or (protocol == "https" and port == 443):
         return f"{protocol}://{host}"
     return f"{protocol}://{host}:{port}"
 
 
+def _get_zeroconf():
+    global _zeroconf_instance
+
+    with _zeroconf_lock:
+        if _zeroconf_instance is None:
+            _zeroconf_instance = Zeroconf()
+
+        return _zeroconf_instance
+
+
+_base_hostname_owned = False
+
+
+# HDOS00099
+def base_hostname_owned():
+    return _base_hostname_owned
+
+
 def announce_homedock_service():
+    global _base_hostname_owned
+
+    _base_hostname_owned = _register_homedock_service()
+
+    return _base_hostname_owned
+
+
+def _register_homedock_service():
     if not ZEROCONF_AVAILABLE:
         print(" * mDNS support is unavailable on this system")
         return False
@@ -42,12 +74,9 @@ def announce_homedock_service():
         print(" * Invalid local IP for homedock.local announcement, skipping.")
         return False
 
-    zeroconf = None
-    info = None
-
     try:
         binary_ip = socket.inet_aton(local_ip_address)
-        zeroconf = Zeroconf()
+        zeroconf = _get_zeroconf()
 
         info = ServiceInfo(
             "_http._tcp.local.",
@@ -55,7 +84,7 @@ def announce_homedock_service():
             addresses=[binary_ip],
             port=config["run_port"],
             properties={},
-            server="homedock.local.",
+            server=f"{BASE_HOSTNAME}.",
         )
 
         zeroconf.register_service(info)
@@ -66,9 +95,6 @@ def announce_homedock_service():
         print(" ! The name 'homedock.local' is already in use on your local network.")
         print(" * Please read: https://docs.homedock.cloud/troubleshooting/non-unique-name/")
 
-        if zeroconf:
-            zeroconf.close()
-
         return False
 
     except OSError as e:
@@ -78,15 +104,9 @@ def announce_homedock_service():
         else:
             print(f"\n[Unexpected error] {e}")
 
-        if zeroconf:
-            zeroconf.close()
-
         return False
 
     except Exception as e:
         print(f" ! homedock.local announcement failed: {e}")
-
-        if zeroconf:
-            zeroconf.close()
 
         return False

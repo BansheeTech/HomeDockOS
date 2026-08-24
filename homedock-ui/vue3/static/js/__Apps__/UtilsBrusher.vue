@@ -12,11 +12,11 @@
         <div class="flex items-center gap-4">
           <div class="flex-1">
             <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Width (px)") }}</label>
-            <input v-model.number="resizeWidth" type="number" min="100" max="4000" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
+            <input v-model.number="resizeWidth" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
           </div>
           <div class="flex-1">
             <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Height (px)") }}</label>
-            <input v-model.number="resizeHeight" type="number" min="100" max="4000" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
+            <input v-model.number="resizeHeight" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
           </div>
         </div>
         <p :class="['text-xs', themeClasses.windowTextMuted]">{{ $t("Current") }}: {{ canvasWidth }} × {{ canvasHeight }}. {{ $t("Existing content will be preserved in the top-left corner.") }}</p>

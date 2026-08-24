@@ -14,7 +14,7 @@ from flask import jsonify, session, request
 from flask_login import login_required
 from urllib.parse import urlparse
 
-from pymodules.hd_FunctionsConfig import read_config, ALLOWED_DISKSPLUS_SESSION_MINUTES, ALLOWED_LANGUAGES, ALLOWED_CLOCK_FORMATS, ALLOWED_WEEK_STARTS
+from pymodules.hd_FunctionsConfig import read_config, write_config, ALLOWED_DISKSPLUS_SESSION_MINUTES, ALLOWED_LANGUAGES, ALLOWED_CLOCK_FORMATS, ALLOWED_WEEK_STARTS, ALLOWED_APPEARANCES
 from pymodules.hd_FunctionsHandleCSRFToken import regenerate_csrf_token
 from pymodules.hd_FunctionsGlobals import current_directory
 from pymodules.hd_CryptoServer import decrypt_json_from_client
@@ -98,10 +98,14 @@ def api_save_settings():
             selected_theme = "default"
 
         selected_back = theme_data.get("selected_back", "back1.jpg")
-        allowed_wallpapers = ["back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg"]
+        allowed_wallpapers = ["back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg", "back7.jpg", "back8.jpg", "back9.jpg"]
 
         if selected_back not in allowed_wallpapers and not selected_back.startswith("_back_custom"):
             selected_back = "back1.jpg"
+
+        selected_appearance = theme_data.get("selected_appearance", "redmond")
+        if selected_appearance not in ALLOWED_APPEARANCES:
+            selected_appearance = "redmond"
 
         selected_language = theme_data.get("selected_language", "en")
         if selected_language not in ALLOWED_LANGUAGES:
@@ -122,6 +126,10 @@ def api_save_settings():
         delete_old_image_containers_after_uninstall = "True" if bool(system_data.get("delete_old_image_containers_after_uninstall", False)) else "False"
         delete_internal_data_volumes = "True" if bool(system_data.get("delete_internal_data_volumes", False)) else "False"
         reverse_proxy = "True" if bool(system_data.get("reverse_proxy", False)) else "False"
+        local_http_access = "True" if bool(system_data.get("local_http_access", False)) else "False"
+
+        # HDOS00109
+        dynamic_dns_sync = "True" if bool(system_data.get("dynamic_dns_sync", False)) else "False"
 
         default_external_drive = storage_data.get("default_external_drive", "disabled")
         if not is_valid_external_drive(default_external_drive):
@@ -145,6 +153,10 @@ def api_save_settings():
         two_fa_backup_codes = existing_config.get("Config", "2fa_backup_codes", fallback="False")
         two_fa_whitelist_hashes = existing_config.get("Config", "2fa_whitelist_hashes", fallback="False")
 
+        # HDOS00065
+        acme_provider = existing_config.get("Config", "acme_provider", fallback="")
+        acme_token = existing_config.get("Config", "acme_token", fallback="")
+
         config = configparser.ConfigParser()
         config["Config"] = {
             "user_name": user_name,
@@ -158,11 +170,16 @@ def api_save_settings():
             "delete_old_image_containers_after_uninstall": delete_old_image_containers_after_uninstall,
             "delete_internal_data_volumes": delete_internal_data_volumes,
             "reverse_proxy": reverse_proxy,
+            "local_http_access": local_http_access,
+            "acme_provider": acme_provider,
+            "acme_token": acme_token,
+            "dynamic_dns_sync": dynamic_dns_sync,
             "default_external_drive": default_external_drive,
             "require_protected_paths_password": require_protected_paths_password,
             "disksplus_session_timeout_minutes": disksplus_session_timeout_minutes,
             "selected_theme": selected_theme,
             "selected_back": selected_back,
+            "selected_appearance": selected_appearance,
             "selected_language": selected_language,
             "clock_format": clock_format,
             "week_start": week_start,
@@ -171,8 +188,7 @@ def api_save_settings():
             "2fa_backup_codes": two_fa_backup_codes,
             "2fa_whitelist_hashes": two_fa_whitelist_hashes,
         }
-        with open(os.path.join(current_directory, "homedock_server.conf"), "w") as config_file:
-            config.write(config_file)
+        write_config(config)
 
         new_config_dict = read_config()
         notify_config_changed(new_config_dict)

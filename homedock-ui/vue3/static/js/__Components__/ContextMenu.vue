@@ -7,9 +7,9 @@
   <Teleport to="body">
     <Transition name="context-menu-fade">
       <div v-if="visible" ref="menuRef" class="context-menu" :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder, themeClasses.contextMenuShadow]" :style="menuStyle" @click.stop @contextmenu.prevent>
-        <div v-for="(item, index) in items" :key="index" class="context-menu-item group" :class="[themeClasses.contextMenuItem, !item.disabled && !item.divider ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : '', item.disabled ? themeClasses.contextMenuItemDisabled : '', { divider: item.divider }]" @click="handleItemClick(item)">
+        <div v-for="(item, index) in items" :key="index" class="context-menu-item group" :class="[themeClasses.contextMenuItem, !item.disabled && !item.divider ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : '', item.disabled ? themeClasses.contextMenuItemDisabled : '', { divider: item.divider, disabled: item.disabled }]" @click="handleItemClick(item)">
           <template v-if="!item.divider">
-            <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, themeClasses.contextMenuIconHover]" />
+            <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, !item.disabled ? themeClasses.contextMenuIconHover : '']" />
             <span class="item-label">{{ item.label ? $t(item.label) : "" }}</span>
             <span v-if="item.shortcut" class="item-shortcut" :class="themeClasses.contextMenuShortcut">{{ item.shortcut }}</span>
           </template>
@@ -89,7 +89,7 @@ watch(
       adjustedPosition.value = { x: props.x, y: props.y };
       adjustPosition();
     }
-  }
+  },
 );
 
 watch(
@@ -99,7 +99,7 @@ watch(
       adjustedPosition.value = { x: props.x, y: props.y };
       adjustPosition();
     }
-  }
+  },
 );
 
 const menuStyle = computed(() => ({
@@ -119,7 +119,7 @@ function handleItemClick(item: ContextMenuItem) {
   emit("close");
 }
 
-function handleClickOutside(e: MouseEvent) {
+function handlePointerOutside(e: Event) {
   if (props.visible && menuRef.value && !menuRef.value.contains(e.target as Node)) {
     emit("close");
   }
@@ -132,12 +132,14 @@ function handleEscKey(e: KeyboardEvent) {
 }
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
+  document.addEventListener("mousedown", handlePointerOutside, true);
+  document.addEventListener("touchstart", handlePointerOutside, true);
   document.addEventListener("keydown", handleEscKey);
 });
 
 onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("mousedown", handlePointerOutside, true);
+  document.removeEventListener("touchstart", handlePointerOutside, true);
   document.removeEventListener("keydown", handleEscKey);
 });
 </script>
@@ -145,9 +147,7 @@ onUnmounted(() => {
 <style scoped>
 .context-menu {
   position: fixed;
-  z-index: 9999;
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  z-index: calc(var(--pwm-modal-z, 10000) + 10);
   border-radius: 8px;
   padding: 0.25rem;
   min-width: 200px;
@@ -175,6 +175,7 @@ onUnmounted(() => {
 }
 
 .divider-line {
+  flex: 1;
   height: 1px;
   margin: 0 0.5rem;
 }

@@ -8,19 +8,30 @@
     <div ref="pagesContainerRef" class="desktop-pages-container" @scroll="handlePageScroll" @touchstart="handlePageTouchStart" @touchmove="handlePageTouchMove" @touchend="handlePageTouchEnd">
       <div v-for="(pageItems, pageIndex) in iconsByPage" :key="`page-${pageIndex}`" class="desktop-page" :data-page="pageIndex">
         <TransitionGroup name="icon-appear">
-          <div v-for="item in pageItems.filter((i: any) => i.type === 'systemicon')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center gap-0.5 cursor-pointer px-1 py-1.5 rounded-lg select-none outline-none border', isWiggleMode ? 'touch-none' : 'touch-pan-x', selectedSystemIcon === item.id ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="item.name">
-            <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === item.id ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
-              <div :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'systemicon')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', selectedSystemIcon === item.id ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="item.name">
+            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === item.id ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
+              <template v-if="(item as any).shortcut">
+                <Transition name="icon-switch" mode="out-in">
+                  <BaseImage v-if="(item as any).shortcut.iconType === 'image'" :key="`image:${(item as any).shortcut.iconValue}`" :src="getShortcutIconUrl((item as any).shortcut.iconValue)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
+                  <div v-else :key="`preset:${(item as any).shortcut.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
+                    <Icon :icon="getShortcutGlyph((item as any).shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
+                  </div>
+                </Transition>
+                <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
+                  <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
+                </div>
+              </template>
+              <div v-else :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
                 <Icon :icon="getSystemIconObject(item)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
               </div>
             </div>
-            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-20 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ item.name }}</span>
+            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.125rem">{{ item.name }}</span>
           </div>
         </TransitionGroup>
 
         <TransitionGroup name="icon-appear">
-          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center gap-0.5 cursor-pointer px-1 py-1.5 rounded-lg select-none outline-none border', isWiggleMode ? 'touch-none' : 'touch-pan-x', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="`${(item as any).display_name || item.name} (${getAppStatus(item)})`">
-            <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(item)]">
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="`${(item as any).display_name || item.name} (${getAppStatus(item)})`">
+            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(item)]">
               <BaseImage :src="getAppImagePath(item)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
               <Transition name="loading-overlay-fade">
                 <div v-if="isAppProcessing(item)" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
@@ -30,7 +41,7 @@
               <PortScanningOverlay :visible="getAppStatus(item) === 'running' && isPortScanning(item) && !isAppProcessing(item)" />
               <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(getAppStatus(item)), themeClasses.desktopStatusBadgeBorder, getAppStatus(item) === 'running' && 'status-pulse']"></div>
             </div>
-            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-20 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ (item as any).display_name || item.name }}</span>
+            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.125rem">{{ (item as any).display_name || item.name }}</span>
           </div>
         </TransitionGroup>
 
@@ -38,9 +49,15 @@
           <DesktopFolderIcon v-for="item in pageItems.filter((i: any) => i.type === 'folder')" :key="item.id" :folder="getAsFolder(item)" :is-selected="selectedFolder === item.id" :is-dragging="draggedFolder === item.id" :is-wiggle-mode="isWiggleMode && draggedFolder !== item.id" :style="getIconStyle(item, pageIndex)" @touchstart="(e: TouchEvent) => handleTouchStart(e, item)" @touchmove="(e: TouchEvent) => handleTouchMove(e, item)" @touchend="(e: TouchEvent) => handleTouchEnd(e, item)" @click="handleFolderClick" @dblclick="handleFolderDoubleClick" @contextmenu="handleFolderContextMenu" />
         </TransitionGroup>
       </div>
+
+      <TransitionGroup name="widget-appear" move-class="widget-move-none">
+        <div v-for="w in placedMobileWidgets" :key="w.instance.instanceId" :class="['absolute z-[1] select-none outline-none', isWiggleMode ? 'touch-none' : 'touch-pan-x', draggedMobileWidget === w.instance.instanceId && mobileWidgetHasMoved ? 'widget-dragging' : 'transition-[left,top,transform] duration-[400ms] ease-[ease]', isWiggleMode && draggedMobileWidget !== w.instance.instanceId ? 'icon-wiggle' : '']" :style="getMobileWidgetStyle(w)" @touchstart="handleWidgetTouchStart($event, w)" @touchmove="handleWidgetTouchMove($event)" @touchend="handleWidgetTouchEnd($event)">
+          <DesktopWidgetFrame :instance="w.instance" />
+        </div>
+      </TransitionGroup>
     </div>
 
-    <PageIndicator :current-page="currentPage" :total-pages="totalPages" @page-change="goToPage" />
+    <PageIndicator :current-page="currentPage" :total-pages="totalPages" :scroll-progress="scrollProgress" @page-change="goToPage" />
 
     <Transition name="wiggle-overlay-fade">
       <div v-if="isWiggleMode" class="wiggle-mode-overlay">
@@ -54,6 +71,8 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 
 import { useDesktopStore, type DockerApp, type DesktopFolder, type SystemDesktopIcon } from "../__Stores__/desktopStore";
+import { useWidgetsStore, type WidgetInstance } from "../__Stores__/useWidgetsStore";
+import { getWidgetDims } from "../__Config__/WidgetDefaultDetails";
 
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
@@ -61,11 +80,16 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+
+import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
+import DesktopWidgetFrame from "./DesktopWidgetFrame.vue";
 import PageIndicator from "./PageIndicator.vue";
 
 import { Icon } from "@iconify/vue";
+import arrowTopRightIcon from "@iconify-icons/mdi/arrow-top-right";
 import cloudIcon from "@iconify-icons/mdi/cloud";
+import { homedockIcon } from "../__Config__/HomeDockIcon";
 import fileSearchIcon from "@iconify-icons/mdi/file-search";
 import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
@@ -108,9 +132,11 @@ const emit = defineEmits<{
   (e: "folderDblclick", folder: DesktopFolder): void;
   (e: "folderContextmenu", event: MouseEvent, folder: DesktopFolder): void;
   (e: "systemiconContextmenu", event: MouseEvent, systemicon: SystemDesktopIcon): void;
+  (e: "widgetContextmenu", event: MouseEvent, widget: WidgetInstance): void;
 }>();
 
 const desktopStore = useDesktopStore();
+const widgetsStore = useWidgetsStore();
 const windowStore = useWindowStore();
 const { windowWidth, windowHeight, isPortrait, isLandscape, isMobile } = useResponsive();
 const { themeClasses } = useTheme();
@@ -118,8 +144,10 @@ const { themeClasses } = useTheme();
 const pagesContainerRef = ref<HTMLDivElement | null>(null);
 
 const currentPage = ref(0);
+const scrollProgress = ref(0);
 const isScrolling = ref(false);
 let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+let scrollProgressFrame: number | null = null;
 
 const isDragging = ref(false);
 const hasMoved = ref(false);
@@ -160,12 +188,15 @@ const isDesktopLongPress = ref(false);
 let desktopLongPressTimer: ReturnType<typeof setTimeout> | null = null;
 
 const MOBILE_PADDING = 16;
+const PAGE_INDICATOR_CLEARANCE = 32;
+
+const WIDGET_CELL_INSET = 5;
 const GRID_SIZE_X = ref(85);
 const GRID_SIZE_Y = ref(100);
 
 const mainDockerApps = computed(() => desktopStore.desktopRootApps);
 const desktopFolders = computed(() => desktopStore.desktopFolders);
-const systemDesktopIcons = computed(() => desktopStore.systemDesktopIcons);
+const systemDesktopIcons = computed(() => desktopStore.desktopRootSystemIcons);
 
 const gridColumns = computed(() => {
   return isPortrait.value ? 4 : 6;
@@ -173,12 +204,12 @@ const gridColumns = computed(() => {
 
 const gridRows = computed(() => {
   const containerHeight = pagesContainerRef.value?.clientHeight || windowHeight.value;
-  const availableHeight = containerHeight - MOBILE_PADDING * 2;
-  return Math.floor(availableHeight / GRID_SIZE_Y.value);
+  const availableHeight = containerHeight - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
+  return Math.max(1, Math.floor(availableHeight / GRID_SIZE_Y.value));
 });
 
 const iconsPerPage = computed(() => {
-  return gridColumns.value * Math.max(1, gridRows.value - 1);
+  return gridColumns.value * gridRows.value;
 });
 
 const iconsByPage = computed(() => {
@@ -205,7 +236,7 @@ const iconsByPage = computed(() => {
     return { ...item, pageIndex };
   });
 
-  const maxPage = Math.max(0, ...itemsWithPage.map((item) => item.pageIndex));
+  const maxPage = Math.max(0, ...itemsWithPage.map((item) => item.pageIndex), ...placedMobileWidgets.value.map((w) => w.page));
 
   const pages: Array<Array<(typeof allItems)[0]>> = [];
   for (let i = 0; i <= maxPage; i++) {
@@ -213,13 +244,14 @@ const iconsByPage = computed(() => {
     pages.push(pageItems);
   }
 
-  if (isDragging.value) {
+  if (isDragging.value || draggedMobileWidget.value !== null) {
     const minPages = Math.max(1, currentPage.value + 1);
     while (pages.length < minPages) {
       pages.push([]);
     }
   } else {
-    while (pages.length > 1 && pages[pages.length - 1].length === 0) {
+    const widgetPages = new Set(placedMobileWidgets.value.map((w) => w.page));
+    while (pages.length > 1 && pages[pages.length - 1].length === 0 && !widgetPages.has(pages.length - 1)) {
       pages.pop();
     }
     if (pages.length === 0) {
@@ -234,9 +266,314 @@ const totalPages = computed(() => {
   return Math.max(1, iconsByPage.value.length);
 });
 
+interface PlacedMobileWidget {
+  instance: WidgetInstance;
+  row: number;
+  col: number;
+  page: number;
+  cols: number;
+  rows: number;
+}
+
+const placedMobileWidgets = computed<PlacedMobileWidget[]>(() => {
+  return widgetsStore.instances
+    .filter((instance) => instance.mobileRow !== undefined && instance.mobileCol !== undefined)
+    .map((instance) => {
+      const dims = getWidgetDims(instance.type, instance.size);
+      const col = Math.max(0, Math.min(instance.mobileCol!, gridColumns.value - dims.cols));
+      const row = Math.max(0, Math.min(instance.mobileRow!, Math.max(0, gridRows.value - dims.rows)));
+      return { instance, row, col, page: instance.mobilePage ?? 0, cols: dims.cols, rows: dims.rows };
+    });
+});
+
+function widgetCellsForPage(pageIndex: number, excludeId?: string): Set<string> {
+  const cells = new Set<string>();
+  placedMobileWidgets.value.forEach((w) => {
+    if (w.page !== pageIndex || w.instance.instanceId === excludeId) return;
+    for (let r = w.row; r < w.row + w.rows; r++) {
+      for (let c = w.col; c < w.col + w.cols; c++) {
+        cells.add(`${r},${c}`);
+      }
+    }
+  });
+  return cells;
+}
+
+function iconCellsForPage(pageIndex: number): Set<string> {
+  const cells = new Set<string>();
+  const container = pagesContainerRef.value;
+  if (!container) return cells;
+
+  const pageWidth = container.clientWidth;
+  const allItems: Array<{ x?: number; y?: number }> = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value];
+
+  allItems.forEach((item) => {
+    if (item.x === undefined || item.y === undefined) return;
+    if (Math.floor(item.x / pageWidth) !== pageIndex) return;
+
+    const left = (item.x % pageWidth) - MOBILE_PADDING;
+    const top = item.y - MOBILE_PADDING;
+    const firstCol = Math.max(0, Math.floor(left / GRID_SIZE_X.value));
+    const lastCol = Math.max(firstCol, Math.floor((left + GRID_SIZE_X.value - 1) / GRID_SIZE_X.value));
+    const firstRow = Math.max(0, Math.floor(top / GRID_SIZE_Y.value));
+    const lastRow = Math.max(firstRow, Math.floor((top + GRID_SIZE_Y.value - 1) / GRID_SIZE_Y.value));
+
+    for (let r = firstRow; r <= lastRow; r++) {
+      for (let c = firstCol; c <= lastCol; c++) {
+        cells.add(`${r},${c}`);
+      }
+    }
+  });
+
+  return cells;
+}
+
+function isMobileWidgetRectFree(pageIndex: number, row: number, col: number, cols: number, rows: number, excludeId?: string): boolean {
+  if (row < 0 || col < 0 || col + cols > gridColumns.value || row + rows > gridRows.value) return false;
+
+  const iconCells = iconCellsForPage(pageIndex);
+  const widgetCells = widgetCellsForPage(pageIndex, excludeId);
+
+  for (let r = row; r < row + rows; r++) {
+    for (let c = col; c < col + cols; c++) {
+      const key = `${r},${c}`;
+      if (iconCells.has(key) || widgetCells.has(key)) return false;
+    }
+  }
+
+  return true;
+}
+
+function assignMobileWidgetPositions() {
+  const rootItems: Array<{ x?: number }> = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value];
+  if (rootItems.some((item) => item.x === undefined)) return;
+
+  widgetsStore.instances.forEach((instance) => {
+    if (instance.mobileRow === undefined || instance.mobileCol === undefined) return;
+
+    const dims = getWidgetDims(instance.type, instance.size);
+    const col = Math.max(0, Math.min(instance.mobileCol, gridColumns.value - dims.cols));
+    const row = Math.max(0, Math.min(instance.mobileRow, Math.max(0, gridRows.value - dims.rows)));
+
+    if (!isMobileWidgetRectFree(instance.mobilePage ?? 0, row, col, dims.cols, dims.rows, instance.instanceId)) {
+      widgetsStore.setMobilePosition(instance.instanceId, null);
+    }
+  });
+
+  widgetsStore.instances.forEach((instance) => {
+    if (instance.mobileRow !== undefined && instance.mobileCol !== undefined) return;
+
+    const dims = getWidgetDims(instance.type, instance.size);
+    let found = false;
+
+    for (let page = 0; page <= totalPages.value && !found; page++) {
+      for (let row = 0; row <= gridRows.value - dims.rows && !found; row++) {
+        for (let col = 0; col <= gridColumns.value - dims.cols && !found; col++) {
+          if (isMobileWidgetRectFree(page, row, col, dims.cols, dims.rows)) {
+            widgetsStore.setMobilePosition(instance.instanceId, { row, col, page });
+            found = true;
+          }
+        }
+      }
+    }
+  });
+}
+
+const draggedMobileWidget = ref<string | null>(null);
+const mobileWidgetHasMoved = ref(false);
+const mobileWidgetDragPos = ref({ x: 0, y: 0 });
+let mobileWidgetTouch = { startX: 0, startY: 0, startLeft: 0, startTop: 0, originPage: 0, placed: null as PlacedMobileWidget | null };
+let widgetLongPressTimer: ReturnType<typeof setTimeout> | null = null;
+let widgetWiggleTimer: ReturnType<typeof setTimeout> | null = null;
+let widgetEdgeTimer: ReturnType<typeof setTimeout> | null = null;
+
+function getMobileWidgetStyle(w: PlacedMobileWidget): Record<string, string> {
+  const pageWidth = pagesContainerRef.value?.clientWidth || windowWidth.value;
+  const width = w.cols * GRID_SIZE_X.value - 10;
+  const height = w.rows * GRID_SIZE_Y.value - 10;
+
+  const isDraggingThis = draggedMobileWidget.value === w.instance.instanceId && mobileWidgetHasMoved.value;
+  const left = (isDraggingThis ? mobileWidgetTouch.originPage * pageWidth + mobileWidgetDragPos.value.x : w.page * pageWidth + MOBILE_PADDING + w.col * GRID_SIZE_X.value) + WIDGET_CELL_INSET;
+  const top = (isDraggingThis ? mobileWidgetDragPos.value.y : MOBILE_PADDING + w.row * GRID_SIZE_Y.value) + WIDGET_CELL_INSET;
+
+  return { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` };
+}
+
+function clearWidgetTimers() {
+  if (widgetLongPressTimer) {
+    clearTimeout(widgetLongPressTimer);
+    widgetLongPressTimer = null;
+  }
+  if (widgetWiggleTimer) {
+    clearTimeout(widgetWiggleTimer);
+    widgetWiggleTimer = null;
+  }
+  if (widgetEdgeTimer) {
+    clearTimeout(widgetEdgeTimer);
+    widgetEdgeTimer = null;
+  }
+}
+
+function beginMobileWidgetDrag(w: PlacedMobileWidget) {
+  const container = pagesContainerRef.value;
+  if (container) {
+    currentPage.value = Math.round(container.scrollLeft / container.clientWidth);
+  }
+
+  draggedMobileWidget.value = w.instance.instanceId;
+  mobileWidgetDragPos.value = { x: mobileWidgetTouch.startLeft, y: mobileWidgetTouch.startTop };
+}
+
+function handleWidgetTouchStart(e: TouchEvent, w: PlacedMobileWidget) {
+  if (e.touches.length > 1) return;
+
+  const touch = e.touches[0];
+
+  mobileWidgetTouch = {
+    startX: touch.clientX,
+    startY: touch.clientY,
+    startLeft: MOBILE_PADDING + w.col * GRID_SIZE_X.value,
+    startTop: MOBILE_PADDING + w.row * GRID_SIZE_Y.value,
+    originPage: w.page,
+    placed: w,
+  };
+  mobileWidgetHasMoved.value = false;
+
+  if (isWiggleMode.value) {
+    beginMobileWidgetDrag(w);
+    return;
+  }
+
+  widgetLongPressTimer = setTimeout(() => {
+    if (mobileWidgetHasMoved.value || !mobileWidgetTouch.placed) return;
+
+    emit("widgetContextmenu", new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: touch.clientX, clientY: touch.clientY }), w.instance);
+
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+
+    widgetWiggleTimer = setTimeout(() => {
+      if (mobileWidgetHasMoved.value || !mobileWidgetTouch.placed) return;
+
+      emit("closeContextMenu");
+      enterWiggleMode();
+      beginMobileWidgetDrag(w);
+
+      if (navigator.vibrate) {
+        navigator.vibrate([30, 50, 30]);
+      }
+    }, WIGGLE_MODE_DURATION - LONG_PRESS_DURATION);
+  }, LONG_PRESS_DURATION);
+}
+
+function handleWidgetTouchMove(e: TouchEvent) {
+  if (e.touches.length > 1) return;
+  if (!mobileWidgetTouch.placed) return;
+
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - mobileWidgetTouch.startX;
+  const deltaY = touch.clientY - mobileWidgetTouch.startY;
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  if (distance > MOVE_THRESHOLD) {
+    mobileWidgetHasMoved.value = true;
+
+    if (widgetLongPressTimer) {
+      clearTimeout(widgetLongPressTimer);
+      widgetLongPressTimer = null;
+    }
+    if (widgetWiggleTimer) {
+      clearTimeout(widgetWiggleTimer);
+      widgetWiggleTimer = null;
+    }
+  }
+
+  if (!draggedMobileWidget.value || !mobileWidgetHasMoved.value) return;
+
+  e.preventDefault();
+
+  const container = pagesContainerRef.value;
+  if (!container) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const touchX = touch.clientX - containerRect.left;
+
+  const isNearLeftEdge = touchX < edgeDragThreshold;
+  const isNearRightEdge = touchX > containerRect.width - edgeDragThreshold;
+  const pageWidth = container.clientWidth;
+
+  if (isNearLeftEdge && currentPage.value > 0) {
+    if (!widgetEdgeTimer) {
+      widgetEdgeTimer = setTimeout(() => {
+        goToPageInstant(currentPage.value - 1);
+        mobileWidgetTouch.startX += pageWidth;
+        widgetEdgeTimer = null;
+      }, EDGE_DRAG_DELAY);
+    }
+  } else if (isNearRightEdge) {
+    if (!widgetEdgeTimer) {
+      widgetEdgeTimer = setTimeout(() => {
+        const newPage = currentPage.value + 1;
+
+        if (newPage < totalPages.value) {
+          goToPageInstant(newPage);
+        } else {
+          currentPage.value = newPage;
+          container.scrollTo({ left: newPage * pageWidth, behavior: "auto" });
+        }
+
+        mobileWidgetTouch.startX -= pageWidth;
+        widgetEdgeTimer = null;
+      }, EDGE_DRAG_DELAY);
+    }
+  } else if (widgetEdgeTimer) {
+    clearTimeout(widgetEdgeTimer);
+    widgetEdgeTimer = null;
+  }
+
+  const w = mobileWidgetTouch.placed;
+  const height = w.rows * GRID_SIZE_Y.value - 10;
+
+  mobileWidgetDragPos.value = {
+    x: Math.round(mobileWidgetTouch.startLeft + (touch.clientX - mobileWidgetTouch.startX)),
+    y: Math.round(Math.max(MOBILE_PADDING, Math.min(mobileWidgetTouch.startTop + deltaY, containerRect.height - height - MOBILE_PADDING))),
+  };
+}
+
+function handleWidgetTouchEnd(e: TouchEvent) {
+  clearWidgetTimers();
+
+  const w = mobileWidgetTouch.placed;
+
+  if (draggedMobileWidget.value && mobileWidgetHasMoved.value && w) {
+    const pageWidth = pagesContainerRef.value?.clientWidth || windowWidth.value;
+    const localX = mobileWidgetDragPos.value.x - (currentPage.value - mobileWidgetTouch.originPage) * pageWidth;
+
+    const col = Math.round((localX - MOBILE_PADDING) / GRID_SIZE_X.value);
+    const row = Math.round((mobileWidgetDragPos.value.y - MOBILE_PADDING) / GRID_SIZE_Y.value);
+    const clampedCol = Math.max(0, Math.min(col, gridColumns.value - w.cols));
+    const clampedRow = Math.max(0, Math.min(row, gridRows.value - w.rows));
+    const page = currentPage.value;
+
+    if (isMobileWidgetRectFree(page, clampedRow, clampedCol, w.cols, w.rows, w.instance.instanceId)) {
+      widgetsStore.setMobilePosition(w.instance.instanceId, { row: clampedRow, col: clampedCol, page });
+    }
+  } else if (isWiggleMode.value && !mobileWidgetHasMoved.value && w) {
+    const touch = e.changedTouches[0];
+    emit("widgetContextmenu", new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: touch.clientX, clientY: touch.clientY }), w.instance);
+  }
+
+  draggedMobileWidget.value = null;
+  mobileWidgetHasMoved.value = false;
+  mobileWidgetTouch.placed = null;
+}
+
 function getIconStyle(item: any, pageIndex: number): Record<string, string> {
   const container = pagesContainerRef.value;
   const pageWidth = container?.clientWidth || windowWidth.value;
+
+  const cellHeight = `${GRID_SIZE_Y.value - 4}px`;
 
   if (isDragging.value && draggedItemId.value === item.id) {
     if (container) {
@@ -252,6 +589,7 @@ function getIconStyle(item: any, pageIndex: number): Record<string, string> {
         left: `${dragStartIconX.value + deltaX}px`,
         top: `${dragStartIconY.value + deltaY}px`,
         width: `${GRID_SIZE_X.value}px`,
+        height: cellHeight,
         zIndex: "1000",
       };
     }
@@ -266,6 +604,7 @@ function getIconStyle(item: any, pageIndex: number): Record<string, string> {
       left: `${localX}px`,
       top: `${localY}px`,
       width: `${GRID_SIZE_X.value}px`,
+      height: cellHeight,
     };
   }
 
@@ -278,6 +617,7 @@ function getIconStyle(item: any, pageIndex: number): Record<string, string> {
       left: `${left}px`,
       top: `${top}px`,
       width: `${GRID_SIZE_X.value}px`,
+      height: cellHeight,
     };
   }
 
@@ -288,6 +628,7 @@ function getIconStyle(item: any, pageIndex: number): Record<string, string> {
     left: "0",
     top: "0",
     width: `${GRID_SIZE_X.value}px`,
+    height: cellHeight,
   };
 }
 
@@ -306,7 +647,7 @@ function calculateGridPosition(touchX: number, touchY: number, pageIndex: number
   let row = Math.floor((relativeY - MOBILE_PADDING) / GRID_SIZE_Y.value);
 
   col = Math.max(0, Math.min(col, gridColumns.value - 1));
-  row = Math.max(0, Math.min(row, gridRows.value - 2));
+  row = Math.max(0, Math.min(row, gridRows.value - 1));
 
   const globalIndex = row * gridColumns.value + col;
 
@@ -321,7 +662,7 @@ function snapToGrid(x: number, y: number, pageIndex: number): { x: number; y: nu
   const row = Math.round((y - MOBILE_PADDING) / GRID_SIZE_Y.value);
 
   const clampedCol = Math.max(0, Math.min(col, gridColumns.value - 1));
-  const clampedRow = Math.max(0, Math.min(row, gridRows.value - 2));
+  const clampedRow = Math.max(0, Math.min(row, gridRows.value - 1));
 
   const snappedX = MOBILE_PADDING + clampedCol * GRID_SIZE_X.value;
   const snappedY = MOBILE_PADDING + clampedRow * GRID_SIZE_Y.value;
@@ -338,6 +679,10 @@ function snapToGrid(x: number, y: number, pageIndex: number): { x: number; y: nu
 function isPositionOccupied(x: number, y: number, pageIndex: number, excludeId?: string): boolean {
   const container = pagesContainerRef.value;
   if (!container) return false;
+
+  const cellCol = Math.round((x - MOBILE_PADDING) / GRID_SIZE_X.value);
+  const cellRow = Math.round((y - MOBILE_PADDING) / GRID_SIZE_Y.value);
+  if (widgetCellsForPage(pageIndex).has(`${cellRow},${cellCol}`)) return true;
 
   const pageWidth = container.clientWidth;
 
@@ -380,8 +725,8 @@ function findNextAvailablePosition(pageIndex: number, preferredRow?: number, pre
       const positions = [];
 
       for (let col = preferredCol; col <= Math.min(gridColumns.value - 1, preferredCol + radius); col++) {
-        for (let row = Math.max(0, preferredRow - radius); row <= Math.min(gridRows.value - 2, preferredRow + radius); row++) {
-          if (col >= 0 && col < gridColumns.value && row >= 0 && row < gridRows.value - 1) {
+        for (let row = Math.max(0, preferredRow - radius); row <= Math.min(gridRows.value - 1, preferredRow + radius); row++) {
+          if (col >= 0 && col < gridColumns.value && row >= 0 && row < gridRows.value) {
             positions.push({ row, col });
           }
         }
@@ -398,7 +743,7 @@ function findNextAvailablePosition(pageIndex: number, preferredRow?: number, pre
     }
   }
 
-  for (let row = 0; row < gridRows.value - 1; row++) {
+  for (let row = 0; row < gridRows.value; row++) {
     for (let col = 0; col < gridColumns.value; col++) {
       const x = MOBILE_PADDING + col * GRID_SIZE_X.value;
       const y = MOBILE_PADDING + row * GRID_SIZE_Y.value;
@@ -494,6 +839,7 @@ function getSystemIconObject(icon: any) {
 
   const iconMap: Record<string, any> = {
     "mdi:cloud": cloudIcon,
+    "homedock:logo": homedockIcon,
     "mdi:file-search": fileSearchIcon,
     "mdi:folder-multiple": folderMultipleIcon,
     "mdi:widgets-outline": widgetsOutlineIcon,
@@ -509,9 +855,25 @@ function getSystemIconObject(icon: any) {
   return iconMap[icon.icon] || cloudIcon;
 }
 
+function updateScrollProgress() {
+  scrollProgressFrame = null;
+
+  const container = pagesContainerRef.value;
+  if (!container) return;
+
+  const pageWidth = container.clientWidth;
+  if (pageWidth <= 0) return;
+
+  scrollProgress.value = container.scrollLeft / pageWidth;
+}
+
 function handlePageScroll() {
   const container = pagesContainerRef.value;
   if (!container) return;
+
+  if (scrollProgressFrame === null) {
+    scrollProgressFrame = requestAnimationFrame(updateScrollProgress);
+  }
 
   isScrolling.value = true;
 
@@ -527,6 +889,8 @@ function handlePageScroll() {
     if (newPage !== currentPage.value && newPage >= 0 && newPage < totalPages.value) {
       currentPage.value = newPage;
     }
+
+    updateScrollProgress();
 
     isScrolling.value = false;
   }, 150);
@@ -897,11 +1261,17 @@ function handleTouchEnd(e: TouchEvent, item: any) {
       const touchX = dragCurrentX.value - containerRect.left;
       const touchY = dragCurrentY.value - containerRect.top;
 
-      if (currentTouchItem.value.type === "app") {
+      const isShortcutItem = currentTouchItem.value.type === "systemicon" && (currentTouchItem.value as any).shortcut;
+
+      if (currentTouchItem.value.type === "app" || isShortcutItem) {
         const targetFolder = checkDropOnFolder(touchX, touchY, currentPage.value);
 
         if (targetFolder) {
-          desktopStore.addAppToFolder(currentTouchItem.value.id, targetFolder.id);
+          if (isShortcutItem) {
+            desktopStore.addShortcutToFolder(currentTouchItem.value.id, targetFolder.id);
+          } else {
+            desktopStore.addAppToFolder(currentTouchItem.value.id, targetFolder.id);
+          }
 
           isDragging.value = false;
           isLongPressing.value = false;
@@ -911,6 +1281,7 @@ function handleTouchEnd(e: TouchEvent, item: any) {
 
           emit("update:draggedApp", null);
           emit("update:draggedFolder", null);
+          emit("update:draggedSystemIcon", null);
 
           dragStartX.value = 0;
           dragStartY.value = 0;
@@ -1113,19 +1484,38 @@ function calculateGridSettings() {
 
   GRID_SIZE_X.value = Math.floor(availableWidth / cols);
   GRID_SIZE_Y.value = GRID_SIZE_X.value + 15;
+
+  updateScrollProgress();
 }
 
 onMounted(() => {
   calculateGridSettings();
 
   window.addEventListener("resize", calculateGridSettings);
+
+  nextTick(assignMobileWidgetPositions);
 });
+
+watch(
+  () => {
+    const positioned = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value].filter((item) => item.x !== undefined).length;
+    return widgetsStore.instances.map((i) => `${i.instanceId}:${i.mobileRow ?? "?"}:${i.mobileCol ?? "?"}:${i.size}`).join("|") + `#${positioned}`;
+  },
+  () => {
+    nextTick(assignMobileWidgetPositions);
+  },
+);
 
 onUnmounted(() => {
   window.removeEventListener("resize", calculateGridSettings);
 
   if (scrollTimeout) {
     clearTimeout(scrollTimeout);
+  }
+
+  if (scrollProgressFrame !== null) {
+    cancelAnimationFrame(scrollProgressFrame);
+    scrollProgressFrame = null;
   }
 
   if (longPressTimer) {
@@ -1143,10 +1533,12 @@ onUnmounted(() => {
   if (edgeDragTimer) {
     clearTimeout(edgeDragTimer);
   }
+
+  clearWidgetTimers();
 });
 
 watch(currentPage, (newPage, oldPage) => {
-  if (isDragging.value && newPage > oldPage) {
+  if ((isDragging.value || draggedMobileWidget.value !== null) && newPage > oldPage) {
     nextTick(() => {
       const container = pagesContainerRef.value;
       if (!container) return;
@@ -1184,6 +1576,7 @@ watch([isPortrait, isLandscape], () => {
 }
 
 .desktop-pages-container {
+  position: relative;
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -1277,6 +1670,22 @@ watch([isPortrait, isLandscape], () => {
   animation: pulse-badge 2s ease-in-out infinite;
 }
 
+/* Icon Switch Transition (matches DesktopFolderIcon customize animation) */
+.icon-switch-enter-active,
+.icon-switch-leave-active {
+  transition: all 0.2s ease;
+}
+
+.icon-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.5) rotate(-15deg);
+}
+
+.icon-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.5) rotate(15deg);
+}
+
 .desktop-mobile-icon {
   position: absolute;
   z-index: 1;
@@ -1289,6 +1698,36 @@ watch([isPortrait, isLandscape], () => {
   transition: none !important;
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
   cursor: grabbing !important;
+}
+
+/* Widgets: no opacity and no filter here */
+.widget-dragging {
+  z-index: 1000 !important;
+  transition: none !important;
+  transform: scale(1.03);
+}
+
+/* Disable TransitionGroup FLIP for the widget group */
+.widget-move-none {
+  transition: none !important;
+}
+
+/* Widget entry never animates opacity */
+.widget-appear-enter-active {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.widget-appear-enter-from {
+  transform: translateY(18px) scale(0.95);
+}
+
+.widget-appear-leave-active {
+  transition: all 0.25s ease-in;
+}
+
+.widget-appear-leave-to {
+  opacity: 0;
+  transform: scale(0.92);
 }
 
 .icon-dragging .desktop-icon-container {

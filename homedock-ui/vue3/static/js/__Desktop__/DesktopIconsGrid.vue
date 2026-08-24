@@ -5,17 +5,7 @@
 
 <template>
   <div class="desktop-icons-container" ref="containerRef" @contextmenu="handleDesktopContextMenu" @mousedown="handleDesktopMouseDown">
-    <Transition name="loading-fade">
-      <div v-if="isLoading" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-[100]">
-        <div :class="[themeClasses.desktopLoadingBg, themeClasses.desktopLoadingBorder]" class="flex flex-col items-center gap-4 px-12 py-8 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-          <div class="w-12 h-12 border-4 border-white/10 rounded-full animate-spin" :class="[themeClasses.desktopLoadingSpinner]" style="border-top-color: currentColor"></div>
-          <p :class="[themeClasses.desktopLoadingText]" class="text-sm font-medium m-0 tracking-wide">{{ $t("Loading applications...") }}</p>
-          <div :class="[themeClasses.desktopLoadingBarBg]" class="w-[200px] h-[3px] rounded-[3px] overflow-hidden">
-            <div :class="[themeClasses.desktopLoadingBarFill]" class="h-full bg-[length:200%_100%] animate-[loading-bar-animation_1.5s_ease-in-out_infinite]"></div>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    <DesktopLoadingOverlay :visible="isLoading" />
 
     <Transition name="corner-hint-fade">
       <div v-if="!isLoading && desktopStore.mainDockerApps.length === 0" class="absolute top-3 right-3 z-[100] pointer-events-none">
@@ -26,7 +16,7 @@
       </div>
     </Transition>
 
-    <MobileDesktopPages v-if="isMobile" :selected-app="selectedApp" :selected-apps="selectedApps" :selected-folder="selectedFolder" :selected-system-icon="selectedSystemIcon" :dragged-app="draggedApp" :dragged-folder="draggedFolder" :dragged-system-icon="draggedSystemIcon" @update:selected-app="selectedApp = $event" @update:selected-apps="selectedApps = $event" @update:selected-folder="selectedFolder = $event" @update:selected-system-icon="selectedSystemIcon = $event" @update:dragged-app="draggedApp = $event" @update:dragged-folder="draggedFolder = $event" @update:dragged-system-icon="draggedSystemIcon = $event" @update:is-wiggle-mode="isWiggleMode = $event" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu" @systemicon-contextmenu="handleSystemIconContextMenu" @desktop-contextmenu="handleDesktopContextMenu" @close-context-menu="closeContextMenu" @folder-click="handleFolderClick" @folder-dblclick="handleFolderDoubleClick" @folder-contextmenu="handleFolderContextMenu" @folder-touch-start="handleFolderTouchStart" />
+    <MobileDesktopPages v-if="isMobile" :selected-app="selectedApp" :selected-apps="selectedApps" :selected-folder="selectedFolder" :selected-system-icon="selectedSystemIcon" :dragged-app="draggedApp" :dragged-folder="draggedFolder" :dragged-system-icon="draggedSystemIcon" @update:selected-app="selectedApp = $event" @update:selected-apps="selectedApps = $event" @update:selected-folder="selectedFolder = $event" @update:selected-system-icon="selectedSystemIcon = $event" @update:dragged-app="draggedApp = $event" @update:dragged-folder="draggedFolder = $event" @update:dragged-system-icon="draggedSystemIcon = $event" @update:is-wiggle-mode="isWiggleMode = $event" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu" @systemicon-contextmenu="handleSystemIconContextMenu" @desktop-contextmenu="handleDesktopContextMenu" @close-context-menu="closeContextMenu" @folder-click="handleFolderClick" @folder-dblclick="handleFolderDoubleClick" @folder-contextmenu="handleFolderContextMenu" @folder-touch-start="handleFolderTouchStart" @widget-contextmenu="handleWidgetContextMenu" />
 
     <template v-else>
       <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
@@ -48,29 +38,50 @@
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
-        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="$t(sysIcon.name)">
+        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name)">
           <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
-            <div :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
+            <template v-if="sysIcon.shortcut">
+              <Transition name="icon-switch" mode="out-in">
+                <BaseImage v-if="sysIcon.shortcut.iconType === 'image'" :key="`image:${sysIcon.shortcut.iconValue}`" :src="getShortcutIconUrl(sysIcon.shortcut.iconValue)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
+                <div v-else :key="`preset:${sysIcon.shortcut.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
+                  <Icon :icon="getShortcutGlyph(sysIcon.shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
+                </div>
+              </Transition>
+              <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
+                <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
+              </div>
+            </template>
+            <div v-else :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
               <Icon :icon="getSystemIconObject(sysIcon)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
             </div>
           </div>
-          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ $t(sysIcon.name) }}</span>
+          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name) }}</span>
         </div>
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
         <DesktopFolderIcon v-for="folder in displayedFolders" :key="folder.id" :folder="folder" :is-selected="selectedFolder === folder.id || selectedFolders.has(folder.id)" :is-dragging="draggedFolder === folder.id || (isDragging && hasMoved && selectedFolders.has(folder.id))" :is-drop-target="dropTargetFolderId === folder.id" @mousedown="handleFolderMouseDown" @touchstart="handleFolderTouchStart" @click="handleFolderClick" @dblclick="handleFolderDoubleClick" @contextmenu="handleFolderContextMenu" />
       </TransitionGroup>
+
+      <TransitionGroup name="widget-appear" move-class="widget-move-none">
+        <div v-for="widget in widgetsStore.instances" :key="widget.instanceId" :class="['absolute z-[1] touch-none select-none outline-none', (draggedWidget === widget.instanceId && widgetHasMoved) || settlingWidget?.id === widget.instanceId ? '!cursor-grabbing !z-[1000]' : 'transition-[left,top] duration-[400ms] ease-[ease] cursor-grab active:cursor-grabbing']" :style="getWidgetStyle(widget)" @mousedown="handleWidgetMouseDown($event, widget)" @click.capture="handleWidgetClickCapture" @contextmenu="handleWidgetContextMenu($event, widget)">
+          <DesktopWidgetFrame :instance="widget" />
+        </div>
+      </TransitionGroup>
     </template>
 
     <ContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y" :items="contextMenuItems" @close="closeContextMenu" />
 
     <AppDialog v-model:visible="showCreateFolderModal" type="info" title="Create New Folder" ok-text="Create" cancel-text="Cancel" @ok="handleCreateFolderOk" @cancel="handleCreateFolderCancel">
-      <input v-model="createFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
+      <input v-model="createFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
     </AppDialog>
 
+    <ShortcutEditModal v-model:visible="showShortcutModal" :mode="shortcutModalMode" :initial-name="shortcutModalInitial.name" :initial-url="shortcutModalInitial.url" :initial-icon-type="shortcutModalInitial.iconType" :initial-icon-value="shortcutModalInitial.iconValue" @save="handleShortcutSave" />
+
+    <WidgetGalleryModal v-model:visible="showWidgetGallery" @add="handleAddWidget" />
+
     <AppDialog v-model:visible="showRenameFolderModal" type="info" title="Rename Folder" ok-text="Rename" cancel-text="Cancel" @ok="handleRenameFolderOk" @cancel="handleRenameFolderCancel">
-      <input v-model="renameFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
+      <input v-model="renameFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
     </AppDialog>
 
     <FolderCustomizeMenu :visible="showCustomizeMenu" :x="customizeMenuPosition.x" :y="customizeMenuPosition.y" :color="customizeFolderColor" :icon="customizeFolderIcon" @update:color="handleCustomizeColorChange" @update:icon="handleCustomizeIconChange" @close="closeCustomizeMenu" />
@@ -82,6 +93,10 @@ import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useDesktopStore, DockerApp, DesktopFolder, SystemDesktopIcon } from "../__Stores__/desktopStore";
+import { useWidgetsStore, WIDGET_MAX_INSTANCES, type WidgetInstance } from "../__Stores__/useWidgetsStore";
+import { useQuickViewStore } from "../__Stores__/useQuickViewStore";
+import { shortcutLabel } from "../__Utils__/PlatformKeys";
+import { getWidgetDims, getWidgetDefinition, type WidgetDefinition, type WidgetSize } from "../__Config__/WidgetDefaultDetails";
 import { useDesktopDragSelection } from "../__Composables__/useDesktopDragSelection";
 import { useDesktopDragAndDrop } from "../__Composables__/useDesktopDragAndDrop";
 import { useDesktopGrid } from "../__Composables__/useDesktopGrid";
@@ -102,12 +117,18 @@ import { fetchContainers, startContainerPolling, stopContainerPolling } from "..
 
 import BaseImage from "../__Components__/BaseImage.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+import DesktopLoadingOverlay from "../__Components__/DesktopLoadingOverlay.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
 import FolderCustomizeMenu from "../__Components__/FolderCustomizeMenu.vue";
 import MobileDesktopPages from "./MobileDesktopPages.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
+import ShortcutEditModal, { type ShortcutModalResult } from "../__Components__/ShortcutEditModal.vue";
+import DesktopWidgetFrame from "./DesktopWidgetFrame.vue";
+import WidgetGalleryModal from "../__Components__/WidgetGalleryModal.vue";
+
+import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
 
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer, uninstallContainer, updateContainer } from "../__Services__/DockerActions";
 
@@ -122,6 +143,7 @@ import uninstallIcon from "@iconify-icons/mdi/delete-alert";
 import updateIcon from "@iconify-icons/mdi/shape-circle-plus";
 import terminalIcon from "@iconify-icons/mdi/console";
 import refreshIcon from "@iconify-icons/mdi/refresh";
+import quickViewIcon from "@iconify-icons/mdi/view-dashboard-variant-outline";
 import resetIcon from "@iconify-icons/mdi/restore";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
 import checkIcon from "@iconify-icons/mdi/check-circle";
@@ -131,8 +153,15 @@ import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import folderEditIcon from "@iconify-icons/mdi/folder-edit";
 import folderRemoveIcon from "@iconify-icons/mdi/folder-remove";
 import paletteIcon from "@iconify-icons/mdi/palette";
+import pencilIcon from "@iconify-icons/mdi/pencil";
+import linkPlusIcon from "@iconify-icons/mdi/link-plus";
+import linkOffIcon from "@iconify-icons/mdi/link-variant-off";
+import arrowTopRightIcon from "@iconify-icons/mdi/arrow-top-right";
+import widgetsPlusIcon from "@iconify-icons/mdi/auto-awesome-mosaic";
+import resizeIcon from "@iconify-icons/mdi/resize";
 
 import cloudIcon from "@iconify-icons/mdi/cloud";
+import { homedockIcon } from "../__Config__/HomeDockIcon";
 import monitorOffIcon from "@iconify-icons/mdi/monitor-off";
 import fileSearchIcon from "@iconify-icons/mdi/file-search";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
@@ -146,13 +175,15 @@ import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
 import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
 
 const desktopStore = useDesktopStore();
+const widgetsStore = useWidgetsStore();
 const windowStore = useWindowStore();
+const quickView = useQuickViewStore();
 const selectedAppsStore = useSelectedAppsStore();
 const updateStore = useAppUpdateStore();
 const { isMobile, isPortrait, isLandscape, windowWidth, windowHeight } = useResponsive();
 const { themeClasses } = useTheme();
 const { t } = useI18n();
-const { confirm } = useDialog();
+const { confirm, info } = useDialog();
 
 const csrfToken = useCsrfToken();
 
@@ -232,9 +263,13 @@ const {
   containerRef,
   gridConfig,
   selection: selectionState,
-  onDropOnFolder: (folder, appIds) => {
-    appIds.forEach((appId) => {
-      desktopStore.addAppToFolder(appId, folder.id);
+  onDropOnFolder: (folder, itemIds) => {
+    itemIds.forEach((itemId) => {
+      if (itemId.startsWith("shortcut-")) {
+        desktopStore.addShortcutToFolder(itemId, folder.id);
+      } else {
+        desktopStore.addAppToFolder(itemId, folder.id);
+      }
     });
   },
 });
@@ -260,6 +295,34 @@ const customizeFolderId = ref<string | null>(null);
 const customizeFolderColor = ref("#3b82f6");
 const customizeFolderIcon = ref("");
 const customizeMenuPosition = ref({ x: 0, y: 0 });
+
+const showShortcutModal = ref(false);
+const shortcutModalMode = ref<"create" | "edit">("create");
+const editingShortcutId = ref<string | null>(null);
+const shortcutModalInitial = ref<{ name: string; url: string; iconType: "preset" | "image"; iconValue: string }>({ name: "", url: "", iconType: "preset", iconValue: "web" });
+
+function openShortcutModal(icon?: SystemDesktopIcon) {
+  if (icon?.shortcut && icon.shortcut.type === "file") return;
+
+  if (icon?.shortcut) {
+    shortcutModalMode.value = "edit";
+    editingShortcutId.value = icon.shortcut.shortcutId;
+    shortcutModalInitial.value = { name: icon.name, url: icon.shortcut.url, iconType: icon.shortcut.iconType as "preset" | "image", iconValue: icon.shortcut.iconValue };
+  } else {
+    shortcutModalMode.value = "create";
+    editingShortcutId.value = null;
+    shortcutModalInitial.value = { name: "", url: "", iconType: "preset", iconValue: "web" };
+  }
+  showShortcutModal.value = true;
+}
+
+async function handleShortcutSave(result: ShortcutModalResult) {
+  if (shortcutModalMode.value === "edit" && editingShortcutId.value) {
+    await desktopStore.updateShortcut(editingShortcutId.value, result, csrfToken.value);
+  } else {
+    await desktopStore.addShortcut(result, csrfToken.value);
+  }
+}
 
 function openCreateFolderModal() {
   if (isMobile.value) {
@@ -335,9 +398,305 @@ function closeCustomizeMenu() {
   customizeFolderId.value = null;
 }
 
+const contextMenuWidget = ref<WidgetInstance | null>(null);
+const showWidgetGallery = ref(false);
+
+const draggedWidget = ref<string | null>(null);
+const widgetHasMoved = ref(false);
+const widgetDragPos = ref({ x: 0, y: 0 });
+const settlingWidget = ref<{ id: string; x: number; y: number } | null>(null);
+let widgetDragStart = { mouseX: 0, mouseY: 0, x: 0, y: 0, instance: null as WidgetInstance | null };
+
+function widgetPixelRect(widget: WidgetInstance): { width: number; height: number } {
+  const dims = getWidgetDims(widget.type, widget.size);
+  return {
+    width: dims.cols * GRID_SIZE_X.value - 10,
+    height: dims.rows * GRID_SIZE_Y.value - 10,
+  };
+}
+
+function getWidgetStyle(widget: WidgetInstance): Record<string, string> {
+  const { width, height } = widgetPixelRect(widget);
+  const left = ICON_PADDING.value + widget.gridCol * GRID_SIZE_X.value;
+  const top = ICON_PADDING.value + widget.gridRow * GRID_SIZE_Y.value;
+
+  const style: Record<string, string> = { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` };
+
+  if (draggedWidget.value === widget.instanceId && widgetHasMoved.value) {
+    style.left = `${widgetDragPos.value.x}px`;
+    style.top = `${widgetDragPos.value.y}px`;
+  } else if (settlingWidget.value?.id === widget.instanceId) {
+    style.left = `${settlingWidget.value.x}px`;
+    style.top = `${settlingWidget.value.y}px`;
+  }
+
+  return style;
+}
+
+function widgetGridBounds(): { maxCols: number; maxRows: number } {
+  const containerWidth = containerRef.value?.clientWidth || window.innerWidth;
+  const containerHeight = containerRef.value?.clientHeight || window.innerHeight;
+
+  return {
+    maxCols: Math.max(1, Math.floor((containerWidth - ICON_PADDING.value * 2) / GRID_SIZE_X.value)),
+    maxRows: Math.max(1, Math.floor((containerHeight - ICON_PADDING.value * 2) / GRID_SIZE_Y.value)),
+  };
+}
+
+function iconOccupiedCells(): Set<string> {
+  const cells = new Set<string>();
+  const pad = ICON_PADDING.value;
+  const gx = GRID_SIZE_X.value;
+  const gy = GRID_SIZE_Y.value;
+
+  const addItem = (item: { x?: number; y?: number }) => {
+    if (item.x === undefined || item.y === undefined) return;
+    cells.add(`${Math.round((item.y - pad) / gy)},${Math.round((item.x - pad) / gx)}`);
+  };
+
+  mainDockerApps.value.forEach(addItem);
+  desktopFolders.value.forEach(addItem);
+  systemDesktopIcons.value.forEach(addItem);
+
+  return cells;
+}
+
+function isWidgetRectFree(row: number, col: number, cols: number, rows: number, excludeInstanceId?: string): boolean {
+  const { maxCols, maxRows } = widgetGridBounds();
+  if (row < 0 || col < 0 || col + cols > maxCols || row + rows > maxRows) return false;
+
+  const iconCells = iconOccupiedCells();
+  for (let r = row; r < row + rows; r++) {
+    for (let c = col; c < col + cols; c++) {
+      if (iconCells.has(`${r},${c}`)) return false;
+    }
+  }
+
+  return !widgetsStore.instances.some((other) => {
+    if (other.instanceId === excludeInstanceId) return false;
+    const rect = widgetsStore.instanceRect(other);
+    return row < rect.row + rect.rows && rect.row < row + rows && col < rect.col + rect.cols && rect.col < col + cols;
+  });
+}
+
+function findWidgetSlot(cols: number, rows: number, excludeInstanceId?: string): { row: number; col: number } | null {
+  const { maxCols, maxRows } = widgetGridBounds();
+
+  for (let row = 0; row + rows <= maxRows; row++) {
+    for (let col = 0; col + cols <= maxCols; col++) {
+      if (isWidgetRectFree(row, col, cols, rows, excludeInstanceId)) {
+        return { row, col };
+      }
+    }
+  }
+
+  return null;
+}
+
+function findDesktopWidgetOnlySlot(cols: number, rows: number): { row: number; col: number } {
+  const DESKTOP_COLS = 20;
+
+  for (let row = 0; row < 100; row++) {
+    for (let col = 0; col + cols <= DESKTOP_COLS; col++) {
+      const free = !widgetsStore.instances.some((other) => {
+        const rect = widgetsStore.instanceRect(other);
+        return row < rect.row + rect.rows && rect.row < row + rows && col < rect.col + rect.cols && rect.col < col + cols;
+      });
+      if (free) return { row, col };
+    }
+  }
+
+  return { row: 0, col: 0 };
+}
+
+function handleAddWidget(def: WidgetDefinition) {
+  if (widgetsStore.instances.length >= WIDGET_MAX_INSTANCES) {
+    info({
+      title: "Widget limit",
+      content: t("You can have up to {n} widgets. Remove one to add another.", { n: WIDGET_MAX_INSTANCES }),
+      okText: "OK",
+      okCancel: false,
+    });
+    return;
+  }
+
+  const dims = getWidgetDims(def.id, def.defaultSize);
+
+  if (isMobile.value) {
+    const slot = findDesktopWidgetOnlySlot(dims.cols, dims.rows);
+    widgetsStore.add(def.id, slot.row, slot.col);
+    return;
+  }
+
+  const slot = findWidgetSlot(dims.cols, dims.rows);
+  if (!slot) {
+    info({
+      title: "No space available",
+      content: "There is no free space for this widget. Move or remove something first.",
+      okText: "OK",
+      okCancel: false,
+    });
+    return;
+  }
+
+  widgetsStore.add(def.id, slot.row, slot.col);
+}
+
+function resizeWidget(widget: WidgetInstance, size: WidgetSize) {
+  if (widget.size === size) return;
+
+  if (isMobile.value) {
+    widgetsStore.resize(widget.instanceId, size);
+    widgetsStore.setMobilePosition(widget.instanceId, null);
+    return;
+  }
+
+  const dims = getWidgetDims(widget.type, size);
+
+  if (isWidgetRectFree(widget.gridRow, widget.gridCol, dims.cols, dims.rows, widget.instanceId)) {
+    widgetsStore.resize(widget.instanceId, size);
+    return;
+  }
+
+  const slot = findWidgetSlot(dims.cols, dims.rows, widget.instanceId);
+  if (slot) {
+    widgetsStore.resize(widget.instanceId, size, slot.row, slot.col);
+  }
+}
+
+function handleWidgetMouseDown(e: MouseEvent, widget: WidgetInstance) {
+  if (isMobile.value) return;
+  if (e.button !== 0) return;
+
+  e.preventDefault();
+  clearSelection();
+
+  widgetDragStart = {
+    mouseX: e.clientX,
+    mouseY: e.clientY,
+    x: ICON_PADDING.value + widget.gridCol * GRID_SIZE_X.value,
+    y: ICON_PADDING.value + widget.gridRow * GRID_SIZE_Y.value,
+    instance: widget,
+  };
+  draggedWidget.value = widget.instanceId;
+  widgetHasMoved.value = false;
+  suppressWidgetClick = false;
+  settlingWidget.value = null;
+  widgetDragPos.value = { x: widgetDragStart.x, y: widgetDragStart.y };
+
+  document.addEventListener("mousemove", handleWidgetMouseMove);
+  document.addEventListener("mouseup", handleWidgetMouseUp);
+}
+
+let widgetMoveRaf: number | null = null;
+let lastWidgetMouse = { x: 0, y: 0 };
+let suppressWidgetClick = false;
+
+function handleWidgetClickCapture(e: MouseEvent) {
+  if (suppressWidgetClick) {
+    suppressWidgetClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}
+
+function handleWidgetMouseMove(e: MouseEvent) {
+  lastWidgetMouse = { x: e.clientX, y: e.clientY };
+
+  if (widgetMoveRaf !== null) return;
+  widgetMoveRaf = requestAnimationFrame(() => {
+    widgetMoveRaf = null;
+    applyWidgetDrag();
+  });
+}
+
+function applyWidgetDrag() {
+  const widget = widgetDragStart.instance;
+  if (!widget || !draggedWidget.value) return;
+
+  const deltaX = lastWidgetMouse.x - widgetDragStart.mouseX;
+  const deltaY = lastWidgetMouse.y - widgetDragStart.mouseY;
+
+  if (!widgetHasMoved.value && Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= 5) return;
+  widgetHasMoved.value = true;
+
+  const { width, height } = widgetPixelRect(widget);
+  const containerWidth = containerRef.value?.clientWidth || window.innerWidth;
+  const containerHeight = containerRef.value?.clientHeight || window.innerHeight;
+  const pad = ICON_PADDING.value;
+
+  widgetDragPos.value = {
+    x: Math.round(Math.max(pad, Math.min(widgetDragStart.x + deltaX, containerWidth - width - pad))),
+    y: Math.round(Math.max(pad, Math.min(widgetDragStart.y + deltaY, containerHeight - height - pad))),
+  };
+}
+
+function handleWidgetMouseUp() {
+  if (widgetMoveRaf !== null) {
+    cancelAnimationFrame(widgetMoveRaf);
+    widgetMoveRaf = null;
+    applyWidgetDrag();
+  }
+
+  const widget = widgetDragStart.instance;
+
+  if (widget && widgetHasMoved.value) {
+    const dims = getWidgetDims(widget.type, widget.size);
+    const col = Math.round((widgetDragPos.value.x - ICON_PADDING.value) / GRID_SIZE_X.value);
+    const row = Math.round((widgetDragPos.value.y - ICON_PADDING.value) / GRID_SIZE_Y.value);
+
+    settlingWidget.value = { id: widget.instanceId, x: widgetDragPos.value.x, y: widgetDragPos.value.y };
+
+    if ((row !== widget.gridRow || col !== widget.gridCol) && isWidgetRectFree(row, col, dims.cols, dims.rows, widget.instanceId)) {
+      widgetsStore.move(widget.instanceId, row, col);
+    }
+
+    const settlingId = widget.instanceId;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (settlingWidget.value?.id === settlingId) {
+          settlingWidget.value = null;
+        }
+      });
+    });
+  }
+
+  suppressWidgetClick = widgetHasMoved.value;
+
+  draggedWidget.value = null;
+  widgetHasMoved.value = false;
+  widgetDragStart.instance = null;
+
+  document.removeEventListener("mousemove", handleWidgetMouseMove);
+  document.removeEventListener("mouseup", handleWidgetMouseUp);
+}
+
+function handleWidgetContextMenu(e: MouseEvent, widget: WidgetInstance) {
+  if (isWiggleMode.value) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  clearSelection();
+  contextMenuApp.value = null;
+  contextMenuFolder.value = null;
+  contextMenuSystemIcon.value = null;
+  contextMenuWidget.value = widget;
+
+  contextMenu.value = {
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+  };
+}
+
 const mainDockerApps = computed(() => desktopStore.desktopRootApps);
 
-const systemDesktopIcons = computed(() => desktopStore.systemDesktopIcons);
+const systemDesktopIcons = computed(() => desktopStore.desktopRootSystemIcons);
 
 const desktopFolders = computed(() => desktopStore.desktopFolders);
 
@@ -453,15 +812,26 @@ function handleSystemIconContextMenu(e: MouseEvent, icon: SystemDesktopIcon) {
   e.preventDefault();
   e.stopPropagation();
 
+  if (!selectedSystemIcons.value.has(icon.id)) {
+    selectedSystemIcons.value.clear();
+  } else {
+    const isShortcut = !!icon.shortcut;
+    for (const other of systemDesktopIcons.value) {
+      if (selectedSystemIcons.value.has(other.id) && !!other.shortcut !== isShortcut) {
+        selectedSystemIcons.value.delete(other.id);
+      }
+    }
+  }
+
   selectedApp.value = null;
   selectedApps.value.clear();
   selectedFolder.value = null;
   selectedFolders.value.clear();
-  selectedSystemIcons.value.clear();
   selectedSystemIcon.value = icon.id;
 
   contextMenuApp.value = null;
   contextMenuFolder.value = null;
+  contextMenuWidget.value = null;
   contextMenuSystemIcon.value = icon;
 
   contextMenu.value = {
@@ -478,6 +848,7 @@ function getSystemIconObject(icon: SystemDesktopIcon) {
 
   const iconMap: Record<string, any> = {
     "mdi:cloud": cloudIcon,
+    "homedock:logo": homedockIcon,
     "mdi:file-search": fileSearchIcon,
     "mdi:folder-multiple": folderMultipleIcon,
     "mdi:widgets-outline": widgetsOutlineIcon,
@@ -493,9 +864,19 @@ function getSystemIconObject(icon: SystemDesktopIcon) {
   return iconMap[icon.icon] || cloudIcon;
 }
 
+function setDraggedShortcuts(icon: SystemDesktopIcon) {
+  if (!icon.shortcut) return;
+
+  const allSelected = getAllSelectedItems();
+  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id))).map((item) => item.id);
+  const draggedIds = draggableIds.length > 0 ? draggableIds : [icon.id];
+  desktopStore.setDraggedApps(draggedIds);
+}
+
 function startSystemIconDrag(icon: SystemDesktopIcon, clientX: number, clientY: number) {
   draggedSystemIcon.value = icon.id;
   composableStartDrag({ type: "systemicon", id: icon.id }, clientX, clientY);
+  setDraggedShortcuts(icon);
   window.addEventListener("mousemove", handleSystemIconMouseMove);
   window.addEventListener("mouseup", handleSystemIconMouseUp);
 }
@@ -503,6 +884,17 @@ function startSystemIconDrag(icon: SystemDesktopIcon, clientX: number, clientY: 
 function handleSystemIconMouseMove(e: MouseEvent) {
   if (!isDragging.value || !draggedSystemIcon.value) return;
   updateDrag(e.clientX, e.clientY);
+
+  if (hasMoved.value) {
+    const draggedIcon = desktopStore.systemDesktopIcons.find((i) => i.id === draggedSystemIcon.value);
+    if (draggedIcon?.shortcut) {
+      const containerRect = containerRef.value?.getBoundingClientRect();
+      if (containerRect) {
+        const targetFolder = checkDropOnFolder(e.clientX - containerRect.left, e.clientY - containerRect.top);
+        dropTargetFolderId.value = targetFolder?.id || null;
+      }
+    }
+  }
 }
 
 function handleSystemIconMouseUp(e: MouseEvent) {
@@ -511,6 +903,8 @@ function handleSystemIconMouseUp(e: MouseEvent) {
   window.removeEventListener("mousemove", handleSystemIconMouseMove);
   window.removeEventListener("mouseup", handleSystemIconMouseUp);
   draggedSystemIcon.value = null;
+  dropTargetFolderId.value = null;
+  desktopStore.clearDraggedApps();
 }
 
 function handleSystemIconTouchStart(e: TouchEvent, icon: SystemDesktopIcon) {
@@ -606,13 +1000,17 @@ function initializeGridPositions() {
   desktopGrid.initializeItemPositions();
 }
 
+function isShortcutIconId(id: string): boolean {
+  return desktopStore.systemDesktopIcons.find((i) => i.id === id)?.shortcut !== undefined;
+}
+
 function startDrag(app: DockerApp, clientX: number, clientY: number) {
   draggedApp.value = app.id;
   composableStartDrag({ type: "app", id: app.id }, clientX, clientY);
 
   const allSelected = getAllSelectedItems();
-  const appIds = allSelected.filter((item) => item.type === "app").map((item) => item.id);
-  const draggedIds = appIds.length > 0 ? appIds : [app.id];
+  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id))).map((item) => item.id);
+  const draggedIds = draggableIds.length > 0 ? draggableIds : [app.id];
   desktopStore.setDraggedApps(draggedIds);
 }
 
@@ -716,8 +1114,241 @@ function endDrag() {
 }
 
 const contextMenuItems = computed<ContextMenuItem[]>(() => {
+  if (contextMenuWidget.value) {
+    const widget = contextMenuWidget.value;
+    const def = getWidgetDefinition(widget.type);
+    const items: ContextMenuItem[] = [];
+
+    const sizeKeys = Object.keys(def?.sizes || {}) as WidgetSize[];
+    if (sizeKeys.length > 1) {
+      sizeKeys.forEach((sizeKey) => {
+        items.push({
+          label: sizeKey === "s" ? "Small" : sizeKey === "m" ? "Medium" : "Large",
+          icon: widget.size === sizeKey ? checkIcon : resizeIcon,
+          action: () => resizeWidget(widget, sizeKey),
+          disabled: widget.size === sizeKey,
+        });
+      });
+      items.push({ divider: true });
+    }
+
+    items.push({
+      label: "Remove Widget",
+      icon: monitorOffIcon,
+      action: () => {
+        widgetsStore.remove(widget.instanceId);
+        closeContextMenu();
+      },
+    });
+
+    return items;
+  }
+
+  const multiApps = mainDockerApps.value.filter((a) => selectedApps.value.has(a.id) && a.HDRole !== "dependency");
+  const multiIcons = systemDesktopIcons.value.filter((i) => selectedSystemIcons.value.has(i.id));
+  const multiFolders = displayedFolders.value.filter((f) => selectedFolders.value.has(f.id));
+  const multiCount = multiApps.length + multiIcons.length + multiFolders.length;
+
+  if ((contextMenuApp.value || contextMenuSystemIcon.value || contextMenuFolder.value) && multiCount > 1) {
+    const multiShortcuts = multiIcons.filter((i) => i.shortcut);
+    const multiRemovable = multiIcons.filter((i) => !i.shortcut && !i.isPermanent);
+
+    const hasRunning = multiApps.some((a) => a.status === "running");
+    const hasStopped = multiApps.some((a) => a.status === "exited");
+    const hasPaused = multiApps.some((a) => a.status === "paused");
+
+    const items: ContextMenuItem[] = [
+      {
+        label: multiApps.length === multiCount ? t("Selected: {n} apps", { n: multiCount }) : t("Selected: {n} items", { n: multiCount }),
+        icon: checkIcon,
+        action: () => {},
+        disabled: true,
+      },
+    ];
+
+    if (multiApps.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: "Start All",
+        icon: playIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status !== "running") {
+              await startContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasStopped,
+      });
+      items.push({
+        label: "Stop All",
+        icon: stopIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "running") {
+              await stopContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasRunning,
+      });
+      items.push({
+        label: "Restart All",
+        icon: restartIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status !== "exited") {
+              await restartContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: multiApps.every((a) => a.status === "exited"),
+      });
+      items.push({ divider: true });
+      items.push({
+        label: "Pause All",
+        icon: pauseIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "running") {
+              await pauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasRunning,
+      });
+      items.push({
+        label: "Unpause All",
+        icon: unpauseIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            if (app.status === "paused") {
+              await unpauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+            }
+          }
+        },
+        disabled: !hasPaused,
+      });
+      items.push({ divider: true });
+      items.push({
+        label: "Update All",
+        icon: updateIcon,
+        action: async () => {
+          for (const app of multiApps) {
+            await updateContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
+          }
+        },
+      });
+    }
+
+    if (multiRemovable.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: t("Remove from Desktop ({n})", { n: multiRemovable.length }),
+        icon: monitorOffIcon,
+        action: () => {
+          for (const icon of multiRemovable) {
+            desktopStore.removeSystemIconFromDesktop(icon.appId);
+          }
+          closeContextMenu();
+        },
+      });
+    }
+
+    if (multiShortcuts.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: t("Delete Shortcuts ({n})", { n: multiShortcuts.length }),
+        icon: linkOffIcon,
+        action: () => {
+          confirm({
+            title: "Delete Shortcuts",
+            content: t("Delete {n} shortcuts?", { n: multiShortcuts.length }),
+            okText: "Delete",
+            cancelText: "Cancel",
+            onOk: async () => {
+              for (const icon of multiShortcuts) {
+                await desktopStore.removeShortcut(icon.shortcut!.shortcutId, csrfToken.value);
+              }
+            },
+          });
+        },
+      });
+    }
+
+    if (multiFolders.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: t("Delete Folders ({n})", { n: multiFolders.length }),
+        icon: folderRemoveIcon,
+        action: () => {
+          const itemCount = multiFolders.reduce((total, folder) => total + folder.items.length, 0);
+          const message = itemCount > 0 ? t("Delete {n} folders? {m} item(s) will be moved to desktop.", { n: multiFolders.length, m: itemCount }) : t("Delete {n} folders?", { n: multiFolders.length });
+
+          confirm({
+            title: "Delete Folders",
+            content: message,
+            okText: "Delete",
+            cancelText: "Cancel",
+            onOk: () => {
+              for (const folder of multiFolders) {
+                desktopStore.deleteFolder(folder.id);
+              }
+            },
+          });
+        },
+      });
+    }
+
+    return items;
+  }
+
   if (contextMenuSystemIcon.value) {
     const sysIcon = contextMenuSystemIcon.value;
+
+    if (sysIcon.shortcut) {
+      const shortcutId = sysIcon.shortcut.shortcutId;
+      const isFileShortcut = sysIcon.shortcut.type === "file";
+
+      return [
+        {
+          label: "Open",
+          icon: openIcon,
+          action: () => {
+            desktopStore.openSystemApp(sysIcon.appId);
+          },
+        },
+        { divider: true },
+        ...(!isFileShortcut
+          ? [
+              {
+                label: "Edit Shortcut",
+                icon: pencilIcon,
+                action: () => {
+                  openShortcutModal(sysIcon);
+                },
+              },
+              { divider: true },
+            ]
+          : []),
+        {
+          label: "Delete Shortcut",
+          icon: linkOffIcon,
+          action: () => {
+            confirm({
+              title: "Delete Shortcut",
+              content: t(`Delete "{name}"?`, { name: sysIcon.name }),
+              okText: "Delete",
+              cancelText: "Cancel",
+              onOk: async () => {
+                await desktopStore.removeShortcut(shortcutId, csrfToken.value);
+              },
+            });
+          },
+        },
+      ];
+    }
+
     const items: ContextMenuItem[] = [
       {
         label: "Refresh",
@@ -822,6 +1453,34 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         },
         disabled: desktopStore.mainDockerApps.length === 0,
       },
+      {
+        label: "New Shortcut",
+        icon: linkPlusIcon,
+        action: () => {
+          openShortcutModal();
+        },
+      },
+      {
+        label: "Add Widget",
+        icon: widgetsPlusIcon,
+        action: () => {
+          showWidgetGallery.value = true;
+        },
+      },
+      ...(!isMobile.value
+        ? [
+            { divider: true },
+            {
+              label: "Quick View",
+              icon: quickViewIcon,
+              shortcut: shortcutLabel("↑"),
+              action: () => {
+                quickView.toggle();
+              },
+              disabled: !windowStore.appWindows.some((w) => !w.isMinimized && !w.isClosing) || windowStore.hasOpenDialog,
+            },
+          ]
+        : []),
       { divider: true },
       {
         label: "Refresh",
@@ -857,96 +1516,12 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
           });
         },
       },
-    ];
-  }
-
-  const selectedCount = selectedApps.value.size;
-  if (selectedCount > 1) {
-    const selectedAppsList = Array.from(selectedApps.value)
-      .map((id) => mainDockerApps.value.find((a) => a.id === id))
-      .filter((a) => a !== undefined && a.HDRole !== "dependency") as DockerApp[];
-
-    const hasRunning = selectedAppsList.some((a) => a.status === "running");
-    const hasStopped = selectedAppsList.some((a) => a.status === "exited");
-    const hasPaused = selectedAppsList.some((a) => a.status === "paused");
-
-    return [
       {
-        label: t("Selected: {n} apps", { n: selectedCount }),
-        icon: checkIcon,
-        action: () => {},
-        disabled: true,
-      },
-      { divider: true },
-      {
-        label: "Start All",
-        icon: playIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            if (app.status !== "running") {
-              await startContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-            }
-          }
-        },
-        disabled: !hasStopped,
-      },
-      {
-        label: "Stop All",
-        icon: stopIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            if (app.status === "running") {
-              await stopContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-            }
-          }
-        },
-        disabled: !hasRunning,
-      },
-      {
-        label: "Restart All",
-        icon: restartIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            if (app.status !== "exited") {
-              await restartContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-            }
-          }
-        },
-        disabled: selectedAppsList.every((a) => a.status === "exited"),
-      },
-      { divider: true },
-      {
-        label: "Pause All",
-        icon: pauseIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            if (app.status === "running") {
-              await pauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-            }
-          }
-        },
-        disabled: !hasRunning,
-      },
-      {
-        label: "Unpause All",
-        icon: unpauseIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            if (app.status === "paused") {
-              await unpauseContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-            }
-          }
-        },
-        disabled: !hasPaused,
-      },
-      { divider: true },
-      {
-        label: "Update All",
-        icon: updateIcon,
-        action: async () => {
-          for (const app of selectedAppsList) {
-            await updateContainer(app, csrfToken.value, themeClasses.value.scopeSelector);
-          }
+        label: "Personalize",
+        icon: paletteIcon,
+        action: () => {
+          const id = windowStore.openWindow("settings", { data: { tab: "theme" } });
+          windowStore.updateWindowData(id, { tab: "theme" });
         },
       },
     ];
@@ -965,7 +1540,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
       icon: openIcon,
       action: () => {
         if (contextMenuApp.value?.service_url) {
-          window.open(contextMenuApp.value.service_url, "_blank", "noopener,noreferrer");
+          desktopStore.launchDockerApp(contextMenuApp.value);
         }
       },
     });
@@ -1020,10 +1595,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     icon: terminalIcon,
     action: () => {
       if (contextMenuApp.value) {
-        windowStore.openWindow("logs", {
+        windowStore.openUniqueWindow("logs", contextMenuApp.value.name, {
           title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - ${t("Logs")}`,
           data: { appName: contextMenuApp.value.name },
-          allowMultiple: true,
         });
       }
     },
@@ -1054,10 +1628,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     icon: propertiesIcon,
     action: () => {
       if (!contextMenuApp.value) return;
-      windowStore.openWindow("properties", {
+      windowStore.openUniqueWindow("properties", contextMenuApp.value.id, {
         title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - ${t("Properties")}`,
         data: { appId: contextMenuApp.value.id },
-        allowMultiple: true,
       });
     },
   });
@@ -1116,12 +1689,11 @@ function handleDoubleClick(app: DockerApp) {
   const isRunning = app.status === "running";
 
   if (isRunning && app.service_url) {
-    window.open(app.service_url, "_blank", "noopener,noreferrer");
+    desktopStore.launchDockerApp(app);
   } else {
-    windowStore.openWindow("properties", {
+    windowStore.openUniqueWindow("properties", app.id, {
       title: `${app.display_name || app.name} - ${t("Properties")}`,
       data: { appId: app.id },
-      allowMultiple: true,
     });
   }
 }
@@ -1234,13 +1806,18 @@ function handleFolderContextMenu(e: MouseEvent, folder: DesktopFolder) {
   e.preventDefault();
   e.stopPropagation();
 
-  selectedFolder.value = folder.id;
-  selectedFolders.value.clear();
+  if (!selectedFolders.value.has(folder.id)) {
+    selectedFolders.value.clear();
+  }
+
   selectedApp.value = null;
   selectedApps.value.clear();
   selectedSystemIcon.value = null;
   selectedSystemIcons.value.clear();
+  selectedFolder.value = folder.id;
   contextMenuApp.value = null;
+  contextMenuWidget.value = null;
+  contextMenuSystemIcon.value = null;
   contextMenuFolder.value = folder;
 
   contextMenu.value = {
@@ -1269,6 +1846,10 @@ function handleContextMenu(e: MouseEvent, app: DockerApp) {
   selectedFolders.value.clear();
   selectedSystemIcon.value = null;
   selectedSystemIcons.value.clear();
+
+  contextMenuWidget.value = null;
+  contextMenuFolder.value = null;
+  contextMenuSystemIcon.value = null;
   contextMenuApp.value = app;
 
   contextMenu.value = {
@@ -1399,6 +1980,7 @@ function handleDesktopContextMenu(e: MouseEvent) {
     contextMenuApp.value = null;
     contextMenuFolder.value = null;
     contextMenuSystemIcon.value = null;
+    contextMenuWidget.value = null;
 
     contextMenu.value = {
       visible: true,
@@ -1413,6 +1995,7 @@ function closeContextMenu() {
   contextMenuApp.value = null;
   contextMenuFolder.value = null;
   contextMenuSystemIcon.value = null;
+  contextMenuWidget.value = null;
 }
 
 defineExpose({
@@ -1477,12 +2060,20 @@ function handleExternalDragDrop(e: MouseEvent) {
     const targetFolder = checkDropOnFolder(dropX, dropY);
 
     if (targetFolder && targetFolder.id !== desktopStore.dragSourceFolderId) {
-      desktopStore.draggedAppIds.forEach((appId) => {
-        desktopStore.addAppToFolder(appId, targetFolder.id);
+      desktopStore.draggedAppIds.forEach((itemId) => {
+        if (itemId.startsWith("shortcut-")) {
+          desktopStore.addShortcutToFolder(itemId, targetFolder.id);
+        } else {
+          desktopStore.addAppToFolder(itemId, targetFolder.id);
+        }
       });
     } else if (!targetFolder) {
-      desktopStore.draggedAppIds.forEach((appId) => {
-        desktopStore.removeAppFromFolder(appId);
+      desktopStore.draggedAppIds.forEach((itemId) => {
+        if (itemId.startsWith("shortcut-")) {
+          desktopStore.removeShortcutFromFolder(itemId);
+        } else {
+          desktopStore.removeAppFromFolder(itemId);
+        }
       });
 
       setTimeout(() => {
@@ -1515,6 +2106,10 @@ onMounted(() => {
   startContainerPolling(csrfToken.value, 5000);
 
   desktopStore.loadFolders();
+  desktopStore.loadShortcuts(csrfToken.value);
+  desktopStore.loadAppViewModes(csrfToken.value);
+  desktopStore.loadCertificateTrust();
+  widgetsStore.load();
 
   setTimeout(() => {
     foldersLoaded.value = true;
@@ -1550,6 +2145,13 @@ onUnmounted(() => {
 
   document.removeEventListener("mousemove", handleExternalDragMove, true);
   document.removeEventListener("mouseup", handleExternalDragDrop, true);
+
+  if (widgetMoveRaf !== null) {
+    cancelAnimationFrame(widgetMoveRaf);
+    widgetMoveRaf = null;
+  }
+  document.removeEventListener("mousemove", handleWidgetMouseMove);
+  document.removeEventListener("mouseup", handleWidgetMouseUp);
 });
 </script>
 
@@ -1565,19 +2167,6 @@ onUnmounted(() => {
 }
 
 /* Vue Transitions */
-.loading-fade-enter-active {
-  transition: opacity 0.3s ease;
-}
-
-.loading-fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.loading-fade-enter-from,
-.loading-fade-leave-to {
-  opacity: 0;
-}
-
 .corner-hint-fade-enter-active {
   transition:
     opacity 0.4s ease-out,
@@ -1664,19 +2253,33 @@ onUnmounted(() => {
     transform 0.4s ease;
 }
 
-/* Animations */
-@keyframes loading-bar-animation {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+/* Widgets position themselves via transform during drag — a transform-transitioning
+   move-class would make TransitionGroup's FLIP clobber that inline transform every render */
+.widget-move-none {
+  transition: none !important;
 }
 
+/* Widget entry never animates opacity — a fading ancestor makes Chromium drop the
+   backdrop-filter until the fade ends, so the blur would pop instead of ramping.
+   The materialize effect is the frame's own blur(0)→full transition. */
+.widget-appear-enter-active {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.widget-appear-enter-from {
+  transform: translateY(18px) scale(0.95);
+}
+
+.widget-appear-leave-active {
+  transition: all 0.25s ease-in;
+}
+
+.widget-appear-leave-to {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+/* Animations */
 @keyframes pulse-badge {
   0%,
   100% {
@@ -1689,5 +2292,21 @@ onUnmounted(() => {
 
 .status-pulse {
   animation: pulse-badge 2s ease-in-out infinite;
+}
+
+/* Icon Switch Transition (matches DesktopFolderIcon customize animation) */
+.icon-switch-enter-active,
+.icon-switch-leave-active {
+  transition: all 0.2s ease;
+}
+
+.icon-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.5) rotate(-15deg);
+}
+
+.icon-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.5) rotate(15deg);
 }
 </style>

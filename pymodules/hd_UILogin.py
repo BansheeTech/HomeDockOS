@@ -207,6 +207,14 @@ def api_login():
 
     client_token = data.get("homedock_csrf_token")
     server_token = session.get("homedock_csrf_token")
+
+    # HDOS00059
+    if server_token is None:
+        if homedock_www.config.get("SESSION_COOKIE_SECURE") and not request.is_secure:
+            return jsonify({"status": "insecure_context", "message": "Login only permitted from a valid HTTPS source."}), 403
+
+        return jsonify({"status": "session_lost", "message": "Your session expired, please reload the page and try again."}), 403
+
     if client_token != server_token:
         return jsonify({"status": "forbidden", "message": "CSRF Token mismatch! Please try again later."}), 403
 

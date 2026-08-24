@@ -5,6 +5,8 @@
 
 import { computed, ref, type Ref } from "vue";
 import { useDesktopStore, type DockerApp, type DesktopFolder, type SystemDesktopIcon } from "../__Stores__/desktopStore";
+import { useWidgetsStore } from "../__Stores__/useWidgetsStore";
+import { getWidgetDims } from "../__Config__/WidgetDefaultDetails";
 import { useResponsive } from "./useResponsive";
 
 export type DesktopItemType = "app" | "folder" | "systemicon";
@@ -23,12 +25,14 @@ export interface DesktopItem {
 
 export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
   const desktopStore = useDesktopStore();
+  const widgetsStore = useWidgetsStore();
   const { isMobile, windowWidth, windowHeight, isPortrait } = useResponsive();
 
   const DESKTOP_PADDING = 16;
   const DESKTOP_GRID_SIZE_X = 110;
   const DESKTOP_GRID_SIZE_Y = 125;
   const MOBILE_PADDING = 16;
+  const PAGE_INDICATOR_CLEARANCE = 32;
 
   const mobileGridSizeX = ref(85);
   const mobileGridSizeY = ref(100);
@@ -49,8 +53,8 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
   const rows = computed(() => {
     if (!isMobile.value) return 100;
     const containerHeight = containerRef?.value?.clientHeight || windowHeight.value;
-    const availableHeight = containerHeight - MOBILE_PADDING * 2;
-    return Math.max(1, Math.floor(availableHeight / mobileGridSizeY.value) - 1);
+    const availableHeight = containerHeight - MOBILE_PADDING * 2 - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
+    return Math.max(1, Math.floor(availableHeight / mobileGridSizeY.value));
   });
 
   const iconsPerPage = computed(() => columns.value * rows.value);
@@ -63,7 +67,7 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
   const allDesktopItems = computed<DesktopItem[]>(() => {
     const items: DesktopItem[] = [];
 
-    desktopStore.systemDesktopIcons.forEach((icon) => {
+    const pushSystemIcon = (icon: SystemDesktopIcon) => {
       items.push({
         id: icon.id,
         type: "systemicon",
@@ -75,7 +79,9 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
         page: icon.page,
         data: icon,
       });
-    });
+    };
+
+    desktopStore.desktopRootSystemIcons.filter((icon) => !icon.shortcut).forEach(pushSystemIcon);
 
     desktopStore.desktopFolders.forEach((folder) => {
       items.push({
@@ -90,6 +96,8 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
         data: folder,
       });
     });
+
+    desktopStore.desktopRootSystemIcons.filter((icon) => icon.shortcut).forEach(pushSystemIcon);
 
     desktopStore.desktopRootApps.forEach((app) => {
       items.push({
@@ -112,7 +120,6 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
     return allDesktopItems.value.filter((item) => item.x === undefined && item.y === undefined && item.gridRow === undefined && item.gridCol === undefined);
   });
 
-  // Uses store's unified updateItemPosition
   function updateItemPosition(item: DesktopItem, x: number, y: number, row: number, col: number, page?: number) {
     desktopStore.updateItemPosition(item.type, item.id, x, y, row, col, page);
   }
@@ -140,13 +147,33 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
     const pad = MOBILE_PADDING;
 
     const containerHeight = containerRef?.value?.clientHeight || windowHeight.value;
-    const availableHeight = containerHeight - MOBILE_PADDING * 2;
-    const rowCount = Math.max(1, Math.floor(availableHeight / gy) - 1);
+    const availableHeight = containerHeight - MOBILE_PADDING * 2 - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
+    const rowCount = Math.max(1, Math.floor(availableHeight / gy));
     const ipp = cols * rowCount;
 
     const pw = innerContainerWidth;
 
     const occupiedPositions = new Set<string>();
+
+    widgetsStore.instances.forEach((instance) => {
+      if (instance.mobileRow === undefined || instance.mobileCol === undefined) return;
+      const dims = getWidgetDims(instance.type, instance.size);
+      const page = instance.mobilePage ?? 0;
+
+      const clampedCol = Math.max(0, Math.min(instance.mobileCol, cols - dims.cols));
+      const clampedRow = Math.max(0, Math.min(instance.mobileRow, Math.max(0, rowCount - dims.rows)));
+
+      for (const [row, col] of [
+        [instance.mobileRow, instance.mobileCol],
+        [clampedRow, clampedCol],
+      ]) {
+        for (let r = row; r < row + dims.rows; r++) {
+          for (let c = col; c < col + dims.cols; c++) {
+            occupiedPositions.add(`${page},${r},${c}`);
+          }
+        }
+      }
+    });
 
     allDesktopItems.value.forEach((item) => {
       if (item.x !== undefined && item.y !== undefined) {
@@ -200,7 +227,7 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
     const containerWidth = containerRef?.value?.clientWidth || windowWidth.value;
     const maxCols = Math.floor((containerWidth - pad * 2) / gx);
 
-    const occupiedPositions = new Set<string>();
+    const occupiedPositions = new Set<string>(widgetsStore.occupiedCells);
 
     allDesktopItems.value.forEach((item) => {
       if (item.x !== undefined && item.y !== undefined) {

@@ -5,12 +5,13 @@ See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
-from flask import render_template, g
+from flask import render_template, request, g
 from flask_login import login_required
 
 from pymodules.hd_FunctionsConfig import read_config
 
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
+from pymodules.hd_AdoptHostname import adopt_browsed_hostname
 from pymodules.hd_FunctionsGlobals import version, version_hash, current_year
 
 from pymodules.hd_FunctionsMain import get_total_containers, get_active_containers
@@ -31,6 +32,7 @@ def desktop():
     interface_name = get_active_network_interface()
     selected_theme = config["selected_theme"]
     selected_back = config["selected_back"]
+    selected_appearance = config["selected_appearance"]
     selected_language = config["selected_language"]
     clock_format = config["clock_format"]
     week_start = config["week_start"]
@@ -43,7 +45,12 @@ def desktop():
     delete_old_image_containers_after_update = config["delete_old_image_containers_after_update"]
     delete_old_image_containers_after_uninstall = config["delete_old_image_containers_after_uninstall"]
     delete_internal_data_volumes = config["delete_internal_data_volumes"]
+    # HDOS00075
+    adopt_browsed_hostname(request.host)
+
     reverse_proxy = config["reverse_proxy"]
+    local_http_access = config["local_http_access"]
+    dynamic_dns_sync = config["dynamic_dns_sync"]
     default_external_drive = config["default_external_drive"]
     require_protected_paths_password = config["require_protected_paths_password"]
     disksplus_session_timeout_minutes = config["disksplus_session_timeout_minutes"]
@@ -60,6 +67,7 @@ def desktop():
         user_name=user_name,
         selected_theme=selected_theme,
         selected_back=selected_back,
+        selected_appearance=selected_appearance,
         selected_language=selected_language,
         clock_format=clock_format,
         week_start=week_start,
@@ -72,6 +80,8 @@ def desktop():
         delete_old_image_containers_after_uninstall=delete_old_image_containers_after_uninstall,
         delete_internal_data_volumes=delete_internal_data_volumes,
         reverse_proxy=reverse_proxy,
+        local_http_access=local_http_access,
+        dynamic_dns_sync=dynamic_dns_sync,
         default_external_drive=default_external_drive,
         require_protected_paths_password=require_protected_paths_password,
         disksplus_session_timeout_minutes=disksplus_session_timeout_minutes,

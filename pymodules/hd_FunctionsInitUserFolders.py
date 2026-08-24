@@ -20,6 +20,12 @@ from pymodules.hd_FunctionsGlobals import (
     user_packages_wallpaper_folder,
     user_packages_install_folder,
     user_packages_calendar_folder,
+    user_packages_shortcuts_folder,
+    user_packages_acme_folder,
+    user_packages_acme_staging_folder,
+    user_packages_app_open_folder,
+    user_packages_desktop_widgets_folder,
+    user_packages_whats_new_folder,
 )
 
 
@@ -32,6 +38,12 @@ def init_all_directories():
     os.makedirs(user_packages_wallpaper_folder, exist_ok=True)
     os.makedirs(user_packages_install_folder, exist_ok=True)
     os.makedirs(user_packages_calendar_folder, exist_ok=True)
+    os.makedirs(user_packages_shortcuts_folder, exist_ok=True)
+    os.makedirs(user_packages_acme_folder, exist_ok=True)
+    os.makedirs(user_packages_acme_staging_folder, exist_ok=True)
+    os.makedirs(user_packages_app_open_folder, exist_ok=True)
+    os.makedirs(user_packages_desktop_widgets_folder, exist_ok=True)
+    os.makedirs(user_packages_whats_new_folder, exist_ok=True)
 
     os.makedirs(user_storage_folder, exist_ok=True)
     os.makedirs(dropzone_folder, exist_ok=True)

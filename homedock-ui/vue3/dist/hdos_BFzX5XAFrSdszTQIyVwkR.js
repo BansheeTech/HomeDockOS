@@ -1,0 +1,1 @@
+import{b as e,g as t,k as n,mt as r}from"./hdos_D2BQ9i86mLac4AwOM-XJP.js";var i=[`src`],a=n({__name:`BaseImage`,props:{src:{}},setup(n){let a=n,o=t(()=>a.src.startsWith(`/`)?a.src:`/images/${a.src}`);return(t,n)=>(r(),e(`img`,{loading:`lazy`,src:o.value},null,8,i))}});export{a as t};

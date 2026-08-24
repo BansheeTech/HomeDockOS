@@ -5,14 +5,18 @@
 
 <template>
   <transition name="slide-down-fade">
-    <div v-show="isBannerVisible" class="relative text-xs w-full h-8 z-30 text-white text-center flex items-center justify-center rounded-2xl bg-gradient-to-r from-[#6e0000] via-[#4b0092] to-[#1575bf] animate-rainbow py-2.5">
-      <span id="CloudInstancesClose" class="absolute right-4 text-white cursor-pointer" @click="closeCloudInstanceContainer">
-        <Icon :icon="closeIcon" class="mr-1 text-current" width="14" height="14" />
-      </span>
-      <a target="_blank" href="https://www.homedock.cloud" class="flex items-center justify-center">
-        <Icon :icon="openIcon" class="mr-1 text-current" width="14" height="14" />
-        <span>{{ $t("Check out our HomeDock OS Cloud Instances!") }}</span>
-      </a>
+    <div v-show="isBannerVisible" class="relative z-30 grid grid-rows-[1fr] w-full">
+      <div class="overflow-hidden">
+        <div class="relative text-xs w-full min-h-8 text-white text-center flex items-center justify-center rounded-3xl bg-gradient-to-r from-[#6e0000] via-[#4b0092] to-[#1575bf] animate-rainbow py-2.5">
+          <span id="CloudInstancesClose" class="absolute right-4 text-white cursor-pointer" @click="closeCloudInstanceContainer">
+            <Icon :icon="closeIcon" class="mr-1 text-current" width="14" height="14" />
+          </span>
+          <a target="_blank" href="https://www.homedock.cloud" class="block text-balance px-8">
+            <Icon :icon="openIcon" class="inline-block align-middle mr-1 text-current" width="14" height="14" />
+            <span>{{ $t("Check out our HomeDock OS Cloud Instances!") }}</span>
+          </a>
+        </div>
+      </div>
     </div>
   </transition>
 </template>
@@ -75,7 +79,7 @@ watch(
     if (newValue) {
       checkLastShownDateAndShowCloudInstances();
     }
-  }
+  },
 );
 </script>
 
@@ -99,21 +103,20 @@ watch(
 
 .slide-down-fade-enter-active,
 .slide-down-fade-leave-active {
-  transition: max-height 0.6s ease, padding 0.6s ease, opacity 0.6s ease;
+  transition:
+    grid-template-rows 0.6s ease,
+    opacity 0.6s ease;
 }
 
 .slide-down-fade-enter-from,
 .slide-down-fade-leave-to {
-  max-height: 0;
-  padding: 0;
+  grid-template-rows: 0fr;
   opacity: 0;
-  overflow: hidden;
 }
 
 .slide-down-fade-enter-to,
 .slide-down-fade-leave-from {
-  max-height: 2rem;
-  padding: 1rem 0;
+  grid-template-rows: 1fr;
   opacity: 1;
 }
 </style>

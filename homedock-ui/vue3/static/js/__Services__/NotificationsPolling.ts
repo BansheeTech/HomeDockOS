@@ -22,6 +22,7 @@ export interface Notification {
   removing?: boolean;
   isUpdate?: boolean;
   isUpdating?: boolean;
+  isLocal?: boolean;
   onClick?: () => void;
 }
 
@@ -51,7 +52,7 @@ export function useNotificationsPolling(propCSRF: string, initialIntervalMs = 60
           currentIntervalMs = initialIntervalMs;
           unchangedCount = 0;
 
-          const updateNotifications = notifications.value.filter((n) => n.isUpdate);
+          const updateNotifications = notifications.value.filter((n) => n.isUpdate || n.isLocal);
 
           notifications.value = [
             ...updateNotifications,

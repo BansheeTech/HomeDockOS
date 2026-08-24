@@ -235,7 +235,7 @@
       <div class="space-y-3">
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Title") }}</label>
-          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Event title')" ref="eventTitleRef" />
+          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Event title')" ref="eventTitleRef" />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Date") }}</label>
@@ -262,7 +262,7 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Notes") }}</label>
-          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-none resize-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Optional notes...')"></textarea>
+          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-none resize-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Optional notes...')"></textarea>
         </div>
         <div v-if="editingEvent?.id" class="pt-1">
           <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteEventConfirm = true">{{ $t("Delete this event") }}</button>
@@ -341,7 +341,7 @@
         </div>
         <div v-if="icsImportCalendarId === '__new__'">
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Calendar name") }}</label>
-          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('e.g. Spain Holidays')" />
+          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('e.g. Spain Holidays')" />
         </div>
       </div>
     </AppDialog>
@@ -350,7 +350,7 @@
       <div class="space-y-3">
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Name") }}</label>
-          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Calendar name')" />
+          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Calendar name')" />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Color") }}</label>
@@ -427,13 +427,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, inject, onMounted, onUnmounted, nextTick, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import "dayjs/locale/es";
-import "dayjs/locale/en";
+import "../__Languages__/dayjsLocales";
+
+import { ref, computed, inject, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
 import { getLanguage } from "../__Languages__";
 import { Icon } from "@iconify/vue";
 import { TimePicker, DatePicker, Dropdown, Menu, MenuItem, MenuDivider, Switch } from "ant-design-vue";

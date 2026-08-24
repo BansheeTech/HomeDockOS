@@ -15,6 +15,7 @@ from flask_login import login_required
 
 from pymodules.hd_FunctionsGlobals import compose_upload_folder, current_directory, user_packages_available_folder
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
+from pymodules.hd_AppSubdomains import slugify_container_name
 from pymodules.hd_ThreadContainerResourceUsage import cpu_usage, memory_usage, network_rx_bytes, network_tx_bytes
 
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
@@ -282,7 +283,7 @@ def get_docker_containers():
 
             display_name = get_display_name_for_container(container.name)
 
-            basic_data = {"name": container.name, "display_name": display_name, "id": container.short_id, "status": container.status, "image": str(container.image.tags[0]) if container.image.tags else "", "image_path": image_path, "usagePercent": cpu_usage.get(container.name, 0), "memoryUsagePercent": memory_usage.get(container.name, 0), "networkRxBytes": network_rx_bytes.get(container.name, 0), "networkTxBytes": network_tx_bytes.get(container.name, 0), "statusColor": statusColor, "host": host_display, "composeLink": file_status, "ports": ports_list, "service_url": service_url, "has_update": updates_dict.get(container.name, False)}
+            basic_data = {"name": container.name, "slug": slugify_container_name(container.name), "display_name": display_name, "id": container.short_id, "status": container.status, "image": str(container.image.tags[0]) if container.image.tags else "", "image_path": image_path, "usagePercent": cpu_usage.get(container.name, 0), "memoryUsagePercent": memory_usage.get(container.name, 0), "networkRxBytes": network_rx_bytes.get(container.name, 0), "networkTxBytes": network_tx_bytes.get(container.name, 0), "statusColor": statusColor, "host": host_display, "composeLink": file_status, "ports": ports_list, "service_url": service_url, "has_update": updates_dict.get(container.name, False)}
 
             if "HDGroup" in labels:
                 basic_data["HDGroup"] = labels["HDGroup"]

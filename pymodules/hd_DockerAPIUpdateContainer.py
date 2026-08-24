@@ -18,7 +18,7 @@ from pymodules.hd_ThreadAutoPortRouting import update_event
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_ClassDockerComposeHelper import DockerComposeHelper
-from pymodules.hd_ThreadAppUpdatesChecker import clear_update_flag
+from pymodules.hd_ThreadAppUpdatesChecker import clear_update_flag, defer_update_check
 
 manager = DockerClientManager.get_instance()
 client = manager.get_client()
@@ -88,6 +88,7 @@ def process_container_update(name, client, updated_containers, containers_data, 
     except docker.errors.APIError as e:
         print(f" ! Error pulling image {image_name}: {e}")
         containers_data.append({"name": name, "composeLink": "pull_failed"})
+        defer_update_check(name)
         return
 
     updated_containers.append(name)
@@ -231,6 +232,7 @@ def check_for_new_images(container_names):
                 remote_manifest_digest = registry_data.id
             except Exception as e:
                 print(f"Could not get registry data for {image_name}: {e}")
+                defer_update_check(name)
                 continue
 
             if local_manifest_digest != remote_manifest_digest:

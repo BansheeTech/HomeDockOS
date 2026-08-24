@@ -216,18 +216,22 @@
       </div>
     </div>
 
-    <StatusBar :icon="cloudIcon" :message="$t('My Home')" :info="`${$t('CPU')} ${cpuValue}% • ${$t('RAM')} ${ramValue}% • ${activeContainers}/${totalContainers} ${$t('apps')}`" :showHelp="true">
+    <StatusBar :icon="homedockIcon" :message="$t('My Home')" :info="`${$t('CPU')} ${cpuValue}% • ${$t('RAM')} ${ramValue}% • ${activeContainers}/${totalContainers} ${$t('apps')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="cloudIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <Icon :icon="homedockIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("My Home") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("My Home is your central hub for accessing system information and applications. Monitor storage, performance, network activity, and system health at a glance.") }}</p>
-            <p><strong>{{ $t("Storage") }}:</strong> {{ $t("OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.") }}</p>
-            <p><strong>{{ $t("System Overview") }}:</strong> {{ $t("Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.") }}</p>
+            <p>
+              <strong>{{ $t("Storage") }}:</strong> {{ $t("OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.") }}
+            </p>
+            <p>
+              <strong>{{ $t("System Overview") }}:</strong> {{ $t("Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.") }}
+            </p>
           </div>
         </div>
       </template>
@@ -253,9 +257,10 @@ import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 import type { DiskData } from "../__Types__/DiskData";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import cloudIcon from "@iconify-icons/mdi/cloud";
+import { homedockIcon } from "../__Config__/HomeDockIcon";
 
 import { Icon } from "@iconify/vue";
-import cloudIcon from "@iconify-icons/mdi/cloud";
 import usbFlashIcon from "@iconify-icons/mdi/usb-flash-drive";
 import harddiskPlusIcon from "@iconify-icons/mdi/harddisk-plus";
 import discIcon from "@iconify-icons/mdi/disc";

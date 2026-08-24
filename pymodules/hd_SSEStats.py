@@ -34,6 +34,7 @@ class StatsCollector:
         self._initialized = True
         self._clients = []
         self._clients_lock = threading.Lock()
+        self._shutdown = threading.Event()
         self._state_lock = threading.Lock()
         self._last_sent = {}
         self._current_state = {}
@@ -118,6 +119,18 @@ class StatsCollector:
         with self._clients_lock:
             self._clients = [e for e in self._clients if e[0] is not q]
 
+    def is_shutting_down(self):
+        return self._shutdown.is_set()
+
+    def shutdown(self):
+        self._shutdown.set()
+        with self._clients_lock:
+            for q, _ in self._clients:
+                try:
+                    q.put_nowait(None)
+                except queue.Full:
+                    pass
+
     def get_snapshot(self):
         with self._state_lock:
             if not self._current_state:
@@ -136,6 +149,11 @@ def _get_collector():
     return _collector
 
 
+def shutdown_stats_streams():
+    if _collector is not None:
+        _collector.shutdown()
+
+
 @login_required
 def stats_stream():
     collector = _get_collector()
@@ -147,7 +165,7 @@ def stats_stream():
         try:
             yield f"event: snapshot\ndata: {collector.get_snapshot()}\n\n"
 
-            while time.monotonic() < deadline:
+            while time.monotonic() < deadline and not collector.is_shutting_down():
                 try:
                     data = client_queue.get(timeout=20)
                     if data is None:
@@ -156,7 +174,8 @@ def stats_stream():
                 except queue.Empty:
                     yield ": heartbeat\n\n"
 
-            yield "event: reconnect\ndata: {}\n\n"
+            if not collector.is_shutting_down():
+                yield "event: reconnect\ndata: {}\n\n"
         except GeneratorExit:
             pass
         finally:

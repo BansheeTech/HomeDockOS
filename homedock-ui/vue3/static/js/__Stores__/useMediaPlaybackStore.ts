@@ -5,6 +5,15 @@
 
 import { defineStore } from "pinia";
 
+export interface MediaOrigin {
+  location: "storage" | "dropzone" | "appdrive" | "disksplus";
+  path: string;
+  name: string;
+  container?: string;
+  mountIndex?: number;
+  disk?: string;
+}
+
 export interface MediaPlayerInfo {
   windowId: string;
   fileName: string;
@@ -15,6 +24,7 @@ export interface MediaPlayerInfo {
   currentTime: number;
   duration: number;
   coverUrl?: string;
+  origin?: MediaOrigin;
 }
 
 export const useMediaPlaybackStore = defineStore("MediaPlaybackStore", {

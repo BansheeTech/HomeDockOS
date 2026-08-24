@@ -15,6 +15,7 @@ from hypercorn.middleware import AsyncioWSGIMiddleware
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip
 from pymodules.hd_FunctionsHostSelector import docker_host, is_docker
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_cert_domains_and_type
+from pymodules.hd_AppSubdomains import get_desktop_hosts, BASE_HOSTNAME, LOOPBACK_HOSTNAME
 
 
 def start_http_redirect_server():
@@ -24,12 +25,22 @@ def start_http_redirect_server():
     @redirect_app.route("/<path:path>")
     def redirect_to_https(path):
         if request.headers.get("X-Forwarded-Proto") == "https":
-            abort(421)  # Misdirected Request — proxy should not route HTTPS traffic to HTTP redirector
+            abort(421)
 
         requested_host = request.host.split(":")[0]
 
         if requested_host in {local_ip, internet_ip, "localhost", "127.0.0.1", "::1", docker_host}:
             return redirect(f"https://{requested_host}/{path}", code=301)
+
+        # HDOS00073
+        bare_host = requested_host.lower().rstrip(".")
+
+        if bare_host in get_desktop_hosts():
+            return redirect(f"https://{requested_host}/{path}", code=301)
+
+        for base in (BASE_HOSTNAME, LOOPBACK_HOSTNAME):
+            if bare_host == base or bare_host.endswith("." + base):
+                return redirect(f"https://{requested_host}/{path}", code=301)
 
         try:
             ip_obj = ipaddress.ip_address(requested_host)

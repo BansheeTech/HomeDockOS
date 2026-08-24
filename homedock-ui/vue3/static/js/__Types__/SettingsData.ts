@@ -14,6 +14,8 @@ export interface SettingsData {
   delete_old_image_containers_after_uninstall: boolean;
   delete_internal_data_volumes: boolean;
   reverse_proxy: boolean;
+  local_http_access: boolean;
+  dynamic_dns_sync: boolean;
   default_external_drive: string;
   require_protected_paths_password: boolean;
   disksplus_session_timeout_minutes: number;

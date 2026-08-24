@@ -6,8 +6,8 @@
 <template>
   <div class="fixed bottom-0 left-0 right-0 z-[1000]" :class="[themeClasses.taskbarBg, themeClasses.taskbarBorder]" :style="{ height: taskbarHeight }">
     <div class="flex items-center h-full px-3 gap-2">
-      <button class="flex items-center gap-2 px-4 py-2 rounded-lg border-0 cursor-pointer transition-all duration-150 text-sm font-medium" :class="[themeClasses.startButtonBg, desktopStore.startMenuOpen ? [themeClasses.startButtonBgActive, themeClasses.startButtonTextActive] : [themeClasses.startButtonBgHover, themeClasses.startButtonText]]" @click="toggleStartMenu">
-        <LogoIcon :class="['transition-all duration-300 ease-in-out w-[20px] h-[20px]', desktopStore.startMenuOpen ? themeClasses.startButtonIconActive : themeClasses.startButtonIcon]" />
+      <button class="group flex items-center gap-2 px-4 py-2 rounded-lg border-0 cursor-pointer transition-all duration-150 text-sm font-medium" :class="[themeClasses.startButtonBg, desktopStore.startMenuOpen ? [themeClasses.startButtonBgActive, themeClasses.startButtonTextActive] : [themeClasses.startButtonBgHover, themeClasses.startButtonText]]" @click="toggleStartMenu">
+        <LogoIcon :class="['transition-all duration-300 ease-in-out w-[20px] h-[20px] group-hover:scale-110', desktopStore.startMenuOpen ? themeClasses.startButtonIconActive : themeClasses.startButtonIcon]" />
         <span v-if="showTaskbarLabels" class="select-none">{{ $t("Start", 1) }}</span>
       </button>
 
@@ -15,10 +15,11 @@
 
       <div ref="taskbarApps" class="flex-shrink min-w-0 md:flex-1 overflow-x-auto overflow-y-hidden scrollbar-none scroll-smooth [-webkit-overflow-scrolling:touch] cursor-default">
         <TransitionGroup name="taskbar-item" tag="div" class="flex items-center gap-1">
-          <button v-for="window in openWindows" :key="window.id" class="relative flex items-center gap-[0.3rem] px-3 py-2 rounded-lg bg-transparent border-0 cursor-pointer transition-all duration-150 text-sm whitespace-nowrap flex-shrink-0" :class="[themeClasses.taskbarIconText, themeClasses.taskbarIconBgHover, window.id === activeWindowId && !window.isMinimized && themeClasses.taskbarAppActive, window.isMinimized && themeClasses.taskbarAppMinimized]" @click.stop="handleWindowClick(window.id)" @contextmenu="handleWindowContextMenu($event, window)" @touchstart="handleWindowTouchStart($event, window)" @touchmove="handleWindowTouchMove" @touchend="handleWindowTouchEnd($event, window)" :title="window.title">
-            <Icon v-if="window.icon" :icon="window.icon" width="20" height="20" />
+          <button v-for="window in openWindows" :key="window.id" class="relative flex items-center gap-[0.3rem] px-3 py-2 rounded-lg bg-transparent border-0 cursor-pointer transition-all duration-150 text-sm whitespace-nowrap flex-shrink-0 select-none" :class="[themeClasses.taskbarIconText, themeClasses.taskbarIconBgHover, window.id === activeWindowId && !window.isMinimized && themeClasses.taskbarAppActive, window.isMinimized && themeClasses.taskbarAppMinimized]" @click.stop="handleWindowClick(window.id)" @contextmenu="handleWindowContextMenu($event, window)" @touchstart="handleWindowTouchStart($event, window)" @touchmove="handleWindowTouchMove" @touchend="handleWindowTouchEnd($event, window)" :title="window.title">
+            <BaseImage v-if="isImageIcon(window.icon)" :src="window.icon" alt="" class="taskbar-app-icon rounded-[4px]" width="20" height="20" draggable="false" />
+            <Icon v-else-if="window.icon" :icon="window.icon" width="20" height="20" />
             <Icon v-else :icon="defaultAppIcon" width="20" height="20" />
-            <span v-if="showTaskbarLabels" class="max-w-[120px] overflow-hidden text-ellipsis select-none">{{ window.title }}</span>
+            <span v-if="showTaskbarLabels" class="max-w-[120px] overflow-hidden text-ellipsis">{{ window.title }}</span>
             <div v-if="window.id === activeWindowId && !window.isMinimized" class="absolute bottom-[3px] left-[35%] right-[35%] h-[3px] rounded-full opacity-30" :class="themeClasses.taskbarAppIndicator"></div>
             <div v-else-if="!window.isMinimized" class="absolute bottom-[3px] left-[35%] right-[35%] h-[3px] rounded-full opacity-100" :class="themeClasses.taskbarAppIndicatorInactive"></div>
           </button>
@@ -69,18 +70,18 @@
         v-if="contextMenu.visible"
         ref="contextMenuRef"
         class="fixed z-[9999] rounded-lg p-1 min-w-[200px] select-none origin-bottom-left"
-        :class="[themeClasses.taskbarContextMenuBg, themeClasses.taskbarContextMenuBorder, themeClasses.taskbarContextMenuShadow]"
+        :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder, themeClasses.contextMenuShadow]"
         :style="{
           left: `${contextMenu.x}px`,
           bottom: `calc(${taskbarHeight} + 8px)`,
         }"
       >
-        <div v-for="(item, index) in contextMenuItems" :key="index" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-150" :class="[themeClasses.taskbarContextMenuItem, !item.divider && !item.disabled ? themeClasses.taskbarContextMenuItemHover : '', item.disabled && themeClasses.taskbarContextMenuItemDisabled, item.divider && 'py-1 cursor-default']" @click="handleContextItemClick(item)">
+        <div v-for="(item, index) in contextMenuItems" :key="index" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-150" :class="[themeClasses.contextMenuItem, !item.divider && !item.disabled ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover, 'cursor-pointer'] : '', item.disabled && [themeClasses.contextMenuItemDisabled, 'cursor-not-allowed'], item.divider && 'py-1 cursor-default']" @click="handleContextItemClick(item)">
           <template v-if="!item.divider">
             <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="flex-shrink-0" />
             <span class="flex-1">{{ item.label ? $t(item.label) : "" }}</span>
           </template>
-          <div v-else class="h-px mx-2" :class="themeClasses.taskbarContextMenuDivider"></div>
+          <div v-else class="h-px mx-2 flex-1" :class="themeClasses.contextMenuDivider"></div>
         </div>
       </div>
     </Transition>
@@ -91,7 +92,8 @@
 import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick } from "vue";
 
 import { useDesktopStore } from "../__Stores__/desktopStore";
-import { useWindowStore } from "../__Stores__/windowStore";
+import { useWindowStore, isImageIcon } from "../__Stores__/windowStore";
+import BaseImage from "../__Components__/BaseImage.vue";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
@@ -175,7 +177,7 @@ const themeIcon = computed(() => {
   return themeData?.selected_theme === "dark-mode-theme" ? themeIconLight : themeIconDark;
 });
 
-const openWindows = computed(() => windowStore.windows);
+const openWindows = computed(() => windowStore.appWindows.filter((w) => !w.isClosing));
 
 const activeWindowId = computed(() => windowStore.activeWindowId);
 
@@ -231,7 +233,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     label: "Close",
     icon: closeIcon,
     action: () => {
-      windowStore.closeWindow(win.id);
+      void windowStore.requestClose(win.id);
     },
   });
 
@@ -443,6 +445,13 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.taskbar-app-icon {
+  -webkit-user-drag: none;
+  -moz-user-drag: none;
+  -ms-user-drag: none;
+  user-drag: none;
+}
+
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
   height: 0;

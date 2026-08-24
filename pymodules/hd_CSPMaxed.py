@@ -5,6 +5,8 @@ See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 https://www.banshee.pro
 """
 
+import re
+
 from flask import g, request
 from pymodules.hd_HyperSpoof import HeaderManager
 
@@ -32,7 +34,6 @@ def generate_csp(nonce, is_development, endpoint=""):
         csp = csp.replace("script-src 'self' 'nonce-{{nonceMarker}}'", "script-src 'self' http://localhost:5173 'unsafe-eval' ")
         csp = csp.replace("style-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' http://localhost:5173 ")
         # HDOS00003
-        # csp = csp.replace("style-src 'self' 'nonce-{{nonceMarker}}'", "style-src 'self' http://localhost:5173 ")
         csp = csp.replace("connect-src 'self'", "connect-src 'self' ws://localhost:5173 http://localhost:5173 ")
 
     csp = csp_endpoint_evaluator(csp, endpoint)
@@ -41,9 +42,44 @@ def generate_csp(nonce, is_development, endpoint=""):
     return csp
 
 
+def app_subdomain_source():
+
+    try:
+        host = request.host
+    except Exception:
+        return ""
+
+    if not host or host.startswith("["):
+        return ""
+
+    hostname, _, port = host.partition(":")
+
+    if not hostname:
+        return ""
+
+    if "." not in hostname:
+        return ""
+
+    if re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", hostname):
+        return ""
+
+    suffix = f":{port}" if port else ""
+
+    return f"{request.scheme}://*.{hostname}{suffix}"
+
+
 def csp_endpoint_evaluator(csp, endpoint):
     if endpoint == "dashboard":
         csp = csp.replace("connect-src 'self'", "connect-src 'self' https://ip.guide ")
+
+        # HDOS00036
+        frame_source = app_subdomain_source()
+        if frame_source:
+            csp += f"frame-src 'self' {frame_source} ;"
+
+            # HDOS00057
+            csp = csp.replace("connect-src 'self'", f"connect-src 'self' {frame_source} ")
+
     return csp
 
 
@@ -92,6 +128,14 @@ def setup_security_headers(app, config):
         response.headers["Content-Security-Policy"] = csp
 
         set_common_headers(response, header_manager.server, is_development)
+
+        # HDOS00037
+        if endpoint == "dashboard" and app_subdomain_source():
+            response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
+
+        # HDOS00047
+        if endpoint in ("app_loader_port", "app_loader_subpath"):
+            response.headers["X-Frame-Options"] = "SAMEORIGIN"
 
         return response
 

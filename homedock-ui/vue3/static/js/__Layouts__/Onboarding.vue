@@ -49,14 +49,7 @@
           <p :class="[themeClasses.subText]" class="text-base font-light opacity-85 m-0 mb-10">
             {{ $t("For security, first-time setup is only accepted shortly after HomeDock OS starts. Restart HomeDock OS to open a new setup window.") }}
           </p>
-          <a
-            id="main_button_onboarding_docs"
-            href="https://docs.homedock.cloud/troubleshooting/restart-required/"
-            target="_blank"
-            rel="noopener noreferrer"
-            :class="[themeClasses.loginSecondaryButton]"
-            class="h-12 px-8 rounded-lg no-underline inline-flex items-center justify-center onb-final-cta"
-          >
+          <a id="main_button_onboarding_docs" href="https://docs.homedock.cloud/troubleshooting/restart-required/" target="_blank" rel="noopener noreferrer" :class="[themeClasses.loginSecondaryButton]" class="h-12 px-8 rounded-lg no-underline inline-flex items-center justify-center onb-final-cta">
             <Icon :icon="helpIcon" width="18" height="18" class="mr-2" />
             <span>{{ $t("What does this mean?") }}</span>
           </a>
@@ -66,7 +59,9 @@
 
     <Transition name="splash-out">
       <div v-if="windowOpen && !hasStarted && !isSetupSuccessful" class="absolute inset-0 z-[4] flex items-center justify-center px-6 py-8">
-        <canvas ref="auroraRef" class="absolute left-0 bottom-0 w-full h-full pointer-events-none z-0" style="transform: scaleY(-1)" aria-hidden="true"></canvas>
+        <div class="absolute left-0 bottom-0 w-full h-full pointer-events-none z-0">
+          <AuroraWaves flipped />
+        </div>
         <div class="onb-splash-inner relative z-[1] text-center max-w-[640px] w-full">
           <p :class="[themeClasses.subText]" class="text-xs tracking-[0.32em] uppercase font-medium opacity-70 m-0 mb-5">{{ $t("Welcome") }}</p>
           <Transition name="greet" mode="out-in">
@@ -133,15 +128,50 @@
             </Transition>
           </div>
 
-          <!-- 04 — Time -->
-          <div v-else-if="currentStep === 3" key="time" class="w-full max-w-[540px] text-center lg:text-left">
+          <!-- 04 — Windows -->
+          <div v-else-if="currentStep === 3" key="win" class="w-full max-w-[540px] text-center lg:text-left">
+            <p :class="[themeClasses.subText]" class="text-[10px] tracking-[0.32em] uppercase font-medium opacity-70 mb-2 lg:text-[11px] lg:mb-5">{{ $t("Windows") }}</p>
+            <Transition name="greet" mode="out-in">
+              <h1 :key="state.selected_appearance" :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.035em] leading-none text-[clamp(1.75rem,7.5vw,2.5rem)] m-0 break-words lg:text-[clamp(3rem,6vw,5.75rem)] lg:leading-[0.95] lg:tracking-[-0.04em] lg:mb-6">{{ currentAppearanceLabel }}<span class="scene-display-dot">.</span></h1>
+            </Transition>
+
+            <!-- The real Prism chrome, not a drawing of it: same classes the desktop paints. -->
+            <div class="onb-mock-window pwm-window pwm-active mt-3 mx-auto lg:mx-0 lg:mt-0" :class="[`pwm-${state.selected_appearance}`, themeClasses.windowBg]">
+              <div class="pwm-window-header" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
+                <div class="pwm-window-header-draggable">
+                  <div class="pwm-window-icon-container" :class="[themeClasses.windowTitleTextFocused, state.selected_appearance === 'cupertino' ? '' : themeClasses.windowIconContainerBgFocused]">
+                    <Icon :icon="dashboardIcon" width="14" height="14" />
+                  </div>
+                  <span class="pwm-window-title" :class="[themeClasses.windowTitleTextFocused]">{{ $t("Dashboard") }}</span>
+                </div>
+                <div class="pwm-window-controls">
+                  <span v-for="control in mockControls" :key="control.kind" class="pwm-window-control" :class="[`pwm-${control.kind}`, state.selected_appearance === 'cupertino' ? '' : themeClasses.windowButtonText]">
+                    <Icon v-if="state.selected_appearance !== 'cupertino'" :icon="control.icon" width="12" height="12" />
+                  </span>
+                </div>
+              </div>
+              <div class="onb-mock-body" :class="[themeClasses.mainText]">
+                <div class="onb-mock-aside">
+                  <span v-for="n in 4" :key="n" class="onb-mock-line"></span>
+                </div>
+                <div class="onb-mock-main">
+                  <span class="onb-mock-block"></span>
+                  <span class="onb-mock-line w-3/4"></span>
+                  <span class="onb-mock-line w-1/2"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 05 — Time -->
+          <div v-else-if="currentStep === 4" key="time" class="w-full max-w-[540px] text-center lg:text-left">
             <p :class="[themeClasses.subText]" class="text-[10px] tracking-[0.32em] uppercase font-medium opacity-70 mb-2 lg:text-[11px] lg:mb-5">{{ $t("Now") }}</p>
             <div :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.04em] leading-[0.9] text-[clamp(2.75rem,11vw,4rem)] m-0 tabular-nums lg:text-[clamp(5rem,12vw,9.5rem)] lg:tracking-[-0.05em] lg:mb-6">{{ formattedTime }}</div>
             <p :class="[themeClasses.subText]" class="block text-[13px] font-light opacity-[0.78] max-w-[32ch] leading-[1.4] mt-2 mx-auto lg:text-[15px] lg:leading-[1.45] lg:m-0">{{ formattedDate }}</p>
           </div>
 
-          <!-- 05 — Done -->
-          <div v-else-if="currentStep === 4" key="done" class="w-full max-w-[540px] text-center lg:text-left">
+          <!-- 06 — Done -->
+          <div v-else-if="currentStep === 5" key="done" class="w-full max-w-[540px] text-center lg:text-left">
             <p :class="[themeClasses.subText]" class="text-[10px] tracking-[0.32em] uppercase font-medium opacity-70 mb-2 lg:text-[11px] lg:mb-5">{{ $t("Ready") }}</p>
             <h1 :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.035em] leading-none text-[clamp(1.75rem,7.5vw,2.5rem)] m-0 break-words lg:text-[clamp(3rem,6vw,5.75rem)] lg:leading-[0.95] lg:tracking-[-0.04em] lg:mb-5">
               {{ $t("All set,") }}<br />
@@ -255,7 +285,7 @@
                 <Transition name="step">
                   <div v-if="state.selected_theme === 'aeroplus'" key="wp">
                     <p :class="[themeClasses.subText]" class="text-[11px] tracking-[0.22em] uppercase font-medium opacity-75 m-0 mb-3">{{ $t("Wallpaper") }}</p>
-                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    <div class="grid grid-cols-3 gap-2">
                       <button v-for="back in wallpaperOptions" :key="back" type="button" @click="selectWallpaper(back)" class="onb-wp-card aspect-video rounded-lg overflow-hidden outline outline-[1.5px] outline-offset-[2px] outline-transparent opacity-70 cursor-pointer border-0 p-0 transition-[opacity,transform] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-wp-card-active': state.selected_back === back }">
                         <img :src="`/images/wallpapers/${back}`" :alt="back" class="w-full h-full object-cover" />
                       </button>
@@ -265,8 +295,28 @@
                 </Transition>
               </div>
 
-              <!-- 04 — Time -->
+              <!-- 04 — Windows -->
               <div v-else-if="currentStep === 3">
+                <h2 :class="[themeClasses.mainText]" class="text-2xl font-light tracking-[-0.015em] leading-tight m-0 mb-2 lg:text-[1.75rem]">{{ $t("Choose your window style") }}</h2>
+                <p :class="[themeClasses.subText]" class="text-sm font-light leading-relaxed opacity-85 m-0 mb-7 max-w-[42ch]">{{ $t("Preview it on the left, and change it later in Settings.") }}</p>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                  <button v-for="option in appearanceOptions" :key="option.value" type="button" @click="selectAppearance(option.value)" class="onb-theme-card onb-win-card relative rounded-[14px] p-4 text-left border-0 outline outline-[1.5px] outline-offset-[2px] outline-transparent cursor-pointer opacity-[0.78] transition-[transform,box-shadow,opacity] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-theme-card-active': state.selected_appearance === option.value }">
+                    <span class="flex items-center gap-1 mb-3" :class="[themeClasses.mainText, option.value === 'cupertino' ? 'justify-start' : 'justify-end']">
+                      <i v-for="(dot, i) in option.dots" :key="i" class="onb-win-dot" :class="{ 'onb-win-dot-round': option.value === 'cupertino' }" :style="{ background: dot }"></i>
+                    </span>
+                    <span :class="[themeClasses.mainText]" class="block text-sm font-medium">{{ option.label }}</span>
+                    <span :class="[themeClasses.subText]" class="block text-[11px] mt-1 pr-5 leading-snug opacity-75">{{ option.desc }}</span>
+                    <!-- Bottom right: the top right is where the redmond card puts its controls. -->
+                    <span class="onb-theme-check absolute bottom-2 right-2 w-4 h-4 rounded-full border flex items-center justify-center opacity-0 transition-opacity duration-200" :class="[themeClasses.mainText]">
+                      <Icon :icon="checkIcon" width="10" height="10" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 05 — Time -->
+              <div v-else-if="currentStep === 4">
                 <h2 :class="[themeClasses.mainText]" class="text-2xl font-light tracking-[-0.015em] leading-tight m-0 mb-2 lg:text-[1.75rem]">{{ $t("Time & calendar") }}</h2>
                 <p :class="[themeClasses.subText]" class="text-sm font-light leading-relaxed opacity-85 m-0 mb-7 max-w-[42ch]">{{ $t("How would you like dates and times displayed?") }}</p>
 
@@ -283,8 +333,8 @@
                 </Radio.Group>
               </div>
 
-              <!-- 05 — Done -->
-              <div v-else-if="currentStep === 4">
+              <!-- 06 — Done -->
+              <div v-else-if="currentStep === 5">
                 <h2 :class="[themeClasses.mainText]" class="text-2xl font-light tracking-[-0.015em] leading-tight m-0 mb-2 lg:text-[1.75rem]">{{ $t("Almost there!") }}</h2>
                 <p :class="[themeClasses.subText]" class="text-sm font-light leading-relaxed opacity-85 m-0 mb-7 max-w-[42ch]">{{ $t("Review your selections and finish setup.") }}</p>
                 <ul class="onb-summary list-none m-0 p-0 border-t">
@@ -299,6 +349,10 @@
                   <li class="flex justify-between items-center py-3.5 text-sm border-b">
                     <span :class="[themeClasses.subText]" class="text-[11px] tracking-[0.18em] uppercase font-medium opacity-70">{{ $t("Theme") }}</span>
                     <span :class="[themeClasses.mainText]">{{ currentThemeLabel }}</span>
+                  </li>
+                  <li class="flex justify-between items-center py-3.5 text-sm border-b">
+                    <span :class="[themeClasses.subText]" class="text-[11px] tracking-[0.18em] uppercase font-medium opacity-70">{{ $t("Window style") }}</span>
+                    <span :class="[themeClasses.mainText]">{{ currentAppearanceLabel }}</span>
                   </li>
                   <li class="flex justify-between items-center py-3.5 text-sm border-b">
                     <span :class="[themeClasses.subText]" class="text-[11px] tracking-[0.18em] uppercase font-medium opacity-70">{{ $t("Clock format") }}</span>
@@ -354,6 +408,10 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import checkIcon from "@iconify-icons/mdi/check";
 import arrowLeftIcon from "@iconify-icons/mdi/arrow-left";
 import arrowRightIcon from "@iconify-icons/mdi/arrow-right";
+import dashboardIcon from "@iconify-icons/mdi/view-dashboard-outline";
+import minimizeIcon from "@iconify-icons/mdi/window-minimize";
+import maximizeIcon from "@iconify-icons/mdi/window-maximize";
+import closeIcon from "@iconify-icons/mdi/close";
 
 import { Form, Input, Button, Select, Radio, message } from "ant-design-vue";
 
@@ -363,6 +421,9 @@ import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
 import SplashScreen from "../__Components__/SplashScreen.vue";
+import AuroraWaves from "../__Components__/AuroraWaves.vue";
+
+import type { PrismAppearance } from "@prism-wm/core";
 
 import type { ThemeData } from "../__Types__/ThemeData";
 
@@ -374,12 +435,11 @@ const { themeClasses } = useTheme();
 const onboardingData = inject<{ window_open: boolean; window_remaining: number }>("data-onboarding", { window_open: true, window_remaining: 0 });
 const windowOpen = ref(onboardingData.window_open !== false);
 
-const stepLabels = computed(() => [t("Language"), t("Account"), t("Appearance"), t("Time"), t("Done")]);
+const stepLabels = computed(() => [t("Language"), t("Account"), t("Appearance"), t("Windows"), t("Time"), t("Done")]);
 const currentStep = ref(0);
 const hasStarted = ref(false);
 const wizardBodyRef = ref<HTMLElement | null>(null);
 const ballRef = ref<HTMLElement | null>(null);
-const auroraRef = ref<HTMLCanvasElement | null>(null);
 
 watch(currentStep, async () => {
   await nextTick();
@@ -394,6 +454,7 @@ const state = reactive({
   confirmPassword: "",
   selected_theme: themeData.selected_theme || "default",
   selected_back: themeData.selected_back || "back1.jpg",
+  selected_appearance: (themeData.selected_appearance || "redmond") as PrismAppearance,
   clock_format: "24h" as "24h" | "12h",
   week_start: "monday" as "monday" | "sunday",
 });
@@ -433,100 +494,6 @@ function scheduleBallBounce(initial = false) {
 onMounted(() => scheduleBallBounce(true));
 onBeforeUnmount(() => {
   if (ballTimer) clearTimeout(ballTimer);
-});
-
-let auroraAnimId: number | null = null;
-let auroraResizeHandler: (() => void) | null = null;
-onMounted(() => {
-  const canvas = auroraRef.value;
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  const SPEED = 0.0016;
-  const MAX_HEIGHT = 0.1;
-  const REVEAL_DURATION = 2800;
-  const COLORS: Array<[number, number, number, number]> = [
-    [59, 130, 246, 0.12],
-    [99, 102, 241, 0.08],
-    [236, 72, 153, 0.06],
-    [37, 99, 235, 0.05],
-  ];
-  const easeOutSmooth = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : 1 - Math.pow(1 - t, 4));
-
-  const waves = COLORS.map((color, i) => ({
-    color,
-    baseY: (i + 1) / (COLORS.length + 1),
-    amplitude: 30 + Math.random() * 40,
-    frequency: 0.004 + Math.random() * 0.002,
-    phaseSpeed: (0.8 + Math.random() * 0.4) * (i % 2 === 0 ? 1 : -1),
-    thickness: 60 + Math.random() * 50,
-  }));
-
-  const resize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  };
-  auroraResizeHandler = resize;
-
-  let time = 0;
-  let startTs: number | null = null;
-  const draw = (ts: number) => {
-    if (!auroraRef.value) return;
-    if (startTs === null) startTs = ts;
-    const reveal = easeOutSmooth(Math.min((ts - startTs) / REVEAL_DURATION, 1));
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    time += SPEED;
-    const w = canvas.width;
-    const h = canvas.height;
-    const auroraH = h * MAX_HEIGHT;
-
-    for (const wave of waves) {
-      const yCenter = wave.baseY * auroraH;
-      const amp = wave.amplitude * reveal;
-
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      for (let x = 0; x <= w; x += 4) {
-        const nx = x * wave.frequency;
-        const y = yCenter + Math.sin(nx + time * wave.phaseSpeed) * amp + Math.sin(nx * 2.3 + time * wave.phaseSpeed * 0.7) * amp * 0.4;
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(w, 0);
-      ctx.closePath();
-
-      const [r, g, b, a] = wave.color;
-      const aR = a * reveal;
-      const grad = ctx.createLinearGradient(0, 0, 0, yCenter + wave.thickness);
-      grad.addColorStop(0, `rgba(${r},${g},${b},${aR * 1.5})`);
-      grad.addColorStop(0.5, `rgba(${r},${g},${b},${aR})`);
-      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.beginPath();
-      for (let x = 0; x <= w; x += 4) {
-        const nx = x * wave.frequency;
-        const y = yCenter + Math.sin(nx + time * wave.phaseSpeed) * amp + Math.sin(nx * 2.3 + time * wave.phaseSpeed * 0.7) * amp * 0.4;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = `rgba(${r},${g},${b},${aR * 2.5})`;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-
-    auroraAnimId = requestAnimationFrame(draw);
-  };
-
-  resize();
-  auroraAnimId = requestAnimationFrame(draw);
-  window.addEventListener("resize", resize);
-});
-onBeforeUnmount(() => {
-  if (auroraAnimId) cancelAnimationFrame(auroraAnimId);
-  if (auroraResizeHandler) window.removeEventListener("resize", auroraResizeHandler);
 });
 
 const formattedTime = computed(() => {
@@ -612,7 +579,28 @@ const themeOptions = computed(() => [
   { value: "aeroplus", label: "Aero+", desc: t("Glass with wallpaper."), swatch: "linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%)", fg: "#ffffff" },
 ]);
 
-const wallpaperOptions = ["back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg"];
+const wallpaperOptions = ["back1.jpg", "back2.jpg", "back3.jpg", "back4.jpg", "back5.jpg", "back6.jpg", "back7.jpg", "back8.jpg", "back9.jpg"];
+
+const appearanceOptions = computed<{ value: PrismAppearance; label: string; desc: string; dots: string[] }[]>(() => [
+  { value: "redmond", label: "Redmond", desc: t("Controls on the right."), dots: ["currentColor", "currentColor", "currentColor"] },
+  { value: "cupertino", label: "Cupertino", desc: t("Traffic lights on the left."), dots: ["#ff5f57", "#febc2e", "#28c840"] },
+]);
+
+const currentAppearanceLabel = computed(() => appearanceOptions.value.find((a) => a.value === state.selected_appearance)?.label || state.selected_appearance);
+
+const mockControls = computed(() =>
+  state.selected_appearance === "cupertino"
+    ? [
+        { kind: "close", icon: closeIcon },
+        { kind: "minimize", icon: minimizeIcon },
+        { kind: "maximize", icon: maximizeIcon },
+      ]
+    : [
+        { kind: "minimize", icon: minimizeIcon },
+        { kind: "maximize", icon: maximizeIcon },
+        { kind: "close", icon: closeIcon },
+      ],
+);
 
 const currentLanguageLabel = computed(() => languageOptions.find((l) => l.value === state.selected_language)?.label || state.selected_language);
 const currentThemeLabel = computed(() => themeOptions.value.find((tt) => tt.value === state.selected_theme)?.label || state.selected_theme);
@@ -709,6 +697,13 @@ watch(
   },
 );
 
+watch(
+  () => state.selected_appearance,
+  (next) => {
+    themeData.selected_appearance = next;
+  },
+);
+
 async function onLanguageChange(value: unknown) {
   if (typeof value === "string") {
     await setLanguage(value);
@@ -721,6 +716,10 @@ function selectTheme(value: string) {
 
 function selectWallpaper(value: string) {
   state.selected_back = value;
+}
+
+function selectAppearance(value: PrismAppearance) {
+  state.selected_appearance = value;
 }
 
 function nextStep() {
@@ -786,6 +785,7 @@ async function handleFinish() {
         selected_language: state.selected_language,
         selected_theme: state.selected_theme,
         selected_back: state.selected_back,
+        selected_appearance: state.selected_appearance,
         clock_format: state.clock_format,
         week_start: state.week_start,
       },
@@ -1052,6 +1052,86 @@ async function handleFinish() {
 .onb-wp-card-active {
   opacity: 1;
   outline-color: #3b82f6;
+}
+
+.onb-win-card {
+  background: rgba(127, 127, 127, 0.1);
+}
+.onb-win-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  opacity: 0.45;
+}
+.onb-win-dot-round {
+  border-radius: 50%;
+  opacity: 1;
+}
+
+/* The mock borrows Prism's own chrome classes, so it needs the window pulled out */
+/* of the manager's absolute layer and given a size of its own. */
+.onb-mock-window {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  /* The scene caps at 36vh on phones, so the mock stays short enough not to clip. */
+  height: 116px;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  box-shadow: 0 18px 44px -22px rgba(0, 0, 0, 0.55);
+}
+.onb-mock-window .pwm-window-header-draggable {
+  cursor: default;
+}
+.onb-mock-window .pwm-window-control {
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .onb-mock-window {
+    max-width: 420px;
+    height: 208px;
+  }
+}
+
+.onb-mock-body {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+.onb-mock-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 28%;
+  padding-right: 10px;
+  border-right: 1px solid rgba(127, 127, 127, 0.16);
+}
+.onb-mock-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.onb-mock-line {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0.14;
+}
+.onb-mock-aside .onb-mock-line:first-child {
+  opacity: 0.28;
+}
+.onb-mock-block {
+  display: block;
+  flex: 1;
+  min-height: 24px;
+  border-radius: 6px;
+  background: currentColor;
+  opacity: 0.09;
 }
 
 .onb-summary {

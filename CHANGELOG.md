@@ -1,11 +1,189 @@
 # CHANGELOG
 
-- **2.1.6.166** (Latest): Security and compatibility update.
+- **2.4.2.120** (Latest): Introducing **OnScreen Apps**, **Widgets**, **Built-In Reverse Proxy** and **Shortcuts**.
+  - **Applications by default now open inside the HomeDock OS interface, not in another tab.** Every app is served at its own address (`jellyfin.yourdomain.com` for access from anywhere, `jellyfin.homedock.localhost` for access from the machine running HomeDock OS) and rendered inside a @prism-wm window, title bar and all. First, we brought windows to self-hosting [on October 15th, 2025](https://github.com/BansheeTech/HomeDockOS/commit/41e6eab6). Now we're bringing multitasking and closing the gap. Innovation takes time, following... Shouldn't.
+  - **Two apps at once, side by side, instead of a row of forgotten tabs.** Drag Jellyfin next to Immich next to a terminal and actually use them at the same time. Resize them, stack them, put one in a corner while you work in another. This is the part a browser tab was never going to give you, and the reason any of the rest of this exists.
+  - **A window is not a picture of the app, it is the app.** Sound keeps playing while you drag it. A download started inside lands where you told it to. A video keeps its place when you move it across the screen. Nothing is captured, re-rendered or streamed from the server: it is the same page a tab would have opened, wearing a title bar.
+  - **Automatic Let's Encrypt SSL certificates, issued by HomeDock OS itself.** Settings > System now has a **DNS provider** and a token. HomeDock OS talks to **Let's Encrypt** and obtains a real, browser-trusted certificate for your domain and every app underneath it. No more warnings to click through, no more explaining to your family why the page says it is dangerous.
+  - **Nothing on your machine is ever contacted from the internet to get it.** Proving you own a domain usually means letting a stranger's server knock on your door, which is why guides tell you to open a port first. HomeDock OS proves it through your DNS provider instead, so **no inbound connection is ever made to your box during the whole process**. Your router stays exactly as closed as it was before you started.
+  - **No certbot, no plugins, no terminal.** Getting a certificate normally means installing a tool, learning its flags and wiring it to your DNS provider by hand. Here it is a dropdown, a token and a button. And instead of waiting a blind two minutes for the internet to catch up, HomeDock OS asks your provider directly until it is ready, which with freemyip takes about five seconds.
+  - **Apps that only know plain HTTP are served over HTTPS anyway.** Most self-hosted containers were never built to do encryption and never will be. HomeDock OS puts your certificate in front of every one of them, so **every application shows the padlock in your browser**. Jellyfin, Immich, a bare file browser, that dashboard from 2019 that has no idea what a certificate is. All of them, same padlock.
+  - **HomeDock OS became the reverse proxy, so you never have to install one.** That box everyone tells you to put in front of your server to hand out addresses and certificates? It is already here, built in, doing the job for every app you have. No second container to run, no second thing to keep updated, no second place where something can be misconfigured.
+  - **Every app gets its own address instead of a folder on a shared one.** The usual trick is to hang apps off `/apps/jellyfin/`, and it breaks something new every week, because the app has no idea it was moved and keeps linking to places that are not there. Giving each one its own address means nothing has to be rewritten: as far as the app can tell, it is alone and it is home.
+  - **One certificate covers every app you have.** It is a wild wildcard west cert, so a single request covers your domain and every application living underneath it. One certificate to obtain, one to renew, one to keep track of, no matter how many apps you end up running.
+  - **Installing an app is the whole setup.** There is no step two. No proxy entry to add, no virtual host to write, no certificate to request, no DNS record to create, no container label to remember. The app appears on your desktop and its address exists, because both were derived from the name you already gave it.
+  - **You don't need to open a port per application for remote access,** just the regular HomeDock OS ports (80,443). Everything arrives through HomeDock OS, which ends up being the only thing on your network that has to be reachable at all.
+  - **Applications with no login of their own inherit yours.** Every request to an app address is checked against your HomeDock OS session, and anything without one is turned away before it ever reaches the app. That dashboard with no password, that admin panel that assumes nobody outside your house will ever find it: all of them are now behind your login, wherever you reach them from.
+  - **Exposure, a per-app switch for the things that cannot log in.** The Jellyfin app on your TV, the Nextcloud app on your phone, the Home Assistant companion: none of them can sign in to HomeDock OS the way you do in a browser, they only know how to log in to the app itself. **Application Properties > Exposure** hands one specific app an address of its own, so those clients finally connect.
+  - **Automatic IP updates, so your address survives your ISP.** Home connections change their IP address without warning, and when yours does, the domain your certificate was issued for is suddenly pointing at a stranger's connection. A switch in Settings > System keeps that domain aimed at your house, so you come home to a working address instead of a mystery.
+  - **Windows need a real domain name, and we would rather say so than half-deliver.** `homedock.local` is a name your network makes up on the spot, and it turns out Windows cannot find apps underneath it at all, while Safari throws away the app's session as it opens. That is not something we can fix from here. So at `homedock.local`, apps open in a tab, which works on every machine in the house without exceptions.
+  - **`homedock.local` is still the easiest way in on day one.** Nothing about reaching HomeDock OS itself changed: the name shows up on your network the moment it boots and every machine in the house can find it, Windows included. It was only the app addresses underneath it that were never going to work. But seriously, you have a free Let's Encrypt certificate one dropdown away now. What do you need `homedock.local` for, other than getting there the first time?
+  - **Every setting explains itself, without turning the panel into a manual.** Each row in Settings carries a small ⓘ next to its title that opens a short note: what the setting actually does, what it costs you, and the edge case nobody warns you about. Twenty-one of them across all five panels.
+  - **Your desktop now takes Web Shortcuts.** Right-click the desktop > New Shortcut, paste any URL, and it lands as a real desktop icon, same look and feel as your apps, with the classic little arrow in the corner so you know it jumps out.
+  - **The same goes for your own files and folders.** Right-click anything in File Explorer > **Add to Desktop** and it lands wearing the icon of its own type, from all four places your files live: **Storage**, **Drop Zone**, **App Drive** and **Disks+**. Nothing is ever copied, a shortcut is a pointer and weighs nothing.
+  - **Widgets, on the desktop, where the wallpaper used to be.** Right-click the desktop > **Widgets** and drop **Clock**, **System**, **Storage**, **Notes**, **Network**, **Calendar**, **Media** or **Shortcut** anywhere on the grid. Eight of them, and the wallpaper was not doing much anyway.
+  - **Quick View spreads every open window out at once.** Hit `F3` or `Ctrl/Cmd + ↑`, or pick it from the desktop right-click menu, and every window flies into a grid with its name and icon under it. Click one and the rest fly home. Touch anything else, launch an app, minimize from the taskbar, open a dialog, and everything simply goes back where it was.
+  - **Screenshots, taken from the desktop itself.** Right-click the little vertical line at the edge of the screen and hit **Screenshot**. HomeDock OS captures what you actually see, apps and all, and drops the shot straight into **Storage > Photos** without you choosing a folder or naming a file.
+  - **What's New, because you should not have to read a changelog to find out what changed.** The first time you sign in after an update, HomeDock OS opens the release notes itself: what landed, what it is for, and a link to this very file for the long version. Close it and it never comes back, not for that release and not for the twenty security patches after it, because it is tied to the notes themselves and not to the version number. And it waits in **About > What's New** whenever you feel like reading it again.
+  - **We said we would open the core once we could afford to, and we are doing it piece by piece.** [@vite-fusion](https://github.com/BansheeTech/vite_fusion) went out under MIT. Next up is **[@prism-wm](https://github.com/BansheeTech/Prism-WM)**, the window manager all of this runs on, with Vue, React and Svelte adapters, landing in the following days. Take it, fork it, ship it in whatever you are building: we would rather the whole of self-hosting had windows than just the one or _two_ projects that do today.
+  - **We also wrote the ebook you need.** You’re holding it. Somewhere around the fourth certificate bullet, these release notes became literature. No email, cookie banner, subscription, or overpriced server box. One format, one language, no upsell. A bigger sequel is already in the works. Thanks for making it this far. Thanks for the validation, **everyone**, whether you're a user or following what used to be a self-funded team from Spain. We play chess in 5D, and we’re not planning to exit yet.
+  - Implemented a **built-in reverse proxy** routing every application by `Host` header, in front of the web stack, with no configuration file and no per-app setup.
+  - Added **per-app addresses** derived from the container name, so `jellyfin` is served at `jellyfin.yourdomain.com` the moment it starts.
+  - Implemented **host-based routing instead of path-based**, so no HTML, CSS, JavaScript, redirect or cookie path is ever rewritten and applications behave as if they were alone at the root of their own domain.
+  - Added **automatic protocol detection per container port**, probing `https` then `http` once and caching the answer for five minutes so restarts pick up a change.
+  - Implemented **TLS termination** for every application, forwarding to containers in whatever they speak so plain-HTTP images are served over HTTPS without modification.
+  - Added **WebSocket proxying** with heartbeat detection of stale connections and propagation of the container's own close code.
+  - Implemented **request body streaming** towards containers, forwarding uploads as they arrive instead of buffering them in memory first, so a multi-gigabyte transfer costs nothing to hold.
+  - Added **`Host`, `Origin` and `Referer` passthrough** so CSRF checks inside containers see the real browsing host instead of an internal address.
+  - Implemented **`X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Port`, `X-Real-IP` and `X-Hello-Sir-Plan-B`** headers towards containers, following standard proxy behaviour.
+  - Added support for **`X-Forwarded-Host` and `X-Forwarded-Proto` on the way in**, so a stock `nginx` `proxy_pass` no longer collapses every app subdomain into the upstream name.
+  - Implemented **trusted peer validation** before believing any forwarded header, restricted to loopback, private and link-local peers.
+  - Added a **window topology shim** injected at the start of `<head>`, replacing `window.parent` only when the real parent is cross-origin, fixing applications that assume they are never embedded.
+  - Implemented **CSP-safe shim injection** by adding the script's `sha256` hash to the application's own `script-src`, deriving one from `default-src` when absent, so strict policies keep working.
+  - Added **`frame-ancestors` stripping** from proxied responses so applications can be embedded, while HomeDock OS keeps its own framing rules.
+  - Implemented **cookie rewriting** for proxied responses, stripping `Domain=` attributes that containers set for hostnames that do not match the browsing address.
+  - Added **hop-by-hop header filtering** so `connection`, `upgrade`, `transfer-encoding` and friends never leak between the two sides of the proxy.
+  - Implemented **no keep-alive towards containers**, avoiding `ServerDisconnectedError` on reused connections that a container had already closed, which silently dropped `POST` requests.
+  - Added **`referrer-policy: no-referrer`** to the router's own redirects, so a handoff address never leaks into the next request's `Referer`.
+  - Implemented **document request detection** using `Sec-Fetch-Dest`, falling back to `Accept` for browsers that do not send Fetch Metadata, which includes Safari.
+  - Added a **4 MB cap on response buffering** for shim injection, streaming anything larger untouched.
+  - Implemented **graceful handling of mid-stream errors**, guarding against sending a new response start once the body has already begun.
+  - Added **ASGI-level routing** ahead of the Flask stack, so proxying happens before any framework work is done.
+  - Implemented **aiohttp availability detection** at runtime, disabling per-app addresses with a clear console message instead of failing to boot when the dependency is missing.
+  - Added a **minimal ACME v2 client** built on `cryptography`, DNS-01 only, avoiding a full certbot dependency tree across three operating systems.
+  - Implemented **JOSE signature encoding** converting DER signatures to the raw `R||S` pair Let's Encrypt requires (not José Carreras).
+  - Added **DNS-01 challenge support** for **freemyip**, **DuckDNS** and **Cloudflare**, each through its own API. Quack.
+  - Implemented **sequential handling of the two authorizations** a wildcard order produces, since dynamic DNS providers expose a single TXT field.
+  - Added a **minimal DNS resolver** for TXT, NS and A records, with EDNS0 advertising and TCP retry on truncation.
+  - Implemented **authoritative nameserver polling** to detect real propagation instead of sleeping for a guessed interval, cutting a two-minute wait to about five seconds on freemyip.
+  - Added **unanimity checking across authoritative servers**, since Let's Encrypt picks whichever it likes and a half-propagated record spends a failed validation.
+  - Implemented **staging issuance** writing to a separate directory that can never overwrite the live certificate, compared by absolute path.
+  - Added **certificate hot reload**, wrapping the server's SSL context so a renewed certificate goes live for new handshakes while open connections finish undisturbed.
+  - Implemented **restart detection** for the first issuance, when HomeDock OS booted on plain HTTP and has no live context to swap.
+  - Added a **renewal thread** checking twice a day and renewing 30 days before expiry.
+  - Implemented **renewal ownership checks** requiring a configured provider, a token, a non-reserved domain and an installed certificate that matches what HomeDock OS would issue, so a Cloud instance is never overwritten.
+  - Added **ACME account key persistence** outside the application directory so it survives updates, with migration of keys left in the old location by earlier versions.
+  - Implemented **certificate coverage checks** that respect wildcard semantics, since `*.example.com` does not cover `app.sub.example.com`.
+  - Added a **certificate diagnostics endpoint** answering whether TLS is in play, whether the certificate covers app subdomains, whether it is self-signed, and which address would work instead.
+  - Implemented **renewal notifications** with escalating urgency, silent when automatic renewal is healthy and silent on Cloud instances.
+  - Added **provider token isolation**, refusing to send a DuckDNS token to Cloudflare after a provider change by only returning a saved token to the provider it was saved for.
+  - Implemented **token presence reporting** so the panel knows a token exists without the value ever travelling back to the browser.
+  - Added **certificate issuance locking** so two simultaneous requests cannot run, returning `409` instead of racing.
+  - Implemented **dynamic DNS updates** keeping the configured domain pointed at the current connection, reusing the ACME provider and token already stored.
+  - Added **change detection for IP updates**, sending only when the address actually differs, with a six-hour keep-alive so free providers do not expire inactive names.
+  - Implemented **immediate synchronisation on enabling** the switch, via a configuration change listener rather than waiting for the next scheduled cycle.
+  - Added **public IPv4 detection ordering** that prefers services without `AAAA` records, so a dual-stack connection does not waste a request being told its IPv6 address.
+  - Implemented **automatic port switching to 443** when a valid certificate is installed and the configured port is still 80, with port 80 kept for plain HTTP or an HTTPS redirect.
+  - Added an **HTTP redirect server** on port 80 that accepts HomeDock OS's own names regardless of certificate coverage, since no public authority can issue for `homedock.local`.
+  - Implemented **optional plain HTTP for local names**, restricted to local-only hostnames, local peers, and deployments without a reverse proxy in front.
+  - Implemented **session handoff to app addresses**, minting a signed one-minute token tied to the HomeDock OS session and exchanging it for a 24-hour cookie scoped to that application.
+  - Added **token verification on every proxied request**, refusing anything without a valid session before it reaches the container.
+  - Implemented **cookie `SameSite` selection** based on whether the application's address is trustworthy, so embedded apps keep their session.
+  - Added an **access denied page** served from the desktop host, explaining that applications live behind the HomeDock OS session rather than returning a bare `403`.
+  - Implemented **subresource refusal** as a plain `403` instead of a redirect, since redirecting an XHR to an HTML page turns one failure into a confusing one.
+  - Added **per-app Exposure**, an instance-wide switch serving one application without requiring a HomeDock OS session, for native clients that cannot sign in.
+  - Implemented **Exposure validation on every request**, requiring HTTPS, a non-local hostname and a certificate that covers the parent domain's subdomains.
+  - Added **automatic closing of exposed apps** when the certificate stops covering them, since the conditions are re-evaluated per request rather than trusted from save time.
+  - Implemented **Exposure storage as an allow list**, where returning an app to the default removes its entry, so the file is the list of what is open rather than a census of everything.
+  - Added **`mtime` caching** to the Exposure store so a proxied request never re-reads the file from disk.
+  - Implemented **server-side rejection of Exposure** on addresses that are not public, so the setting cannot be forced from the interface.
+  - Added an **exposed application list** to the API response, so what is open to the internet can be audited in one place.
+  - Implemented an **app window component** rendering each application in a Prism window with its own status bar, App Drive shortcut, logs and properties.
+  - Added an **in-window loading component** drawing the app's own icon, the three stages of the handshake and a live status line at the window's real size.
+  - Implemented **retry with attempt counting** for containers that are still starting, for up to ten attempts over half a minute.
+  - Added **Try Again and a troubleshooting link** when an application never answers, plus the option to open it in a tab instead.
+  - Implemented **self-navigation of the app frame** from `about:blank`, since Safari treats a frame the parent never navigated as third-party from the first byte and drops the handoff cookie.
+  - Added **reachability probing per address**, cached once per session, using a `no-cors` `fetch` because an iframe's `onload` fires even when the browser painted its own error page.
+  - Implemented **four distinct blocker diagnoses**: missing wildcard record, certificate not covering apps, certificate not trusted, and certificate issued for another address.
+  - Added **an alternative address suggestion** with a button that takes you there, offered only when the certificate names an address the administrator configured.
+  - Implemented **address capability detection** deciding whether windows are possible from the address alone, before any frame is created.
+  - Added **per-app opening behaviour**, choosing between a window, a new tab or the container port directly, stored per user.
+  - Implemented an **address panel in Application Properties** listing every route into an application with copy and open buttons.
+  - Added **route annotations** explaining which addresses go through HomeDock OS and require a session and which reach the container directly.
+  - Implemented **hostname adoption**, recording the address the desktop is actually served at the first time, and only while the factory placeholder is untouched.
+  - Added **IPv4 literal and dotless hostname detection**, so an address that cannot carry app subdomains says so instead of failing later.
+  - Implemented a **notification for addresses without window support**, explaining in one sentence why applications are opening in tabs.
+  - Added **Docker application windows to the taskbar and Quick View**, so an app in a window behaves like any other window.
+  - Implemented **desktop widgets** with eight types: Clock, System, Storage, Notes, Network, Calendar, Media and Shortcut.
+  - Added **per-widget size definitions**, so each type only offers the shapes that make sense for it rather than a universal small, medium and large.
+  - Implemented **grid snapping** for widget placement, with collision handling against icons and other widgets.
+  - Added **per-user widget layouts**, stored server side, so two accounts on the same instance keep separate desktops.
+  - Implemented **live system data in widgets**, drawing CPU, memory and temperature from the same stream the dashboard uses.
+  - Added **rate-based network plotting** in the Network widget, showing throughput per second instead of a monotonic total that degenerates into a creeping diagonal.
+  - Implemented **monotone cubic interpolation** for widget sparklines, avoiding the invented valleys a Catmull-Rom curve produces on sharp changes.
+  - Added **moving-average smoothing** over five samples so backend granularity steps read as waves instead of stairs.
+  - Implemented **pinned disk awareness** in the Storage widget, showing the disks actually selected by their real labels.
+  - Added a **Notes widget** with persistence, so a scratchpad survives a reload.
+  - Notes from widgets are also available under Storage > Notes for persistence and further review.
+  - Added the ability to turn notes into to-do lists directly from the Notes widget.
+  - Implemented a **Media widget** reflecting current playback.
+  - Added a **Shortcut widget**, putting any app, file or URL one click from the desktop.
+  - Implemented **mobile widget layouts**, reflowing rather than hiding widgets on small screens.
+  - Added **widget drag and resize** with position and size persisted across sessions and devices.
+  - Implemented **Web Shortcuts** on the desktop, turning any URL into a real desktop icon with the classic jump-out arrow.
+  - Added **18 built-in shortcut glyphs** for the shortcuts, including the HomeDock OS logo for anyone running more than one instance.
+  - Implemented **custom shortcut icon uploads** validated by magic bytes rather than by file extension, the same check custom wallpapers go through.
+  - Added **orphan icon cleanup**, removing uploaded images once no shortcut references them.
+  - Implemented **file and folder shortcuts** from all four storage areas: Storage, Drop Zone, App Drive and Disks+.
+  - Added **container and mount memory** to App Drive shortcuts, and **disk memory** to Disks+ ones, so a double-click lands in the right place.
+  - Implemented **navigation to a shortcut target** with the file already selected and scrolled into view.
+  - Added **automatic unlock prompting** when a shortcut points into a locked Disks+ disk, continuing to the file afterwards.
+  - Implemented **missing target detection** offering to remove a shortcut whose file is gone, rather than dropping you into a folder that no longer exists.
+  - Added **guards against false positives** in that detection, so a locked disk, a network failure or an unreadable folder never count as proof a file was deleted.
+  - Implemented **shortcut target validation** server side, rejecting paths outside the areas a shortcut is allowed to point at.
+  - Added **shortcut URL validation**, restricting schemes to the ones a browser can safely open.
+  - Implemented **Quick View**, spreading every open window into a labelled grid via `F3`, `Ctrl/Cmd + ↑` or the desktop context menu.
+  - Added **live windows in Quick View** rather than thumbnails, so applications keep loading and playing while spread out.
+  - Implemented **automatic restore** from Quick View on any unrelated interaction, including launching an app, using the taskbar or opening a dialog.
+  - Added **desktop screenshots**, capturing what is on screen including application windows.
+  - Implemented **direct delivery of screenshots to Storage > Photos**, with no folder picker and no filename prompt.
+  - Added an **in-memory screenshot preview**, opening the captured image in the viewer without a round trip to the server.
+  - Implemented a **redesigned mobile Start Menu**, closer to an application drawer than to a desktop menu.
+  - Added **contextual help to every settings row**, with an information glyph opening a short explanation of what the setting does and what it costs.
+  - Implemented **21 help notes** across the five settings panels, covering irreversible choices, privacy details and start-up behaviour.
+  - Added **floating help cards** so the settings rows never change height, keeping the panel's rhythm whether the notes are read or not.
+  - Implemented **single-card behaviour** for help notes, so opening one closes any other and the list never shows two at once.
+  - Added **automatic dismissal on scroll**, since the card is anchored to a row that moves away underneath it.
+  - Added **OnScreen Apps** as the product name for application windows, used consistently across the interface, notifications and documentation links.
+  - Implemented **per-app subdomain retirement on `.local`**, since Windows cannot resolve multi-label `.local` names and WebKit treats the frame as a different site.
+  - Added **tab fallback on addresses without window support**, routing through the existing port loader so Windows clients keep working.
+  - Implemented **removal of the flat alias** `slug-homedock.local`, which resolved on Windows but sat as a sibling rather than a child and lost every cookie over plain HTTP.
+  - Added **removal of the per-app mDNS announcer**, cutting one service registration per application refreshed every fifteen seconds.
+  - Implemented **base `homedock.local` announcement retention**, since a single-label name resolves on every operating system and remains the way into the desktop.
+  - Added **ownership tracking of the announced name**, so HomeDock OS only puts `homedock.local` inside a URL when it is the responder that claimed it.
+  - Implemented **loopback redirection** from `localhost` to `homedock.localhost`, giving the desktop and its applications a shared site and a trustworthy origin.
+  - Added a **subdomain authorization trace**, enabled by a marker file rather than an environment variable, writing decisions to a log file without ever recording credential values.
+  - Implemented **route integrity tests**, verifying every registered endpoint resolves and catching a deleted handler before it reaches a release.
+  - Added **internationalisation tests** covering locale consistency, key coverage and untranslated strings across the ten shipped languages.
+  - Implemented **subdomain routing tests** covering address parsing, slug collisions, IP literals and exposure gating.
+  - Added **19 new translated strings** across all ten languages for the certificate, exposure, dynamic DNS and settings help interfaces.
+  - Implemented **session cookie `Secure` selection per request**, following the actual scheme rather than a value decided at boot, fixing lost logins behind a plain-HTTP reverse proxy.
+  - Added **login failure disambiguation**, separating a genuine CSRF mismatch from a session that never came back, which a rotated key or a rejected cookie causes.
+  - Implemented **immediate shutdown of live statistics streams**, so `CTRL+C` stops HomeDock OS instead of waiting up to five minutes for workers to time out.
+  - Added **one-time skipping of an app whose update could not run**, clearing the stale "update available" flag instead of re-reporting it seconds later.
+  - Implemented **`aiohttp`** as a dependency for the reverse proxy, with graceful degradation when it is unavailable.
+  - Implemented **per-user tracking of the release notes already read**, stored under `_user_packages/_whats_new/` and keyed to the notes themselves rather than to the version number, so a security patch never re-announces the same changes.
+  - Added **release notes that carry their own translations**, in their own data file instead of the global dictionaries, so retiring the copy of a past release leaves no orphan keys behind.
+  - Extracted the **aurora animation** of the onboarding splash into a shared component that measures its own container instead of the viewport.
+  - Added **nine new translated strings** across all ten languages for the What's New window, the external reverse proxy setting and the OnScreen Apps notice.
+  - Implemented **interactive featured banners** in the App Store, which pause under the cursor and follow a mouse drag or a touch swipe instead of scrolling past on their own.
+  - Renamed the **Reverse Proxy** setting to **External Reverse Proxy**, now that HomeDock OS is itself the reverse proxy and the switch only concerns one of your own sitting in front of it.
+  - Added **configuration change listeners**, letting background services react to a saved setting without a restart.
+  - Changed the server to speak **HTTP/1.1 only**, because one wildcard certificate covering every app was enough for browsers to quietly merge all of them into a single connection, where a video and a music library took turns instead of playing at once.
+  - Added a **ceiling of 32 connections per container**, so a burst of requests waits in the proxy instead of piling up where nobody can see it, and a **separate unbounded pool for WebSockets**, since a socket that lives for hours would otherwise sit on a slot it shares with everything else.
+  - Implemented **single-flight protocol probing**, so the five-minute cache expiring mid-session costs one probe rather than one per request already in flight, with a two-second timeout of its own instead of the fifteen seconds meant for real traffic.
+  - Added **selective invalidation of the protocol cache**, so closing a tab no longer throws away what the proxy had learned about a container and sends every app back to being probed.
+  - Implemented **caching of the configuration file**, keyed to a hash of its contents so any edit is picked up on the next read, ending a parse of the file from disk on every proxied request, which happened on the same thread that serves every application and stalled all of them at once.
+  - Implemented **atomic writes of the configuration file**, fixing a crash that could hit any request that read configuration while settings were being saved, because the previous write emptied the file before filling it back in.
+  - Changed the development server architecture by replacing Flask's built-in Werkzeug development server with Hypercorn, providing a more robust and production-like environment for local development.
+    > **TL;DR:** Yes, apps now open as **windows inside HomeDock OS** (OnScreen Apps from now on) instead of scattered browser tabs, and HomeDock OS gets its own **Let's Encrypt wildcard certificate** to do it. Automatically, renewed on its own, and **without opening a single port for any of your apps**, HomeDock OS still needs its own 80 and 443 published on your router and nothing else. Pick a free dynamic DNS name, paste a token, press a button and that's it. Your IP changes on its own and the name follows. Apps that cannot log in, like the Jellyfin app on your TV, get their own switch. And when something does go wrong, the window finally tells you which of the four things it is instead of guessing wrong. Enjoy the multitasking, selfhosters!
+
+---
+
+- **2.1.6.166**: Security and compatibility update.
   - Patched **2 PostCSS path traversal advisories** by upgrading `postcss` from **8.5.15** to **8.5.26** (`GHSA-r28c-9q8g-f849` and `CVE-2026-69153`). The vulnerabilities only affected build-time processing of attacker-controlled CSS, which HomeDock never performs, but were fixed proactively.
   - **Kept `cryptography` at 48.0.1** despite `CVE-2026-69247`, as the vulnerable PKCS#7 decryption APIs are not used by HomeDock OS. Upgrading to v49 would also break Intel macOS installations due to removed prebuilt wheels, so the update is postponed until a relevant vulnerability appears (expect macOS Intel deprecation as this happens).
   - Replaced **`__dirname`** with **`import.meta.dirname`** in `vite.config.ts` to ensure compatibility with Vite's future native ESM config loader.
-
----
 
 - **2.1.6.164**: Time-bounded the onboarding window, hardening fresh-install setup against late unattended claiming.
   - **Hardened the first-run setup window** (reported by @EQSTLab, SK Shieldus). The onboarding page exists to create your username and password when none exist yet, that is its entire purpose, so by definition it has to be reachable before any credentials are set, exactly like the first-run setup of almost any self-hosted platform. What we patched was not a hole in that page but the fact that, on an instance nobody ever configured, it stayed reachable with no time limit, so a stranger could reach it and create the account before the real owner did. We've now put a clock on it. Onboarding is accepted only during the first 15 minutes after HomeDock OS starts, and a host restart reopens the window, so completing first-time setup now requires control of the machine. If you've already completed onboarding, or set your own username and password, none of this affects you, there is no way to run onboarding again once an account exists. A "Restart required" screen explains how to reopen the window. Walkthrough at [our documentation](https://docs.homedock.cloud/troubleshooting/restart-required/).

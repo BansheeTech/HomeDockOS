@@ -80,6 +80,7 @@ import { useTrayManager } from "../__Composables__/useTrayManager";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useUpdateStore } from "../__Stores__/useUpdateStore";
 import { useNotificationsPolling, type Notification } from "../__Services__/NotificationsPolling";
+import { hostSupportsAppWindows, isMulticastTrail } from "../__Composables__/useAppSubdomain";
 
 import { Badge } from "ant-design-vue";
 
@@ -116,7 +117,7 @@ const saveDismissedNotification = async (hash: string): Promise<void> => {
           "X-HomeDock-CSRF-Token": csrfToken.value,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Error saving dismissed notification:", error);
@@ -157,7 +158,7 @@ watch(
     if (newTrayId !== TRAY_ID && showDropdown.value) {
       showDropdown.value = false;
     }
-  }
+  },
 );
 
 const formatDate = (date: string | null): string => {
@@ -167,6 +168,22 @@ const formatDate = (date: string | null): string => {
 };
 
 onMounted(async () => {
+  // HDOS00103
+  if (!hostSupportsAppWindows()) {
+    notifications.value.push({
+      title: t("OnScreen Apps are not available at {host}", { host: window.location.hostname }),
+      message: isMulticastTrail() ? t("Apps open in a new tab: OnScreen Apps need a domain with a browser-trusted HTTPS certificate, and a .local name cannot have one. Set yours in Settings and HomeDock OS issues the certificate for you.") : t("Apps open in a new tab: OnScreen Apps need a domain with a browser-trusted HTTPS certificate, and an IP address cannot have one. Set yours in Settings and HomeDock OS issues the certificate for you."),
+      permanent: true,
+      allowRemove: true,
+      startDate: null,
+      endDate: null,
+      isLocal: true,
+      hash: "homedock-os-hostname-hint",
+      actionUrl: "https://docs.homedock.cloud/homedock-os/desktop/#on-screen-apps",
+      actionText: t("Learn more"),
+    });
+  }
+
   await updateStore.checkForUpdate(csrfToken.value);
 
   if (updateStore.updateAvailable) {
@@ -212,7 +229,9 @@ defineExpose({
 <style scoped>
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .slide-fade-enter-from,
@@ -240,7 +259,9 @@ defineExpose({
 
 .notification-item {
   overflow: hidden;
-  transition: height 0.3s ease, opacity 0.3s ease;
+  transition:
+    height 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .notification-item.removing {
@@ -248,7 +269,11 @@ defineExpose({
   opacity: 0;
   padding: 0;
   margin: 0;
-  transition: height 0.3s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+  transition:
+    height 0.3s ease,
+    opacity 0.3s ease,
+    padding 0.3s ease,
+    margin 0.3s ease;
 }
 
 @keyframes blink {

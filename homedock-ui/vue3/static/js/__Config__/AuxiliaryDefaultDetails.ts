@@ -42,6 +42,16 @@ const AppFileProperties = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const AppWhatsNew = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppWhatsNew.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const AppDockerView = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppDockerView.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 
 import scriptTextIcon from "@iconify-icons/mdi/script-text";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
@@ -50,8 +60,29 @@ import downloadIcon from "@iconify-icons/mdi/download";
 import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import shieldStarIcon from "@iconify-icons/mdi/shield-star";
 import fileInformationIcon from "@iconify-icons/mdi/file-document-outline";
+import openInAppIcon from "@iconify-icons/mdi/open-in-app";
+import newBoxIcon from "@iconify-icons/mdi/new-box";
 
 export const AUXILIARY_APPS: SystemApp[] = [
+  {
+    id: "docker-view",
+    name: "Application",
+    description: "Run an installed application inside a window",
+    icon: openInAppIcon,
+    component: AppDockerView,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "tools",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: false,
+  },
   {
     id: "logs",
     name: "Container Logs",
@@ -181,6 +212,25 @@ export const AUXILIARY_APPS: SystemApp[] = [
     minimizable: true,
     closeable: true,
     category: "tools",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: false,
+  },
+  {
+    id: "whatsnew",
+    name: "What's New",
+    description: "See what changed in this release of HomeDock OS",
+    icon: newBoxIcon,
+    component: AppWhatsNew,
+    defaultWidth: 1000,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    closeable: true,
+    category: "system",
     showInStartMenu: false,
     showInFinderApp: false,
     showInMyHomeApp: false,

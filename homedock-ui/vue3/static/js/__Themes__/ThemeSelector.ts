@@ -5,6 +5,8 @@
 
 import { inject, computed } from "vue";
 
+import type { PrismAppearance } from "@prism-wm/core";
+
 import type { ThemeData } from "../__Types__/ThemeData";
 
 export const themes: Record<string, Record<string, string>> = {
@@ -28,6 +30,8 @@ export const themes: Record<string, Record<string, string>> = {
     defaultText: "text-gray-600",
 
     back: "bg-gray-100",
+    desktopBack: "bg-gradient-to-tr from-white via-gray-100 to-gray-200",
+    onScreenAppBack: "bg-white",
     form: "bg-white",
     logo: "",
     mainText: "",
@@ -83,12 +87,12 @@ export const themes: Record<string, Record<string, string>> = {
 
     desktopIconText: "text-gray-900",
 
-    desktopLoadingBg: "bg-black/60 backdrop-blur-[20px]",
-    desktopLoadingBorder: "border border-white/10",
-    desktopLoadingText: "text-white/90",
-    desktopLoadingSpinner: "border-blue-500/90",
-    desktopLoadingBarBg: "bg-white/10",
-    desktopLoadingBarFill: "bg-gradient-to-r from-blue-400/60 via-blue-600/90 to-blue-400/60",
+    desktopLoadingBg: "bg-white/70 backdrop-blur-[20px]",
+    desktopLoadingShadow: "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.65),0_10px_40px_rgba(0,0,0,0.22)]",
+    desktopLoadingBorder: "border border-black/10",
+    desktopLoadingText: "text-gray-900/90",
+    desktopLoadingBarBg: "bg-black/10",
+    desktopLoadingBarFill: "bg-gradient-to-r from-blue-500/60 via-blue-600/90 to-blue-500/60",
 
     desktopEmptyBg: "bg-gray-400/30 backdrop-blur-[10px]",
     desktopEmptyBorder: "border border-white/10",
@@ -108,6 +112,14 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconBorderSelected: "border-blue-500/50",
     desktopIconShadowSelected: "shadow-[0_0_0_1px_rgba(59,130,246,0.3)]",
 
+    quickViewBlur: "",
+    quickViewScrim: "bg-black/45",
+
+    screenshotCardBg: "bg-white",
+    screenshotCardBorder: "border border-gray-200",
+    screenshotCardText: "text-gray-900",
+    screenshotCardMuted: "text-gray-500",
+
     desktopIconContainerBg: "bg-gray-500/10",
     desktopIconContainerBgHover: "group-hover:bg-gray-500/15",
     desktopIconContainerScaleHover: "group-hover:scale-105",
@@ -115,6 +127,16 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconContainerBorderSelected: "border-blue-500/10",
 
     desktopStatusBadgeBorder: "border-2 border-black/80",
+
+    desktopWidgetCard: "bg-white/75 backdrop-blur-xl border border-black/10",
+    desktopWidgetTitle: "text-gray-900",
+    desktopWidgetText: "text-gray-700",
+    desktopWidgetMeta: "text-gray-500",
+    desktopWidgetAccent: "text-blue-600",
+    desktopWidgetDivider: "bg-gray-300/70",
+    desktopWidgetControlBg: "bg-gray-500/10",
+    widgetPreviewBg: "bg-gradient-to-br from-gray-200 to-gray-300",
+    desktopWidgetControlBgHover: "hover:bg-gray-500/20",
 
     folderIconColor: "text-white/90",
     folderIconShadow: "drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]",
@@ -356,19 +378,20 @@ export const themes: Record<string, Record<string, string>> = {
     antProgressTrail: "#ededed",
     antProgressStroke: "blue-400",
 
-    windowBg: "bg-white/95",
+    windowBg: "bg-white",
+    windowInputBg: "bg-white",
     windowText: "text-gray-900",
     windowBorder: "border-gray-200",
     windowBorderFocused: "border-blue-500/50",
     windowShadow: "shadow-xl shadow-black/10",
-    windowTitleBarBg: "bg-gradient-to-r from-blue-500/30 via-blue-500/10 to-white",
+    windowTitleBarBg: "bg-gradient-to-r from-blue-300 via-blue-200 to-blue-100",
     windowTitleBarBorder: "border-b border-gray-200",
     windowTitleText: "text-gray-700",
     windowTitleTextFocused: "text-gray-900",
     windowIconContainerBg: "bg-blue-500/10",
     windowIconContainerBgFocused: "bg-blue-500/30",
     windowButtonText: "text-gray-700",
-    windowButtonBgHover: "hover:bg-gray-200/80",
+    windowButtonBgHover: "hover:bg-blue-300/80",
     windowButtonTextHover: "hover:text-black",
     windowCloseButtonBgHover: "hover:!bg-red-600",
     windowCloseButtonTextHover: "hover:!text-white",
@@ -429,15 +452,9 @@ export const themes: Record<string, Record<string, string>> = {
     taskbarAppIndicator: "bg-blue-500",
     taskbarAppIndicatorInactive: "bg-gray-300",
     taskbarDivider: "bg-gray-300",
-    taskbarContextMenuBg: "bg-white/90 backdrop-blur-[40px] saturate-180",
-    taskbarContextMenuBorder: "border border-gray-200",
-    taskbarContextMenuShadow: "shadow-2xl shadow-black/30",
-    taskbarContextMenuItem: "text-gray-900",
-    taskbarContextMenuItemHover: "hover:bg-blue-500/10 hover:text-blue-500",
-    taskbarContextMenuItemDisabled: "opacity-50 cursor-not-allowed",
-    taskbarContextMenuDivider: "border-t border-gray-200",
+    traySectionBorder: "border-t border-gray-200",
 
-    contextMenuBg: "bg-white/95 backdrop-blur-xl",
+    contextMenuBg: "bg-white",
     contextMenuBorder: "border border-gray-200",
     contextMenuShadow: "shadow-2xl shadow-black/30",
     contextMenuItem: "text-gray-900",
@@ -453,8 +470,11 @@ export const themes: Record<string, Record<string, string>> = {
     startMenuBg: "bg-white/80",
     startMenuBorder: "border border-gray-200",
     startMenuShadow: "shadow-2xl shadow-black/40",
-    startMenuOverlayBg: "bg-transparent",
+    startMenuOverlayBg: "bg-black/20",
+    startMenuSheetGrabber: "bg-gray-300",
+    startMenuSheetHairline: "bg-gray-900/10",
     startMenuPanelBg: "bg-white/50 backdrop-blur-3xl saturate-200",
+    startMenuSheetBg: "bg-white",
     startMenuPanelBorder: "border border-gray-200/50",
     startMenuPanelShadow: "shadow-lg shadow-black/10",
     startMenuSearchBg: "bg-gray-100",
@@ -810,6 +830,9 @@ export const themes: Record<string, Record<string, string>> = {
     aboutValue: "text-gray-800",
     aboutSectionTitle: "text-gray-800",
     aboutLink: "text-gray-700 hover:bg-gray-100",
+    aboutLinkOwn: "text-gray-800 bg-gray-900/[0.06] ring-gray-900/10 hover:bg-gray-900/10",
+    whatsNewBg: "bg-gradient-to-b from-indigo-50 via-slate-50 to-white",
+    whatsNewTagAccent: "text-green-700 bg-green-100/80 ring-green-600/20",
     aboutDescription: "text-gray-600",
     aboutShareButton: "bg-gray-200 text-gray-500 hover:bg-blue-200 hover:text-blue-500",
     aboutDonateButton: "bg-gray-200 text-gray-500 hover:bg-blue-200 hover:text-blue-500",
@@ -879,6 +902,8 @@ export const themes: Record<string, Record<string, string>> = {
     defaultText: "text-zinc-400",
 
     back: "bg-zinc-800",
+    desktopBack: "bg-gradient-to-tr from-black via-zinc-900 to-zinc-800",
+    onScreenAppBack: "bg-zinc-900",
     form: "bg-zinc-900",
     logo: "invert",
     mainText: "text-white",
@@ -935,9 +960,9 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconText: "text-white/90",
 
     desktopLoadingBg: "bg-zinc-900/80 backdrop-blur-[20px]",
+    desktopLoadingShadow: "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.07),0_10px_40px_rgba(0,0,0,0.5)]",
     desktopLoadingBorder: "border border-zinc-700/30",
     desktopLoadingText: "text-white/90",
-    desktopLoadingSpinner: "border-blue-500/90",
     desktopLoadingBarBg: "bg-zinc-700/30",
     desktopLoadingBarFill: "bg-gradient-to-r from-blue-400/60 via-blue-500/90 to-blue-400/60",
 
@@ -959,6 +984,14 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconBorderSelected: "border-blue-500/50",
     desktopIconShadowSelected: "shadow-[0_0_0_1px_rgba(59,130,246,0.3)]",
 
+    quickViewBlur: "",
+    quickViewScrim: "bg-black/60",
+
+    screenshotCardBg: "bg-zinc-900",
+    screenshotCardBorder: "border border-white/10",
+    screenshotCardText: "text-white/90",
+    screenshotCardMuted: "text-white/50",
+
     desktopIconContainerBg: "bg-zinc-700/50",
     desktopIconContainerBgHover: "group-hover:bg-zinc-700",
     desktopIconContainerScaleHover: "group-hover:scale-105",
@@ -966,6 +999,16 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconContainerBorderSelected: "border-blue-500/30",
 
     desktopStatusBadgeBorder: "border-2 border-zinc-900/90",
+
+    desktopWidgetCard: "bg-zinc-900/70 backdrop-blur-xl border border-zinc-700/40",
+    desktopWidgetTitle: "text-white/90",
+    desktopWidgetText: "text-white/75",
+    desktopWidgetMeta: "text-zinc-400",
+    desktopWidgetAccent: "text-blue-400",
+    desktopWidgetDivider: "bg-white/10",
+    desktopWidgetControlBg: "bg-white/10",
+    widgetPreviewBg: "bg-gradient-to-br from-zinc-700 to-zinc-900",
+    desktopWidgetControlBgHover: "hover:bg-white/20",
 
     folderIconColor: "text-white/90",
     folderIconShadow: "drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]",
@@ -1206,7 +1249,8 @@ export const themes: Record<string, Record<string, string>> = {
     antProgressTrail: "#313135",
     antProgressStroke: "blue-400",
 
-    windowBg: "bg-zinc-900/95",
+    windowBg: "bg-zinc-900",
+    windowInputBg: "bg-white/5",
     windowText: "text-zinc-200",
     windowBorder: "border-white/10",
     windowBorderFocused: "border-blue-500/50",
@@ -1279,15 +1323,9 @@ export const themes: Record<string, Record<string, string>> = {
     taskbarAppIndicator: "bg-blue-500",
     taskbarAppIndicatorInactive: "bg-white/30",
     taskbarDivider: "bg-white/10",
-    taskbarContextMenuBg: "bg-zinc-900/90 backdrop-blur-[40px] saturate-180",
-    taskbarContextMenuBorder: "border border-white/10",
-    taskbarContextMenuShadow: "shadow-2xl shadow-black/50",
-    taskbarContextMenuItem: "text-white/90",
-    taskbarContextMenuItemHover: "hover:bg-blue-500/20 hover:text-blue-500",
-    taskbarContextMenuItemDisabled: "opacity-50 cursor-not-allowed",
-    taskbarContextMenuDivider: "border-t border-white/10",
+    traySectionBorder: "border-t border-white/10",
 
-    contextMenuBg: "bg-zinc-900/95 backdrop-blur-xl",
+    contextMenuBg: "bg-zinc-900",
     contextMenuBorder: "border border-white/10",
     contextMenuShadow: "shadow-2xl shadow-black/50",
     contextMenuItem: "text-white/90",
@@ -1303,8 +1341,11 @@ export const themes: Record<string, Record<string, string>> = {
     startMenuBg: "bg-zinc-900/80",
     startMenuBorder: "border border-white/10",
     startMenuShadow: "shadow-2xl shadow-black/40",
-    startMenuOverlayBg: "bg-transparent",
+    startMenuOverlayBg: "bg-black/45",
+    startMenuSheetGrabber: "bg-zinc-600",
+    startMenuSheetHairline: "bg-white/10",
     startMenuPanelBg: "bg-zinc-900/50 backdrop-blur-3xl saturate-200",
+    startMenuSheetBg: "bg-zinc-900",
     startMenuPanelBorder: "border border-white/10",
     startMenuPanelShadow: "shadow-lg shadow-black/10",
     startMenuSearchBg: "bg-white/5",
@@ -1660,6 +1701,9 @@ export const themes: Record<string, Record<string, string>> = {
     aboutValue: "text-zinc-200",
     aboutSectionTitle: "text-zinc-200",
     aboutLink: "text-zinc-300 hover:bg-zinc-700",
+    aboutLinkOwn: "text-zinc-100 bg-white/[0.08] ring-white/10 hover:bg-white/[0.14]",
+    whatsNewBg: "bg-gradient-to-b from-indigo-950 via-zinc-900 to-zinc-900",
+    whatsNewTagAccent: "text-green-400 bg-green-500/15 ring-green-400/20",
     aboutDescription: "text-zinc-400",
     aboutShareButton: "bg-zinc-200/10 text-white hover:bg-blue-500/30 hover:text-blue-400",
     aboutDonateButton: "bg-zinc-200/10 text-white hover:bg-blue-500/30 hover:text-blue-400",
@@ -1729,6 +1773,8 @@ export const themes: Record<string, Record<string, string>> = {
     defaultText: "text-zinc-400",
 
     back: "transparent",
+    desktopBack: "transparent",
+    onScreenAppBack: "bg-slate-800/60",
     form: "bg-zinc-800/25 backdrop-blur-xl saturate-200",
     logo: "invert",
     mainText: "text-white",
@@ -1784,10 +1830,10 @@ export const themes: Record<string, Record<string, string>> = {
 
     desktopIconText: "text-white/90",
 
-    desktopLoadingBg: "bg-zinc-900/80 backdrop-blur-[20px]",
+    desktopLoadingBg: "bg-zinc-900/50 backdrop-blur-[20px] saturate-200",
+    desktopLoadingShadow: "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.07),0_10px_40px_rgba(0,0,0,0.5)]",
     desktopLoadingBorder: "border border-zinc-700/30",
     desktopLoadingText: "text-white/90",
-    desktopLoadingSpinner: "border-blue-500/90",
     desktopLoadingBarBg: "bg-zinc-700/30",
     desktopLoadingBarFill: "bg-gradient-to-r from-blue-400/60 via-blue-500/90 to-blue-400/60",
 
@@ -1809,6 +1855,15 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconBorderSelected: "border-blue-500/50",
     desktopIconShadowSelected: "shadow-[0_0_0_1px_rgba(59,130,246,0.3)]",
 
+    quickViewBlur: "backdrop-blur-2xl backdrop-saturate-150",
+    quickViewScrim: "bg-black/35",
+
+    // Solid on purpose: the card slides in, and an animated backdrop-filter is rule 3 of blur_problem.md.
+    screenshotCardBg: "bg-zinc-900/95",
+    screenshotCardBorder: "border border-white/10",
+    screenshotCardText: "text-white/90",
+    screenshotCardMuted: "text-white/50",
+
     desktopIconContainerBg: "bg-zinc-600/30",
     desktopIconContainerBgHover: "group-hover:bg-zinc-600/50",
     desktopIconContainerScaleHover: "group-hover:scale-105",
@@ -1816,6 +1871,16 @@ export const themes: Record<string, Record<string, string>> = {
     desktopIconContainerBorderSelected: "border-blue-500/30",
 
     desktopStatusBadgeBorder: "border-2 border-zinc-900/90",
+
+    desktopWidgetCard: "bg-zinc-900/40 backdrop-blur-xl backdrop-saturate-200 border border-white/10",
+    desktopWidgetTitle: "text-white",
+    desktopWidgetText: "text-white/80",
+    desktopWidgetMeta: "text-white/55",
+    desktopWidgetAccent: "text-sky-300",
+    desktopWidgetDivider: "bg-white/15",
+    desktopWidgetControlBg: "bg-white/15",
+    widgetPreviewBg: "bg-gradient-to-br from-transparent via-white/5 to-white/10",
+    desktopWidgetControlBgHover: "hover:bg-white/25",
 
     folderIconColor: "text-white/90",
     folderIconShadow: "drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]",
@@ -2056,7 +2121,8 @@ export const themes: Record<string, Record<string, string>> = {
     antProgressTrail: "#5555557d",
     antProgressStroke: "blue-400/50",
 
-    windowBg: "bg-zinc-900/80 backdrop-blur-xl saturate-200",
+    windowBg: "bg-zinc-900/70 backdrop-blur-xl backdrop-saturate-200",
+    windowInputBg: "bg-zinc-200/5",
     windowText: "text-zinc-200",
     windowBorder: "border-white/10",
     windowBorderFocused: "border-blue-500/50",
@@ -2129,15 +2195,9 @@ export const themes: Record<string, Record<string, string>> = {
     taskbarAppIndicator: "bg-blue-500",
     taskbarAppIndicatorInactive: "bg-white/30",
     taskbarDivider: "bg-white/10",
-    taskbarContextMenuBg: "bg-zinc-900/98 backdrop-blur-xl saturate-200",
-    taskbarContextMenuBorder: "border border-white/10",
-    taskbarContextMenuShadow: "shadow-2xl shadow-black/50",
-    taskbarContextMenuItem: "text-white/90",
-    taskbarContextMenuItemHover: "hover:bg-blue-500/20 hover:text-blue-500",
-    taskbarContextMenuItemDisabled: "opacity-50 cursor-not-allowed",
-    taskbarContextMenuDivider: "border-t border-white/10",
+    traySectionBorder: "border-t border-white/10",
 
-    contextMenuBg: "bg-zinc-900/90 backdrop-blur-xl saturate-200",
+    contextMenuBg: "bg-zinc-800/30 backdrop-blur-xl saturate-200",
     contextMenuBorder: "border border-white/10",
     contextMenuShadow: "shadow-2xl shadow-black/50",
     contextMenuItem: "text-white/90",
@@ -2153,8 +2213,11 @@ export const themes: Record<string, Record<string, string>> = {
     startMenuBg: "bg-zinc-900/75",
     startMenuBorder: "border border-white/10",
     startMenuShadow: "shadow-2xl shadow-black/40",
-    startMenuOverlayBg: "bg-transparent",
+    startMenuOverlayBg: "bg-black/40",
+    startMenuSheetGrabber: "bg-zinc-500",
+    startMenuSheetHairline: "bg-white/10",
     startMenuPanelBg: "bg-zinc-900/50 backdrop-blur-3xl saturate-200",
+    startMenuSheetBg: "bg-zinc-900/60 backdrop-blur-xl backdrop-saturate-200",
     startMenuPanelBorder: "border border-white/10",
     startMenuPanelShadow: "shadow-lg shadow-black/10",
     startMenuSearchBg: "bg-white/5",
@@ -2505,6 +2568,9 @@ export const themes: Record<string, Record<string, string>> = {
     aboutValue: "text-white/90",
     aboutSectionTitle: "text-white/90",
     aboutLink: "text-white/80 hover:bg-white/10",
+    aboutLinkOwn: "text-white bg-white/15 ring-white/25 hover:bg-white/25",
+    whatsNewBg: "bg-gradient-to-b from-indigo-500/10 via-transparent to-transparent",
+    whatsNewTagAccent: "text-green-400 bg-green-500/10 ring-green-400/25",
     aboutDescription: "text-white/70",
     aboutShareButton: "bg-zinc-200/10 text-white hover:bg-blue-500/30 hover:text-blue-400",
     aboutDonateButton: "bg-zinc-200/10 text-white hover:bg-blue-500/30 hover:text-blue-400",
@@ -2582,8 +2648,12 @@ export function useTheme() {
     return getThemeClasses(themeConfig.selected_theme);
   });
 
+  // Window chrome layout, kept reactive so switching it repaints live.
+  const appearance = computed<PrismAppearance>(() => (themeConfig.selected_appearance === "cupertino" ? "cupertino" : "redmond"));
+
   return {
     selected_theme: themeConfig.selected_theme,
     themeClasses,
+    appearance,
   };
 }

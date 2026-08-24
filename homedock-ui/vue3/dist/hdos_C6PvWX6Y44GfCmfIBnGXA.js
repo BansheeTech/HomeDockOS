@@ -1,0 +1,1 @@
+var e={width:24,height:24,body:`<path fill="currentColor" d="M4 4h16v16H4V4m2 4v10h12V8H6Z"/>`};export{e as t};

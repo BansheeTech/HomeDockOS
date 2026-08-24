@@ -8,6 +8,12 @@ import tailwindcss from "tailwindcss";
 export default defineConfig(({ mode }) => ({
   base: mode === "production" ? "/homedock-ui/vue3/dist/" : "/",
   plugins: [vue()],
+  resolve: {
+    dedupe: ["vue"],
+  },
+  optimizeDeps: {
+    exclude: ["@prism-wm/core", "@prism-wm/vue", "@prism-wm/styles"],
+  },
   css: {
     postcss: {
       plugins: [tailwindcss()],
@@ -15,15 +21,15 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     cors: {
-      origin: "http://localhost",
+      origin: ["http://localhost", "https://localhost", "http://homedock.local", "https://homedock.local", "http://homedock.localhost", "https://homedock.localhost", "http://127.0.0.1", "https://127.0.0.1"],
       credentials: true,
     },
-    allowedHosts: ["localhost"],
+    allowedHosts: ["localhost", "homedock.local", "homedock.localhost", "127.0.0.1"],
     hmr: {
       clientPort: 5173,
     },
     watch: {
-      ignored: ["**/dropzone/**", "**/compose-link/**", "**/app-store/**", "**/_user_packages/**", "__Enterprise__/**"],
+      ignored: ["**/dropzone/**", "**/compose-link/**", "**/app-store/**", "**/_user_packages/**", "__Enterprise__/**", "!**/node_modules/@prism-wm/**"],
     },
   },
   build: {
@@ -41,9 +47,11 @@ export default defineConfig(({ mode }) => ({
         __limited__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__limited__.ts"),
         __shieldmode__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__shieldmode__.ts"),
         __errorcode__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__errorcode__.ts"),
+        __appdenied__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__appdenied__.ts"),
         __app__: resolve(import.meta.dirname, "homedock-ui/vue3/static/js/MountPoints/__app__.ts"),
       },
       output: {
+        comments: { legal: true },
         chunkFileNames: "hdos_[hash:21].js",
         entryFileNames: "hdos_[hash:21].js",
         assetFileNames: "hdos_[hash:21].[ext]",

@@ -3,7 +3,10 @@
 // See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
+import type { PrismAppearance } from "@prism-wm/core";
+
 export interface ThemeData {
   selected_theme: string;
   selected_back: string;
+  selected_appearance?: PrismAppearance;
 }

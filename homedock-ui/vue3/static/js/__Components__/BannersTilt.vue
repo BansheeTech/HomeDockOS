@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="tiltContainer" class="tilt-card" @mouseenter="startTilt" @mouseleave="stopTilt">
+  <div ref="tiltContainer" class="tilt-card" @pointerenter="handlePointerEnter" @pointerleave="stopTilt">
     <div class="tilt-content">
       <slot name="image"></slot>
       <div v-if="appIcon" class="app-icon" ref="appIconElement" @click="handleLearnMore">
@@ -104,10 +104,9 @@ const handleLearnMore = () => {
     return;
   }
 
-  windowStore.openWindow("installconfig", {
+  windowStore.openUniqueWindow("installconfig", app.name, {
     title: t("Install {name}", { name: app.display_name || app.name }),
     data: { app: app },
-    allowMultiple: true,
   });
 };
 
@@ -130,6 +129,10 @@ const stopTilt = () => {
   tiltActive.value = false;
   tiltInstance.value?.destroy();
   tiltInstance.value = null;
+};
+
+const handlePointerEnter = (e: PointerEvent) => {
+  if (e.pointerType === "mouse") startTilt();
 };
 </script>
 
@@ -215,10 +218,12 @@ const stopTilt = () => {
   background-color: rgb(0, 115, 255);
 }
 
-.tilt-install:hover {
-  height: 56px;
-  border-radius: 15px;
-  filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, 0.516));
+@media (hover: hover) {
+  .tilt-install:hover {
+    height: 56px;
+    border-radius: 15px;
+    filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, 0.516));
+  }
 }
 
 .tilt-text,
@@ -230,21 +235,23 @@ const stopTilt = () => {
   cursor: pointer;
 }
 
-.app-icon:hover {
-  scale: 1.2;
-  border-radius: 30px;
-}
+@media (hover: hover) {
+  .app-icon:hover {
+    scale: 1.2;
+    border-radius: 30px;
+  }
 
-.tilt-install:hover {
-  scale: 1.1;
-}
+  .tilt-install:hover {
+    scale: 1.1;
+  }
 
-.tilt-text:hover,
-.tilt-title:hover {
-  scale: 1.1;
-}
+  .tilt-text:hover,
+  .tilt-title:hover {
+    scale: 1.1;
+  }
 
-.desk-screen:hover {
-  scale: 0.9;
+  .desk-screen:hover {
+    scale: 0.9;
+  }
 }
 </style>

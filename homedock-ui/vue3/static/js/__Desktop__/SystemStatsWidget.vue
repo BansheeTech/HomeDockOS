@@ -33,7 +33,7 @@
                   <div class="stat-header">
                     <Icon :icon="tempIcon" class="stat-icon" :class="themeClasses.statsWidgetStatIcon" />
                     <span class="stat-name" :class="themeClasses.statsWidgetStatName">{{ $t("CPU Temp") }}</span>
-                    <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempValue }}°C </span>
+                    <span class="stat-main-value" :class="[themeClasses.statsWidgetStatValue, tempValue > 85 ? themeClasses.statsWidgetStatValueDanger : tempValue > 70 ? themeClasses.statsWidgetStatValueWarning : '']"> {{ tempDisplay }} </span>
                   </div>
                   <div class="stat-meta" :class="themeClasses.statsWidgetStatMeta">{{ cpuGhz }} GHz</div>
                 </div>
@@ -362,6 +362,8 @@ const ramValue = computed(() => Math.round(parseFloat(systemStatsStore.ramUsage)
 const totalRam = computed(() => systemStatsStore.totalRam);
 
 const tempValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuTemp) || 0));
+
+const tempDisplay = computed(() => (tempValue.value === 69 ? "Nicer" : `${tempValue.value}°C`));
 
 const allDisksForWidget = computed(() => {
   return diskStore.allDisks.slice().sort((a, b) => {

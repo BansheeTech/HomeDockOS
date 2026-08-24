@@ -4,10 +4,15 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="['desktop-folder group flex flex-col items-center gap-1 cursor-pointer px-3 py-1.5 md:p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? (isWiggleMode ? 'touch-none' : 'touch-pan-x') : 'touch-none', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle', isDropTarget && 'folder-drop-target']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
-    <div :class="['folder-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-visible pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !isSelected && ['border-transparent', themeClasses.desktopIconContainerBgHover], isSelected && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]" :style="{ backgroundColor: folder.color }">
+  <div :class="['desktop-folder group flex flex-col items-center justify-center gap-0.5 md:gap-1 cursor-pointer px-3 md:p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? (isWiggleMode ? 'touch-none' : 'touch-pan-x') : 'touch-none', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle', isDropTarget && 'folder-drop-target']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
+    <div :class="['folder-container relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-visible pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !isSelected && ['border-transparent', themeClasses.desktopIconContainerBgHover], isSelected && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]" :style="{ backgroundColor: folder.color }">
       <div v-if="itemCount > 0" class="folder-papers-stack">
-        <BaseImage v-for="(item, index) in previewItems" :key="item.id" :src="item.image_path" class="folder-paper-icon" :class="`paper-icon-${index}`" alt="" draggable="false" />
+        <template v-for="(item, index) in previewItems" :key="item.id">
+          <BaseImage v-if="item.imageSrc" :src="item.imageSrc" class="folder-paper-icon" :class="`paper-icon-${index}`" alt="" draggable="false" />
+          <div v-else class="folder-paper-icon folder-paper-preset" :class="`paper-icon-${index}`">
+            <Icon :icon="item.presetIcon" class="folder-paper-preset-icon" />
+          </div>
+        </template>
       </div>
 
       <Transition name="icon-switch" mode="out-in">
@@ -37,6 +42,8 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useDesktopStore, type DesktopFolder } from "../__Stores__/desktopStore";
 
 import BaseImage from "../__Components__/BaseImage.vue";
+
+import { getShortcutPresetIcon, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
 
 import { Icon } from "@iconify/vue";
 import folderIcon from "@iconify-icons/mdi/folder";
@@ -117,8 +124,27 @@ const displayIcon = computed(() => {
 });
 
 const previewItems = computed(() => {
-  const apps = props.folder.items.map((appId) => desktopStore.dockerApps.find((app) => app.id === appId)).filter((app) => app !== undefined); // Filtrar undefined
-  return apps.slice(0, 4);
+  const items: Array<{ id: string; imageSrc?: string; presetIcon?: any }> = [];
+
+  props.folder.items.forEach((itemId) => {
+    if (itemId.startsWith("shortcut-")) {
+      const icon = desktopStore.systemDesktopIcons.find((i) => i.id === itemId);
+      if (icon?.shortcut) {
+        if (icon.shortcut.iconType === "image") {
+          items.push({ id: itemId, imageSrc: getShortcutIconUrl(icon.shortcut.iconValue) });
+        } else {
+          items.push({ id: itemId, presetIcon: getShortcutPresetIcon(icon.shortcut.iconValue) });
+        }
+      }
+    } else {
+      const app = desktopStore.dockerApps.find((a) => a.id === itemId);
+      if (app) {
+        items.push({ id: itemId, imageSrc: app.image_path });
+      }
+    }
+  });
+
+  return items.slice(0, 4);
 });
 
 const hasProcessingApps = computed(() => {
@@ -215,7 +241,13 @@ function handleContextMenu(e: MouseEvent) {
 
 <style scoped>
 .desktop-folder {
-  transition: left 0.4s ease, top 0.4s ease, background 0.15s ease, transform 0.2s ease, border-color 0s, box-shadow 0s;
+  transition:
+    left 0.4s ease,
+    top 0.4s ease,
+    background 0.15s ease,
+    transform 0.2s ease,
+    border-color 0s,
+    box-shadow 0s;
 }
 
 .desktop-folder:hover {
@@ -260,7 +292,10 @@ function handleContextMenu(e: MouseEvent) {
 }
 
 .folder-container {
-  transition: background 0.15s ease, transform 0.2s ease, border-color 0s;
+  transition:
+    background 0.15s ease,
+    transform 0.2s ease,
+    border-color 0s;
 }
 
 .desktop-folder:hover .folder-container {
@@ -288,6 +323,18 @@ function handleContextMenu(e: MouseEvent) {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.folder-paper-preset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-paper-preset-icon {
+  width: 12px;
+  height: 12px;
+  color: rgba(55, 65, 81, 0.9);
 }
 
 .paper-icon-0 {
@@ -365,7 +412,13 @@ function handleContextMenu(e: MouseEvent) {
   white-space: nowrap;
   pointer-events: none;
   font-weight: 500;
-  line-height: 1.25rem;
+  line-height: 1.125rem;
+}
+
+@media (min-width: 768px) {
+  .folder-name {
+    line-height: 1.25rem;
+  }
 }
 
 /* Wiggle Animation */
@@ -394,7 +447,9 @@ function handleContextMenu(e: MouseEvent) {
 /* Loading Indicator Fade Transition */
 .loading-indicator-fade-enter-active,
 .loading-indicator-fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .loading-indicator-fade-enter-from {

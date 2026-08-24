@@ -16,6 +16,7 @@ from pymodules.hd_FunctionsGlobals import compose_upload_folder
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
 
 updates_state = {}
+skip_next_check = set()
 
 
 def check_app_updates():
@@ -37,6 +38,11 @@ def check_app_updates():
             for container in all_containers:
                 try:
                     container_name = container.name
+
+                    if container_name in skip_next_check:
+                        skip_next_check.discard(container_name)
+                        updates_state[container_name] = False
+                        continue
 
                     labels = container.labels
                     hd_role = labels.get("HDRole", None)
@@ -109,8 +115,14 @@ def get_updates_state():
 
 def clear_update_flag(container_name):
     global updates_state
+    skip_next_check.discard(container_name)
     if container_name in updates_state:
         updates_state[container_name] = False
+
+
+def defer_update_check(container_name):
+    updates_state[container_name] = False
+    skip_next_check.add(container_name)
 
 
 def start_app_updates_checker_thread():

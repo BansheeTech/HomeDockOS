@@ -16,6 +16,7 @@ from flask_login import login_required
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import version_hash
 from pymodules.hd_FunctionsHostSelector import docker_host, is_docker
+from pymodules.hd_AppSubdomains import get_emittable_hosts
 from pymodules.hd_DockerAPIContainerData import get_container_name_by_port_direct, get_display_name_for_container
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip, get_local_ip, get_internet_ip
 
@@ -31,11 +32,10 @@ def sanitize_subpath(subpath):
 
 # HDOS00008
 def get_safe_hostname():
-    requested_host = request.host.split(":")[0]
+    requested_host = request.host.split(":")[0].strip().lower().rstrip(".")
 
-    valid_hosts = {local_ip, internet_ip, "localhost", docker_host}
-
-    if requested_host in valid_hosts:
+    # HDOS00045
+    if requested_host in get_emittable_hosts():
         return requested_host
 
     try:
@@ -101,7 +101,8 @@ def check_port():
 
     path_part = f"/{subpath}" if subpath else ""
 
-    internal_host = docker_host if is_docker else hostname
+    # HDOS00046
+    internal_host = docker_host
     urls = [f"https://{internal_host}:{port}{path_part}", f"http://{internal_host}:{port}{path_part}"]
 
     # HDOS00005

@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="desktop-container" :class="[themeClasses.back]">
+  <div class="desktop-container" :class="[themeClasses.desktopBack]">
     <Favicon />
     <AeroPlusWallpaper />
     <ScrollBarThemeLoader />
@@ -15,7 +15,9 @@
 
       <VersionControl />
 
-      <WindowManager :show-debug-info="false" />
+      <WindowManager />
+
+      <QuickView />
     </div>
 
     <Taskbar />
@@ -23,6 +25,8 @@
     <StartMenu />
 
     <Notifications />
+
+    <ScreenshotOverlay />
 
     <router-view />
   </div>
@@ -36,7 +40,11 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useSSEStore } from "../__Stores__/useSSEStore";
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
+import { useWhatsNewStore } from "../__Stores__/useWhatsNewStore";
 
+import { releaseNotes } from "../__Data__/WhatsNewData";
+
+import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useMobileZoomPrevention } from "../__Composables__/useMobileZoomPrevention";
 
@@ -46,11 +54,13 @@ import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
 import VersionControl from "../__Components__/VersionControl.vue";
 import Notifications from "../__Components__/Notifications.vue";
+import ScreenshotOverlay from "../__Components__/ScreenshotOverlay.vue";
 
 import WindowManager from "../__Windows__/WindowManager.vue";
 import StartMenu from "../__Desktop__/StartMenu.vue";
 import Taskbar from "../__Desktop__/Taskbar.vue";
 import DesktopIconsGrid from "../__Desktop__/DesktopIconsGrid.vue";
+import QuickView from "../__Desktop__/QuickView.vue";
 
 const { themeClasses } = useTheme();
 
@@ -59,6 +69,8 @@ const { availableHeight } = useResponsive();
 useMobileZoomPrevention();
 
 const desktopStore = useDesktopStore();
+const whatsNewStore = useWhatsNewStore();
+const csrfToken = useCsrfToken();
 const sseStore = useSSEStore();
 useSystemStatsStore();
 
@@ -74,9 +86,17 @@ function handleDesktopClick(e: MouseEvent) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   desktopStore.initialize();
   sseStore.startPolling();
+
+  if (releaseNotes.entries.length > 0) {
+    await whatsNewStore.load(csrfToken.value);
+
+    if (whatsNewStore.isUnseen(releaseNotes.id)) {
+      whatsNewStore.open();
+    }
+  }
 });
 
 onUnmounted(() => {

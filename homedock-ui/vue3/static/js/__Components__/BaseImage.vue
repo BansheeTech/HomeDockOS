@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <img loading="lazy" :src="computedSrc" v-bind="rest" />
+  <img loading="lazy" :src="computedSrc" />
 </template>
 
 <script setup lang="ts">
@@ -14,7 +14,5 @@ const props = defineProps<{
   src: string;
 }>();
 
-const { src, ...rest } = props;
-
-const computedSrc = computed(() => (src.startsWith("/") ? src : `/images/${src}`));
+const computedSrc = computed(() => (props.src.startsWith("/") ? props.src : `/images/${props.src}`));
 </script>

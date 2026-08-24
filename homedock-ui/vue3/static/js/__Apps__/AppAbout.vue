@@ -71,6 +71,12 @@
               <Icon :icon="openInNewIcon" size="16px" />
             </a>
 
+            <a tabindex="0" @click="openWhatsNew" @keydown.enter="openWhatsNew" :class="['flex items-center gap-2 px-3 py-2 rounded-xl transition-colors cursor-pointer select-none', themeClasses.aboutLink]">
+              <Icon :icon="newBoxIcon" size="18px" />
+              <span class="flex-1">{{ $t("What's New") }}</span>
+              <Icon :icon="openInAppIcon" size="16px" />
+            </a>
+
             <a href="https://github.com/BansheeTech/HomeDockOS/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-2 px-3 py-2 rounded-xl transition-colors', themeClasses.aboutLink]">
               <Icon :icon="historyIcon" size="18px" />
               <span class="flex-1">{{ $t("Changelog") }}</span>
@@ -135,7 +141,11 @@
               <Icon :icon="GUIIcon" :class="[themeClasses.aboutIcon]" size="20px" />
               <h3 :class="['text-base font-semibold', themeClasses.aboutLabel]">{{ $t("Prism Window Manager") }}</h3>
             </div>
-            <p :class="['text-sm leading-relaxed', themeClasses.aboutDescription]">{{ $t("HomeDock OS is a powerful, multiplatform and user-friendly Cloud OS designed to simplify application and cloud/home server management. With our brand new Prism Window Manager, it brings a true desktop-like experience to every device, with intuitive multitasking, fluid window control, and a seamless interface that makes cloud management feel like your own private, secure desktop. We wanted to move faster and create a more unified experience across platforms, so here it is. The future is bright, and if it's running in your own hardware... It shouldn't require a Plus+ one-time fee, period.") }}</p>
+            <i18n-t keypath="HomeDock OS is a powerful, multiplatform Cloud OS that makes application and server management feel like using your own private cloud computer. With Prism Window Manager, every device gets a true desktop-like experience with fluid multitasking, intuitive window control, and a seamless interface. Prism-WM is open source now ({released2025}), with adapters for React, Vue 3 and Svelte, unified across platforms and built to run on the hardware you already own. Because your own cloud shouldn't require an overpriced box or a Plus+ one-time fee. We don't believe in that, and the margin of the future won't be found there either. We were right about this, and we'll be right about that too." tag="p" scope="global" :class="['text-sm leading-relaxed', themeClasses.aboutDescription]">
+              <template #released2025>
+                <a href="https://github.com/BansheeTech/HomeDockOS/commit/41e6eab6" target="_blank" rel="noopener noreferrer" class="font-semibold underline underline-offset-2 decoration-1 hover:opacity-70 transition-opacity">{{ $t("released 2025") }}</a>
+              </template>
+            </i18n-t>
           </div>
         </EnterpriseSlotReplacer>
 
@@ -174,6 +184,11 @@
               </a>
               <a href="https://github.com/microsoft/TypeScript/blob/main/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>TypeScript</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/BansheeTech/Prism-WM/blob/main/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['hd-own-chip flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold ring-1 ring-inset transition-all', themeClasses.aboutLinkOwn]">
+                <Icon :icon="heartIcon" size="12px" class="shrink-0" />
+                <span>Prism-WM</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
               <a href="https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
@@ -265,6 +280,10 @@
                 <span>Hypercorn</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
+              <a href="https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>aiohttp</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
               <a href="https://github.com/pallets/werkzeug/blob/main/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>Werkzeug</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
@@ -301,7 +320,8 @@
                 <span>Cython</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
-              <a href="https://github.com/BansheeTech/vite_fusion/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+              <a href="https://github.com/BansheeTech/vite_fusion/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['hd-own-chip flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold ring-1 ring-inset transition-all', themeClasses.aboutLinkOwn]">
+                <Icon :icon="heartIcon" size="12px" class="shrink-0" />
                 <span>Vite Fusion</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
@@ -310,6 +330,7 @@
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
             </div>
+            <p :class="['text-xs leading-relaxed opacity-70 pt-1', themeClasses.aboutDescription]">{{ $t("The ones marked with a heart are ours. We said we would open our core once we could afford to, and we are doing it piece by piece.") }}</p>
           </div>
         </div>
       </div>
@@ -335,6 +356,7 @@
 <script lang="ts" setup>
 import { inject } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useWhatsNewStore } from "../__Stores__/useWhatsNewStore";
 
 import { Icon } from "@iconify/vue";
 import infoIcon from "@iconify-icons/mdi/cloud-question";
@@ -347,6 +369,8 @@ import githubIcon from "@iconify-icons/mdi/github";
 import webIcon from "@iconify-icons/mdi/web";
 import fileDocumentIcon from "@iconify-icons/mdi/file-document";
 import openInNewIcon from "@iconify-icons/mdi/open-in-new";
+import openInAppIcon from "@iconify-icons/mdi/open-in-app";
+import newBoxIcon from "@iconify-icons/mdi/new-box";
 import docsIcon from "@iconify-icons/mdi/lifebuoy";
 import donateIcon from "@iconify-icons/mdi/coffee";
 import codeIcon from "@iconify-icons/mdi/code-braces";
@@ -356,6 +380,7 @@ import shareIcon from "@iconify-icons/mdi/share-variant";
 import starIcon from "@iconify-icons/mdi/star";
 import twitterIcon from "@iconify-icons/mdi/twitter";
 import accountGroupIcon from "@iconify-icons/mdi/account-group";
+import heartIcon from "@iconify-icons/mdi/hand-heart";
 
 import StatusBar from "../__Components__/StatusBar.vue";
 import LogoIcon from "../__Components__/LogoIcon.vue";
@@ -373,6 +398,41 @@ if (!commonData) {
 const { version } = commonData;
 
 const { themeClasses } = useTheme();
+const whatsNewStore = useWhatsNewStore();
+
+function openWhatsNew() {
+  whatsNewStore.open();
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.hd-own-chip {
+  background-image: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.38) 50%, transparent 58%);
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  background-position: 130% 0;
+}
+
+.hd-own-chip:hover {
+  animation: hd-own-sheen 0.7s ease-out;
+}
+
+@keyframes hd-own-sheen {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hd-own-chip {
+    background-image: none;
+  }
+
+  .hd-own-chip:hover {
+    animation: none;
+  }
+}
+</style>
