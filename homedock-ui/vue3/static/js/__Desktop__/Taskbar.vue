@@ -16,9 +16,7 @@
       <div ref="taskbarApps" class="flex-shrink min-w-0 md:flex-1 overflow-x-auto overflow-y-hidden scrollbar-none scroll-smooth [-webkit-overflow-scrolling:touch] cursor-default">
         <TransitionGroup name="taskbar-item" tag="div" class="flex items-center gap-1">
           <button v-for="window in openWindows" :key="window.id" class="relative flex items-center gap-[0.3rem] px-3 py-2 rounded-lg bg-transparent border-0 cursor-pointer transition-all duration-150 text-sm whitespace-nowrap flex-shrink-0 select-none" :class="[themeClasses.taskbarIconText, themeClasses.taskbarIconBgHover, window.id === activeWindowId && !window.isMinimized && themeClasses.taskbarAppActive, window.isMinimized && themeClasses.taskbarAppMinimized]" @click.stop="handleWindowClick(window.id)" @contextmenu="handleWindowContextMenu($event, window)" @touchstart="handleWindowTouchStart($event, window)" @touchmove="handleWindowTouchMove" @touchend="handleWindowTouchEnd($event, window)" :title="window.title">
-            <BaseImage v-if="isImageIcon(window.icon)" :src="window.icon" alt="" class="taskbar-app-icon rounded-[4px]" width="20" height="20" draggable="false" />
-            <Icon v-else-if="window.icon" :icon="window.icon" width="20" height="20" />
-            <Icon v-else :icon="defaultAppIcon" width="20" height="20" />
+            <WindowIcon :window="window" :size="20" :fallback="defaultAppIcon" />
             <span v-if="showTaskbarLabels" class="max-w-[120px] overflow-hidden text-ellipsis">{{ window.title }}</span>
             <div v-if="window.id === activeWindowId && !window.isMinimized" class="absolute bottom-[3px] left-[35%] right-[35%] h-[3px] rounded-full opacity-30" :class="themeClasses.taskbarAppIndicator"></div>
             <div v-else-if="!window.isMinimized" class="absolute bottom-[3px] left-[35%] right-[35%] h-[3px] rounded-full opacity-100" :class="themeClasses.taskbarAppIndicatorInactive"></div>
@@ -44,6 +42,8 @@
         <UnifiedUploadIndicator location="appdrive" :title="$t('App Drive Uploads')" :badgeIcon="cubeScanIcon" trayId="appdrive-upload-indicator" />
 
         <UnifiedUploadIndicator location="disksplus" :title="$t('Disks+ Uploads')" :badgeIcon="harddiskIcon" trayId="disksplus-upload-indicator" />
+
+        <ArchiveJobsIndicator />
 
         <NetworkOfflineTray />
 
@@ -92,8 +92,8 @@
 import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick } from "vue";
 
 import { useDesktopStore } from "../__Stores__/desktopStore";
-import { useWindowStore, isImageIcon } from "../__Stores__/windowStore";
-import BaseImage from "../__Components__/BaseImage.vue";
+import { useWindowStore } from "../__Stores__/windowStore";
+import WindowIcon from "../__Components__/WindowIcon.vue";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
@@ -116,6 +116,7 @@ import InstallationIndicator from "../__Components__/InstallationIndicator.vue";
 import AppUpdatesIndicator from "../__Components__/AppUpdatesIndicator.vue";
 import UpdateIndicator from "../__Components__/UpdateIndicator.vue";
 import UnifiedUploadIndicator from "../__Components__/UnifiedUploadIndicator.vue";
+import ArchiveJobsIndicator from "../__Components__/ArchiveJobsIndicator.vue";
 import AudioIndicator from "../__Components__/AudioIndicator.vue";
 
 import cubeIcon from "@iconify-icons/mdi/cube";
@@ -445,13 +446,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.taskbar-app-icon {
-  -webkit-user-drag: none;
-  -moz-user-drag: none;
-  -ms-user-drag: none;
-  user-drag: none;
-}
-
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
   height: 0;

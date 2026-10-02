@@ -26,10 +26,12 @@ export async function unpauseContainers(applications: Application[], containerNa
   const store = useSelectedAppsStore();
   const group = mainContainer.HDGroup;
 
-  const dependencies = applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group);
+  const isGrouped = !!group && mainContainer.HDRole !== "dependency";
+
+  const dependencies = isGrouped ? applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group) : [];
 
   const affectedContainers = [mainContainer, ...dependencies];
-  
+
   affectedContainers.forEach((app) => store.setDesiredState(app.name, "running"));
 
   const containersToUnpause = affectedContainers.filter((app) => app.status !== "running");

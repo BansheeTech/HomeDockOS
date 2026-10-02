@@ -8,40 +8,38 @@
     <div ref="pagesContainerRef" class="desktop-pages-container" @scroll="handlePageScroll" @touchstart="handlePageTouchStart" @touchmove="handlePageTouchMove" @touchend="handlePageTouchEnd">
       <div v-for="(pageItems, pageIndex) in iconsByPage" :key="`page-${pageIndex}`" class="desktop-page" :data-page="pageIndex">
         <TransitionGroup name="icon-appear">
-          <div v-for="item in pageItems.filter((i: any) => i.type === 'systemicon')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', selectedSystemIcon === item.id ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="item.name">
-            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === item.id ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'systemicon')" :key="item.id" :data-desktop-icon="item.id" :data-arriving="desktopStore.arrivingIconId === item.id || undefined" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', selectedSystemIcon === item.id ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="item.name">
+            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
               <template v-if="(item as any).shortcut">
                 <Transition name="icon-switch" mode="out-in">
-                  <BaseImage v-if="(item as any).shortcut.iconType === 'image'" :key="`image:${(item as any).shortcut.iconValue}`" :src="getShortcutIconUrl((item as any).shortcut.iconValue)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-                  <div v-else :key="`preset:${(item as any).shortcut.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-                    <Icon :icon="getShortcutGlyph((item as any).shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
-                  </div>
+                  <ShortcutGraphic :key="`${(item as any).shortcut.iconType}:${(item as any).shortcut.iconValue}`" :shortcut="(item as any).shortcut" :size="APP_ICON_SIZE" />
                 </Transition>
                 <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
                   <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
                 </div>
               </template>
-              <div v-else :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-                <Icon :icon="getSystemIconObject(item)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
-              </div>
+              <AppIconGraphic v-else :icon="systemIconGlyph(item)" :color="systemIconColor(item)" :size="APP_ICON_SIZE" />
             </div>
             <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.125rem">{{ item.name }}</span>
           </div>
         </TransitionGroup>
 
         <TransitionGroup name="icon-appear">
-          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="`${(item as any).display_name || item.name} (${getAppStatus(item)})`">
-            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(item)]">
-              <BaseImage :src="getAppImagePath(item)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-              <Transition name="loading-overlay-fade">
-                <div v-if="isAppProcessing(item)" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
-                  <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
+          <div v-for="item in pageItems.filter((i: any) => i.type === 'app')" :key="item.id" :class="['desktop-mobile-icon group flex flex-col items-center justify-center gap-0.5 cursor-pointer px-1 rounded-lg select-none outline-none border overflow-hidden', isWiggleMode ? 'touch-none' : 'touch-pan-x', !(selectedApp === item.id || selectedApps.has(item.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === item.id || selectedApps.has(item.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && draggedItemId === item.id ? 'icon-dragging' : '', isWiggleMode && draggedItemId !== item.id ? 'icon-wiggle' : '', !isDragging || draggedItemId !== item.id ? 'transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease]' : '']" :style="getIconStyle(item, pageIndex)" @touchstart="handleTouchStart($event, item)" @touchmove="handleTouchMove($event, item)" @touchend="handleTouchEnd($event, item)" :title="appTitle(item)">
+            <div :class="['relative w-16 h-16 shrink-0 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
+              <AppIconGraphic :image-src="getAppImagePath(item)" :size="APP_ICON_SIZE" :status="getAppStatus(item)" />
+              <AppBusyOverlay :visible="isBusy(item.id)" />
+              <PortScanningOverlay :visible="getAppStatus(item) === 'running' && isPortScanning(item) && !isBusy(item.id)" />
+              <Transition name="status-pop" type="animation">
+                <div v-if="stoppedDependencies(item).length" :class="['absolute bottom-1 left-1 flex items-center justify-center w-4 h-4 rounded z-[3] pointer-events-none', themeClasses.desktopDependencyBadge]">
+                  <Icon :icon="dependencyOffIcon" class="w-3 h-3" />
                 </div>
               </Transition>
-              <PortScanningOverlay :visible="getAppStatus(item) === 'running' && isPortScanning(item) && !isAppProcessing(item)" />
-              <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(getAppStatus(item)), themeClasses.desktopStatusBadgeBorder, getAppStatus(item) === 'running' && 'status-pulse']"></div>
+              <Transition name="status-pop" type="animation">
+                <div v-if="getAppStatus(item) !== 'running'" :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-colors duration-500', getStatusBadgeClass(getAppStatus(item)), themeClasses.desktopStatusBadgeBorder]"></div>
+              </Transition>
             </div>
-            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.125rem">{{ (item as any).display_name || item.name }}</span>
+            <span :class="[themeClasses.desktopIconText, 'text-xs text-center w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.125rem"><UpdatedDot :visible="!!(item as any).recently_updated" />{{ (item as any).display_name || item.name }}</span>
           </div>
         </TransitionGroup>
 
@@ -51,7 +49,7 @@
       </div>
 
       <TransitionGroup name="widget-appear" move-class="widget-move-none">
-        <div v-for="w in placedMobileWidgets" :key="w.instance.instanceId" :class="['absolute z-[1] select-none outline-none', isWiggleMode ? 'touch-none' : 'touch-pan-x', draggedMobileWidget === w.instance.instanceId && mobileWidgetHasMoved ? 'widget-dragging' : 'transition-[left,top,transform] duration-[400ms] ease-[ease]', isWiggleMode && draggedMobileWidget !== w.instance.instanceId ? 'icon-wiggle' : '']" :style="getMobileWidgetStyle(w)" @touchstart="handleWidgetTouchStart($event, w)" @touchmove="handleWidgetTouchMove($event)" @touchend="handleWidgetTouchEnd($event)">
+        <div v-for="w in placedMobileWidgets" :key="w.instance.instanceId" :class="['absolute z-[1] select-none outline-none', isWiggleMode ? 'touch-none' : 'touch-pan-x', draggedMobileWidget === w.instance.instanceId && mobileWidgetHasMoved ? 'widget-dragging' : 'transition-[left,top,width,height,transform] duration-[400ms] ease-[ease]', isWiggleMode && draggedMobileWidget !== w.instance.instanceId ? 'icon-wiggle' : '']" :style="getMobileWidgetStyle(w)" @touchstart="handleWidgetTouchStart($event, w)" @touchmove="handleWidgetTouchMove($event)" @touchend="handleWidgetTouchEnd($event)">
           <DesktopWidgetFrame :instance="w.instance" />
         </div>
       </TransitionGroup>
@@ -69,20 +67,26 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useDesktopStore, type DockerApp, type DesktopFolder, type SystemDesktopIcon } from "../__Stores__/desktopStore";
 import { useWidgetsStore, type WidgetInstance } from "../__Stores__/useWidgetsStore";
+import { useDesktopSyncStore } from "../__Stores__/useDesktopSyncStore";
 import { getWidgetDims } from "../__Config__/WidgetDefaultDetails";
 
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useResponsive } from "../__Composables__/useResponsive";
+import { useBusyApps } from "../__Composables__/useBusyApps";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+import AppBusyOverlay from "../__Components__/AppBusyOverlay.vue";
 
-import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
+import ShortcutGraphic from "../__Components__/ShortcutGraphic.vue";
+import { getAppById, ENTERPRISE_APP_COLOR } from "../__Config__/WindowDefaultDetails";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
+import UpdatedDot from "../__Components__/UpdatedDot.vue";
 import DesktopWidgetFrame from "./DesktopWidgetFrame.vue";
 import PageIndicator from "./PageIndicator.vue";
 
@@ -95,6 +99,7 @@ import widgetsOutlineIcon from "@iconify-icons/mdi/widgets-outline";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
 import packageVariantIcon from "@iconify-icons/mdi/package-variant";
 import cubeIcon from "@iconify-icons/mdi/cube";
+import dependencyOffIcon from "@iconify-icons/mdi/cube-off-outline";
 import nutIcon from "@iconify-icons/mdi/nut";
 import chartTimelineVariantIcon from "@iconify-icons/mdi/chart-timeline-variant";
 import tuneIcon from "@iconify-icons/mdi/tune";
@@ -135,10 +140,14 @@ const emit = defineEmits<{
   (e: "widgetContextmenu", event: MouseEvent, widget: WidgetInstance): void;
 }>();
 
+const { t } = useI18n();
+
 const desktopStore = useDesktopStore();
+const { isBusy } = useBusyApps();
 const widgetsStore = useWidgetsStore();
+const desktopSync = useDesktopSyncStore();
 const windowStore = useWindowStore();
-const { windowWidth, windowHeight, isPortrait, isLandscape, isMobile } = useResponsive();
+const { windowWidth, windowHeight, isPortrait, isMobile } = useResponsive();
 const { themeClasses } = useTheme();
 
 const pagesContainerRef = ref<HTMLDivElement | null>(null);
@@ -161,6 +170,8 @@ const dragStartPage = ref(0);
 const dragStartGridIndex = ref(0);
 const currentTouchItem = ref<any>(null);
 const draggedItemId = ref<string | null>(null);
+let dragOriginPage = 0;
+let dragOriginClientX = 0;
 
 const isWiggleMode = ref(false);
 
@@ -193,48 +204,214 @@ const PAGE_INDICATOR_CLEARANCE = 32;
 const WIDGET_CELL_INSET = 5;
 const GRID_SIZE_X = ref(85);
 const GRID_SIZE_Y = ref(100);
+const containerWidth = ref(0);
+const containerHeight = ref(0);
+const MAX_LAYOUT_PAGES = 200;
 
 const mainDockerApps = computed(() => desktopStore.desktopRootApps);
 const desktopFolders = computed(() => desktopStore.desktopFolders);
 const systemDesktopIcons = computed(() => desktopStore.desktopRootSystemIcons);
 
+const NON_TEXT_INPUT_TYPES = new Set(["button", "checkbox", "color", "file", "hidden", "image", "radio", "range", "reset", "submit"]);
+
+const KEYBOARD_RELEASE_MS = 900;
+
+const editing = ref(false);
+const layoutFrozen = ref(false);
+const layoutPortrait = ref(isPortrait.value);
+let keyboardReleaseTimer: ReturnType<typeof setTimeout> | null = null;
+
+function isTextEntry(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable || target instanceof HTMLTextAreaElement) return true;
+  return target instanceof HTMLInputElement && !NON_TEXT_INPUT_TYPES.has(target.type);
+}
+
+function clearKeyboardRelease() {
+  if (keyboardReleaseTimer) {
+    clearTimeout(keyboardReleaseTimer);
+    keyboardReleaseTimer = null;
+  }
+}
+
+function releaseLayout() {
+  clearKeyboardRelease();
+  if (!layoutFrozen.value) return;
+
+  layoutFrozen.value = false;
+  layoutPortrait.value = window.innerHeight > window.innerWidth;
+  calculateGridSettings();
+}
+
+function stopEditing() {
+  editing.value = false;
+  if (!layoutFrozen.value) return;
+
+  clearKeyboardRelease();
+  keyboardReleaseTimer = setTimeout(releaseLayout, KEYBOARD_RELEASE_MS);
+}
+
+function handleFocusIn(event: FocusEvent) {
+  if (!isTextEntry(event.target)) {
+    stopEditing();
+    return;
+  }
+
+  clearKeyboardRelease();
+  editing.value = true;
+  layoutFrozen.value = true;
+}
+
+function handleFocusOut(event: FocusEvent) {
+  if (!isTextEntry(event.relatedTarget)) stopEditing();
+}
+
 const gridColumns = computed(() => {
-  return isPortrait.value ? 4 : 6;
+  return layoutPortrait.value ? 4 : 6;
 });
 
+const pageWidthPx = computed(() => containerWidth.value || windowWidth.value);
+
 const gridRows = computed(() => {
-  const containerHeight = pagesContainerRef.value?.clientHeight || windowHeight.value;
-  const availableHeight = containerHeight - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
+  const height = containerHeight.value || windowHeight.value;
+  const availableHeight = height - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
   return Math.max(1, Math.floor(availableHeight / GRID_SIZE_Y.value));
 });
 
-const iconsPerPage = computed(() => {
-  return gridColumns.value * gridRows.value;
-});
+interface MobileCell {
+  page: number;
+  row: number;
+  col: number;
+}
 
-const iconsByPage = computed(() => {
-  const container = pagesContainerRef.value;
-  const pageWidth = container?.clientWidth || windowWidth.value;
+interface PlacedMobileWidget {
+  instance: WidgetInstance;
+  row: number;
+  col: number;
+  page: number;
+  cols: number;
+  rows: number;
+}
 
+const rootItems = computed(() => {
   const systemicons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
   const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
   const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...systemicons, ...folders, ...apps];
+  return [...systemicons, ...folders, ...apps];
+});
 
-  if (allItems.length === 0) return [[]];
+function cellKey(page: number, row: number, col: number) {
+  return `${page},${row},${col}`;
+}
 
-  const itemsWithPage = allItems.map((item) => {
-    let pageIndex = 0;
+function storedIconCell(item: { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }): MobileCell | null {
+  if (item.gridRow !== undefined && item.gridCol !== undefined) {
+    return { page: item.page ?? 0, row: item.gridRow, col: item.gridCol };
+  }
+  if (item.x !== undefined && item.y !== undefined) {
+    const page = Math.floor(item.x / pageWidthPx.value);
+    const col = Math.round((item.x - page * pageWidthPx.value - MOBILE_PADDING) / GRID_SIZE_X.value);
+    const row = Math.round((item.y - MOBILE_PADDING) / GRID_SIZE_Y.value);
+    return { page, row, col };
+  }
+  return null;
+}
 
-    if (item.x !== undefined) {
-      pageIndex = Math.floor(item.x / pageWidth);
-    } else if (item.gridRow !== undefined && item.gridCol !== undefined) {
-      const globalIndex = item.gridRow * gridColumns.value + item.gridCol;
-      pageIndex = Math.floor(globalIndex / iconsPerPage.value);
+const mobileLayout = computed(() => {
+  const cols = gridColumns.value;
+  const rows = gridRows.value;
+  const occupied = new Map<string, string>();
+  const icons = new Map<string, MobileCell>();
+  const widgets: PlacedMobileWidget[] = [];
+
+  const rectFree = (page: number, row: number, col: number, w: number, h: number) => {
+    if (row < 0 || col < 0 || col + w > cols || row + Math.min(h, rows) > rows) return false;
+    for (let r = row; r < row + h; r++) {
+      for (let c = col; c < col + w; c++) {
+        if (occupied.has(cellKey(page, r, c))) return false;
+      }
     }
+    return true;
+  };
 
-    return { ...item, pageIndex };
+  const claimRect = (owner: string, page: number, row: number, col: number, w: number, h: number) => {
+    for (let r = row; r < row + h; r++) {
+      for (let c = col; c < col + w; c++) {
+        occupied.set(cellKey(page, r, c), owner);
+      }
+    }
+  };
+
+  const findRect = (fromPage: number, w: number, h: number): MobileCell | null => {
+    for (let page = Math.max(0, fromPage); page < MAX_LAYOUT_PAGES; page++) {
+      for (let row = 0; row <= Math.max(0, rows - h); row++) {
+        for (let col = 0; col <= cols - w; col++) {
+          if (rectFree(page, row, col, w, h)) return { page, row, col };
+        }
+      }
+    }
+    return null;
+  };
+
+  const pendingWidgets: Array<{ instance: WidgetInstance; page: number; cols: number; rows: number }> = [];
+
+  widgetsStore.instances.forEach((instance) => {
+    if (instance.mobileRow === undefined || instance.mobileCol === undefined) return;
+
+    const dims = getWidgetDims(instance.type, instance.size);
+    const page = instance.mobilePage ?? 0;
+    const col = Math.max(0, Math.min(instance.mobileCol, cols - dims.cols));
+    const row = Math.max(0, Math.min(instance.mobileRow, Math.max(0, rows - dims.rows)));
+
+    if (rectFree(page, row, col, dims.cols, dims.rows)) {
+      claimRect(instance.instanceId, page, row, col, dims.cols, dims.rows);
+      widgets.push({ instance, page, row, col, cols: dims.cols, rows: dims.rows });
+    } else {
+      pendingWidgets.push({ instance, page, cols: dims.cols, rows: dims.rows });
+    }
   });
+
+  const pendingIcons: Array<{ id: string; cell: MobileCell | null }> = [];
+
+  rootItems.value.forEach((item) => {
+    const cell = storedIconCell(item);
+    if (cell && cell.page >= 0 && cell.row >= 0 && cell.row < rows && cell.col >= 0 && cell.col < cols && !occupied.has(cellKey(cell.page, cell.row, cell.col))) {
+      occupied.set(cellKey(cell.page, cell.row, cell.col), item.id);
+      icons.set(item.id, cell);
+    } else {
+      pendingIcons.push({ id: item.id, cell });
+    }
+  });
+
+  pendingWidgets.forEach(({ instance, page, cols: w, rows: h }) => {
+    const spot = findRect(page, w, h) ?? findRect(0, w, h);
+    if (!spot) return;
+    claimRect(instance.instanceId, spot.page, spot.row, spot.col, w, h);
+    widgets.push({ instance, page: spot.page, row: spot.row, col: spot.col, cols: w, rows: h });
+  });
+
+  pendingIcons
+    .sort((a, b) => {
+      if (!a.cell || !b.cell) return (a.cell ? 0 : 1) - (b.cell ? 0 : 1);
+      return a.cell.page - b.cell.page || a.cell.row - b.cell.row || a.cell.col - b.cell.col;
+    })
+    .forEach(({ id, cell }) => {
+      const spot = findRect(cell?.page ?? 0, 1, 1) ?? findRect(0, 1, 1);
+      if (!spot) return;
+      occupied.set(cellKey(spot.page, spot.row, spot.col), id);
+      icons.set(id, spot);
+    });
+
+  return { icons, widgets, occupied };
+});
+
+const iconsByPage = computed(() => {
+  const allItems = rootItems.value;
+
+  if (allItems.length === 0 && placedMobileWidgets.value.length === 0) return [[]];
+
+  const layout = mobileLayout.value.icons;
+  const itemsWithPage = allItems.map((item) => ({ ...item, pageIndex: layout.get(item.id)?.page ?? 0 }));
 
   const maxPage = Math.max(0, ...itemsWithPage.map((item) => item.pageIndex), ...placedMobileWidgets.value.map((w) => w.page));
 
@@ -266,112 +443,74 @@ const totalPages = computed(() => {
   return Math.max(1, iconsByPage.value.length);
 });
 
-interface PlacedMobileWidget {
-  instance: WidgetInstance;
-  row: number;
-  col: number;
-  page: number;
-  cols: number;
-  rows: number;
-}
+const placedMobileWidgets = computed<PlacedMobileWidget[]>(() => mobileLayout.value.widgets);
 
-const placedMobileWidgets = computed<PlacedMobileWidget[]>(() => {
-  return widgetsStore.instances
-    .filter((instance) => instance.mobileRow !== undefined && instance.mobileCol !== undefined)
-    .map((instance) => {
-      const dims = getWidgetDims(instance.type, instance.size);
-      const col = Math.max(0, Math.min(instance.mobileCol!, gridColumns.value - dims.cols));
-      const row = Math.max(0, Math.min(instance.mobileRow!, Math.max(0, gridRows.value - dims.rows)));
-      return { instance, row, col, page: instance.mobilePage ?? 0, cols: dims.cols, rows: dims.rows };
-    });
-});
-
-function widgetCellsForPage(pageIndex: number, excludeId?: string): Set<string> {
-  const cells = new Set<string>();
-  placedMobileWidgets.value.forEach((w) => {
-    if (w.page !== pageIndex || w.instance.instanceId === excludeId) return;
-    for (let r = w.row; r < w.row + w.rows; r++) {
-      for (let c = w.col; c < w.col + w.cols; c++) {
-        cells.add(`${r},${c}`);
-      }
-    }
-  });
-  return cells;
-}
-
-function iconCellsForPage(pageIndex: number): Set<string> {
-  const cells = new Set<string>();
-  const container = pagesContainerRef.value;
-  if (!container) return cells;
-
-  const pageWidth = container.clientWidth;
-  const allItems: Array<{ x?: number; y?: number }> = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value];
-
-  allItems.forEach((item) => {
-    if (item.x === undefined || item.y === undefined) return;
-    if (Math.floor(item.x / pageWidth) !== pageIndex) return;
-
-    const left = (item.x % pageWidth) - MOBILE_PADDING;
-    const top = item.y - MOBILE_PADDING;
-    const firstCol = Math.max(0, Math.floor(left / GRID_SIZE_X.value));
-    const lastCol = Math.max(firstCol, Math.floor((left + GRID_SIZE_X.value - 1) / GRID_SIZE_X.value));
-    const firstRow = Math.max(0, Math.floor(top / GRID_SIZE_Y.value));
-    const lastRow = Math.max(firstRow, Math.floor((top + GRID_SIZE_Y.value - 1) / GRID_SIZE_Y.value));
-
-    for (let r = firstRow; r <= lastRow; r++) {
-      for (let c = firstCol; c <= lastCol; c++) {
-        cells.add(`${r},${c}`);
-      }
-    }
-  });
-
-  return cells;
+function isCellOccupied(page: number, row: number, col: number, excludeId?: string): boolean {
+  const owner = mobileLayout.value.occupied.get(cellKey(page, row, col));
+  return owner !== undefined && owner !== excludeId;
 }
 
 function isMobileWidgetRectFree(pageIndex: number, row: number, col: number, cols: number, rows: number, excludeId?: string): boolean {
-  if (row < 0 || col < 0 || col + cols > gridColumns.value || row + rows > gridRows.value) return false;
-
-  const iconCells = iconCellsForPage(pageIndex);
-  const widgetCells = widgetCellsForPage(pageIndex, excludeId);
+  if (row < 0 || col < 0 || col + cols > gridColumns.value || row + Math.min(rows, gridRows.value) > gridRows.value) return false;
 
   for (let r = row; r < row + rows; r++) {
     for (let c = col; c < col + cols; c++) {
-      const key = `${r},${c}`;
-      if (iconCells.has(key) || widgetCells.has(key)) return false;
+      if (isCellOccupied(pageIndex, r, c, excludeId)) return false;
     }
   }
 
   return true;
 }
 
-function assignMobileWidgetPositions() {
-  const rootItems: Array<{ x?: number }> = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value];
-  if (rootItems.some((item) => item.x === undefined)) return;
+function cellToLocal(cell: MobileCell): { x: number; y: number } {
+  return { x: MOBILE_PADDING + cell.col * GRID_SIZE_X.value, y: MOBILE_PADDING + cell.row * GRID_SIZE_Y.value };
+}
 
-  widgetsStore.instances.forEach((instance) => {
-    if (instance.mobileRow === undefined || instance.mobileCol === undefined) return;
+function commitMobileLayout(override?: { id: string; cell: MobileCell }) {
+  const layout = mobileLayout.value;
+  const pageWidth = pageWidthPx.value;
+  const iconCells = new Map(layout.icons);
+  const widgetCells = layout.widgets.map((w) => ({ id: w.instance.instanceId, instance: w.instance, cell: { page: w.page, row: w.row, col: w.col } }));
 
-    const dims = getWidgetDims(instance.type, instance.size);
-    const col = Math.max(0, Math.min(instance.mobileCol, gridColumns.value - dims.cols));
-    const row = Math.max(0, Math.min(instance.mobileRow, Math.max(0, gridRows.value - dims.rows)));
+  if (override) {
+    if (iconCells.has(override.id)) iconCells.set(override.id, override.cell);
+    const widget = widgetCells.find((w) => w.id === override.id);
+    if (widget) widget.cell = override.cell;
+  }
 
-    if (!isMobileWidgetRectFree(instance.mobilePage ?? 0, row, col, dims.cols, dims.rows, instance.instanceId)) {
-      widgetsStore.setMobilePosition(instance.instanceId, null);
-    }
+  rootItems.value.forEach((item) => {
+    const cell = iconCells.get(item.id);
+    if (!cell) return;
+
+    const local = cellToLocal(cell);
+    const x = cell.page * pageWidth + local.x;
+    if (item.page === cell.page && item.gridRow === cell.row && item.gridCol === cell.col && item.x === x && item.y === local.y) return;
+
+    desktopStore.updateItemPosition(item.type, item.id, x, local.y, cell.row, cell.col, cell.page);
   });
+
+  widgetCells.forEach(({ id, instance, cell }) => {
+    if (instance.mobilePage === cell.page && instance.mobileRow === cell.row && instance.mobileCol === cell.col) return;
+    widgetsStore.setMobilePosition(id, cell);
+  });
+
+  desktopSync.persistLayout();
+}
+
+function assignMobileWidgetPositions() {
+  if (rootItems.value.some((item) => storedIconCell(item) === null)) return;
 
   widgetsStore.instances.forEach((instance) => {
     if (instance.mobileRow !== undefined && instance.mobileCol !== undefined) return;
 
     const dims = getWidgetDims(instance.type, instance.size);
-    let found = false;
 
-    for (let page = 0; page <= totalPages.value && !found; page++) {
-      for (let row = 0; row <= gridRows.value - dims.rows && !found; row++) {
-        for (let col = 0; col <= gridColumns.value - dims.cols && !found; col++) {
+    for (let page = 0; page < MAX_LAYOUT_PAGES; page++) {
+      for (let row = 0; row <= Math.max(0, gridRows.value - dims.rows); row++) {
+        for (let col = 0; col <= gridColumns.value - dims.cols; col++) {
           if (isMobileWidgetRectFree(page, row, col, dims.cols, dims.rows)) {
             widgetsStore.setMobilePosition(instance.instanceId, { row, col, page });
-            found = true;
+            return;
           }
         }
       }
@@ -557,7 +696,7 @@ function handleWidgetTouchEnd(e: TouchEvent) {
     const page = currentPage.value;
 
     if (isMobileWidgetRectFree(page, clampedRow, clampedCol, w.cols, w.rows, w.instance.instanceId)) {
-      widgetsStore.setMobilePosition(w.instance.instanceId, { row: clampedRow, col: clampedCol, page });
+      commitMobileLayout({ id: w.instance.instanceId, cell: { page, row: clampedRow, col: clampedCol } });
     }
   } else if (isWiggleMode.value && !mobileWidgetHasMoved.value && w) {
     const touch = e.changedTouches[0];
@@ -571,7 +710,6 @@ function handleWidgetTouchEnd(e: TouchEvent) {
 
 function getIconStyle(item: any, pageIndex: number): Record<string, string> {
   const container = pagesContainerRef.value;
-  const pageWidth = container?.clientWidth || windowWidth.value;
 
   const cellHeight = `${GRID_SIZE_Y.value - 4}px`;
 
@@ -595,27 +733,15 @@ function getIconStyle(item: any, pageIndex: number): Record<string, string> {
     }
   }
 
-  if (item.x !== undefined && item.y !== undefined) {
-    const localX = item.x % pageWidth;
-    const localY = item.y;
+  const cell = mobileLayout.value.icons.get(item.id);
+
+  if (cell) {
+    const local = cellToLocal(cell);
 
     return {
       position: "absolute",
-      left: `${localX}px`,
-      top: `${localY}px`,
-      width: `${GRID_SIZE_X.value}px`,
-      height: cellHeight,
-    };
-  }
-
-  if (item.gridRow !== undefined && item.gridCol !== undefined) {
-    const left = MOBILE_PADDING + item.gridCol * GRID_SIZE_X.value;
-    const top = MOBILE_PADDING + item.gridRow * GRID_SIZE_Y.value;
-
-    return {
-      position: "absolute",
-      left: `${left}px`,
-      top: `${top}px`,
+      left: `${local.x}px`,
+      top: `${local.y}px`,
       width: `${GRID_SIZE_X.value}px`,
       height: cellHeight,
     };
@@ -654,102 +780,52 @@ function calculateGridPosition(touchX: number, touchY: number, pageIndex: number
   return { col, row, globalIndex };
 }
 
-function snapToGrid(x: number, y: number, pageIndex: number): { x: number; y: number; row: number; col: number; page: number } {
-  const container = pagesContainerRef.value;
-  if (!container) return { x: 0, y: 0, row: 0, col: 0, page: 0 };
-
+function snapToCell(x: number, y: number, pageIndex: number): MobileCell {
   const col = Math.round((x - MOBILE_PADDING) / GRID_SIZE_X.value);
   const row = Math.round((y - MOBILE_PADDING) / GRID_SIZE_Y.value);
 
-  const clampedCol = Math.max(0, Math.min(col, gridColumns.value - 1));
-  const clampedRow = Math.max(0, Math.min(row, gridRows.value - 1));
-
-  const snappedX = MOBILE_PADDING + clampedCol * GRID_SIZE_X.value;
-  const snappedY = MOBILE_PADDING + clampedRow * GRID_SIZE_Y.value;
-
   return {
-    x: snappedX,
-    y: snappedY,
-    row: clampedRow,
-    col: clampedCol,
     page: pageIndex,
+    row: Math.max(0, Math.min(row, gridRows.value - 1)),
+    col: Math.max(0, Math.min(col, gridColumns.value - 1)),
   };
 }
 
-function isPositionOccupied(x: number, y: number, pageIndex: number, excludeId?: string): boolean {
-  const container = pagesContainerRef.value;
-  if (!container) return false;
-
-  const cellCol = Math.round((x - MOBILE_PADDING) / GRID_SIZE_X.value);
-  const cellRow = Math.round((y - MOBILE_PADDING) / GRID_SIZE_Y.value);
-  if (widgetCellsForPage(pageIndex).has(`${cellRow},${cellCol}`)) return true;
-
-  const pageWidth = container.clientWidth;
-
-  const systemicons = systemDesktopIcons.value.map((s) => ({ ...s, type: "systemicon" as const }));
-  const folders = desktopFolders.value.map((f) => ({ ...f, type: "folder" as const }));
-  const apps = mainDockerApps.value.map((a) => ({ ...a, type: "app" as const }));
-  const allItems = [...systemicons, ...folders, ...apps];
-
-  return allItems.some((item) => {
-    if (excludeId && item.id === excludeId) return false;
-
-    if (item.x === undefined || item.y === undefined) return false;
-
-    const itemPage = Math.floor(item.x / pageWidth);
-
-    if (itemPage !== pageIndex) return false;
-
-    const itemLocalX = item.x % pageWidth;
-    const itemLocalY = item.y;
-
-    const dx = Math.abs(itemLocalX - x);
-    const dy = Math.abs(itemLocalY - y);
-
-    return dx < 20 && dy < 20;
-  });
-}
-
-function findNextAvailablePosition(pageIndex: number, preferredRow?: number, preferredCol?: number, excludeId?: string): { x: number; y: number; row: number; col: number } | null {
+function findNextAvailableCell(pageIndex: number, preferredRow?: number, preferredCol?: number, excludeId?: string): MobileCell | null {
   if (preferredRow !== undefined && preferredCol !== undefined) {
-    const preferredX = MOBILE_PADDING + preferredCol * GRID_SIZE_X.value;
-    const preferredY = MOBILE_PADDING + preferredRow * GRID_SIZE_Y.value;
-
-    if (!isPositionOccupied(preferredX, preferredY, pageIndex, excludeId)) {
-      return { x: preferredX, y: preferredY, row: preferredRow, col: preferredCol };
+    if (!isCellOccupied(pageIndex, preferredRow, preferredCol, excludeId)) {
+      return { page: pageIndex, row: preferredRow, col: preferredCol };
     }
 
     const maxRadius = Math.max(gridColumns.value, gridRows.value);
 
     for (let radius = 1; radius <= maxRadius; radius++) {
-      const positions = [];
+      let best: MobileCell | null = null;
+      let bestDistance = Infinity;
 
-      for (let col = preferredCol; col <= Math.min(gridColumns.value - 1, preferredCol + radius); col++) {
-        for (let row = Math.max(0, preferredRow - radius); row <= Math.min(gridRows.value - 1, preferredRow + radius); row++) {
-          if (col >= 0 && col < gridColumns.value && row >= 0 && row < gridRows.value) {
-            positions.push({ row, col });
+      for (let row = Math.max(0, preferredRow - radius); row <= Math.min(gridRows.value - 1, preferredRow + radius); row++) {
+        for (let col = Math.max(0, preferredCol - radius); col <= Math.min(gridColumns.value - 1, preferredCol + radius); col++) {
+          if (Math.max(Math.abs(row - preferredRow), Math.abs(col - preferredCol)) !== radius) continue;
+          if (isCellOccupied(pageIndex, row, col, excludeId)) continue;
+
+          const distance = Math.abs(row - preferredRow) + Math.abs(col - preferredCol);
+          if (distance < bestDistance) {
+            best = { page: pageIndex, row, col };
+            bestDistance = distance;
           }
         }
       }
 
-      for (const pos of positions) {
-        const x = MOBILE_PADDING + pos.col * GRID_SIZE_X.value;
-        const y = MOBILE_PADDING + pos.row * GRID_SIZE_Y.value;
-
-        if (!isPositionOccupied(x, y, pageIndex, excludeId)) {
-          return { x, y, row: pos.row, col: pos.col };
-        }
-      }
+      if (best) return best;
     }
+
+    return null;
   }
 
   for (let row = 0; row < gridRows.value; row++) {
     for (let col = 0; col < gridColumns.value; col++) {
-      const x = MOBILE_PADDING + col * GRID_SIZE_X.value;
-      const y = MOBILE_PADDING + row * GRID_SIZE_Y.value;
-
-      if (!isPositionOccupied(x, y, pageIndex, excludeId)) {
-        return { x, y, row, col };
+      if (!isCellOccupied(pageIndex, row, col, excludeId)) {
+        return { page: pageIndex, row, col };
       }
     }
   }
@@ -758,22 +834,17 @@ function findNextAvailablePosition(pageIndex: number, preferredRow?: number, pre
 }
 
 function checkDropOnFolder(x: number, y: number, pageIndex: number): DesktopFolder | null {
-  const HOVER_THRESHOLD = 60;
-  const container = pagesContainerRef.value;
-  if (!container) return null;
-
-  const pageWidth = container.clientWidth;
-
-  const globalX = pageIndex * pageWidth + x;
+  const hoverRadius = Math.min(GRID_SIZE_X.value, GRID_SIZE_Y.value) * 0.5;
 
   for (const folder of desktopFolders.value) {
-    if (folder.x === undefined || folder.y === undefined) continue;
+    const cell = mobileLayout.value.icons.get(folder.id);
+    if (!cell || cell.page !== pageIndex) continue;
 
-    const dx = Math.abs(folder.x - globalX);
-    const dy = Math.abs(folder.y - y);
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const local = cellToLocal(cell);
+    const dx = local.x + GRID_SIZE_X.value / 2 - x;
+    const dy = local.y + GRID_SIZE_Y.value / 2 - y;
 
-    if (distance < HOVER_THRESHOLD) {
+    if (Math.sqrt(dx * dx + dy * dy) < hoverRadius) {
       return folder;
     }
   }
@@ -822,15 +893,7 @@ function isPortScanning(item: any): boolean {
   return unique.size !== ports.length;
 }
 
-function getContainerClasses(app: any): string {
-  const statusClasses: Record<string, string> = {
-    running: "",
-    paused: "brightness-50 opacity-75",
-    exited: "grayscale brightness-50 opacity-75",
-    created: "brightness-50 sepia opacity-50",
-  };
-  return statusClasses[app.status] || "";
-}
+const APP_ICON_SIZE = 52;
 
 function getSystemIconObject(icon: any) {
   if (typeof icon.icon === "object" && icon.icon !== null) {
@@ -853,6 +916,14 @@ function getSystemIconObject(icon: any) {
     "mdi:toolbox-outline": toolboxOutlineIcon,
   };
   return iconMap[icon.icon] || cloudIcon;
+}
+
+function systemIconGlyph(icon: any) {
+  return getAppById(icon.appId)?.icon ?? getSystemIconObject(icon);
+}
+
+function systemIconColor(icon: any) {
+  return String(icon.appId).startsWith("enterprise-") ? ENTERPRISE_APP_COLOR : getAppById(icon.appId)?.color;
 }
 
 function updateScrollProgress() {
@@ -1011,6 +1082,7 @@ function handleTouchStart(e: TouchEvent, item: any) {
 
   dragStartX.value = touch.clientX;
   dragStartY.value = touch.clientY;
+  dragOriginClientX = touch.clientX;
   dragCurrentX.value = touch.clientX;
   dragCurrentY.value = touch.clientY;
   hasMoved.value = false;
@@ -1034,20 +1106,12 @@ function handleTouchStart(e: TouchEvent, item: any) {
   dragStartGridIndex.value = itemGridIndex;
 
   const container = pagesContainerRef.value;
-  const pageWidth = container?.clientWidth || windowWidth.value;
+  const startCell = mobileLayout.value.icons.get(item.id) ?? { page: itemPageIndex, row: 0, col: 0 };
+  const startLocal = cellToLocal(startCell);
 
-  if (item.x !== undefined && item.y !== undefined) {
-    dragStartIconX.value = item.x % pageWidth;
-    dragStartIconY.value = item.y;
-  } else if (item.gridRow !== undefined && item.gridCol !== undefined) {
-    dragStartIconX.value = MOBILE_PADDING + item.gridCol * GRID_SIZE_X.value;
-    dragStartIconY.value = MOBILE_PADDING + item.gridRow * GRID_SIZE_Y.value;
-  } else {
-    const col = itemGridIndex % gridColumns.value;
-    const row = Math.floor(itemGridIndex / gridColumns.value);
-    dragStartIconX.value = MOBILE_PADDING + col * GRID_SIZE_X.value;
-    dragStartIconY.value = MOBILE_PADDING + row * GRID_SIZE_Y.value;
-  }
+  dragOriginPage = startCell.page;
+  dragStartIconX.value = startLocal.x;
+  dragStartIconY.value = startLocal.y;
 
   if (isWiggleMode.value) {
     if (container) {
@@ -1256,22 +1320,17 @@ function handleTouchEnd(e: TouchEvent, item: any) {
     const container = pagesContainerRef.value;
     if (container && currentTouchItem.value) {
       const containerRect = container.getBoundingClientRect();
-      const pageWidth = container.clientWidth;
 
       const touchX = dragCurrentX.value - containerRect.left;
       const touchY = dragCurrentY.value - containerRect.top;
 
-      const isShortcutItem = currentTouchItem.value.type === "systemicon" && (currentTouchItem.value as any).shortcut;
+      const isFolderableItem = currentTouchItem.value.type === "systemicon" && desktopStore.isFolderableIconId(currentTouchItem.value.id);
 
-      if (currentTouchItem.value.type === "app" || isShortcutItem) {
+      if (currentTouchItem.value.type === "app" || isFolderableItem) {
         const targetFolder = checkDropOnFolder(touchX, touchY, currentPage.value);
 
         if (targetFolder) {
-          if (isShortcutItem) {
-            desktopStore.addShortcutToFolder(currentTouchItem.value.id, targetFolder.id);
-          } else {
-            desktopStore.addAppToFolder(currentTouchItem.value.id, targetFolder.id);
-          }
+          desktopStore.addItemToFolder(currentTouchItem.value.id, targetFolder.id);
 
           isDragging.value = false;
           isLongPressing.value = false;
@@ -1295,34 +1354,26 @@ function handleTouchEnd(e: TouchEvent, item: any) {
         }
       }
 
-      let snapped = snapToGrid(touchX, touchY, currentPage.value);
+      const iconX = dragStartIconX.value + (dragCurrentX.value - dragOriginClientX);
+      const iconY = dragStartIconY.value + (dragCurrentY.value - dragStartY.value);
+      const itemId = currentTouchItem.value.id;
+      let target: MobileCell | null = snapToCell(iconX, iconY, currentPage.value);
 
-      if (isPositionOccupied(snapped.x, snapped.y, currentPage.value, currentTouchItem.value.id)) {
-        const available = findNextAvailablePosition(currentPage.value, snapped.row, snapped.col, currentTouchItem.value.id);
+      if (isCellOccupied(target.page, target.row, target.col, itemId)) {
+        target = findNextAvailableCell(currentPage.value, target.row, target.col, itemId);
 
-        if (available) {
-          snapped = { ...available, page: currentPage.value };
-        } else {
-          const nextPage = currentPage.value + 1;
-          const nextAvailable = findNextAvailablePosition(nextPage, 0, 0, currentTouchItem.value.id);
+        for (let page = currentPage.value + 1; !target && page < MAX_LAYOUT_PAGES; page++) {
+          target = findNextAvailableCell(page, undefined, undefined, itemId);
+        }
 
-          if (nextAvailable) {
-            snapped = { ...nextAvailable, page: nextPage };
-            currentPage.value = nextPage;
-          } else {
-            console.warn("No available space found for icon, reverting to original position");
-            const originalPage = dragStartPage.value;
-            const originalSnapped = snapToGrid(dragStartIconX.value, dragStartIconY.value, originalPage);
-            snapped = { ...originalSnapped, page: originalPage };
-          }
+        if (target && target.page !== currentPage.value) {
+          currentPage.value = target.page;
         }
       }
 
-      const finalPage = snapped.page || currentPage.value;
-      const globalX = finalPage * pageWidth + snapped.x;
-      const globalY = snapped.y;
-
-      desktopStore.updateItemPosition(currentTouchItem.value.type, currentTouchItem.value.id, globalX, globalY, snapped.row, snapped.col, finalPage);
+      if (target) {
+        commitMobileLayout({ id: itemId, cell: target });
+      }
     }
 
     isDragging.value = false;
@@ -1465,40 +1516,73 @@ function getAppImagePath(item: any): string {
   return (item as DockerApp).image_path;
 }
 
-function isAppProcessing(item: any): boolean {
-  return (item as DockerApp).isProcessing === true;
-}
-
 function getAppStatus(item: any): string {
   return (item as DockerApp).status;
+}
+
+function stoppedDependencies(item: any): string[] {
+  const app = item as DockerApp;
+  if (app.status !== "running" || !app.HDGroup) return [];
+  return desktopStore.stoppedDependenciesByGroup[app.HDGroup] || [];
+}
+
+function appTitle(item: any): string {
+  const app = item as DockerApp;
+  const base = `${app.display_name || app.name} (${app.status})`;
+  const stopped = stoppedDependencies(item);
+
+  return stopped.length ? `${base} — ${t("Dependencies stopped: {names}", { names: stopped.join(", ") })}` : base;
 }
 
 function getAsFolder(item: any): DesktopFolder {
   return item as DesktopFolder;
 }
 
+let containerResizeObserver: ResizeObserver | null = null;
+
 function calculateGridSettings() {
-  const containerWidth = pagesContainerRef.value?.clientWidth || windowWidth.value;
-  const availableWidth = containerWidth - MOBILE_PADDING * 2;
+  const container = pagesContainerRef.value;
+  const previousWidth = containerWidth.value;
+  const measuredWidth = container?.clientWidth || windowWidth.value;
+  const measuredHeight = container?.clientHeight || windowHeight.value;
+  const shrunkByKeyboard = layoutFrozen.value && measuredWidth === previousWidth && measuredHeight < containerHeight.value;
+
+  containerWidth.value = measuredWidth;
+  if (!shrunkByKeyboard) containerHeight.value = measuredHeight;
+
+  const availableWidth = containerWidth.value - MOBILE_PADDING * 2;
   const cols = gridColumns.value;
 
   GRID_SIZE_X.value = Math.floor(availableWidth / cols);
   GRID_SIZE_Y.value = GRID_SIZE_X.value + 15;
 
+  if (container && previousWidth && previousWidth !== containerWidth.value) {
+    container.scrollTo({ left: currentPage.value * containerWidth.value, behavior: "auto" });
+  }
+
   updateScrollProgress();
+
+  if (layoutFrozen.value && !editing.value && !shrunkByKeyboard) releaseLayout();
 }
 
 onMounted(() => {
   calculateGridSettings();
 
   window.addEventListener("resize", calculateGridSettings);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleFocusOut);
+
+  if (pagesContainerRef.value && typeof ResizeObserver !== "undefined") {
+    containerResizeObserver = new ResizeObserver(() => calculateGridSettings());
+    containerResizeObserver.observe(pagesContainerRef.value);
+  }
 
   nextTick(assignMobileWidgetPositions);
 });
 
 watch(
   () => {
-    const positioned = [...systemDesktopIcons.value, ...desktopFolders.value, ...mainDockerApps.value].filter((item) => item.x !== undefined).length;
+    const positioned = rootItems.value.filter((item) => storedIconCell(item) !== null).length;
     return widgetsStore.instances.map((i) => `${i.instanceId}:${i.mobileRow ?? "?"}:${i.mobileCol ?? "?"}:${i.size}`).join("|") + `#${positioned}`;
   },
   () => {
@@ -1506,8 +1590,25 @@ watch(
   },
 );
 
+watch(
+  [() => desktopSync.pendingMobileCommit, containerWidth],
+  ([pending, width]) => {
+    if (!pending || !width) return;
+    desktopSync.pendingMobileCommit = false;
+    commitMobileLayout();
+    nextTick(assignMobileWidgetPositions);
+  },
+  { immediate: true, flush: "post" },
+);
+
 onUnmounted(() => {
   window.removeEventListener("resize", calculateGridSettings);
+  document.removeEventListener("focusin", handleFocusIn);
+  document.removeEventListener("focusout", handleFocusOut);
+  clearKeyboardRelease();
+
+  containerResizeObserver?.disconnect();
+  containerResizeObserver = null;
 
   if (scrollTimeout) {
     clearTimeout(scrollTimeout);
@@ -1556,7 +1657,12 @@ watch(currentPage, (newPage, oldPage) => {
   }
 });
 
-watch([isPortrait, isLandscape], () => {
+watch([isPortrait, windowWidth], ([portrait, width], [, previousWidth]) => {
+  if (layoutFrozen.value && width === previousWidth) return;
+  layoutPortrait.value = portrait;
+});
+
+watch(layoutPortrait, () => {
   calculateGridSettings();
   nextTick(() => {
     if (currentPage.value >= totalPages.value) {
@@ -1636,38 +1742,6 @@ watch([isPortrait, isLandscape], () => {
 .opacity-fade-enter-from,
 .opacity-fade-leave-to {
   opacity: 0;
-}
-
-.loading-overlay-fade-enter-active {
-  transition: opacity 0.3s ease-out;
-}
-
-.loading-overlay-fade-leave-active {
-  transition: opacity 0.4s ease-in;
-}
-
-.loading-overlay-fade-enter-from,
-.loading-overlay-fade-leave-to {
-  opacity: 0;
-}
-
-.loading-overlay-fade-enter-to,
-.loading-overlay-fade-leave-from {
-  opacity: 1;
-}
-
-@keyframes pulse-badge {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
-  }
-}
-
-.status-pulse {
-  animation: pulse-badge 2s ease-in-out infinite;
 }
 
 /* Icon Switch Transition (matches DesktopFolderIcon customize animation) */

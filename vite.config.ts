@@ -3,13 +3,15 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
+import react from "@vitejs/plugin-react";
 import tailwindcss from "tailwindcss";
+import fortuneSheetNoEval from "./homedock-ui/vite-plugins/fortuneSheetNoEval.ts";
 
 export default defineConfig(({ mode }) => ({
   base: mode === "production" ? "/homedock-ui/vue3/dist/" : "/",
-  plugins: [vue()],
+  plugins: [vue(), react({ include: /\/__Islands__\/.*\.tsx$/ }), fortuneSheetNoEval()],
   resolve: {
-    dedupe: ["vue"],
+    dedupe: ["vue", "react", "react-dom"],
   },
   optimizeDeps: {
     exclude: ["@prism-wm/core", "@prism-wm/vue", "@prism-wm/styles"],
@@ -36,6 +38,7 @@ export default defineConfig(({ mode }) => ({
     outDir: "homedock-ui/vue3/dist",
     manifest: true,
     minify: true,
+    chunkSizeWarningLimit: 5000,
     cssMinify: "esbuild", // tempfix (https://github.com/parcel-bundler/lightningcss/issues/695) rolldown-vite (Vite 8) defaults cssMinify to lightningcss, which drops the unprefixed backdrop-filter (keeps only -webkit-) and breaks frosted-glass surfaces; esbuild minifies CSS without mangling vendor prefixes
     rollupOptions: {
       checks: { pluginTimings: false },

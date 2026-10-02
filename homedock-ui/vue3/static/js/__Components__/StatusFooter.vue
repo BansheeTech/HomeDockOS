@@ -12,9 +12,7 @@
             <div v-if="isSuccess" class="absolute inset-1 animate-ping">
               <div class="w-full h-full bg-green-400 rounded-2xl opacity-75"></div>
             </div>
-            <div class="relative p-2 bg-white rounded-xl shadow-lg flex items-center justify-center">
-              <BaseImage draggable="false" class="w-9 h-9" src="/images/logo_trans.svg" />
-            </div>
+            <AppIconGraphic :icon="homedockIcon" color="#ffffff" glyph-color="#18181b" :size="52" />
           </div>
 
           <Transition name="icon-slide-up" appear>
@@ -22,7 +20,7 @@
               <div v-if="isSuccess" class="absolute inset-1 animate-ping">
                 <div class="w-full h-full bg-green-400 rounded-2xl opacity-75"></div>
               </div>
-              <BaseImage draggable="false" class="relative w-[3.25rem] h-[3.25rem] rounded-xl object-cover shadow-lg" :src="footerIconSrc" :alt="`${appSlug} icon`" />
+              <AppIconGraphic :image-src="footerIconSrc" :size="52" />
             </div>
           </Transition>
         </div>
@@ -54,7 +52,9 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 import { Icon } from "@iconify/vue";
 import serverNetworkIcon from "@iconify-icons/mdi/server-network";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import { homedockIcon } from "../__Config__/HomeDockIcon";
+
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 
 const { themeClasses } = useTheme();
 

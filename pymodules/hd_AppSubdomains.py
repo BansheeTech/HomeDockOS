@@ -222,3 +222,16 @@ def resolve_app_for_host(host_header):
 
     # HDOS00034
     return {"slug": slug, "host_trail": host_trail, **entry}
+
+
+def build_forwarding_headers(public_host, scheme, client, forwarded_for=None):
+    headers = {"host": public_host}
+
+    if client:
+        headers["x-forwarded-for"] = f"{forwarded_for}, {client[0]}" if forwarded_for else client[0]
+
+    headers["x-forwarded-proto"] = scheme
+    headers["x-forwarded-host"] = public_host
+    headers["x-real-ip"] = client[0] if client else ""
+
+    return headers

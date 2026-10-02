@@ -22,38 +22,36 @@
       <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
 
       <TransitionGroup name="icon-appear">
-        <div v-for="app in mainDockerApps" :key="app.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], draggedApp === app.id || (isDragging && hasMoved && selectedApps.has(app.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(app)" @mousedown="handleMouseDown($event, app)" @touchstart.passive="handleTouchStart($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
-          <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
-            <BaseImage :src="app.image_path" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-            <Transition name="loading-overlay-fade">
-              <div v-if="app.isProcessing === true" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
-                <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
+        <div v-for="app in mainDockerApps" :key="app.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], draggedApp === app.id || (isDragging && hasMoved && selectedApps.has(app.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(app)" @mousedown="handleMouseDown($event, app)" @touchstart.passive="handleTouchStart($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" :title="appTitle(app)">
+          <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
+            <AppIconGraphic :image-src="app.image_path" :size="APP_ICON_SIZE" :status="app.status" />
+            <AppBusyOverlay :visible="isBusy(app.id)" />
+            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !isBusy(app.id)" />
+            <Transition name="status-pop" type="animation">
+              <div v-if="stoppedDependencies(app).length" :class="['absolute bottom-1 left-1 flex items-center justify-center w-4 h-4 rounded z-[3] pointer-events-none', themeClasses.desktopDependencyBadge]">
+                <Icon :icon="dependencyOffIcon" class="w-3 h-3" />
               </div>
             </Transition>
-            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !app.isProcessing" />
-            <div :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-all duration-200', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder, app.status === 'running' && 'status-pulse']"></div>
+            <Transition name="status-pop" type="animation">
+              <div v-if="app.status !== 'running'" :class="['absolute bottom-1 right-1 w-3 h-3 rounded-full z-[3] pointer-events-none transition-colors duration-500', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder]"></div>
+            </Transition>
           </div>
-          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ app.display_name || app.name }}</span>
+          <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem"><UpdatedDot :visible="!!app.recently_updated" />{{ app.display_name || app.name }}</span>
         </div>
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
-        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name)">
-          <div :class="['relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden transition-[background,transform,border-color] duration-[150ms,200ms,0ms] ease-[ease,ease,ease] pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected] : ['border-transparent', themeClasses.desktopIconContainerBgHover]]">
+        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :data-desktop-icon="sysIcon.id" :data-arriving="desktopStore.arrivingIconId === sysIcon.id || undefined" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name)">
+          <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
             <template v-if="sysIcon.shortcut">
               <Transition name="icon-switch" mode="out-in">
-                <BaseImage v-if="sysIcon.shortcut.iconType === 'image'" :key="`image:${sysIcon.shortcut.iconValue}`" :src="getShortcutIconUrl(sysIcon.shortcut.iconValue)" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-                <div v-else :key="`preset:${sysIcon.shortcut.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-                  <Icon :icon="getShortcutGlyph(sysIcon.shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
-                </div>
+                <ShortcutGraphic :key="`${sysIcon.shortcut.iconType}:${sysIcon.shortcut.iconValue}`" :shortcut="sysIcon.shortcut" :size="APP_ICON_SIZE" />
               </Transition>
               <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
                 <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
               </div>
             </template>
-            <div v-else :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-              <Icon :icon="getSystemIconObject(sysIcon)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
-            </div>
+            <AppIconGraphic v-else :icon="systemIconGlyph(sysIcon)" :color="systemIconColor(sysIcon)" :size="APP_ICON_SIZE" />
           </div>
           <span :class="[themeClasses.desktopIconText, 'text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none font-medium']" style="line-height: 1.25rem">{{ sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name) }}</span>
         </div>
@@ -64,7 +62,7 @@
       </TransitionGroup>
 
       <TransitionGroup name="widget-appear" move-class="widget-move-none">
-        <div v-for="widget in widgetsStore.instances" :key="widget.instanceId" :class="['absolute z-[1] touch-none select-none outline-none', (draggedWidget === widget.instanceId && widgetHasMoved) || settlingWidget?.id === widget.instanceId ? '!cursor-grabbing !z-[1000]' : 'transition-[left,top] duration-[400ms] ease-[ease] cursor-grab active:cursor-grabbing']" :style="getWidgetStyle(widget)" @mousedown="handleWidgetMouseDown($event, widget)" @click.capture="handleWidgetClickCapture" @contextmenu="handleWidgetContextMenu($event, widget)">
+        <div v-for="widget in widgetsStore.instances" :key="widget.instanceId" :class="['absolute z-[1] touch-none select-none outline-none', (draggedWidget === widget.instanceId && widgetHasMoved) || settlingWidget?.id === widget.instanceId ? '!cursor-grabbing !z-[1000]' : 'transition-[left,top,width,height] duration-[400ms] ease-[ease] cursor-grab active:cursor-grabbing']" :style="getWidgetStyle(widget)" @mousedown="handleWidgetMouseDown($event, widget)" @click.capture="handleWidgetClickCapture" @contextmenu="handleWidgetContextMenu($event, widget)">
           <DesktopWidgetFrame :instance="widget" />
         </div>
       </TransitionGroup>
@@ -92,7 +90,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useDesktopStore, DockerApp, DesktopFolder, SystemDesktopIcon } from "../__Stores__/desktopStore";
+import { useDesktopStore, isFolderableIcon, DockerApp, DesktopFolder, SystemDesktopIcon } from "../__Stores__/desktopStore";
 import { useWidgetsStore, WIDGET_MAX_INSTANCES, type WidgetInstance } from "../__Stores__/useWidgetsStore";
 import { useQuickViewStore } from "../__Stores__/useQuickViewStore";
 import { shortcutLabel } from "../__Utils__/PlatformKeys";
@@ -100,10 +98,13 @@ import { getWidgetDims, getWidgetDefinition, type WidgetDefinition, type WidgetS
 import { useDesktopDragSelection } from "../__Composables__/useDesktopDragSelection";
 import { useDesktopDragAndDrop } from "../__Composables__/useDesktopDragAndDrop";
 import { useDesktopGrid } from "../__Composables__/useDesktopGrid";
+import { useDesktopLayoutSync } from "../__Composables__/useDesktopLayoutSync";
 
 import type { GridConfig, DragItem, SelectionState } from "../__Composables__/desktopDragTypes";
 
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useAppQuickActions } from "../__Composables__/useAppQuickActions";
+import { useBusyApps } from "../__Composables__/useBusyApps";
 import { useSelectedAppsStore } from "../__Stores__/selectedAppsStore";
 import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 
@@ -115,12 +116,14 @@ import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { fetchContainers, startContainerPolling, stopContainerPolling } from "../__Services__/DockerAPIFetchContainerData";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+import AppBusyOverlay from "../__Components__/AppBusyOverlay.vue";
 import DesktopLoadingOverlay from "../__Components__/DesktopLoadingOverlay.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import DesktopFolderIcon from "./DesktopFolderIcon.vue";
+import UpdatedDot from "../__Components__/UpdatedDot.vue";
 import FolderCustomizeMenu from "../__Components__/FolderCustomizeMenu.vue";
 import MobileDesktopPages from "./MobileDesktopPages.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
@@ -128,7 +131,8 @@ import ShortcutEditModal, { type ShortcutModalResult } from "../__Components__/S
 import DesktopWidgetFrame from "./DesktopWidgetFrame.vue";
 import WidgetGalleryModal from "../__Components__/WidgetGalleryModal.vue";
 
-import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
+import ShortcutGraphic from "../__Components__/ShortcutGraphic.vue";
+import { getAppById, ENTERPRISE_APP_COLOR } from "../__Config__/WindowDefaultDetails";
 
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer, uninstallContainer, updateContainer } from "../__Services__/DockerActions";
 
@@ -140,8 +144,8 @@ import restartIcon from "@iconify-icons/mdi/restart";
 import pauseIcon from "@iconify-icons/mdi/cog-pause";
 import unpauseIcon from "@iconify-icons/mdi/cog-play";
 import uninstallIcon from "@iconify-icons/mdi/delete-alert";
+import dependencyOffIcon from "@iconify-icons/mdi/cube-off-outline";
 import updateIcon from "@iconify-icons/mdi/shape-circle-plus";
-import terminalIcon from "@iconify-icons/mdi/console";
 import refreshIcon from "@iconify-icons/mdi/refresh";
 import quickViewIcon from "@iconify-icons/mdi/view-dashboard-variant-outline";
 import resetIcon from "@iconify-icons/mdi/restore";
@@ -177,6 +181,8 @@ import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
 const desktopStore = useDesktopStore();
 const widgetsStore = useWidgetsStore();
 const windowStore = useWindowStore();
+const { quickActionsFor } = useAppQuickActions();
+const { isBusy } = useBusyApps();
 const quickView = useQuickViewStore();
 const selectedAppsStore = useSelectedAppsStore();
 const updateStore = useAppUpdateStore();
@@ -264,17 +270,13 @@ const {
   gridConfig,
   selection: selectionState,
   onDropOnFolder: (folder, itemIds) => {
-    itemIds.forEach((itemId) => {
-      if (itemId.startsWith("shortcut-")) {
-        desktopStore.addShortcutToFolder(itemId, folder.id);
-      } else {
-        desktopStore.addAppToFolder(itemId, folder.id);
-      }
-    });
+    itemIds.forEach((itemId) => desktopStore.addItemToFolder(itemId, folder.id));
   },
 });
 
 const draggedApp = ref<string | null>(null);
+
+const layoutSync = useDesktopLayoutSync({ containerRef, isMobile, isBusy: () => isDragging.value || draggedWidget.value !== null });
 
 const contextMenu = ref({
   visible: false,
@@ -717,6 +719,18 @@ function getStatusBadgeClass(status: string): string {
   return statusClasses[status] || themeClasses.value.statusBadgeCreated;
 }
 
+function stoppedDependencies(app: DockerApp): string[] {
+  if (app.status !== "running" || !app.HDGroup) return [];
+  return desktopStore.stoppedDependenciesByGroup[app.HDGroup] || [];
+}
+
+function appTitle(app: DockerApp): string {
+  const base = `${app.display_name || app.name} (${app.status})`;
+  const stopped = stoppedDependencies(app);
+
+  return stopped.length ? `${base} — ${t("Dependencies stopped: {names}", { names: stopped.join(", ") })}` : base;
+}
+
 function getIconStyle(app: DockerApp): Record<string, string> {
   const baseStyle: Record<string, string> = {};
 
@@ -864,11 +878,19 @@ function getSystemIconObject(icon: SystemDesktopIcon) {
   return iconMap[icon.icon] || cloudIcon;
 }
 
+function systemIconGlyph(icon: SystemDesktopIcon) {
+  return getAppById(icon.appId)?.icon ?? getSystemIconObject(icon);
+}
+
+function systemIconColor(icon: SystemDesktopIcon) {
+  return icon.appId.startsWith("enterprise-") ? ENTERPRISE_APP_COLOR : getAppById(icon.appId)?.color;
+}
+
 function setDraggedShortcuts(icon: SystemDesktopIcon) {
-  if (!icon.shortcut) return;
+  if (!isFolderableIcon(icon)) return;
 
   const allSelected = getAllSelectedItems();
-  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id))).map((item) => item.id);
+  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && desktopStore.isFolderableIconId(item.id))).map((item) => item.id);
   const draggedIds = draggableIds.length > 0 ? draggableIds : [icon.id];
   desktopStore.setDraggedApps(draggedIds);
 }
@@ -887,7 +909,7 @@ function handleSystemIconMouseMove(e: MouseEvent) {
 
   if (hasMoved.value) {
     const draggedIcon = desktopStore.systemDesktopIcons.find((i) => i.id === draggedSystemIcon.value);
-    if (draggedIcon?.shortcut) {
+    if (draggedIcon && isFolderableIcon(draggedIcon)) {
       const containerRect = containerRef.value?.getBoundingClientRect();
       if (containerRect) {
         const targetFolder = checkDropOnFolder(e.clientX - containerRect.left, e.clientY - containerRect.top);
@@ -944,16 +966,7 @@ function isPortScanning(app: DockerApp): boolean {
   return unique.size !== app.ports.length;
 }
 
-function getContainerClasses(app: DockerApp): string {
-  const statusClasses: Record<string, string> = {
-    running: "",
-    paused: "brightness-50 opacity-75",
-    exited: "grayscale brightness-50 opacity-75",
-    created: "brightness-50 sepia opacity-50",
-  };
-
-  return statusClasses[app.status] || "";
-}
+const APP_ICON_SIZE = 52;
 
 function calculateGridSettings() {
   const containerWidth = containerRef.value?.clientWidth || window.innerWidth;
@@ -997,11 +1010,7 @@ function getAllSelectedItems(): DragItem[] {
 }
 
 function initializeGridPositions() {
-  desktopGrid.initializeItemPositions();
-}
-
-function isShortcutIconId(id: string): boolean {
-  return desktopStore.systemDesktopIcons.find((i) => i.id === id)?.shortcut !== undefined;
+  layoutSync.apply();
 }
 
 function startDrag(app: DockerApp, clientX: number, clientY: number) {
@@ -1009,7 +1018,7 @@ function startDrag(app: DockerApp, clientX: number, clientY: number) {
   composableStartDrag({ type: "app", id: app.id }, clientX, clientY);
 
   const allSelected = getAllSelectedItems();
-  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id))).map((item) => item.id);
+  const draggableIds = allSelected.filter((item) => item.type === "app" || (item.type === "systemicon" && desktopStore.isFolderableIconId(item.id))).map((item) => item.id);
   const draggedIds = draggableIds.length > 0 ? draggableIds : [app.id];
   desktopStore.setDraggedApps(draggedIds);
 }
@@ -1531,6 +1540,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
   const isRunning = app.status === "running";
   const isExited = app.status === "exited";
   const isPaused = app.status === "paused";
+  const isRestarting = app.status === "restarting";
 
   const items: ContextMenuItem[] = [];
 
@@ -1547,19 +1557,31 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
     items.push({ divider: true });
   }
 
-  items.push({
-    label: isRunning ? "Stop" : t("Start", 2),
-    icon: isRunning ? stopIcon : playIcon,
-    action: async () => {
-      if (!contextMenuApp.value) return;
-      if (isRunning) {
-        await stopContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
-      } else {
-        await startContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
-      }
-    },
-    disabled: isPaused,
-  });
+  if (isRestarting) {
+    items.push({
+      label: "Force Stop",
+      icon: stopIcon,
+      action: async () => {
+        if (contextMenuApp.value) {
+          await stopContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector, true);
+        }
+      },
+    });
+  } else {
+    items.push({
+      label: isRunning ? "Stop" : t("Start", 2),
+      icon: isRunning ? stopIcon : playIcon,
+      action: async () => {
+        if (!contextMenuApp.value) return;
+        if (isRunning) {
+          await stopContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
+        } else {
+          await startContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
+        }
+      },
+      disabled: isPaused,
+    });
+  }
 
   items.push({
     label: "Restart",
@@ -1569,7 +1591,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         await restartContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
       }
     },
-    disabled: isExited,
+    disabled: isExited || isRestarting,
   });
 
   items.push({ divider: true });
@@ -1585,23 +1607,14 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         await pauseContainer(contextMenuApp.value, csrfToken.value, themeClasses.value.scopeSelector);
       }
     },
-    disabled: isExited,
+    disabled: isExited || isRestarting,
   });
 
   items.push({ divider: true });
 
-  items.push({
-    label: "View Logs",
-    icon: terminalIcon,
-    action: () => {
-      if (contextMenuApp.value) {
-        windowStore.openUniqueWindow("logs", contextMenuApp.value.name, {
-          title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - ${t("Logs")}`,
-          data: { appName: contextMenuApp.value.name },
-        });
-      }
-    },
-  });
+  items.push(quickActionsFor(app));
+
+  items.push({ divider: true });
 
   items.push({
     label: "Update",
@@ -2010,7 +2023,7 @@ watch(
       return desiredState !== "uninstalling";
     });
 
-    const appsChanged = !oldApps || oldApps.length !== newApps.length || filteredApps.length !== desktopStore.dockerApps.length || JSON.stringify(filteredApps.map((a) => ({ id: a.id, status: a.status, ports: a.ports, usagePercent: a.usagePercent, memoryUsagePercent: a.memoryUsagePercent, networkRxBytes: a.networkRxBytes, networkTxBytes: a.networkTxBytes, service_url: a.service_url }))) !== JSON.stringify(desktopStore.dockerApps.map((a) => ({ id: a.id, status: a.status, ports: a.ports, usagePercent: a.usagePercent, memoryUsagePercent: a.memoryUsagePercent, networkRxBytes: a.networkRxBytes, networkTxBytes: a.networkTxBytes, service_url: a.service_url })));
+    const appsChanged = !oldApps || oldApps.length !== newApps.length || filteredApps.length !== desktopStore.dockerApps.length || JSON.stringify(filteredApps.map((a) => ({ id: a.id, status: a.status, ports: a.ports, usagePercent: a.usagePercent, memoryUsagePercent: a.memoryUsagePercent, networkRxBytes: a.networkRxBytes, networkTxBytes: a.networkTxBytes, service_url: a.service_url, recently_updated: !!a.recently_updated }))) !== JSON.stringify(desktopStore.dockerApps.map((a) => ({ id: a.id, status: a.status, ports: a.ports, usagePercent: a.usagePercent, memoryUsagePercent: a.memoryUsagePercent, networkRxBytes: a.networkRxBytes, networkTxBytes: a.networkTxBytes, service_url: a.service_url, recently_updated: !!a.recently_updated })));
 
     if (appsChanged) {
       desktopStore.loadDockerApps(filteredApps);
@@ -2060,21 +2073,9 @@ function handleExternalDragDrop(e: MouseEvent) {
     const targetFolder = checkDropOnFolder(dropX, dropY);
 
     if (targetFolder && targetFolder.id !== desktopStore.dragSourceFolderId) {
-      desktopStore.draggedAppIds.forEach((itemId) => {
-        if (itemId.startsWith("shortcut-")) {
-          desktopStore.addShortcutToFolder(itemId, targetFolder.id);
-        } else {
-          desktopStore.addAppToFolder(itemId, targetFolder.id);
-        }
-      });
+      desktopStore.draggedAppIds.forEach((itemId) => desktopStore.addItemToFolder(itemId, targetFolder.id));
     } else if (!targetFolder) {
-      desktopStore.draggedAppIds.forEach((itemId) => {
-        if (itemId.startsWith("shortcut-")) {
-          desktopStore.removeShortcutFromFolder(itemId);
-        } else {
-          desktopStore.removeAppFromFolder(itemId);
-        }
-      });
+      desktopStore.draggedAppIds.forEach((itemId) => desktopStore.removeItemFromFolder(itemId));
 
       setTimeout(() => {
         initializeGridPositions();
@@ -2105,11 +2106,9 @@ onMounted(() => {
 
   startContainerPolling(csrfToken.value, 5000);
 
-  desktopStore.loadFolders();
-  desktopStore.loadShortcuts(csrfToken.value);
+  desktopStore.loadDesktopState().then(() => desktopStore.loadShortcuts(csrfToken.value));
   desktopStore.loadAppViewModes(csrfToken.value);
-  desktopStore.loadCertificateTrust();
-  widgetsStore.load();
+  desktopStore.loadCertificateTrust(csrfToken.value);
 
   setTimeout(() => {
     foldersLoaded.value = true;
@@ -2210,24 +2209,6 @@ onUnmounted(() => {
   opacity: 1;
 }
 
-.loading-overlay-fade-enter-active {
-  transition: opacity 0.3s ease-out;
-}
-
-.loading-overlay-fade-leave-active {
-  transition: opacity 0.4s ease-in;
-}
-
-.loading-overlay-fade-enter-from,
-.loading-overlay-fade-leave-to {
-  opacity: 0;
-}
-
-.loading-overlay-fade-enter-to,
-.loading-overlay-fade-leave-from {
-  opacity: 1;
-}
-
 .icon-appear-enter-active {
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -2277,21 +2258,6 @@ onUnmounted(() => {
 .widget-appear-leave-to {
   opacity: 0;
   transform: scale(0.92);
-}
-
-/* Animations */
-@keyframes pulse-badge {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
-  }
-}
-
-.status-pulse {
-  animation: pulse-badge 2s ease-in-out infinite;
 }
 
 /* Icon Switch Transition (matches DesktopFolderIcon customize animation) */

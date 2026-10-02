@@ -19,6 +19,7 @@ from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_ClassDockerComposeHelper import DockerComposeHelper
 from pymodules.hd_ThreadAppUpdatesChecker import clear_update_flag, defer_update_check
+from pymodules.hd_AppUpdateMarks import record_app_update
 
 manager = DockerClientManager.get_instance()
 client = manager.get_client()
@@ -123,6 +124,10 @@ def stop_and_update_container(name, compose_file, old_image_id, delete_old_image
             print(f"Error starting container {name}: {message}")
         else:
             clear_update_flag(name)
+            try:
+                record_app_update(name, client.containers.get(name).id)
+            except docker.errors.NotFound:
+                pass
 
         if delete_old_image_flag:
             client.images.remove(old_image_id)
@@ -176,6 +181,7 @@ def stop_and_update_group(group_name, compose_file, old_image_ids, delete_old_im
         new_group_containers = client.containers.list(filters={"label": f"HDGroup={group_name}"}, all=True)
         for container in new_group_containers:
             clear_update_flag(container.name)
+            record_app_update(container.name, container.id)
 
     new_group_containers = client.containers.list(filters={"label": f"HDGroup={group_name}"}, all=True)
     new_image_ids = [c.attrs["Config"]["Image"] for c in new_group_containers]

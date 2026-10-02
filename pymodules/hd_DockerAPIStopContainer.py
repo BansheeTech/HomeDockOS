@@ -16,9 +16,10 @@ def stop_containers():
     manager = DockerClientManager.get_instance()
     client = manager.get_client()
     container_names = request.json.get("container_names", [])
+    force = bool(request.json.get("force", False))
     all_containers = client.containers.list(all=True)
     for name in container_names:
         for container in all_containers:
             if container.name == name:
-                container.stop()
+                container.stop(timeout=0) if force else container.stop()
     return {"message": "Containers stopped successfully."}, 200

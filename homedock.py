@@ -9,6 +9,7 @@ import os
 import signal
 import logging
 import asyncio
+import pymodules.hd_DependencyBootstrap as _
 
 from datetime import timedelta
 from flask import g
@@ -40,10 +41,10 @@ from pymodules.hd_ThreadDynamicDNS import start_dynamic_dns_thread
 
 from pymodules.hd_RouteModules import RouteAllModules
 from pymodules.hd_EnterpriseLoader import load_enterprise, print_enterprise_banner
-from pymodules.hd_UpdateDeps import check_and_update_dependencies
 from pymodules.hd_FunctionsNativeSSL import ssl_enabled, get_ssl_cert_info, get_ssl_cert_directory, capture_ssl_context
 from pymodules.hd_ThreadZeroConf import announce_homedock_service, format_url
 from pymodules.hd_SubdomainRouter import wrap_asgi_with_subdomain_router, subdomain_routing_available
+from pymodules.hd_UIContainerTerminal import wrap_asgi_with_container_terminal
 from pymodules.hd_SessionSecurity import SchemeAwareSessionInterface
 from pymodules.hd_TrustedProxy import TrustedProxyFix
 from pymodules.hd_LocalHTTPAccess import setup_local_http_access
@@ -81,11 +82,9 @@ setup_security_headers(homedock_www, globalConfig)
 setup_error_handlers(homedock_www, read_config, version_hash)
 active_instance()
 
-register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], dev_server_url="http://localhost:5173", dist_path="/homedock-ui/vue3/dist", manifest_path="homedock-ui/vue3/dist/.vite/manifest.json", nonce_provider=lambda: g.get("nonce"), logger=None)
+register_vite_assets(homedock_www, dev_mode=globalConfig["run_on_development"], dev_server_url="http://localhost:5173", dist_path="/homedock-ui/vue3/dist", manifest_path="homedock-ui/vue3/dist/.vite/manifest.json", nonce_provider=lambda: g.get("nonce"), logger=None, react_refresh=True)
 
 if __name__ == "__main__":
-
-    check_and_update_dependencies()
 
     RouteAllModules(homedock_www, send_public_key)
     enterprise_cogs = load_enterprise(homedock_www)
@@ -247,10 +246,14 @@ if __name__ == "__main__":
             # HDOS00032
             homedock_www.config["TEMPLATES_AUTO_RELOAD"] = True
 
-        flask_stack = ContentSizeLimitMiddleware(AsyncioWSGIMiddleware(wsgi_app, max_body_size=1 * 1024 * 1024 * 1024))
+        homedock_www_asgi = AsyncioWSGIMiddleware(wsgi_app, max_body_size=1 * 1024 * 1024 * 1024)
+        homedock_www_asgi = ContentSizeLimitMiddleware(homedock_www_asgi)
 
         # HDOS00033
-        homedock_www_asgi = wrap_asgi_with_subdomain_router(flask_stack)
+        homedock_www_asgi = wrap_asgi_with_container_terminal(homedock_www_asgi)
+
+        # HDOS00033
+        homedock_www_asgi = wrap_asgi_with_subdomain_router(homedock_www_asgi)
 
         async def run_all_servers():
             from concurrent.futures import ThreadPoolExecutor
@@ -263,9 +266,11 @@ if __name__ == "__main__":
                 stop_event.set()
                 from pymodules.hd_SSEStats import shutdown_stats_streams
                 from pymodules.hd_ThreadDisksPlus import shutdown_disksplus_streams
+                from pymodules.hd_UIContainerTerminal import shutdown_terminal_sessions
 
                 shutdown_stats_streams()
                 shutdown_disksplus_streams()
+                shutdown_terminal_sessions()
 
             loop = asyncio.get_running_loop()
             for sig in (signal.SIGINT, signal.SIGTERM):

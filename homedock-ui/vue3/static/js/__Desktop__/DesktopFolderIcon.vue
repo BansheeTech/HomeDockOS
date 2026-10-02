@@ -5,48 +5,48 @@
 
 <template>
   <div :class="['desktop-folder group flex flex-col items-center justify-center gap-0.5 md:gap-1 cursor-pointer px-3 md:p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? (isWiggleMode ? 'touch-none' : 'touch-pan-x') : 'touch-none', !isSelected && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], isSelected && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && 'opacity-70 !cursor-grabbing !z-[1000] !transition-none', itemAdded && 'folder-bounce', isWiggleMode && 'icon-wiggle', isDropTarget && 'folder-drop-target']" :style="getStyle" @mousedown="handleMouseDown" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @click="handleClick" @dblclick="handleDoubleClick" @contextmenu="handleContextMenu">
-    <div :class="['folder-container relative w-16 h-16 shrink-0 flex items-center justify-center rounded-2xl overflow-visible pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !isSelected && ['border-transparent', themeClasses.desktopIconContainerBgHover], isSelected && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]" :style="{ backgroundColor: folder.color }">
-      <div v-if="itemCount > 0" class="folder-papers-stack">
-        <template v-for="(item, index) in previewItems" :key="item.id">
-          <BaseImage v-if="item.imageSrc" :src="item.imageSrc" class="folder-paper-icon" :class="`paper-icon-${index}`" alt="" draggable="false" />
-          <div v-else class="folder-paper-icon folder-paper-preset" :class="`paper-icon-${index}`">
+    <div class="folder-container relative w-16 h-16 shrink-0 pointer-events-none">
+      <FolderGraphic :color="folder.color" :emblem="emblemIcon" :emblem-key="folder.icon" :open="isDropTarget" :busy="!!processingApp">
+        <template v-for="item in papers" :key="item.id">
+          <BaseImage v-if="item.imageSrc" :src="item.imageSrc" class="folder-paper-icon" :class="item.paperClass" alt="" draggable="false" />
+          <AppIconGraphic v-else-if="item.appImage" :image-src="item.appImage" :size="18" class="folder-paper-app" :class="item.paperClass" />
+          <AppIconGraphic v-else-if="item.appIcon" :icon="item.appIcon" :color="item.appColor" :size="18" class="folder-paper-app" :class="item.paperClass" />
+          <ShortcutGraphic v-else-if="item.shortcut" :shortcut="item.shortcut" :size="18" class="folder-paper-app" :class="item.paperClass" />
+          <div v-else class="folder-paper-icon folder-paper-preset" :class="item.paperClass">
             <Icon :icon="item.presetIcon" class="folder-paper-preset-icon" />
           </div>
         </template>
-      </div>
-
-      <Transition name="icon-switch" mode="out-in">
-        <Icon :key="folder.icon || 'default'" :icon="displayIcon" :class="['w-10 h-10 pointer-events-none absolute inset-0 m-auto z-10', themeClasses.folderIconColor, themeClasses.folderIconShadow]" />
-      </Transition>
-
-      <Transition name="loading-indicator-fade">
-        <div v-if="hasProcessingApps" :class="['absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full z-[20] pointer-events-none shadow-lg', themeClasses.folderLoadingBg]">
-          <div :class="['w-3 h-3 rounded-full border-[2px] animate-spin', themeClasses.folderLoadingSpinner, themeClasses.folderLoadingSpinnerTop]"></div>
-        </div>
-      </Transition>
+        <Transition name="paper-swap">
+          <AppIconGraphic v-if="processingApp" :key="processingApp.id" :image-src="processingApp.image_path" :size="28" class="folder-paper-app folder-paper-processing" />
+        </Transition>
+      </FolderGraphic>
 
       <Transition name="badge-pop">
-        <div v-if="itemCount > 0" :key="itemCount" :class="['absolute bottom-1 right-1 min-w-[20px] h-5 flex items-center justify-center px-1.5 rounded-[10px] text-[0.65rem] font-semibold z-[20] pointer-events-none', themeClasses.folderBadgeBg, themeClasses.folderBadgeText, themeClasses.folderBadgeBorder, themeClasses.folderBadgeShadow]">{{ itemCount }}</div>
+        <div v-if="itemCount > 0" :key="itemCount" :class="['absolute bottom-0 -right-0.5 min-w-[20px] h-5 flex items-center justify-center px-1.5 rounded-[10px] text-[0.65rem] font-semibold z-[20] pointer-events-none', themeClasses.folderBadgeBg, themeClasses.folderBadgeText, themeClasses.folderBadgeBorder, themeClasses.folderBadgeShadow]">{{ itemCount }}</div>
       </Transition>
     </div>
-    <span class="folder-name" :class="[themeClasses.desktopIconText]">{{ folder.name }}</span>
+    <span class="folder-name" :class="[themeClasses.desktopIconText]"><UpdatedDot :visible="hasUpdatedApps" />{{ folder.name }}</span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, type CSSProperties } from "vue";
+import { computed, onBeforeUnmount, ref, watch, type CSSProperties } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { useResponsive } from "../__Composables__/useResponsive";
 
-import { useDesktopStore, type DesktopFolder } from "../__Stores__/desktopStore";
+import { useDesktopStore, type DesktopFolder, type ShortcutData } from "../__Stores__/desktopStore";
 
 import BaseImage from "../__Components__/BaseImage.vue";
+import FolderGraphic from "../__Components__/FolderGraphic.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
+import ShortcutGraphic from "../__Components__/ShortcutGraphic.vue";
+import UpdatedDot from "../__Components__/UpdatedDot.vue";
 
 import { getShortcutPresetIcon, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
+import { getAppById } from "../__Config__/WindowDefaultDetails";
 
 import { Icon } from "@iconify/vue";
-import folderIcon from "@iconify-icons/mdi/folder";
 import gamepadIcon from "@iconify-icons/mdi/gamepad-variant";
 import movieIcon from "@iconify-icons/mdi/movie";
 import musicIcon from "@iconify-icons/mdi/music";
@@ -64,7 +64,7 @@ import schoolIcon from "@iconify-icons/mdi/school";
 import homeIcon from "@iconify-icons/mdi/home";
 import lockIcon from "@iconify-icons/mdi/lock";
 
-const iconMap: Record<string, typeof folderIcon> = {
+const iconMap: Record<string, typeof gamepadIcon> = {
   gamepad: gamepadIcon,
   movie: movieIcon,
   music: musicIcon,
@@ -116,42 +116,85 @@ const itemAdded = ref(false);
 
 const itemCount = computed(() => props.folder.items.length);
 
-const displayIcon = computed(() => {
-  if (props.folder.icon && iconMap[props.folder.icon]) {
-    return iconMap[props.folder.icon];
-  }
-  return folderIcon;
-});
+const emblemIcon = computed(() => (props.folder.icon ? iconMap[props.folder.icon] : undefined));
 
-const previewItems = computed(() => {
-  const items: Array<{ id: string; imageSrc?: string; presetIcon?: any }> = [];
+const folderItems = computed(() => {
+  const items: Array<{ id: string; imageSrc?: string; appImage?: string; presetIcon?: any; appIcon?: any; appColor?: string; shortcut?: ShortcutData }> = [];
 
   props.folder.items.forEach((itemId) => {
-    if (itemId.startsWith("shortcut-")) {
-      const icon = desktopStore.systemDesktopIcons.find((i) => i.id === itemId);
-      if (icon?.shortcut) {
-        if (icon.shortcut.iconType === "image") {
-          items.push({ id: itemId, imageSrc: getShortcutIconUrl(icon.shortcut.iconValue) });
-        } else {
-          items.push({ id: itemId, presetIcon: getShortcutPresetIcon(icon.shortcut.iconValue) });
-        }
+    const icon = desktopStore.systemDesktopIcons.find((i) => i.id === itemId);
+
+    if (icon?.shortcut?.type === "file") {
+      items.push({ id: itemId, shortcut: icon.shortcut });
+    } else if (icon?.shortcut) {
+      if (icon.shortcut.iconType === "image") {
+        items.push({ id: itemId, imageSrc: getShortcutIconUrl(icon.shortcut.iconValue) });
+      } else {
+        items.push({ id: itemId, presetIcon: getShortcutPresetIcon(icon.shortcut.iconValue) });
       }
+    } else if (icon) {
+      const app = getAppById(icon.appId);
+      items.push({ id: itemId, appIcon: app?.icon ?? icon.icon, appColor: app?.color });
     } else {
       const app = desktopStore.dockerApps.find((a) => a.id === itemId);
       if (app) {
-        items.push({ id: itemId, imageSrc: app.image_path });
+        items.push({ id: itemId, appImage: app.image_path });
       }
     }
   });
 
-  return items.slice(0, 4);
+  return items;
 });
 
-const hasProcessingApps = computed(() => {
-  return props.folder.items.some((appId) => {
-    const app = desktopStore.dockerApps.find((a) => a.id === appId);
-    return app?.isProcessing === true;
-  });
+const MIN_FOCUS_MS = 1800;
+
+const focusedAppId = ref<string | null>(null);
+let focusedSince = 0;
+let focusTimer: ReturnType<typeof setTimeout> | undefined;
+
+const hasUpdatedApps = computed(() => props.folder.items.some((itemId) => desktopStore.dockerApps.find((a) => a.id === itemId)?.recently_updated === true));
+
+const processingIds = computed(() => props.folder.items.filter((itemId) => desktopStore.dockerApps.find((a) => a.id === itemId)?.isProcessing === true));
+
+function syncFocus() {
+  clearTimeout(focusTimer);
+  focusTimer = undefined;
+
+  const current = focusedAppId.value;
+  const ids = processingIds.value;
+
+  if (current && ids.includes(current)) return;
+
+  const next = ids[0] ?? null;
+  if (next === current) return;
+
+  const remaining = current ? MIN_FOCUS_MS - (Date.now() - focusedSince) : 0;
+  if (remaining > 0) {
+    focusTimer = setTimeout(syncFocus, remaining);
+    return;
+  }
+
+  focusedAppId.value = next;
+  focusedSince = Date.now();
+}
+
+watch(processingIds, syncFocus, { immediate: true });
+
+onBeforeUnmount(() => clearTimeout(focusTimer));
+
+const processingApp = computed(() => (focusedAppId.value ? desktopStore.dockerApps.find((a) => a.id === focusedAppId.value) : undefined));
+
+const papers = computed(() => {
+  const app = processingApp.value;
+
+  if (!app) {
+    return folderItems.value.slice(0, 4).map((item, index) => ({ ...item, paperClass: `paper-icon-${index}` }));
+  }
+
+  return folderItems.value
+    .filter((item) => item.id !== app.id)
+    .slice(0, 2)
+    .map((item, index) => ({ ...item, paperClass: `paper-side-${index}` }));
 });
 
 const getStyle = computed<CSSProperties>(() => {
@@ -264,8 +307,7 @@ function handleContextMenu(e: MouseEvent) {
 
 /* Drop target */
 .folder-drop-target .folder-container {
-  transform: scale(1.05) rotate(6deg);
-  transition: transform 0.15s ease-out;
+  transform: scale(1.08);
 }
 
 /* Bounce animation */
@@ -292,24 +334,16 @@ function handleContextMenu(e: MouseEvent) {
 }
 
 .folder-container {
-  transition:
-    background 0.15s ease,
-    transform 0.2s ease,
-    border-color 0s;
+  transition: transform 0.2s ease;
 }
 
 .desktop-folder:hover .folder-container {
   transform: scale(1.05);
 }
 
-.folder-papers-stack {
+.folder-container .folder-paper-app {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .folder-paper-icon {
@@ -342,7 +376,7 @@ function handleContextMenu(e: MouseEvent) {
   left: 12px;
   transform: translateY(-2px) rotate(-5deg);
   z-index: 4;
-  animation: paper-appear 0.4s ease-out 0.05s both;
+  animation: paper-appear 0.4s ease-out 0.05s backwards;
 }
 
 .paper-icon-1 {
@@ -350,7 +384,7 @@ function handleContextMenu(e: MouseEvent) {
   left: 20px;
   transform: translateY(-4px) rotate(3deg);
   z-index: 3;
-  animation: paper-appear 0.4s ease-out 0.1s both;
+  animation: paper-appear 0.4s ease-out 0.1s backwards;
 }
 
 .paper-icon-2 {
@@ -358,7 +392,7 @@ function handleContextMenu(e: MouseEvent) {
   left: 28px;
   transform: translateY(-3px) rotate(-2deg);
   z-index: 2;
-  animation: paper-appear 0.4s ease-out 0.15s both;
+  animation: paper-appear 0.4s ease-out 0.15s backwards;
 }
 
 .paper-icon-3 {
@@ -366,7 +400,64 @@ function handleContextMenu(e: MouseEvent) {
   left: 36px;
   transform: translateY(-1px) rotate(4deg);
   z-index: 1;
-  animation: paper-appear 0.4s ease-out 0.2s both;
+  animation: paper-appear 0.4s ease-out 0.2s backwards;
+}
+
+.folder-container .folder-paper-processing {
+  top: -2px;
+  left: 18px;
+  z-index: 4;
+  animation:
+    paper-rise 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) both,
+    paper-bob 1.6s ease-in-out 0.4s infinite;
+}
+
+@keyframes paper-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.paper-side-0 {
+  top: 5px;
+  left: 7px;
+  transform: rotate(-10deg);
+  z-index: 2;
+  animation: paper-appear 0.4s ease-out 0.1s backwards;
+}
+
+.paper-side-1 {
+  top: 5px;
+  left: 39px;
+  transform: rotate(10deg);
+  z-index: 2;
+  animation: paper-appear 0.4s ease-out 0.15s backwards;
+}
+
+.folder-container .paper-swap-leave-active {
+  z-index: 3;
+  animation: paper-sink 0.3s ease-in both;
+}
+
+@keyframes paper-sink {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.6);
+  }
+}
+
+@keyframes paper-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes paper-appear {
@@ -442,39 +533,5 @@ function handleContextMenu(e: MouseEvent) {
   100% {
     transform: rotate(-1deg) translateY(0);
   }
-}
-
-/* Loading Indicator Fade Transition */
-.loading-indicator-fade-enter-active,
-.loading-indicator-fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-
-.loading-indicator-fade-enter-from {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.loading-indicator-fade-leave-to {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-/* Icon Switch Transition */
-.icon-switch-enter-active,
-.icon-switch-leave-active {
-  transition: all 0.2s ease;
-}
-
-.icon-switch-enter-from {
-  opacity: 0;
-  transform: scale(0.5) rotate(-15deg);
-}
-
-.icon-switch-leave-to {
-  opacity: 0;
-  transform: scale(0.5) rotate(15deg);
 }
 </style>

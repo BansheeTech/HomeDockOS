@@ -14,10 +14,15 @@
 
     <div v-else class="flex flex-col h-full overflow-hidden">
       <div class="flex-1 overflow-y-auto">
-        <div class="px-5 py-5">
-          <div class="flex items-start gap-5">
+        <div class="install-hero relative px-5 py-5">
+          <div class="install-hero-watermark-clip" aria-hidden="true">
+            <AppIconGraphic :image-src="appIconPath" :size="250" class="install-hero-watermark" :class="themeClasses.appPropsHeroWatermark" />
+          </div>
+          <div class="relative flex items-start gap-5">
             <div class="relative flex-shrink-0 group">
-              <BaseImage draggable="false" :src="app?.picture_path || 'docker-icons/notfound.jpg'" :alt="app?.name" :class="[themeClasses.storeModalImageBack]" class="w-24 h-24 rounded-2xl shadow-lg transition ring-[1px] duration-200 group-hover:scale-105" />
+              <div class="transition-transform duration-200 group-hover:scale-105">
+                <AppIconGraphic :image-src="appIconPath" :size="96" />
+              </div>
               <div v-if="sslEnabled" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1 rounded-full -top-1 -right-1 shadow-sm border">
                 <Icon :icon="lockIcon" class="h-2.5 w-2.5" />
               </div>
@@ -104,6 +109,21 @@
 
             <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
 
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="downloadSizeTip" placement="bottom">
+              <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
+                <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Size") }}</span>
+                <Icon :icon="measuringVisible ? loadingIcon : downloadIcon" :class="[themeClasses.storeInfoBarValue, measuringVisible ? 'animate-spin' : '', downloadSize === null ? 'opacity-40' : '']" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <Transition name="size-fade" mode="out-in">
+                  <span v-if="downloadSize === undefined && !measuringVisible" key="pending" class="text-[10px] w-full">&nbsp;</span>
+                  <span v-else-if="downloadSize === undefined" key="measuring" :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center animate-pulse">{{ $t("Measuring...") }}</span>
+                  <span v-else-if="downloadSize === null" key="unavailable" :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center opacity-60">{{ $t("N/A") }}</span>
+                  <span v-else key="size" :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center tabular-nums">{{ formatDownloadSize(downloadSize) }}</span>
+                </Transition>
+              </div>
+            </Tooltip>
+
+            <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
+
             <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.image" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
                 <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Image") }}</span>
@@ -124,11 +144,11 @@
 
             <div :class="[themeClasses.storeInfoBarDivider]" class="w-px my-3 flex-shrink-0"></div>
 
-            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="sslEnabled ? infoTipTexts.securityHttps : infoTipTexts.securityHttp" placement="bottom">
+            <Tooltip :overlay-inner-style="{ fontSize: '10px', textAlign: 'center', padding: '4px 10px', maxWidth: '180px', minHeight: 'auto' }" :title="infoTipTexts.security" placement="bottom">
               <div class="info-bar-cell flex flex-col items-center justify-center py-3 px-2 cursor-help">
                 <span :class="[themeClasses.storeInfoBarLabel]" class="text-[9px] font-semibold uppercase tracking-wider mb-1">{{ $t("Security") }}</span>
-                <Icon :icon="lockIcon" :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
-                <span :class="[sslEnabled ? 'text-green-500' : themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">{{ sslEnabled ? "HTTPS" : "HTTP" }}</span>
+                <Icon :icon="lockIcon" :class="[themeClasses.storeInfoBarValue]" class="w-5 h-5 mb-0.5 flex-shrink-0" />
+                <span :class="[themeClasses.storeInfoBarValue]" class="text-[10px] font-medium truncate w-full text-center">HTTPS</span>
               </div>
             </Tooltip>
 
@@ -145,6 +165,11 @@
         </div>
 
         <div class="px-5">
+          <div v-if="noMatchingImage && !app?.is_installed" :class="[themeClasses.appPropsDependencyWarningBg, themeClasses.appPropsDependencyWarningBorder]" class="mb-4 flex items-center gap-2.5 rounded-xl border px-3 py-2.5">
+            <Icon :icon="alertIcon" :class="[themeClasses.appPropsDependencyWarningIcon]" class="w-5 h-5 flex-shrink-0" />
+            <span :class="[themeClasses.appPropsDependencyWarningText]" class="text-xs">{{ $t("This app may not be compatible with your system and CPU architecture.") }}</span>
+          </div>
+
           <div v-if="app?.default_credentials" :class="[themeClasses.installConfigDefaultCredsRow]" class="mb-4 rounded-xl border px-3 py-2.5">
             <div class="flex items-center gap-2 mb-2">
               <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
@@ -186,21 +211,8 @@
               <div v-if="screenshots.length > 0">
                 <div ref="screenshotsContainer" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide select-none" :class="{ 'cursor-grab': !isDragging, 'cursor-grabbing': isDragging }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag" @mouseleave="endDrag">
                   <template v-for="(screenshot, index) in screenshots" :key="`screenshot-${index}`">
-                    <button @click="openScreenshotModal(index)" :class="[themeClasses.screenshotThumb]" class="flex-shrink-0 w-[240px] md:w-[300px] lg:w-[360px] xl:w-[400px] rounded-xl overflow-hidden shadow-md border transition-all duration-300 group/ss">
-                      <div :class="[themeClasses.screenshotWindowBar]" class="h-7 flex items-center px-3 border-b">
-                        <div class="relative w-full">
-                          <div class="absolute left-0 top-1/2 -translate-y-1/2 flex gap-1.5">
-                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                          </div>
-                          <span :class="[themeClasses.screenshotWindowTitle]" class="block text-[10px] text-center transition-opacity duration-300 group-hover/ss:opacity-0">HomeDock OS</span>
-                          <span :class="[themeClasses.screenshotWindowTitleHover]" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] pointer-events-none select-none opacity-0 transition-opacity duration-300 group-hover/ss:opacity-100">{{ app?.display_name || app?.name }}</span>
-                        </div>
-                      </div>
-                      <div :class="[themeClasses.screenshotImageBg]" class="aspect-video">
-                        <img draggable="false" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" class="w-full h-full object-cover pointer-events-none transition duration-300 hover:saturate-150" />
-                      </div>
+                    <button type="button" class="flex-shrink-0 w-[240px] md:w-[300px] lg:w-[360px] xl:w-[400px] rounded-xl text-left cursor-zoom-in" @click="openScreenshotModal(index)">
+                      <ScreenshotFrame :data-screenshot-index="index" :src="screenshot" :alt="`${app?.name} screenshot ${index + 1}`" :title="app?.display_name || app?.name || ''" :icon="appIconPath" />
                     </button>
                   </template>
                 </div>
@@ -431,8 +443,23 @@
             </div>
 
             <div v-else key="advanced" class="pb-4">
-              <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold mb-3">{{ $t("Advanced Configuration") }}</h3>
-              <textarea :disabled="app?.is_installed" v-model="advancedCompose" :class="[themeClasses.hubTextArea]" class="flex-1 rounded-xl w-full font-mono text-xs resize-none p-4" style="height: 500px"></textarea>
+              <div :class="[themeClasses.installConfigSectionCard]" class="overflow-hidden">
+                <div :class="[themeClasses.utilityToolbarBorder]" class="flex items-center justify-between gap-3 px-4 py-3 border-b">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <Icon :icon="xmlIcon" class="h-4 w-4 flex-shrink-0" :class="[themeClasses.installConfigSectionTitle]" />
+                    <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold truncate">{{ $t("Advanced Configuration") }}</h3>
+                  </div>
+                  <div class="flex items-center gap-2 flex-shrink-0 text-[10px]">
+                    <span v-if="app?.is_installed" :class="[themeClasses.installConfigLabel]" class="flex items-center gap-1 font-medium">
+                      <Icon :icon="lockIcon" class="h-3 w-3" />
+                      {{ $t("Read-only") }}
+                    </span>
+                    <span v-else :class="[themeClasses.installConfigLabel]" class="advanced-cursor tabular-nums">{{ $t("Ln") }} {{ composeCursor.line }}, {{ $t("Col") }} {{ composeCursor.column }}</span>
+                    <span :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 font-medium">YAML</span>
+                  </div>
+                </div>
+                <ComposeEditor v-model="advancedCompose" :readonly="app?.is_installed" class="advanced-editor" @cursor="composeCursor = $event" />
+              </div>
             </div>
           </Transition>
         </div>
@@ -442,7 +469,7 @@
         <template #help>
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
-              <Icon :icon="downloadIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+              <StatusBarHelpIcon :icon="downloadIcon" />
               <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Install App") }}</h4>
             </div>
 
@@ -453,6 +480,42 @@
         </template>
       </StatusBar>
     </div>
+
+    <AppDialog v-model:visible="showCompatibilityWarning" type="warning" title="Compatibility Warning" ok-text="Install Anyway" cancel-text="Cancel" @ok="handleCompatibilityWarningOk" @cancel="showCompatibilityWarning = false">
+      <div class="flex items-start gap-3">
+        <Icon :icon="alertIcon" class="w-6 h-6 text-amber-500 flex-shrink-0" />
+        <div class="flex-1">
+          <p :class="['font-semibold mb-3', themeClasses.externalWarningTitle]" class="text-sm">{{ $t("This app wasn't made for your server's processor") }}</p>
+          <p :class="['text-sm mb-3', themeClasses.externalWarningText]">{{ $t("Apps are prepared for specific types of processors. {name} doesn't have a version for yours, so it might not work as you expect.", { name: app?.display_name || app?.name }) }}</p>
+
+          <div :class="['flex items-center gap-3 border rounded-lg p-3 mb-3', themeClasses.externalWarningAuthorBg, themeClasses.externalWarningAuthorBorder]">
+            <Icon :icon="chipIcon" :class="[themeClasses.externalWarningAuthorTitle]" class="w-7 h-7 flex-shrink-0" />
+            <div class="min-w-0">
+              <p :class="['text-sm font-semibold', themeClasses.externalWarningAuthorTitle]">{{ $t("Your server's processor:") }}</p>
+              <p :class="['text-sm', themeClasses.externalWarningAuthorText]">{{ processorName }}</p>
+            </div>
+          </div>
+
+          <p :class="['text-sm font-semibold mb-2', themeClasses.externalWarningTitle]">{{ $t("What could happen:") }}</p>
+          <ul :class="['text-xs leading-none', themeClasses.externalWarningListText]">
+            <li class="flex items-start gap-1">
+              <span class="mt-0.5">•</span>
+              <span>{{ $t("The app might not open at all") }}</span>
+            </li>
+            <li class="flex items-start gap-1">
+              <span class="mt-0.5">•</span>
+              <span>{{ $t("It might run slower than usual") }}</span>
+            </li>
+            <li class="flex items-start gap-1">
+              <span class="mt-0.5">•</span>
+              <span>{{ $t("Some features might fail or it might close unexpectedly") }}</span>
+            </li>
+          </ul>
+
+          <p :class="['text-xs mt-3', themeClasses.externalWarningDisclaimerText]">{{ $t("You can install it anyway and uninstall it later if it doesn't work.") }}</p>
+        </div>
+      </div>
+    </AppDialog>
 
     <AppDialog v-model:visible="showExternalWarning" type="warning" title="External Package Warning" ok-text="Install Anyway" cancel-text="Cancel" @ok="handleExternalWarningOk" @cancel="handleExternalWarningCancel">
       <div class="space-y-4">
@@ -493,11 +556,7 @@
       </div>
     </AppDialog>
 
-    <AppDialog v-model:visible="showScreenshotModal" type="info" title="Screenshot Preview" ok-text="Close" :ok-cancel="false" :width="1200" @ok="closeScreenshotModal">
-      <div class="flex items-center justify-center min-h-[400px]">
-        <img v-if="screenshots[currentScreenshotModal]" draggable="false" :src="screenshots[currentScreenshotModal]" :alt="`${app?.name} screenshot ${currentScreenshotModal + 1}`" class="max-w-full max-h-[70vh] mx-auto rounded-lg object-contain select-none" />
-      </div>
-    </AppDialog>
+    <ScreenshotViewer v-model:open="showScreenshotModal" v-model:index="currentScreenshotModal" :images="screenshots" :title="app?.display_name || app?.name || ''" :icon="appIconPath" :origin="screenshotOrigin" />
 
     <AppDialog v-model:visible="showPrivilegedWarning" type="warning" title="Privileged Mode Warning" ok-text="I Understand, Enable" cancel-text="Cancel" @ok="handlePrivilegedWarningConfirm" @cancel="handlePrivilegedWarningCancel" :icon="alertIcon" :width="480" :reverse-buttons="true">
       <div class="space-y-3">
@@ -550,6 +609,7 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import lockIcon from "@iconify-icons/mdi/lock";
 import packageIcon from "@iconify-icons/mdi/package-variant-closed";
 import alertIcon from "@iconify-icons/mdi/alert-circle";
+import chipIcon from "@iconify-icons/mdi/chip";
 import portIcon from "@iconify-icons/mdi/ethernet";
 import folderIcon from "@iconify-icons/mdi/folder-open";
 import networkIcon from "@iconify-icons/mdi/lan";
@@ -574,9 +634,13 @@ import mediaIcon from "@iconify-icons/mdi/movie-open";
 import socialIcon from "@iconify-icons/mdi/message-text";
 import webDevIcon from "@iconify-icons/mdi/web";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
+import ScreenshotViewer from "../__Components__/ScreenshotViewer.vue";
+import ScreenshotFrame from "../__Components__/ScreenshotFrame.vue";
+import ComposeEditor, { type ComposeCursor } from "../__Components__/ComposeEditor.vue";
 
 interface Props {
   app?: App;
@@ -585,7 +649,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const { themeClasses } = useTheme();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const appStoreInstance = useAppStore();
 const installationStore = useInstallationStore();
 
@@ -646,11 +710,14 @@ const capabilities = ref<string[]>([]);
 const privilegedMode = ref(false);
 const restartPolicy = ref("unless-stopped");
 const advancedCompose = ref("");
+const composeCursor = ref<ComposeCursor>({ line: 1, column: 1 });
 const userName = ref<string | undefined>(undefined);
 const userPassword = ref<string | undefined>(undefined);
 const sslEnabled = ref(false);
 const hasLoadedConfig = ref(false);
 const showExternalWarning = ref(false);
+const showCompatibilityWarning = ref(false);
+const compatibilityConfirmed = ref(false);
 const pendingInstall = ref(false);
 const showPrivilegedWarning = ref(false);
 const pendingPrivilegedChange = ref(false);
@@ -680,8 +747,11 @@ const infoTipTexts: Record<string, string> = {
   type: t("The specific function or role this app serves."),
   image: t("The Docker image used to run this container."),
   version: t("The image tag or version that will be installed."),
-  securityHttps: t("This app supports encrypted HTTPS connections."),
-  securityHttp: t("This app runs over unencrypted HTTP."),
+  security: t("This app runs over HTTPS inherited from HomeDock OS once you set up OnScreen Apps in Settings > System."),
+  size: t("Approximate download for this server, dependencies included. Layers already on disk are not downloaded again."),
+  sizePartial: t("Some images could not be measured, so the real download may be larger."),
+  sizeMeasuring: t("Measuring the download size..."),
+  sizeUnavailable: t("The download size could not be measured right now."),
   deps: t("Additional apps that will be installed alongside this one."),
 };
 const screenshots = ref<string[]>([]);
@@ -746,6 +816,75 @@ function isSSLCertPath(path: string): boolean {
   if (/^\/Users\/[^/]+\/HomeDock\/SSLCerts/.test(path)) return true;
   if (path.startsWith("/mnt/c/HomeDock/SSLCerts")) return true;
   return false;
+}
+
+interface DownloadSize {
+  size: number;
+  complete: boolean;
+}
+
+const DOWNLOAD_SIZE_TIMEOUT = 15000;
+const MEASURING_DELAY = 400;
+
+const downloadSize = ref<DownloadSize | null | undefined>(undefined);
+const measuringVisible = ref(false);
+const noMatchingImage = ref(false);
+const serverArchitecture = ref<string | null>(null);
+
+const PROCESSOR_NAMES: Record<string, string> = {
+  amd64: "Intel / AMD (x86-64)",
+  arm64: "ARM (arm64)",
+  arm: "ARM (32-bit)",
+};
+
+const processorName = computed(() => (serverArchitecture.value ? (PROCESSOR_NAMES[serverArchitecture.value] ?? serverArchitecture.value) : t("Unknown")));
+let downloadSizeFor: string | null = null;
+let measuringTimer: ReturnType<typeof setTimeout> | null = null;
+
+const downloadSizeTip = computed(() => {
+  if (downloadSize.value === undefined) return infoTipTexts.sizeMeasuring;
+  if (downloadSize.value === null) return infoTipTexts.sizeUnavailable;
+  return downloadSize.value.complete ? infoTipTexts.size : infoTipTexts.sizePartial;
+});
+
+async function fetchDownloadSize() {
+  const name = app.value?.name;
+  if (!name || downloadSizeFor === name) return;
+
+  downloadSizeFor = name;
+  downloadSize.value = undefined;
+  measuringVisible.value = false;
+  noMatchingImage.value = false;
+
+  if (measuringTimer) clearTimeout(measuringTimer);
+  measuringTimer = setTimeout(() => {
+    if (downloadSizeFor === name && downloadSize.value === undefined) measuringVisible.value = true;
+  }, MEASURING_DELAY);
+
+  let result: { size: number | null; complete: boolean; compatible?: boolean; architecture?: string } | null = null;
+  try {
+    const response = await axios.get("/api/get-app-download-size", {
+      params: { containerName: name },
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      timeout: DOWNLOAD_SIZE_TIMEOUT,
+    });
+    result = response.data?.success && response.data.data ? response.data.data : null;
+  } catch {
+    result = null;
+  }
+
+  if (downloadSizeFor !== name) return;
+  if (measuringTimer) clearTimeout(measuringTimer);
+  measuringVisible.value = false;
+  noMatchingImage.value = result?.compatible === false;
+  serverArchitecture.value = result?.architecture ?? null;
+  downloadSize.value = result && result.size !== null ? { size: result.size, complete: result.complete } : null;
+}
+
+function formatDownloadSize({ size, complete }: DownloadSize): string {
+  const gigabytes = size >= 1e9;
+  const value = new Intl.NumberFormat(locale.value, { maximumFractionDigits: gigabytes ? 1 : 0 }).format(gigabytes ? size / 1e9 : Math.max(1, size / 1e6));
+  return `${complete ? "" : "≥ "}${value} ${gigabytes ? "GB" : "MB"}`;
 }
 
 async function fetchAppInfo() {
@@ -898,6 +1037,11 @@ async function handleInstall() {
     return;
   }
 
+  if (noMatchingImage.value && !compatibilityConfirmed.value) {
+    showCompatibilityWarning.value = true;
+    return;
+  }
+
   if (app.value.is_external && !pendingInstall.value) {
     showExternalWarning.value = true;
     return;
@@ -905,6 +1049,7 @@ async function handleInstall() {
 
   try {
     pendingInstall.value = false;
+    compatibilityConfirmed.value = false;
     const currentToken = csrfToken.value;
     const configData = isAdvancedMode.value
       ? {
@@ -967,6 +1112,12 @@ async function handleInstall() {
   }
 }
 
+function handleCompatibilityWarningOk() {
+  showCompatibilityWarning.value = false;
+  compatibilityConfirmed.value = true;
+  handleInstall();
+}
+
 function handleExternalWarningOk() {
   showExternalWarning.value = false;
   pendingInstall.value = true;
@@ -976,6 +1127,7 @@ function handleExternalWarningOk() {
 function handleExternalWarningCancel() {
   showExternalWarning.value = false;
   pendingInstall.value = false;
+  compatibilityConfirmed.value = false;
 }
 
 function handlePrivilegedModeChange(checked: boolean | string | number, e: Event) {
@@ -1044,32 +1196,17 @@ function openScreenshotModal(index: number) {
   showScreenshotModal.value = true;
 }
 
-function closeScreenshotModal() {
-  showScreenshotModal.value = false;
-}
+const appIconPath = computed(() => app.value?.picture_path || "docker-icons/notfound.jpg");
 
-function previousScreenshotModal() {
-  if (currentScreenshotModal.value > 0) {
-    currentScreenshotModal.value--;
-  }
-}
+function screenshotOrigin(index: number): HTMLElement | null {
+  const container = screenshotsContainer.value;
+  const thumbnail = container?.querySelector<HTMLElement>(`[data-screenshot-index="${index}"]`);
+  if (!container || !thumbnail) return null;
 
-function nextScreenshotModal() {
-  if (currentScreenshotModal.value < screenshots.value.length - 1) {
-    currentScreenshotModal.value++;
-  }
-}
-
-function handleKeyboardNavigation(event: KeyboardEvent) {
-  if (!showScreenshotModal.value || screenshots.value.length <= 1) return;
-
-  if (event.key === "ArrowLeft") {
-    previousScreenshotModal();
-  } else if (event.key === "ArrowRight") {
-    nextScreenshotModal();
-  } else if (event.key === "Escape") {
-    closeScreenshotModal();
-  }
+  const rect = thumbnail.getBoundingClientRect();
+  const bounds = container.getBoundingClientRect();
+  const visible = rect.right > bounds.left && rect.left < bounds.right && rect.bottom > 0 && rect.top < window.innerHeight;
+  return visible ? thumbnail : null;
 }
 
 function exitAutoGenMode() {
@@ -1086,6 +1223,7 @@ watch(
   (newApp) => {
     if (newApp?.name) {
       fetchAppInfo();
+      fetchDownloadSize();
       loadScreenshots();
       if (newApp.default_credentials && !defaultCredsHintVisible.value) {
         setTimeout(() => {
@@ -1102,16 +1240,30 @@ onMounted(() => {
     fetchAppInfo();
     loadScreenshots();
   }
-
-  window.addEventListener("keydown", handleKeyboardNavigation);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("keydown", handleKeyboardNavigation);
+  if (measuringTimer) clearTimeout(measuringTimer);
 });
 </script>
 
 <style scoped>
+.install-hero-watermark-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+
+.install-hero-watermark-clip .install-hero-watermark {
+  position: absolute;
+  top: 50%;
+  right: -52px;
+  transform: translateY(-50%) rotate(-33deg);
+}
+
 .install-pill:hover {
   transform: scale(1.05);
 }
@@ -1133,6 +1285,16 @@ onUnmounted(() => {
 .button-fade-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+.size-fade-enter-active,
+.size-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.size-fade-enter-from,
+.size-fade-leave-to {
+  opacity: 0;
 }
 
 .button-fade-enter-to,
@@ -1186,22 +1348,18 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Textarea Styling */
-textarea {
-  outline: none;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-  outline: 1px solid rgba(129, 129, 129, 0.281);
+.advanced-editor {
+  height: 500px;
 }
 
-textarea:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-}
+@container window (max-width: 560px) {
+  .advanced-editor {
+    height: 360px;
+  }
 
-textarea:disabled {
-  opacity: 0.6;
-  user-select: none !important;
+  .advanced-cursor {
+    display: none;
+  }
 }
 
 /* Install button disabled state */

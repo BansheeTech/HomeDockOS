@@ -8,7 +8,7 @@ import { ref, computed } from "vue";
 import axios from "axios";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 
-export type FileExplorerLocation = "storage" | "dropzone" | "appdrive" | "disksplus" | "favorites" | "recents" | "systemapps" | "utilities";
+export type FileExplorerLocation = "storage" | "dropzone" | "appdrive" | "disksplus" | "favorites" | "recents" | "systemapps" | "utilities" | "games";
 
 export interface FavoriteItem {
   location: "storage" | "dropzone" | "appdrive" | "disksplus";

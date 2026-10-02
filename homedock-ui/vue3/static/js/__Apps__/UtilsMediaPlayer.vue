@@ -15,16 +15,34 @@
       <div class="w-px h-4 mx-1 flex-shrink-0" :class="themeClasses.utilityDivider"></div>
 
       <button @click="cyclePlaybackSpeed" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium" :title="$t('Playback Speed')">{{ playbackSpeed }}x</button>
+      <button v-if="isAudio" @click="toggleVisualizer" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium">{{ visualizer === "terrain" ? "3D" : "2D" }}</button>
 
       <div class="flex-1"></div>
 
-      <div v-if="mediaInfo" :class="['text-xs opacity-60', themeClasses.windowText]">
-        <span v-if="isVideo">{{ mediaInfo.width }} × {{ mediaInfo.height }} · </span>
-        {{ formatFileSize(mediaInfo.size) }}
+      <Transition name="drop-fade">
+        <button v-if="droppedFile" type="button" :disabled="saveState !== 'idle'" :title="isVideo ? $t('Save to Videos') : $t('Save to Music')" :aria-label="isVideo ? $t('Save to Videos') : $t('Save to Music')" :class="saveState === 'saved' ? themeClasses.storeCardInstalledPill : themeClasses.storeCardGetPill" class="drop-save-button flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full border-0 text-xs font-semibold cursor-pointer flex-shrink-0 transition-colors duration-150 disabled:cursor-default" @click="saveDroppedMedia">
+          <Icon :icon="saveState === 'saving' ? loadingIcon : saveState === 'saved' ? checkIcon : saveIcon" :class="saveState === 'saving' ? 'animate-spin' : ''" class="w-3.5 h-3.5 flex-shrink-0" />
+          <span class="drop-save-label">{{ saveState === "saved" ? $t("Saved") : isVideo ? $t("Save to Videos") : $t("Save to Music") }}</span>
+        </button>
+      </Transition>
+
+      <div v-if="mediaInfo" :class="['media-meta text-xs opacity-60 tabular-nums', themeClasses.windowText]">
+        <template v-if="isVideo">
+          <span>{{ mediaInfo.width }} × {{ mediaInfo.height }}</span>
+          <span class="media-meta-separator"> · </span>
+        </template>
+        <span>{{ formatFileSize(mediaInfo.size) }}</span>
       </div>
     </div>
 
-    <div ref="containerRef" class="flex-1 overflow-hidden relative flex items-center justify-center">
+    <div ref="containerRef" class="flex-1 overflow-hidden relative flex items-center justify-center" @dragenter.prevent.stop="onDragEnter" @dragover.prevent.stop="onDragOver" @dragleave.stop="onDragLeave" @drop.prevent.stop="onDrop">
+      <Transition name="drop-fade">
+        <div v-if="isDragOver" class="absolute inset-3 z-20 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-500 bg-blue-500/10 pointer-events-none">
+          <Icon :icon="movieIcon" class="w-10 h-10 text-blue-500" />
+          <span class="text-sm font-semibold text-blue-500">{{ $t("Drop to open") }}</span>
+        </div>
+      </Transition>
+
       <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <Icon :icon="loadingIcon" class="w-8 h-8 animate-spin" :class="themeClasses.windowTextMuted" />
@@ -49,23 +67,33 @@
           </div>
           <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("No Media") }}</h3>
           <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ $t("Open a video or audio file to play it here.") }}</p>
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-1">
+            <button type="button" :class="[themeClasses.storeCardGetPill]" class="flex items-center gap-1.5 h-8 px-4 rounded-full border-0 text-xs font-semibold cursor-pointer transition-colors duration-150" @click="browseFolder(VIDEOS_FOLDER)">
+              <Icon :icon="folderVideoIcon" class="w-4 h-4" />
+              {{ $t("Browse Videos") }}
+            </button>
+            <button type="button" :class="[themeClasses.storeCardGetPill]" class="flex items-center gap-1.5 h-8 px-4 rounded-full border-0 text-xs font-semibold cursor-pointer transition-colors duration-150" @click="browseFolder(MUSIC_FOLDER)">
+              <Icon :icon="folderMusicIcon" class="w-4 h-4" />
+              {{ $t("Browse Music") }}
+            </button>
+          </div>
+          <span :class="['text-xs', themeClasses.windowTextMuted]">{{ $t("or drop a video or audio file here") }}</span>
         </div>
       </div>
 
       <video v-else-if="isVideo" ref="mediaRef" :src="mediaSrc" class="max-w-full max-h-full" @loadedmetadata="onMediaLoaded" @timeupdate="onTimeUpdate" @ended="onMediaEnded" @error="onMediaError" @play="isPlaying = true" @pause="isPlaying = false" playsinline />
 
       <div v-else-if="isAudio" class="absolute inset-0 flex flex-col items-center justify-center gap-6 p-8 overflow-hidden">
-        <div class="relative w-32 h-32 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden" :class="themeClasses.imageViewerBg">
-          <Icon :icon="isPlaying ? musicNoteIcon : musicIcon" :class="['w-16 h-16', themeClasses.windowTextMuted, isPlaying ? 'animate-pulse' : '']" />
-          <Transition name="fade">
-            <img v-if="coverUrl" :src="coverUrl" alt="" draggable="false" class="absolute inset-0 w-full h-full object-cover" />
+        <div ref="coverRef" class="cover-pulse relative w-32 h-32 flex-shrink-0">
+          <Transition name="cover-flip" mode="out-in">
+            <AppIconGraphic :key="coverUrl || 'none'" :image-src="coverUrl || undefined" :icon="isPlaying ? musicNoteIcon : musicIcon" color="#a855f7" :size="128" :class="isPlaying && 'cover-playing'" />
           </Transition>
         </div>
         <div class="text-center max-w-full px-4">
           <h3 :class="['text-lg font-medium truncate max-w-xs', themeClasses.windowText]" :title="fileName">{{ fileName }}</h3>
           <p :class="['text-sm mt-1', themeClasses.windowTextMuted]">{{ mediaType.toUpperCase() }}</p>
         </div>
-        <canvas ref="canvasRef" class="absolute inset-0 w-full h-full p-1 pointer-events-none -z-10" />
+        <canvas :key="visualizer" ref="canvasRef" class="absolute inset-0 w-full h-full p-1 pointer-events-none -z-10" />
         <audio ref="mediaRef" :src="mediaSrc" @loadedmetadata="onMediaLoaded" @timeupdate="onTimeUpdate" @ended="onMediaEnded" @error="onMediaError" @play="onAudioPlay" @pause="onAudioPause" />
       </div>
 
@@ -114,7 +142,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="movieIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="movieIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Media Player") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -152,7 +180,9 @@ import { useResponsive } from "../__Composables__/useResponsive";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useMediaPlaybackStore, type MediaOrigin } from "../__Stores__/useMediaPlaybackStore";
 
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 
 import { Icon } from "@iconify/vue";
 import movieIcon from "@iconify-icons/mdi/movie-outline";
@@ -170,8 +200,20 @@ import fullscreenIcon from "@iconify-icons/mdi/fullscreen";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import alertIcon from "@iconify-icons/mdi/alert-circle-outline";
 import shieldCheckIcon from "@iconify-icons/mdi/shield-check-outline";
+import folderVideoIcon from "@iconify-icons/mdi/folder-play";
+import folderMusicIcon from "@iconify-icons/mdi/folder-music";
+import saveIcon from "@iconify-icons/mdi/content-save-outline";
+import checkIcon from "@iconify-icons/mdi/check";
+
+import { useI18n } from "vue-i18n";
+import { message } from "ant-design-vue";
+
+import { uploadToStorage, uniqueStorageName } from "../__Utils__/StorageUpload";
+import type { SpectrumEngine } from "../__Utils__/SpectrumEngine";
+import { SpectrumLineEngine } from "../__Utils__/SpectrumLineEngine";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const { isMobile } = useResponsive();
 const windowStore = useWindowStore();
@@ -201,6 +243,7 @@ const containerRef = ref<HTMLElement | null>(null);
 const mediaRef = ref<HTMLVideoElement | HTMLAudioElement | null>(null);
 const mediaSrc = ref<string | null>(null);
 const coverUrl = ref<string | null>(null);
+let coverToken = 0;
 const fileName = ref("");
 const currentOrigin = ref<MediaOrigin | null>(null);
 const originalWindowTitle = ref(props._windowId ? windowStore.getWindowById(props._windowId)?.title || "" : "");
@@ -221,10 +264,18 @@ const showPlayOverlay = ref(false);
 const mediaInfo = ref<{ width?: number; height?: number; size: number } | null>(null);
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+const coverRef = ref<HTMLElement | null>(null);
 const audioContext = ref<AudioContext | null>(null);
 const analyser = ref<AnalyserNode | null>(null);
 const audioSource = ref<MediaElementAudioSourceNode | null>(null);
-const animationId = ref<number | null>(null);
+type Visualizer = "terrain" | "line";
+
+const VISUALIZER_KEY = "homedock-mediaplayer-visualizer";
+const COVER_PULSE = 0.16;
+
+let spectrumEngine: SpectrumEngine | null = null;
+let visualizerRequest = 0;
+const visualizer = ref<Visualizer>(readVisualizerPreference());
 const isAudioContextInitialized = ref(false);
 const connectedMediaElement = ref<HTMLAudioElement | null>(null);
 
@@ -388,6 +439,10 @@ function revokeBlobUrl() {
   if (mediaSrc.value && mediaSrc.value.startsWith("blob:")) {
     URL.revokeObjectURL(mediaSrc.value);
   }
+}
+
+function clearCover() {
+  coverToken++;
   coverUrl.value = null;
 }
 
@@ -401,19 +456,23 @@ function detectCoverImageMime(bytes: Uint8Array): string | null {
 }
 
 async function extractCoverArt(buffer: ArrayBuffer) {
+  const token = ++coverToken;
+  let next: string | null = null;
   try {
     const metadata = await parseBlob(new Blob([buffer]));
     const pic = metadata?.common?.picture?.[0];
-    if (!pic || !pic.data || !pic.data.length) return;
-    const detectedMime = detectCoverImageMime(pic.data);
-    if (!detectedMime) return;
-    let binary = "";
-    for (let i = 0; i < pic.data.length; i++) {
-      binary += String.fromCharCode(pic.data[i]);
+    const detectedMime = pic?.data?.length ? detectCoverImageMime(pic.data) : null;
+    if (pic && detectedMime) {
+      let binary = "";
+      for (let i = 0; i < pic.data.length; i++) {
+        binary += String.fromCharCode(pic.data[i]);
+      }
+      next = `data:${detectedMime};base64,${btoa(binary)}`;
     }
-    coverUrl.value = `data:${detectedMime};base64,${btoa(binary)}`;
-    updatePlaybackStore();
   } catch {}
+  if (token !== coverToken) return;
+  coverUrl.value = next;
+  updatePlaybackStore();
 }
 
 function resetMediaElement() {
@@ -431,7 +490,100 @@ function resetMediaElement() {
   showPlayOverlay.value = true;
 }
 
+const VIDEOS_FOLDER = "Videos";
+const SAVED_FEEDBACK_MS = 2000;
+const MUSIC_FOLDER = "Music";
+const DROPPABLE_EXTENSIONS = new Set(["mp4", "m4v", "webm", "ogv", "mp3", "wav", "aac", "oga", "ogg", "flac"]);
+const MEDIA_EXTENSIONS = new Set([...DROPPABLE_EXTENSIONS, "mkv", "avi", "mov", "wmv", "flv", "mpg", "mpeg", "3gp", "m4a", "m4b", "wma", "opus", "aiff", "aif", "alac", "ape"]);
+
+const droppedFile = ref<File | null>(null);
+const saveState = ref<"idle" | "saving" | "saved">("idle");
+const isDragOver = ref(false);
+let dragDepth = 0;
+
+watch(droppedFile, () => {
+  saveState.value = "idle";
+});
+
+function isMediaFile(file: File): boolean {
+  return file.type.startsWith("video/") || file.type.startsWith("audio/") || MEDIA_EXTENSIONS.has(getFileExtension(file.name));
+}
+
+function hasDraggedFiles(event: DragEvent): boolean {
+  return Boolean(event.dataTransfer?.types.includes("Files"));
+}
+
+function onDragEnter(event: DragEvent) {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth++;
+  isDragOver.value = true;
+}
+
+function onDragOver(event: DragEvent) {
+  if (!hasDraggedFiles(event) || !event.dataTransfer) return;
+  event.dataTransfer.dropEffect = "copy";
+}
+
+function onDragLeave(event: DragEvent) {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) isDragOver.value = false;
+}
+
+async function onDrop(event: DragEvent) {
+  dragDepth = 0;
+  isDragOver.value = false;
+
+  const file = Array.from(event.dataTransfer?.files ?? []).find(isMediaFile);
+  if (!file) return;
+
+  const extension = getFileExtension(file.name);
+  if (!DROPPABLE_EXTENSIONS.has(extension)) {
+    resetMediaElement();
+    clearCover();
+    droppedFile.value = null;
+    isValidated.value = false;
+    mediaInfo.value = null;
+    fileName.value = file.name;
+    updateWindowTitle(file.name);
+    error.value = t("{format} files can't be played in the Media Player.", { format: (extension || "?").toUpperCase() });
+    return;
+  }
+
+  loadFromBuffer({ name: file.name, extension, buffer: await file.arrayBuffer() });
+  if (isValidated.value) droppedFile.value = file;
+}
+
+function browseFolder(folder: string) {
+  windowStore.openFileInApp("fileexplorer", {
+    data: { initialLocation: "storage", initialPath: folder },
+  });
+}
+
+async function saveDroppedMedia() {
+  const file = droppedFile.value;
+  if (!file || saveState.value !== "idle") return;
+
+  const folder = isVideo.value ? VIDEOS_FOLDER : MUSIC_FOLDER;
+  saveState.value = "saving";
+  try {
+    const name = await uniqueStorageName(folder, file.name, csrfToken.value);
+    await uploadToStorage(file, name, folder, csrfToken.value);
+    if (droppedFile.value !== file) return;
+    saveState.value = "saved";
+    message.success(t("Saved to Storage/{folder}/{filename}", { folder, filename: name }));
+    setTimeout(() => {
+      if (droppedFile.value === file) droppedFile.value = null;
+    }, SAVED_FEEDBACK_MS);
+  } catch (err) {
+    console.error("Failed to save media:", err);
+    if (droppedFile.value === file) saveState.value = "idle";
+    message.error(t("Failed to save file"));
+  }
+}
+
 async function loadMedia(extFile: ExternalFile) {
+  droppedFile.value = null;
   resetMediaElement();
 
   const parts = extFile.path.split("/");
@@ -496,16 +648,20 @@ async function loadMedia(extFile: ExternalFile) {
     mediaInfo.value = { size: fileBuffer.byteLength };
     if (["mp3", "aac", "oga", "ogg", "flac"].includes(detected.type.toLowerCase())) {
       extractCoverArt(fileBuffer);
+    } else {
+      clearCover();
     }
   } catch (err: any) {
     console.error("Failed to load media:", err);
     error.value = err.message || "Failed to load media";
+    clearCover();
   } finally {
     isLoading.value = false;
   }
 }
 
 function loadFromBuffer(file: MediaFile, origin?: MediaOrigin) {
+  droppedFile.value = null;
   resetMediaElement();
   currentOrigin.value = origin ?? null;
 
@@ -538,10 +694,13 @@ function loadFromBuffer(file: MediaFile, origin?: MediaOrigin) {
     mediaInfo.value = { size: fileBuffer.byteLength };
     if (["mp3", "aac", "oga", "ogg", "flac"].includes(detected.type.toLowerCase())) {
       extractCoverArt(fileBuffer);
+    } else {
+      clearCover();
     }
   } catch (err: any) {
     console.error("Failed to load media:", err);
     error.value = err.message || "Failed to load media";
+    clearCover();
   } finally {
     isLoading.value = false;
   }
@@ -624,7 +783,7 @@ function initAudioContext() {
     connectedMediaElement.value = mediaRef.value as HTMLAudioElement;
 
     const analyserNode = ctx.createAnalyser();
-    analyserNode.fftSize = 512;
+    analyserNode.fftSize = 2048;
     analyserNode.smoothingTimeConstant = 0.8;
     analyser.value = analyserNode;
 
@@ -637,81 +796,79 @@ function initAudioContext() {
   }
 }
 
-function startVisualization() {
-  if (!analyser.value || !canvasRef.value || !audioContext.value) return;
+async function startVisualization() {
+  if (!analyser.value || !canvasRef.value) return;
 
-  const canvas = canvasRef.value;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  if (spectrumEngine && !spectrumEngine.owns(canvasRef.value)) disposeVisualization();
 
-  const bufferLength = analyser.value.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  const sampleRate = audioContext.value.sampleRate;
-  const maxFreq = 23350;
-  const usableBins = Math.floor((maxFreq / (sampleRate / 2)) * bufferLength);
-
-  function draw() {
-    if (!analyser.value || !canvasRef.value || !ctx || !isPlaying.value) {
-      animationId.value = null;
+  if (!spectrumEngine) {
+    const request = ++visualizerRequest;
+    const engine = await createSpectrumEngine(canvasRef.value);
+    if (request !== visualizerRequest || !canvasRef.value || !engine?.owns(canvasRef.value)) {
+      engine?.dispose();
       return;
     }
+    spectrumEngine = engine;
+  }
 
-    animationId.value = requestAnimationFrame(draw);
+  if (!isPlaying.value || !analyser.value) return;
+  spectrumEngine.onPulse = pulseCover;
+  spectrumEngine.play(analyser.value);
+}
 
-    const parent = canvasRef.value.parentElement;
-    if (!parent) return;
-
-    const width = parent.clientWidth;
-    const height = parent.clientHeight;
-
-    if (canvasRef.value.width !== width || canvasRef.value.height !== height) {
-      canvasRef.value.width = width;
-      canvasRef.value.height = height;
-    }
-
-    analyser.value.getByteFrequencyData(dataArray);
-
-    ctx.clearRect(0, 0, width, height);
-
-    const barCount = 64;
-    const totalGap = barCount - 1;
-    const gap = 1;
-    const barWidth = (width - totalGap * gap) / barCount;
-    const step = Math.floor(usableBins / barCount);
-
-    for (let i = 0; i < barCount; i++) {
-      const dataIndex = i * step;
-      const value = dataArray[dataIndex];
-      const barHeight = Math.max(2, (value / 255) * height);
-
-      const hue = 200 + (i / barCount) * 60;
-      ctx.fillStyle = `hsla(${hue}, 80%, 55%, 0.8)`;
-
-      const x = i * (barWidth + gap);
-      const y = height - barHeight;
-
-      ctx.beginPath();
-      ctx.roundRect(x, y, barWidth, barHeight, 8);
-      ctx.fill();
+async function createSpectrumEngine(canvas: HTMLCanvasElement): Promise<SpectrumEngine | null> {
+  if (visualizer.value === "terrain") {
+    try {
+      const { SpectrumSceneEngine } = await import("../__Utils__/SpectrumSceneEngine");
+      return new SpectrumSceneEngine(canvas);
+    } catch (err) {
+      console.warn("Failed to initialize the 3D spectrum, falling back to the line:", err);
+      visualizer.value = "line";
+      await nextTick();
+      return canvasRef.value ? createSpectrumEngine(canvasRef.value) : null;
     }
   }
 
-  draw();
+  try {
+    return new SpectrumLineEngine(canvas);
+  } catch (err) {
+    console.warn("Failed to initialize the spectrum line:", err);
+    return null;
+  }
+}
+
+function readVisualizerPreference(): Visualizer {
+  try {
+    return localStorage.getItem(VISUALIZER_KEY) === "line" ? "line" : "terrain";
+  } catch {
+    return "terrain";
+  }
+}
+
+async function toggleVisualizer() {
+  visualizer.value = visualizer.value === "terrain" ? "line" : "terrain";
+  try {
+    localStorage.setItem(VISUALIZER_KEY, visualizer.value);
+  } catch {}
+
+  disposeVisualization();
+  await nextTick();
+  if (isPlaying.value) startVisualization();
+}
+
+function pulseCover(pulse: number) {
+  if (!coverRef.value) return;
+  coverRef.value.style.transform = pulse > 0.001 ? `scale(${1 + pulse * COVER_PULSE})` : "";
 }
 
 function stopVisualization() {
-  if (animationId.value) {
-    cancelAnimationFrame(animationId.value);
-    animationId.value = null;
-  }
+  spectrumEngine?.pause();
+}
 
-  if (canvasRef.value) {
-    const ctx = canvasRef.value.getContext("2d");
-    if (ctx) {
-      ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
-    }
-  }
+function disposeVisualization() {
+  visualizerRequest++;
+  spectrumEngine?.dispose();
+  spectrumEngine = null;
 }
 
 async function onAudioPlay() {
@@ -739,6 +896,7 @@ function cleanupAudioContext(forceClose = false) {
   stopVisualization();
 
   if (forceClose) {
+    disposeVisualization();
     if (audioContext.value && audioContext.value.state !== "closed") {
       audioContext.value.close().catch(() => {});
     }
@@ -933,12 +1091,74 @@ onUnmounted(() => {
   }
 
   cleanup(true);
+  clearCover();
 });
 </script>
 
 <style scoped>
 .media-player {
   user-select: none;
+}
+
+.cover-pulse {
+  will-change: transform;
+  perspective: 600px;
+}
+
+.cover-pulse .cover-flip-leave-active {
+  transition: transform 0.18s cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.cover-pulse .cover-flip-enter-active {
+  transition: transform 0.32s cubic-bezier(0.22, 1.3, 0.36, 1);
+}
+
+.cover-pulse .cover-flip-leave-to {
+  transform: rotateY(90deg);
+}
+
+.cover-pulse .cover-flip-enter-from {
+  transform: rotateY(-90deg);
+}
+
+.cover-playing :deep(.app-icon-glyph) {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.drop-fade-enter-active,
+.drop-fade-leave-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.drop-fade-enter-from,
+.drop-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+@container window (max-width: 520px) {
+  .drop-save-button {
+    width: 1.75rem;
+    padding: 0;
+  }
+
+  .drop-save-label {
+    display: none;
+  }
+
+  .media-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .media-meta-separator {
+    display: none;
+  }
 }
 
 .volume-slider {

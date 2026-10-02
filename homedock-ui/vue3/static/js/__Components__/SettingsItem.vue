@@ -6,9 +6,7 @@
 <template>
   <div :class="[themeClasses.settingsItemBg, themeClasses.settingsItemBgHover, !isLast && themeClasses.settingsItemSeparator, 'px-4 py-3 transition-all duration-200']">
     <div v-if="!shouldStack" class="flex items-start gap-3">
-      <div v-if="icon" :class="[iconBgClass, themeClasses.settingsIconColor, 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0']">
-        <Icon :icon="icon" :size="iconSize" />
-      </div>
+      <AppIconGraphic v-if="icon" :icon="icon" :color="tileColor" :size="TILE_SIZE" />
 
       <div class="flex-1 min-w-0">
         <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-4 flex items-center gap-1.5']">
@@ -30,9 +28,7 @@
 
     <div v-else class="flex flex-col gap-1">
       <div class="flex items-start gap-3">
-        <div v-if="icon" :class="[iconBgClass, themeClasses.settingsIconColor, 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0']">
-          <Icon :icon="icon" :size="iconSize" />
-        </div>
+        <AppIconGraphic v-if="icon" :icon="icon" :color="tileColor" :size="TILE_SIZE" />
 
         <div class="flex-1 min-w-0">
           <div :class="[themeClasses.settingsItemTitle, 'text-sm font-medium leading-3 flex items-center gap-1.5']">
@@ -58,7 +54,22 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted, useSlots, type PropType } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { Icon, type IconifyIcon } from "@iconify/vue";
+import type { IconifyIcon } from "@iconify/vue";
+
+import AppIconGraphic from "./AppIconGraphic.vue";
+
+const TILE_SIZE = 32;
+const TILE_COLORS = {
+  blue: "#3b82f6",
+  green: "#22c55e",
+  red: "#ef4444",
+  orange: "#f97316",
+  purple: "#a855f7",
+  gray: "#6b7280",
+  cyan: "#06b6d4",
+  pink: "#ec4899",
+  yellow: "#eab308",
+};
 
 const { themeClasses } = useTheme();
 const slots = useSlots();
@@ -69,12 +80,8 @@ const props = defineProps({
     default: null,
   },
   iconColor: {
-    type: String as PropType<"blue" | "green" | "red" | "orange" | "purple" | "gray" | "cyan" | "pink" | "yellow">,
+    type: String as PropType<keyof typeof TILE_COLORS>,
     default: "blue",
-  },
-  iconSize: {
-    type: String,
-    default: "18px",
   },
   title: {
     type: String,
@@ -94,20 +101,7 @@ const props = defineProps({
   },
 });
 
-const iconBgClass = computed(() => {
-  const colorMap: Record<string, string> = {
-    blue: themeClasses.value.settingsIconBgBlue,
-    green: themeClasses.value.settingsIconBgGreen,
-    red: themeClasses.value.settingsIconBgRed,
-    orange: themeClasses.value.settingsIconBgOrange,
-    purple: themeClasses.value.settingsIconBgPurple,
-    gray: themeClasses.value.settingsIconBgGray,
-    cyan: themeClasses.value.settingsIconBgCyan,
-    pink: themeClasses.value.settingsIconBgPink,
-    yellow: themeClasses.value.settingsIconBgYellow,
-  };
-  return colorMap[props.iconColor] || colorMap.blue;
-});
+const tileColor = computed(() => TILE_COLORS[props.iconColor] ?? TILE_COLORS.blue);
 
 const containerWidth = ref(0);
 const containerElement = ref<HTMLElement | null>(null);

@@ -13,8 +13,11 @@ interface Application {
   ports: string[];
   usagePercent: number;
   memoryUsagePercent: number;
+  memoryUsageBytes?: number;
+  memoryLimitBytes?: number;
   networkRxBytes: number;
   networkTxBytes: number;
+  startedAt?: string;
   status: "running" | "exited" | "paused" | "created";
   statusColor: string;
   image_path: string;
@@ -23,6 +26,7 @@ interface Application {
   HDGroup: string;
   HDRole?: string;
   isProcessing: boolean;
+  recently_updated?: boolean;
 }
 
 export const useSelectedAppsStore = defineStore("selectedApps", {
@@ -31,9 +35,18 @@ export const useSelectedAppsStore = defineStore("selectedApps", {
     applications: [] as Application[],
     desiredStates: {} as Record<string, string>,
     errorStates: {} as Record<string, string>,
+    loaded: false,
+    fetchFailed: false,
   }),
   actions: {
+    setFetchFailed(failed: boolean) {
+      this.fetchFailed = failed;
+    },
+
     setApplications(newApps: Application[]) {
+      this.loaded = true;
+      this.fetchFailed = false;
+
       const oldApps = this.applications;
 
       this.applications = newApps.map((newApp) => {

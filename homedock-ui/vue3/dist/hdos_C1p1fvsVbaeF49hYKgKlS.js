@@ -1,0 +1,1 @@
+function e(e,t){return e.classList?e.classList.contains(t):` ${e.className} `.indexOf(` ${t} `)>-1}function t(t,n){t.classList?t.classList.add(n):e(t,n)||(t.className=`${t.className} ${n}`)}function n(t,n){t.classList?t.classList.remove(n):e(t,n)&&(t.className=` ${t.className} `.replace(` ${n} `,` `))}export{n,t};

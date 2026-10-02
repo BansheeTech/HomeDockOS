@@ -12,6 +12,11 @@ const AppLogs = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const AppDockerTerminal = defineAsyncComponent({
+  loader: () => import("../__Apps__/AppDockerTerminal.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 const AppProperties = defineAsyncComponent({
   loader: () => import("../__Apps__/AppProperties.vue"),
   loadingComponent: WindowLoading,
@@ -54,6 +59,7 @@ const AppDockerView = defineAsyncComponent({
 });
 
 import scriptTextIcon from "@iconify-icons/mdi/script-text";
+import consoleLineIcon from "@iconify-icons/mdi/console-line";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
 import codeBracesIcon from "@iconify-icons/mdi/code-braces";
 import downloadIcon from "@iconify-icons/mdi/download";
@@ -88,7 +94,28 @@ export const AUXILIARY_APPS: SystemApp[] = [
     name: "Container Logs",
     description: "View container logs in real-time",
     icon: scriptTextIcon,
+    iconOverlay: true,
     component: AppLogs,
+    defaultWidth: 1024,
+    defaultHeight: 768,
+    minWidth: 400,
+    minHeight: 700,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "tools",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: false,
+  },
+  {
+    id: "terminal",
+    name: "Terminal",
+    description: "Open an interactive shell inside a container",
+    icon: consoleLineIcon,
+    iconOverlay: true,
+    component: AppDockerTerminal,
     defaultWidth: 1024,
     defaultHeight: 768,
     minWidth: 400,

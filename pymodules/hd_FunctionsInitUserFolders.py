@@ -24,8 +24,9 @@ from pymodules.hd_FunctionsGlobals import (
     user_packages_acme_folder,
     user_packages_acme_staging_folder,
     user_packages_app_open_folder,
-    user_packages_desktop_widgets_folder,
+    user_packages_desktop_state_folder,
     user_packages_whats_new_folder,
+    user_packages_app_updates_folder,
 )
 
 
@@ -42,8 +43,9 @@ def init_all_directories():
     os.makedirs(user_packages_acme_folder, exist_ok=True)
     os.makedirs(user_packages_acme_staging_folder, exist_ok=True)
     os.makedirs(user_packages_app_open_folder, exist_ok=True)
-    os.makedirs(user_packages_desktop_widgets_folder, exist_ok=True)
+    os.makedirs(user_packages_desktop_state_folder, exist_ok=True)
     os.makedirs(user_packages_whats_new_folder, exist_ok=True)
+    os.makedirs(user_packages_app_updates_folder, exist_ok=True)
 
     os.makedirs(user_storage_folder, exist_ok=True)
     os.makedirs(dropzone_folder, exist_ok=True)
@@ -54,16 +56,34 @@ def init_all_directories():
 
     migrate_dropzone_data()
 
+    init_existing_users_storage()
 
-DEFAULT_USER_STORAGE_FOLDERS = ["Notes", "Documents", "Photos", "Videos", "Music", "Downloads", "Sources"]
+
+DEFAULT_USER_STORAGE_FOLDERS = ["Notes", "Documents", "Photos", "Videos", "Music", "Downloads", "Sources", "Archives"]
 
 
 def init_user_storage(user_dir: str):
     os.makedirs(user_dir, mode=0o700, exist_ok=True)
     for folder_name in DEFAULT_USER_STORAGE_FOLDERS:
         folder_path = os.path.join(user_dir, folder_name)
-        if not os.path.exists(folder_path):
+        if not os.path.lexists(folder_path):
             try:
                 os.makedirs(folder_path, mode=0o700, exist_ok=True)
             except OSError:
                 pass
+
+
+def init_existing_users_storage():
+    try:
+        entries = list(os.scandir(storage_folder))
+    except OSError:
+        return
+    for entry in entries:
+        if entry.name.startswith((".", "_")):
+            continue
+        try:
+            if not entry.is_dir(follow_symlinks=False):
+                continue
+            init_user_storage(entry.path)
+        except OSError:
+            continue

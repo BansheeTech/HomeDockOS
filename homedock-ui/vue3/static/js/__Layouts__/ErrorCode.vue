@@ -8,12 +8,12 @@
   <AeroPlusWallpaper />
   <ScrollBarThemeLoader />
   <TopComment />
-  <StaticOscillatingLines :numLines=32 :amplitude=499 :lineWidth=2 />
+  <StaticOscillatingLines :numLines="32" :amplitude="499" :lineWidth="2" />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
-    <div class="w-full max-w-xl">
-      <div :class="[themeClasses.form]" class="px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 overflow-hidden anim-pusher mb-2 animated-line">
+    <div class="w-full max-w-xl login-tilt">
+      <div ref="cardRef" :class="[themeClasses.form]" class="px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 overflow-hidden anim-pusher mb-2 animated-line login-card" :style="tiltStyle">
         <div class="flex mb-2">
-          <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
+          <HomeDockLogo3D state="error" :size="120" />
         </div>
         <h2 :class="[themeClasses.mainText]" class="text-xl font-normal mb-2 flex items-center">
           <AnimatedIcon :icons="[_anim_confused, _anim_happy, _anim_normal, _anim_angry, _anim_dead]" :interval="1000" :iconSize="20" containerClass="mr-2" />
@@ -42,6 +42,7 @@
             </a>
           </p>
         </div>
+        <div class="login-glare" :class="themeClasses.loginCardGlare" :style="glareStyle"></div>
       </div>
     </div>
   </div>
@@ -50,6 +51,7 @@
 import { inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useCardTilt } from "../__Composables__/useCardTilt";
 
 import type { ErrorData } from "../__Types__/ErrorData";
 
@@ -69,7 +71,7 @@ import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import AnimatedIcon from "../__Components__/AnimatedIcon.vue";
 import TopComment from "../__Components__/TopComment.vue";
-import BaseImage from "../__Components__/BaseImage.vue";
+import HomeDockLogo3D from "../__Components__/HomeDockLogo3D.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
 
 const errorData = inject<ErrorData | null>("data-error", null) || {
@@ -79,6 +81,7 @@ const errorData = inject<ErrorData | null>("data-error", null) || {
 
 const { t } = useI18n();
 const { themeClasses } = useTheme();
+const { cardRef, tiltStyle, glareStyle } = useCardTilt();
 </script>
 
 <style scoped>

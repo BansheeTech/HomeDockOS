@@ -20,6 +20,7 @@ dataspace/
 
 # DinD Vols
 _DATA/
+homedock-data/
 
 # Config
 homedock_server.conf
@@ -44,10 +45,15 @@ homedock_dropzone.conf
 # Other
 otherfiles/
 unstaged_test.py
+.tests/
 HomeDockOS_Update.*.zip
-Dockerfile
-docker-compose.yml
-.dockerignore
+homedock-ui/static/images/wallpapers/back_custom.jpg
+
+# OEM Mini-PC & Manufacturer Licensing
+.oem/
+
+# BTC Crypto Integration
+.btc/
 
 # Enterprise & SME Modules
 __Enterprise__/
@@ -57,3 +63,4 @@ __Enterprise__*
 enterprise_private*
 enterprise_signer*
 ENTERPRISE.license
+ENTERPRISE.version

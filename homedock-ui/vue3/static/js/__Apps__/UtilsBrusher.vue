@@ -136,7 +136,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="brushIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="brushIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Brusher") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -176,6 +176,7 @@ import { useWindowStore } from "../__Stores__/windowStore";
 
 import AppDialog from "../__Components__/AppDialog.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 
 import { Icon } from "@iconify/vue";
 import pencilIcon from "@iconify-icons/mdi/pencil";

@@ -150,34 +150,28 @@
   border: 1px solid rgba(53, 53, 53, 0.5) !important;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:autofill {
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
+}
+
+.white-mode-theme input:-webkit-autofill,
 .white-mode-theme input:autofill {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
   -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000;
 }
 
-.white-mode-theme input:autofill:hover {
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-}
-
-.dark-mode-theme input:autofill {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-.dark-mode-theme input:autofill:hover {
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-}
-
+.dark-mode-theme input:-webkit-autofill,
+.dark-mode-theme input:autofill,
+.aero-mode-theme input:-webkit-autofill,
 .aero-mode-theme input:autofill {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
   -webkit-text-fill-color: #fff !important;
-}
-
-.aero-mode-theme input:autofill:hover {
-  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0) inset !important;
+  caret-color: #fff;
 }
 
 .white-mode-theme .ant-input-affix-wrapper {
@@ -845,6 +839,10 @@ input.ant-input-disabled.aero-mode-theme:hover {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
+.white-mode-theme.ant-dropdown .ant-dropdown-menu-item-group-title {
+  color: rgb(107, 114, 128) !important;
+}
+
 .dark-mode-theme.ant-dropdown {
   border-radius: 8px !important;
   overflow: hidden !important;
@@ -878,18 +876,26 @@ input.ant-input-disabled.aero-mode-theme:hover {
 .dark-mode-theme.ant-dropdown .ant-dropdown-menu-item-divider {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+.dark-mode-theme.ant-dropdown .ant-dropdown-menu-item-group-title {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
 .aero-mode-theme.ant-dropdown {
-  backdrop-filter: blur(40px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  backdrop-filter: blur(100px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(100px) saturate(200%) !important;
   border-radius: 8px !important;
   overflow: hidden !important;
 }
 
 .aero-mode-theme.ant-dropdown .ant-dropdown-menu {
-  background-color: rgba(30, 30, 35, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  border: 0 !important;
   border-radius: 8px !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+  box-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05) !important;
   overflow: hidden !important;
 }
 
@@ -912,6 +918,10 @@ input.ant-input-disabled.aero-mode-theme:hover {
 
 .aero-mode-theme.ant-dropdown .ant-dropdown-menu-item-divider {
   background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.aero-mode-theme.ant-dropdown .ant-dropdown-menu-item-group-title {
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Segmented White Theme */

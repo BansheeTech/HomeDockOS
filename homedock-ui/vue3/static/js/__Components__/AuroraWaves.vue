@@ -49,8 +49,6 @@ onMounted(() => {
 
   if (!ctx) return;
 
-  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
   const waves = COLORS.map((color, i) => ({
     color,
     baseY: (i + 1) / (COLORS.length + 1),
@@ -129,20 +127,13 @@ onMounted(() => {
     animId = requestAnimationFrame(loop);
   };
 
-  observer = new ResizeObserver(() => {
-    resize();
-    if (reducedMotion) drawFrame(1);
-  });
+  observer = new ResizeObserver(resize);
 
   observer.observe(canvas);
 
   resize();
 
-  if (reducedMotion) {
-    drawFrame(1);
-  } else {
-    animId = requestAnimationFrame(loop);
-  }
+  animId = requestAnimationFrame(loop);
 });
 
 onBeforeUnmount(() => {

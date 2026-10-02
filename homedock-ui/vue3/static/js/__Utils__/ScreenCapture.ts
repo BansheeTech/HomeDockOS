@@ -3,9 +3,7 @@
 // See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import axios from "axios";
-
-const CHUNK_SIZE = 5 * 1024 * 1024;
+import { uploadToStorage } from "./StorageUpload";
 
 const SCREENSHOT_FOLDER = "Photos";
 
@@ -156,40 +154,5 @@ export async function grabScreenshot(rect: CaptureRect | null): Promise<CaptureR
 }
 
 export async function uploadScreenshot(blob: Blob, fileName: string, csrfToken: string): Promise<string> {
-  const headers = { "X-HomeDock-CSRF-Token": csrfToken };
-  const totalChunks = Math.ceil(blob.size / CHUNK_SIZE);
-
-  const init = await axios.post(
-    "/api/storage/upload/init",
-    {
-      filename: fileName,
-      total_size: blob.size,
-      total_chunks: totalChunks,
-      target_path: SCREENSHOT_FOLDER,
-    },
-    { headers },
-  );
-
-  const uploadId = init.data?.upload_id;
-  if (!init.data?.success || !uploadId) throw new Error(init.data?.error || "init_failed");
-
-  try {
-    for (let i = 0; i < totalChunks; i++) {
-      const chunk = blob.slice(i * CHUNK_SIZE, Math.min((i + 1) * CHUNK_SIZE, blob.size));
-
-      await axios.put(`/api/storage/upload/chunk?upload_id=${encodeURIComponent(uploadId)}&chunk_index=${i}`, chunk, {
-        headers: { ...headers, "Content-Type": "application/octet-stream" },
-      });
-    }
-
-    const finalize = await axios.post("/api/storage/upload/finalize", { upload_id: uploadId }, { headers });
-    if (!finalize.data?.success) throw new Error(finalize.data?.error || "finalize_failed");
-
-    return finalize.data.path as string;
-  } catch (err) {
-    try {
-      await axios.delete(`/api/storage/upload/abort?upload_id=${encodeURIComponent(uploadId)}`, { headers });
-    } catch {}
-    throw err;
-  }
+  return uploadToStorage(blob, fileName, SCREENSHOT_FOLDER, csrfToken);
 }

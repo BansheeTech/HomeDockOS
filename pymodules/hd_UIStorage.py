@@ -18,6 +18,8 @@ from flask_login import current_user, login_required
 from pymodules.hd_FunctionsGlobals import storage_folder
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks, calculate_directory_size_ddos_safe
 from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
+from pymodules.hd_ImageThumbnails import thumbnail_response
+from pymodules.hd_ExtendedSupportImage import preview_response
 
 MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
@@ -313,6 +315,48 @@ def download_file():
         )
     except Exception:
         return jsonify({"error": "Error reading file"}), 500
+
+
+def _resolve_image_file(user_name):
+    file_name = request.args.get("file")
+    if not file_name:
+        return None, (jsonify({"error": "No file specified"}), 400)
+
+    user_dir = os.path.join(storage_folder, user_name)
+
+    try:
+        file_path = validate_safe_path(user_dir, file_name)
+    except ValueError:
+        return None, (jsonify({"error": "Invalid file path"}), 400)
+
+    if not os.path.isfile(file_path):
+        return None, (jsonify({"error": "File not found"}), 404)
+
+    try:
+        validate_no_symlinks(file_path, user_dir)
+    except ValueError:
+        return None, (jsonify({"error": "Security violation"}), 403)
+
+    return file_path, None
+
+
+@login_required
+def thumbnail_file():
+    user_name = current_user.id.lower()
+    file_path, err = _resolve_image_file(user_name)
+    if err:
+        return err
+
+    return thumbnail_response(file_path, cache_owner=user_name)
+
+
+@login_required
+def preview_file():
+    file_path, err = _resolve_image_file(current_user.id.lower())
+    if err:
+        return err
+
+    return preview_response(file_path)
 
 
 @login_required

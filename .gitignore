@@ -20,6 +20,7 @@ dataspace/
 
 # DinD Vols
 _DATA/
+homedock-data/
 
 # Config
 homedock_server.conf

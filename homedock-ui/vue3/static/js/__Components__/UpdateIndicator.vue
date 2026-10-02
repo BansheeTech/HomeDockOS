@@ -6,7 +6,7 @@
 <template>
   <Transition name="taskbar-item">
     <div v-if="isUpdating || isCheckingUpdates" class="update-indicator-wrapper" ref="indicatorRef">
-      <div class="update-indicator" :class="[themeClasses.updateIndicatorBg, themeClasses.updateIndicatorIcon, themeClasses.updateIndicatorBgHover, themeClasses.updateIndicatorIconHover]" @click="toggleDropdown">
+      <div class="update-indicator" :class="[themeClasses.updateIndicatorBg, themeClasses.updateIndicatorIcon, themeClasses.updateIndicatorBgHover, themeClasses.updateIndicatorIconHover]" @click="toggle">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
           <rect width="24" height="24" fill="none" />
           <defs>
@@ -29,67 +29,66 @@
         </svg>
       </div>
 
-      <Transition name="dropdown">
-        <Teleport to="body">
-          <div v-if="isExpanded" class="update-dropdown border" :class="[themeClasses.updateDropdownBg, themeClasses.updateDropdownBorder, themeClasses.updateDropdownShadow]">
-            <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ isCheckingUpdates ? $t("Checking Updates") : $t("Updating Apps") }}</span>
-            </div>
+      <TrayPanel :open="isOpen" :anchor="indicatorRef" :title="isCheckingUpdates ? $t('Checking Updates') : $t('Updating Apps')" :subtitle="updateStore.queue.length ? $t('In Queue ({n})', { n: updateStore.queue.length }) : undefined" :icon="refreshIcon" icon-color="#8b5cf6" :icon-spin="isCheckingUpdates" @close="close">
+        <TraySection v-if="isCheckingUpdates">
+          <TrayRow :title="$t('Checking for updates...')" highlighted>
+            <template #leading>
+              <span class="flex items-center justify-center w-7 h-7 flex-shrink-0">
+                <Icon :icon="loadingIcon" class="w-4 h-4 text-blue-500 animate-spin" />
+              </span>
+            </template>
+          </TrayRow>
+        </TraySection>
 
-            <div v-if="isCheckingUpdates" class="update-section" :class="themeClasses.updateSectionBorder">
-              <div class="app-item" :class="themeClasses.updateAppItemUpdating">
-                <div class="spinner border-2" :class="[themeClasses.updateSpinnerBorder, themeClasses.updateSpinnerTop]"></div>
-                <span class="app-name" :class="themeClasses.updateAppName">{{ $t("Checking for updates...") }}</span>
-              </div>
-            </div>
+        <TraySection v-if="updateStore.currentlyUpdating" :title="$t('Currently Updating')">
+          <TransitionGroup name="app-switch" tag="div" class="relative">
+            <TrayRow :key="`updating-${updateStore.currentlyUpdating.name}`" :title="updateStore.currentlyUpdating.display_name" highlighted>
+              <template #leading>
+                <AppIconGraphic :image-src="updateStore.currentlyUpdating.image_path || `docker-icons/${updateStore.currentlyUpdating.name}.jpg`" :size="28" />
+              </template>
+              <template #trailing>
+                <Icon :icon="loadingIcon" class="w-4 h-4 flex-shrink-0 mr-1 text-blue-500 animate-spin" />
+              </template>
+            </TrayRow>
+          </TransitionGroup>
+        </TraySection>
 
-            <div v-if="updateStore.currentlyUpdating" class="update-section" :class="themeClasses.updateSectionBorder">
-              <div class="section-label" :class="themeClasses.updateSectionLabel">{{ $t("Currently Updating") }}</div>
-              <TransitionGroup name="app-switch" tag="div">
-                <div class="app-item" :class="themeClasses.updateAppItemUpdating" :key="`updating-${updateStore.currentlyUpdating.name}`">
-                  <BaseImage :key="`img-updating-${updateStore.currentlyUpdating.name}`" :src="updateStore.currentlyUpdating.image_path || `docker-icons/${updateStore.currentlyUpdating.name}.jpg`" class="app-icon rounded-md" alt="" draggable="false" />
-                  <span class="app-name" :class="themeClasses.updateAppName">{{ updateStore.currentlyUpdating.display_name }}</span>
-                  <div class="spinner border-2" :class="[themeClasses.updateSpinnerBorder, themeClasses.updateSpinnerTop]"></div>
-                </div>
-              </TransitionGroup>
-            </div>
-
-            <div v-if="updateStore.queue.length > 0" class="update-section" :class="themeClasses.updateSectionBorder">
-              <div class="section-label" :class="themeClasses.updateSectionLabel">{{ $t("In Queue") }} ({{ updateStore.queue.length }})</div>
-              <div class="app-list">
-                <TransitionGroup name="queue-item" tag="div">
-                  <div v-for="(appInfo, index) in visibleQueue" :key="`queue-${appInfo.name}`" class="app-item" :class="[themeClasses.updateAppItemBg, themeClasses.updateAppItemBgHover]">
-                    <BaseImage :key="`img-queue-${index}-${appInfo.name}`" :src="appInfo.image_path || `docker-icons/${appInfo.name}.jpg`" class="app-icon rounded-md" alt="" draggable="false" />
-                    <span class="app-name" :class="themeClasses.updateAppName">{{ appInfo.display_name }}</span>
-                  </div>
-                </TransitionGroup>
-                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.updateMoreApps">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
-              </div>
-            </div>
-          </div>
-        </Teleport>
-      </Transition>
+        <TraySection v-if="updateStore.queue.length > 0" :title="$t('Queued')">
+          <TransitionGroup name="queue-item" tag="div" class="relative">
+            <TrayRow v-for="appInfo in visibleQueue" :key="`queue-${appInfo.name}`" :title="appInfo.display_name">
+              <template #leading>
+                <AppIconGraphic :image-src="appInfo.image_path || `docker-icons/${appInfo.name}.jpg`" :size="28" />
+              </template>
+            </TrayRow>
+          </TransitionGroup>
+          <p v-if="remainingCount > 0" :class="[themeClasses.storeCardSubtitle]" class="m-0 px-1.5 pt-1 text-[11px]">{{ $t("And {n} more...", { n: remainingCount }) }}</p>
+        </TraySection>
+      </TrayPanel>
     </div>
   </Transition>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed } from "vue";
 
 import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useTrayPanel } from "../__Composables__/useTrayManager";
 
-import BaseImage from "./BaseImage.vue";
+import { Icon } from "@iconify/vue";
+import refreshIcon from "@iconify-icons/mdi/refresh";
+import loadingIcon from "@iconify-icons/mdi/loading";
+
+import AppIconGraphic from "./AppIconGraphic.vue";
+import TrayPanel from "./TrayPanel.vue";
+import TraySection from "./TraySection.vue";
+import TrayRow from "./TrayRow.vue";
 
 const updateStore = useAppUpdateStore();
 const { themeClasses } = useTheme();
-const trayManager = useTrayManager();
-
-const TRAY_ID = "update-indicator";
+const { isOpen, toggle, close } = useTrayPanel("update-indicator");
 
 const indicatorRef = ref<HTMLElement | null>(null);
-const isExpanded = ref(false);
 
 const MAX_VISIBLE = 3;
 
@@ -110,45 +109,6 @@ const remainingCount = computed(() => {
   const maxToShow = updateStore.currentlyUpdating ? MAX_VISIBLE - 1 : MAX_VISIBLE;
   return Math.max(0, updateStore.queue.length - maxToShow);
 });
-
-function toggleDropdown(e: MouseEvent) {
-  e.stopPropagation();
-  if (!isExpanded.value) {
-    trayManager.openTray(TRAY_ID);
-    isExpanded.value = true;
-  } else {
-    trayManager.closeTray(TRAY_ID);
-    isExpanded.value = false;
-  }
-}
-
-function closeDropdown() {
-  trayManager.closeTray(TRAY_ID);
-  isExpanded.value = false;
-}
-
-function handleClickOutside(event: MouseEvent) {
-  if (indicatorRef.value && !indicatorRef.value.contains(event.target as Node)) {
-    closeDropdown();
-  }
-}
-
-watch(
-  () => trayManager.activeTrayId.value,
-  (newTrayId) => {
-    if (newTrayId !== TRAY_ID && isExpanded.value) {
-      isExpanded.value = false;
-    }
-  }
-);
-
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
 </script>
 
 <style scoped>
@@ -166,108 +126,6 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: all 0.15s ease;
   cursor: pointer;
-}
-
-.update-dropdown {
-  position: fixed;
-  right: 1rem;
-  left: auto;
-  bottom: 4rem;
-  border-radius: 12px;
-  width: 280px;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 0.75rem 0.875rem;
-}
-
-.dropdown-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.update-section {
-  padding: 0.75rem 0.875rem;
-}
-
-.update-section:last-child {
-  border-bottom: none;
-}
-
-.section-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 0.5rem;
-}
-
-.app-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.app-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem;
-  border-radius: 6px;
-  transition: background 0.15s ease;
-}
-
-.app-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.app-name {
-  font-size: 0.75rem;
-  font-weight: 500;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.spinner {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.more-apps {
-  font-size: 0.7rem;
-  text-align: center;
-  padding: 0.25rem;
-  font-style: italic;
-}
-
-/* Dropdown Animation */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 
 /* Taskbar item transitions */

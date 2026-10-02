@@ -6,7 +6,7 @@
 <template>
   <Transition name="taskbar-item">
     <div v-if="!online" class="network-offline-wrapper" ref="indicatorRef">
-      <div class="network-offline-indicator" :class="[themeClasses.networkIndicatorBg, themeClasses.networkIndicatorIcon, themeClasses.networkIndicatorBgHover, themeClasses.networkIndicatorIconHover]" @click="toggleDropdown">
+      <div class="network-offline-indicator" :class="[themeClasses.networkIndicatorBg, themeClasses.networkIndicatorIcon, themeClasses.networkIndicatorBgHover, themeClasses.networkIndicatorIconHover]" @click="toggle">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
           <rect width="24" height="24" fill="none" />
           <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
@@ -23,58 +23,36 @@
         </svg>
       </div>
 
-      <Transition name="dropdown">
-        <div v-if="isExpanded" class="network-dropdown border" :class="[themeClasses.networkDropdownBg, themeClasses.networkDropdownBorder, themeClasses.networkDropdownShadow]">
-          <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-            <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Connection Status") }}</span>
+      <TrayPanel :open="isOpen" :anchor="indicatorRef" :title="$t('Connection Status')" :subtitle="lastOnlineTime ? `${$t('Last online')}: ${formatTime(lastOnlineTime)}` : undefined" :icon="wifiOffIcon" icon-color="#ef4444" @close="close">
+        <div class="px-1.5 pt-1 space-y-2.5">
+          <div :class="[themeClasses.storeInfoBar]" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border">
+            <span class="relative flex w-2.5 h-2.5 flex-shrink-0">
+              <span class="absolute inset-0 rounded-full bg-red-500 opacity-60 animate-ping"></span>
+              <span class="relative w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            </span>
+            <span :class="[themeClasses.storeCardSubtitle]" class="flex-1 min-w-0 text-xs truncate">{{ $t("Network Status") }}</span>
+            <span class="flex-shrink-0 text-xs font-semibold text-red-500">{{ $t("Disconnected") }}</span>
           </div>
-
-          <div class="network-section" :class="themeClasses.networkSectionBorder">
-            <div class="status-item" :class="themeClasses.networkStatusItem">
-              <Icon :icon="connectionIcon" class="status-icon" :class="themeClasses.networkStatusIconOffline" width="20" height="20" />
-              <div class="status-info">
-                <span class="status-label" :class="themeClasses.networkStatusLabel">{{ $t("Network Status") }}</span>
-                <span class="status-value offline" :class="themeClasses.networkStatusOffline">{{ $t("Disconnected") }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="network-section" :class="themeClasses.networkSectionBorder">
-            <div class="help-text" :class="themeClasses.networkHelpText">
-              <Icon :icon="infoIcon" class="help-icon" width="16" height="16" />
-              <span>{{ $t("Unable to communicate with HomeDock OS. Please check your internet connection.") }}</span>
-            </div>
-          </div>
-
-          <div v-if="lastOnlineTime" class="network-section">
-            <div class="time-info" :class="themeClasses.networkTimeInfo">
-              <Icon :icon="clockIcon" class="time-icon" width="14" height="14" />
-              <span class="time-text">{{ $t("Last online") }}: {{ formatTime(lastOnlineTime) }}</span>
-            </div>
-          </div>
+          <p :class="[themeClasses.storeCardSubtitle]" class="m-0 px-1 pb-1 text-xs leading-relaxed">{{ $t("Unable to communicate with HomeDock OS. Please check your internet connection.") }}</p>
         </div>
-      </Transition>
+      </TrayPanel>
     </div>
   </Transition>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useTrayPanel } from "../__Composables__/useTrayManager";
 
-import { Icon } from "@iconify/vue";
-import connectionIcon from "@iconify-icons/mdi/connection";
-import infoIcon from "@iconify-icons/mdi/information-outline";
-import clockIcon from "@iconify-icons/mdi/clock-outline";
+import wifiOffIcon from "@iconify-icons/mdi/wifi-off";
+
+import TrayPanel from "./TrayPanel.vue";
 
 const { themeClasses } = useTheme();
-const trayManager = useTrayManager();
-
-const TRAY_ID = "network-offline-tray";
+const { isOpen, toggle, close } = useTrayPanel("network-offline-tray");
 
 const indicatorRef = ref<HTMLElement | null>(null);
-const isExpanded = ref(false);
 const online = ref(navigator.onLine);
 const lastOnlineTime = ref<Date | null>(null);
 
@@ -83,7 +61,7 @@ function updateOnlineStatus() {
   online.value = navigator.onLine;
 
   if (wasOffline && online.value) {
-    isExpanded.value = false;
+    close();
   } else if (!online.value && !lastOnlineTime.value) {
     lastOnlineTime.value = new Date();
   } else if (online.value) {
@@ -101,41 +79,9 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString();
 }
 
-function toggleDropdown(e: MouseEvent) {
-  e.stopPropagation();
-  if (!isExpanded.value) {
-    trayManager.openTray(TRAY_ID);
-    isExpanded.value = true;
-  } else {
-    trayManager.closeTray(TRAY_ID);
-    isExpanded.value = false;
-  }
-}
-
-function closeDropdown() {
-  trayManager.closeTray(TRAY_ID);
-  isExpanded.value = false;
-}
-
-function handleClickOutside(event: MouseEvent) {
-  if (indicatorRef.value && !indicatorRef.value.contains(event.target as Node)) {
-    closeDropdown();
-  }
-}
-
-watch(
-  () => trayManager.activeTrayId.value,
-  (newTrayId) => {
-    if (newTrayId !== TRAY_ID && isExpanded.value) {
-      isExpanded.value = false;
-    }
-  }
-);
-
 onMounted(() => {
   window.addEventListener("online", updateOnlineStatus);
   window.addEventListener("offline", updateOnlineStatus);
-  document.addEventListener("click", handleClickOutside);
 
   if (!online.value) {
     lastOnlineTime.value = new Date();
@@ -145,7 +91,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("online", updateOnlineStatus);
   window.removeEventListener("offline", updateOnlineStatus);
-  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -164,113 +109,6 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: all 0.15s ease;
   cursor: pointer;
-}
-
-.network-dropdown {
-  position: fixed;
-  right: 1rem;
-  left: auto;
-  bottom: 4rem;
-  border-radius: 12px;
-  width: 280px;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 0.75rem 0.875rem;
-}
-
-.dropdown-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.network-section {
-  padding: 0.75rem 0.875rem;
-}
-
-.network-section:last-child {
-  border-bottom: none;
-}
-
-.status-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-}
-
-.status-icon {
-  flex-shrink: 0;
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  flex: 1;
-}
-
-.status-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.7;
-}
-
-.status-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.help-text {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  padding: 0.5rem;
-  border-radius: 6px;
-}
-
-.help-icon {
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-  opacity: 0.7;
-}
-
-.time-info {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.625rem;
-  opacity: 0.6;
-  padding: 0.25rem 0.5rem;
-}
-
-.time-icon {
-  flex-shrink: 0;
-}
-
-.time-text {
-  font-style: italic;
-}
-
-/* Dropdown Animation */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 
 /* Taskbar item transitions */

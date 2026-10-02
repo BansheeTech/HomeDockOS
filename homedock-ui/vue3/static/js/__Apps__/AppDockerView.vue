@@ -5,52 +5,52 @@
 
 <template>
   <div class="app-docker-view flex flex-col h-full overflow-hidden">
-    <div v-if="blocker" class="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-      <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="w-14 h-14 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
-      <div class="flex flex-col gap-1.5">
-        <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ blockerTitle }}</p>
-        <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-md leading-relaxed">{{ blockerBody }}</p>
+    <Transition mode="out-in" enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 translate-y-1.5 scale-[0.98]" leave-active-class="transition duration-200 ease-in" leave-to-class="opacity-0">
+      <div v-if="blocker" class="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <AppIconGraphic :image-src="appIcon" :size="56" />
+        <div class="flex flex-col gap-1.5">
+          <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ blockerTitle }}</p>
+          <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-md leading-relaxed">{{ blockerBody }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button v-if="blocker === 'wrong_host' && blockerAlternative" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="goToAlternative">
+            {{ $t("Go to {domain}", { domain: blockerAlternative }) }}
+          </button>
+          <button v-else :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker = null">
+            {{ $t("Try anyway") }}
+          </button>
+          <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker === 'untrusted' ? openInNewTab() : openPortInNewTab()">
+            {{ $t("Open in a new tab") }}
+          </button>
+          <a href="https://docs.homedock.cloud/homedock-os/desktop/#on-screen-apps" target="_blank" rel="noopener noreferrer" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors">
+            {{ $t("Learn more") }}
+          </a>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button v-if="blocker === 'wrong_host' && blockerAlternative" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="goToAlternative">
-          {{ $t("Go to {domain}", { domain: blockerAlternative }) }}
-        </button>
-        <button v-else :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker = null">
-          {{ $t("Try anyway") }}
-        </button>
-        <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker === 'untrusted' ? openInNewTab() : openPortInNewTab()">
+
+      <OnScreenAppProxyNotice v-else-if="proxyRejected" :display-name="displayName" :icon="appIcon" :can-open-externally="!!serviceUrl" @open-external="openPortInNewTab" />
+
+      <div v-else-if="errorMessage" class="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <AppIconGraphic :image-src="appIcon" :size="56" />
+        <div class="flex flex-col gap-1">
+          <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ displayName }}</p>
+          <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-sm">{{ errorMessage }}</p>
+        </div>
+        <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="openInNewTab">
           {{ $t("Open in a new tab") }}
         </button>
-        <a href="https://docs.homedock.cloud/homedock-os/desktop/#on-screen-apps" target="_blank" rel="noopener noreferrer" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors">
-          {{ $t("Learn more") }}
-        </a>
       </div>
-    </div>
 
-    <div v-else-if="errorMessage" class="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-      <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="w-14 h-14 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
-      <div class="flex flex-col gap-1">
-        <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ displayName }}</p>
-        <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-sm">{{ errorMessage }}</p>
+      <div v-else class="relative flex-1 min-h-0">
+        <OnScreenAppsBackdrop v-if="frameReady" />
+
+        <iframe v-if="appUrl || !appPort" :src="appUrl ?? 'about:blank'" :title="displayName" class="absolute inset-0 w-full h-full border-0" :class="frameReady ? 'opacity-100' : 'opacity-0 pointer-events-none'" allow="clipboard-read; clipboard-write; fullscreen; autoplay; camera; microphone; display-capture" @load="onFrameLoad" />
+
+        <OnScreenAppsLoader v-if="appPort && !loaderGone" class="absolute inset-0 transition-opacity duration-500 ease-out" :class="frameReady ? 'opacity-0 pointer-events-none' : 'opacity-100'" :port="appPort" :subpath="''" :slug="app?.slug || appName" :display-name="displayName" :icon="appIcon" :can-open-externally="!!serviceUrl" @ready="onLoaderReady" @failed="loaderFailed = $event" @proxy-rejected="proxyRejected = true" @open-external="openInNewTab" />
       </div>
-      <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="openInNewTab">
-        {{ $t("Open in a new tab") }}
-      </button>
-    </div>
-
-    <div v-else class="relative flex-1 min-h-0">
-      <OnScreenAppsBackdrop v-if="frameReady" />
-
-      <iframe v-if="appUrl || !appPort" :src="appUrl ?? 'about:blank'" :title="displayName" class="absolute inset-0 w-full h-full border-0" :class="frameReady ? 'opacity-100' : 'opacity-0 pointer-events-none'" allow="clipboard-read; clipboard-write; fullscreen; autoplay; camera; microphone; display-capture" @load="onFrameLoad" />
-
-      <OnScreenAppsLoader v-if="appPort && !loaderGone" class="absolute inset-0 transition-opacity duration-500 ease-out" :class="frameReady ? 'opacity-0 pointer-events-none' : 'opacity-100'" :port="appPort" :subpath="''" :slug="app?.slug || appName" :display-name="displayName" :icon="appIcon" :can-open-externally="!!serviceUrl" @ready="onLoaderReady" @failed="loaderFailed = $event" @open-external="openInNewTab" />
-    </div>
+    </Transition>
 
     <StatusBar :message="displayName" :info="frameHost || undefined" :loading="barLoading" :error="barError" :showHelp="true">
-      <template #icon>
-        <BaseImage draggable="false" :src="appIcon" alt="" class="w-3.5 h-3.5 flex-shrink-0 rounded-[3px]" />
-      </template>
-
       <template #extra>
         <div class="flex items-center gap-1">
           <button :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" :title="$t('Properties')" @click="openProperties">
@@ -62,6 +62,9 @@
           <button :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" :title="$t('Logs')" @click="openLogs">
             <Icon :icon="logsIcon" class="w-3.5 h-3.5 opacity-60 hover:opacity-100 transition-opacity" />
           </button>
+          <button :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" :title="$t('Terminal')" @click="openTerminal">
+            <Icon :icon="terminalIcon" class="w-3.5 h-3.5 opacity-60 hover:opacity-100 transition-opacity" />
+          </button>
           <button v-if="serviceUrl" :class="['flex items-center justify-center w-5 h-5 rounded-full transition-colors cursor-pointer border-0 bg-transparent', themeClasses.statusBarHelpButton]" :title="$t('Open in a new tab')" @click="openInNewTab">
             <Icon :icon="newTabIcon" class="w-3.5 h-3.5 opacity-60 hover:opacity-100 transition-opacity" />
           </button>
@@ -71,7 +74,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <BaseImage draggable="false" :src="appIcon" alt="" class="w-5 h-5 rounded-[4px]" />
+            <StatusBarHelpIcon />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ displayName }}</h4>
           </div>
 
@@ -98,13 +101,16 @@ import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
 import logsIcon from "@iconify-icons/mdi/script-text";
+import terminalIcon from "@iconify-icons/mdi/console-line";
 import newTabIcon from "@iconify-icons/mdi/open-in-new";
 import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import OnScreenAppsLoader from "../__Components__/OnScreenAppsLoader.vue";
 import OnScreenAppsBackdrop from "../__Components__/OnScreenAppsBackdrop.vue";
+import OnScreenAppProxyNotice from "../__Components__/OnScreenAppProxyNotice.vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
@@ -140,6 +146,7 @@ const loaderFailed = ref(false);
 const blocker = ref<SubdomainBlocker | null>(null);
 const blockerAlternative = ref<string | null>(null);
 const hasAppDrive = ref(false);
+const proxyRejected = ref(false);
 
 // HDOS00105
 const appUrl = ref<string | null>(null);
@@ -203,7 +210,7 @@ const onLoaderReady = (url: string) => {
   frameTimer = setTimeout(revealFrame, FRAME_LOAD_TIMEOUT);
 };
 
-const barError = computed(() => Boolean(loaderFailed.value || errorMessage.value || blocker.value));
+const barError = computed(() => Boolean(loaderFailed.value || errorMessage.value || blocker.value || proxyRejected.value));
 
 const barLoading = computed(() => !frameHost.value && !barError.value);
 
@@ -305,6 +312,17 @@ const openLogs = () => {
 
   windowStore.openUniqueWindow("logs", appName.value, {
     title: `${displayName.value} - ${t("Logs")}`,
+    icon: app.value?.image_path || undefined,
+    data: { appName: appName.value },
+  });
+};
+
+const openTerminal = () => {
+  if (!appName.value) return;
+
+  windowStore.openUniqueWindow("terminal", appName.value, {
+    title: `${displayName.value} - ${t("Terminal")}`,
+    icon: app.value?.image_path || undefined,
     data: { appName: appName.value },
   });
 };
@@ -344,7 +362,7 @@ onMounted(async () => {
   loadAppDrive();
 
   if (app.value?.slug && (await probeSubdomainReachable(app.value.slug)) === false) {
-    const diagnosis = await diagnoseSubdomainBlocker();
+    const diagnosis = await diagnoseSubdomainBlocker(csrfToken.value);
     blocker.value = diagnosis.blocker;
     blockerAlternative.value = diagnosis.alternative;
   }

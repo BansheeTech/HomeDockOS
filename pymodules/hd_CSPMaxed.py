@@ -22,7 +22,7 @@ def generate_csp(nonce, is_development, endpoint=""):
         "style-src 'self' 'unsafe-inline' ;"
         "form-action 'self' ;"
         "media-src 'self' blob: ;"
-        "img-src 'self' cdn.homedock.cloud data: ;"
+        "img-src 'self' cdn.homedock.cloud data: blob: ;"
         "base-uri 'self' ;"
         "object-src 'none' ;"
         "font-src 'self' ;"
@@ -31,7 +31,7 @@ def generate_csp(nonce, is_development, endpoint=""):
     # fmt: on
 
     if is_development:
-        csp = csp.replace("script-src 'self' 'nonce-{{nonceMarker}}'", "script-src 'self' http://localhost:5173 'unsafe-eval' ")
+        csp = csp.replace("script-src 'self' 'nonce-{{nonceMarker}}'", "script-src 'self' 'nonce-{{nonceMarker}}' http://localhost:5173 'unsafe-eval' ")
         csp = csp.replace("style-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' http://localhost:5173 ")
         # HDOS00003
         csp = csp.replace("connect-src 'self'", "connect-src 'self' ws://localhost:5173 http://localhost:5173 ")

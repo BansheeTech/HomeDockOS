@@ -49,8 +49,9 @@ def check_port_availability(port):
                 except requests.exceptions.SSLError:
                     response = requests.get(url, timeout=2, allow_redirects=True, stream=True, headers=headers, verify=False)
 
-                if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
-                    return True
+                with response:
+                    if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
+                        return True
 
         except requests.RequestException:
             continue

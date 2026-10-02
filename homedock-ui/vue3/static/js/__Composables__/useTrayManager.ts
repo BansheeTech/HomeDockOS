@@ -3,7 +3,7 @@
 // See LICENSE.md or https://polyformproject.org/licenses/strict/1.0.0/
 // https://www.banshee.pro
 
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const activeTrayId = ref<string | null>(null);
 
@@ -52,4 +52,32 @@ export function useTrayManager() {
     getActiveTrayId,
     activeTrayId,
   };
+}
+
+export function useTrayPanel(trayId: string | (() => string)) {
+  const trayManager = useTrayManager();
+  const isOpen = ref(false);
+  const resolveId = () => (typeof trayId === "function" ? trayId() : trayId);
+
+  const open = () => {
+    trayManager.openTray(resolveId());
+    isOpen.value = true;
+  };
+
+  const close = () => {
+    trayManager.closeTray(resolveId());
+    isOpen.value = false;
+  };
+
+  const toggle = (event?: Event) => {
+    event?.stopPropagation();
+    if (isOpen.value) close();
+    else open();
+  };
+
+  watch(activeTrayId, (active) => {
+    if (active !== resolveId() && isOpen.value) isOpen.value = false;
+  });
+
+  return { isOpen, open, close, toggle };
 }

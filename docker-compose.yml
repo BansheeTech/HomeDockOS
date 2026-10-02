@@ -6,14 +6,14 @@ services:
     restart: unless-stopped
     ports:
       - "13370:80"
-      - # "13371:443" Enable for Let's Encrypt SSL
+      # - "13371:443" # Enable for Let's Encrypt SSL
     volumes:
-      - ./_DATA/DATA:/DATA
-      - ./_DATA/config:/homedock/config
-      - ./_DATA/compose:/homedock/compose-link
-      - ./_DATA/packages:/homedock/_user_packages
-      - ./_DATA/dropzone:/homedock/dropzone
-      - ./_DATA/logs:/homedock/logs
+      - ./homedock-data/DATA:/DATA
+      - ./homedock-data/config:/homedock/config
+      - ./homedock-data/compose:/homedock/compose-link
+      - ./homedock-data/packages:/homedock/_user_packages
+      - ./homedock-data/dropzone:/homedock/dropzone
+      - ./homedock-data/logs:/homedock/logs
       - /var/run/docker.sock:/var/run/docker.sock
     extra_hosts:
       - "host.docker.internal:host-gateway"

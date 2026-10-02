@@ -48,12 +48,14 @@ def extract_ports_from_yml(yml_content: str) -> List[int]:
 
 
 def is_port_in_use_system(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind(("0.0.0.0", port))
-            return False
-        except socket.error:
-            return True
+    for host in ("0.0.0.0", "127.0.0.1"):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind((host, port))
+            except socket.error:
+                return True
+    return False
 
 
 def get_container_using_port(port: int, exclude_container_name: Optional[str] = None) -> Optional[str]:

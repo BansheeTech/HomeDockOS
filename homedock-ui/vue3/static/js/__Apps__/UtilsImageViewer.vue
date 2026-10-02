@@ -25,10 +25,28 @@
 
       <div class="flex-1"></div>
 
-      <div v-if="imageInfo" :class="['text-xs opacity-60', themeClasses.windowText]">{{ imageInfo.width }} × {{ imageInfo.height }} · {{ formatFileSize(imageInfo.size) }}</div>
+      <Transition name="drop-fade">
+        <button v-if="droppedFile" type="button" :disabled="saveState !== 'idle'" :title="$t('Save to Photos')" :aria-label="$t('Save to Photos')" :class="saveState === 'saved' ? themeClasses.storeCardInstalledPill : themeClasses.storeCardGetPill" class="drop-save-button flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full border-0 text-xs font-semibold cursor-pointer flex-shrink-0 transition-colors duration-150 disabled:cursor-default" @click="saveDroppedImage">
+          <Icon :icon="saveState === 'saving' ? loadingIcon : saveState === 'saved' ? checkIcon : saveIcon" :class="saveState === 'saving' ? 'animate-spin' : ''" class="w-3.5 h-3.5 flex-shrink-0" />
+          <span class="drop-save-label">{{ saveState === "saved" ? $t("Saved") : $t("Save to Photos") }}</span>
+        </button>
+      </Transition>
+
+      <div v-if="imageInfo" :class="['media-meta text-xs opacity-60 tabular-nums', themeClasses.windowText]">
+        <span>{{ imageInfo.width }} × {{ imageInfo.height }}</span>
+        <span class="media-meta-separator"> · </span>
+        <span>{{ formatFileSize(imageInfo.size) }}</span>
+      </div>
     </div>
 
-    <div ref="containerRef" class="flex-1 overflow-hidden relative" :class="themeClasses.imageViewerBg" @wheel.prevent="handleWheel" @mousedown="startPan" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchEnd">
+    <div ref="containerRef" class="flex-1 overflow-hidden relative" :class="themeClasses.imageViewerBg" @wheel.prevent="handleWheel" @mousedown="startPan" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchEnd" @dragenter.prevent.stop="onDragEnter" @dragover.prevent.stop="onDragOver" @dragleave.stop="onDragLeave" @drop.prevent.stop="onDrop">
+      <Transition name="drop-fade">
+        <div v-if="isDragOver" class="absolute inset-3 z-10 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-500 bg-blue-500/10 pointer-events-none">
+          <Icon :icon="imageIcon" class="w-10 h-10 text-blue-500" />
+          <span class="text-sm font-semibold text-blue-500">{{ $t("Drop to open") }}</span>
+        </div>
+      </Transition>
+
       <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <Icon :icon="loadingIcon" class="w-8 h-8 animate-spin" :class="themeClasses.windowTextMuted" />
@@ -53,6 +71,11 @@
           </div>
           <h3 :class="['text-lg font-medium', themeClasses.windowText]">{{ $t("No Image") }}</h3>
           <p :class="['text-sm max-w-xs', themeClasses.windowTextMuted]">{{ $t("Open an image file to view it here.") }}</p>
+          <button type="button" :class="[themeClasses.storeCardGetPill]" class="flex items-center gap-1.5 h-8 mt-1 px-4 rounded-full border-0 text-xs font-semibold cursor-pointer transition-colors duration-150" @mousedown.stop @click="browsePhotos">
+            <Icon :icon="folderImageIcon" class="w-4 h-4" />
+            {{ $t("Browse Photos") }}
+          </button>
+          <span :class="['text-xs', themeClasses.windowTextMuted]">{{ $t("or drop an image here") }}</span>
         </div>
       </div>
 
@@ -84,7 +107,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="imageIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="imageIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Image Viewer") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -114,12 +137,19 @@
 import axios from "axios";
 
 import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
+import { THUMBNAIL_EXTENSIONS } from "../__Composables__/useThumbnails";
+import { uploadToStorage, uniqueStorageName } from "../__Utils__/StorageUpload";
+
+import { message } from "ant-design-vue";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useWindowStore } from "../__Stores__/windowStore";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 
 import { Icon } from "@iconify/vue";
 import imageIcon from "@iconify-icons/mdi/image-outline";
@@ -131,8 +161,12 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 import alertIcon from "@iconify-icons/mdi/alert-circle-outline";
 import fileImageIcon from "@iconify-icons/mdi/file-image-outline";
 import shieldCheckIcon from "@iconify-icons/mdi/shield-check-outline";
+import folderImageIcon from "@iconify-icons/mdi/folder-image";
+import saveIcon from "@iconify-icons/mdi/content-save-outline";
+import checkIcon from "@iconify-icons/mdi/check";
 
 const { themeClasses } = useTheme();
+const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
 
@@ -146,6 +180,7 @@ interface ExternalFile {
 interface ImageFile {
   name: string;
   extension: string;
+  format?: string;
   buffer: ArrayBuffer;
 }
 
@@ -184,6 +219,92 @@ const lastTouchPanX = ref(0);
 const lastTouchPanY = ref(0);
 
 const imageInfo = ref<{ width: number; height: number; size: number } | null>(null);
+
+const PHOTOS_FOLDER = "Photos";
+const DROPPABLE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico", "tif", "tiff"]);
+
+const isDragOver = ref(false);
+let dragDepth = 0;
+
+function hasDraggedFiles(event: DragEvent): boolean {
+  return Boolean(event.dataTransfer?.types.includes("Files"));
+}
+
+function onDragEnter(event: DragEvent) {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth++;
+  isDragOver.value = true;
+}
+
+function onDragOver(event: DragEvent) {
+  if (!hasDraggedFiles(event) || !event.dataTransfer) return;
+  event.dataTransfer.dropEffect = "copy";
+}
+
+function onDragLeave(event: DragEvent) {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) isDragOver.value = false;
+}
+
+async function onDrop(event: DragEvent) {
+  dragDepth = 0;
+  isDragOver.value = false;
+
+  const file = Array.from(event.dataTransfer?.files ?? []).find((candidate) => candidate.type.startsWith("image/") || THUMBNAIL_EXTENSIONS.has(getFileExtension(candidate.name)));
+  if (!file) return;
+
+  const extension = getFileExtension(file.name);
+  if (!DROPPABLE_EXTENSIONS.has(extension)) {
+    droppedFile.value = null;
+    imageSrc.value = null;
+    imageInfo.value = null;
+    isValidated.value = false;
+    fileName.value = file.name;
+    updateWindowTitle(file.name);
+    error.value = t("{format} images can't be opened by dropping them here. Open them from File Explorer instead.", { format: (extension || "?").toUpperCase() });
+    return;
+  }
+
+  loadFromBuffer({ name: file.name, extension, buffer: await file.arrayBuffer() });
+  if (isValidated.value) droppedFile.value = file;
+}
+
+const SAVED_FEEDBACK_MS = 2000;
+
+const droppedFile = ref<File | null>(null);
+const saveState = ref<"idle" | "saving" | "saved">("idle");
+
+watch(droppedFile, () => {
+  saveState.value = "idle";
+});
+
+async function saveDroppedImage() {
+  const file = droppedFile.value;
+  if (!file || saveState.value !== "idle") return;
+
+  saveState.value = "saving";
+  try {
+    const name = await uniqueStorageName(PHOTOS_FOLDER, file.name, csrfToken.value);
+    await uploadToStorage(file, name, PHOTOS_FOLDER, csrfToken.value);
+    if (droppedFile.value !== file) return;
+    saveState.value = "saved";
+    message.success(t("Saved to Storage/Photos/{filename}", { filename: name }));
+    setTimeout(() => {
+      if (droppedFile.value === file) droppedFile.value = null;
+    }, SAVED_FEEDBACK_MS);
+  } catch (err) {
+    console.error("Failed to save image:", err);
+    if (droppedFile.value === file) saveState.value = "idle";
+    message.error(t("Failed to save image"));
+  }
+}
+
+function browsePhotos() {
+  windowStore.openFileInApp("fileexplorer", {
+    data: { initialLocation: "storage", initialPath: PHOTOS_FOLDER },
+  });
+}
 
 function detectImageType(buffer: ArrayBuffer): string | null {
   const bytes = new Uint8Array(buffer);
@@ -256,6 +377,7 @@ function arrayBufferToDataUrl(buffer: ArrayBuffer, mimeType: string): string {
 }
 
 async function loadImage(extFile: ExternalFile) {
+  droppedFile.value = null;
   isLoading.value = true;
   error.value = null;
   isValidated.value = false;
@@ -333,6 +455,7 @@ async function loadImage(extFile: ExternalFile) {
 }
 
 function loadFromBuffer(imgFile: ImageFile) {
+  droppedFile.value = null;
   isLoading.value = true;
   error.value = null;
   isValidated.value = false;
@@ -369,7 +492,7 @@ function loadFromBuffer(imgFile: ImageFile) {
 
     const mimeType = MIME_TYPES[detectedType];
     imageSrc.value = arrayBufferToDataUrl(fileBuffer, mimeType);
-    imageType.value = detectedType.toUpperCase();
+    imageType.value = (imgFile.format || detectedType).toUpperCase();
     isValidated.value = true;
     imageInfo.value = { width: 0, height: 0, size: fileBuffer.byteLength };
   } catch (err: any) {
@@ -550,7 +673,7 @@ watch(
       loadImage(extFile);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -561,7 +684,7 @@ watch(
       loadFromBuffer(imgFile);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function handleIncomingFile(event: CustomEvent) {
@@ -600,5 +723,41 @@ onUnmounted(() => {
 .image-viewer {
   user-select: none;
   touch-action: none;
+}
+
+.drop-fade-enter-active,
+.drop-fade-leave-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.drop-fade-enter-from,
+.drop-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+@container window (max-width: 520px) {
+  .drop-save-button {
+    width: 1.75rem;
+    padding: 0;
+  }
+
+  .drop-save-label {
+    display: none;
+  }
+
+  .media-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .media-meta-separator {
+    display: none;
+  }
 }
 </style>

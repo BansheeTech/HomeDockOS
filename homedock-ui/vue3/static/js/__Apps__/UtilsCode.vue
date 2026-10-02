@@ -17,15 +17,22 @@
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+N</span>
               </div>
             </MenuItem>
+            <MenuItem key="open" @click="showOpenDialog = true">
+              <div class="flex items-center gap-2">
+                <Icon :icon="folderOpenIcon" class="w-4 h-4" />
+                <span>{{ $t("Open...") }}</span>
+                <span class="ml-auto text-[10px] opacity-50">Ctrl+O</span>
+              </div>
+            </MenuItem>
             <MenuDivider />
-            <MenuItem key="save" @click="handleSave" :disabled="!activeTab?.content?.trim()">
+            <MenuItem key="save" @click="handleSave" :disabled="!hasText">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveIcon" class="w-4 h-4" />
                 <span>{{ $t("Save") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+S</span>
               </div>
             </MenuItem>
-            <MenuItem key="saveas" @click="openSaveAsDialog" :disabled="!activeTab?.content?.trim()">
+            <MenuItem key="saveas" @click="openSaveAsDialog" :disabled="!hasText">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveEditIcon" class="w-4 h-4" />
                 <span>{{ $t("Save As...") }}</span>
@@ -148,11 +155,8 @@
       </Transition>
 
       <!-- Editor -->
-      <div class="relative w-full h-full">
-        <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap overflow-x-hidden' : 'whitespace-pre overflow-x-auto', 'code-active']" class="w-full h-full resize-none p-3 font-mono leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" @scroll="syncCodeScroll" spellcheck="false"></textarea>
-        <div v-if="activeTabContent" ref="codeEditorRef" class="notepad-code-overlay absolute inset-0 p-3 pointer-events-none rounded-lg border border-transparent" :class="wordWrap ? 'overflow-y-auto overflow-x-hidden' : 'overflow-auto'" :style="{ fontSize: fontSize + 'px', ...hljsCssVars }">
-          <pre class="m-0 font-mono leading-relaxed" :class="wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'"><code v-html="highlightedCode"></code></pre>
-        </div>
+      <div :class="[themeClasses.windowBorder]" class="code-surface relative w-full h-full rounded-lg border overflow-hidden" @keydown.capture="handleKeydown">
+        <CodeMirrorEditor ref="editorRef" :state-key="activeTabId" :load-state="loadState" :wrap="wordWrap" :font-size="fontSize" :language="languageExtension" monospace @update="handleEditorUpdate" />
       </div>
     </div>
 
@@ -160,7 +164,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="fileCodeIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Code") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -197,6 +201,38 @@
       </template>
     </StatusBar>
 
+    <AppDialog v-model:visible="showOpenDialog" title="Open Source" ok-text="Open" cancel-text="Cancel" :ok-disabled="!selectedSourceFilename" @ok="handleOpenSource" @cancel="showOpenDialog = false">
+      <div class="space-y-3">
+        <div class="flex items-center gap-2 pb-2 border-b" :class="themeClasses.utilityToolbarBorder">
+          <Icon :icon="sourceCodeIcon" :class="['w-4 h-4', themeClasses.windowText, 'opacity-60']" />
+          <span :class="['text-xs', themeClasses.windowText, 'opacity-60']">{{ $t("Location:") }} <strong>Storage/Sources</strong></span>
+        </div>
+        <div class="space-y-1 max-h-56 overflow-y-auto">
+          <div v-if="isLoadingSources" class="text-center py-4">
+            <Icon :icon="loadingIcon" :class="['w-6 h-6 animate-spin mx-auto', themeClasses.windowText]" />
+          </div>
+          <div v-else-if="savedSources.length === 0" :class="['text-center py-4 text-sm opacity-50', themeClasses.windowText]">{{ $t("No saved sources found") }}</div>
+          <div
+            v-else
+            v-for="source in savedSources"
+            :key="source.filename"
+            @click="selectedSourceFilename = source.filename"
+            @dblclick="
+              selectedSourceFilename = source.filename;
+              handleOpenSource();
+            "
+            :class="['flex items-center gap-3 p-2 rounded cursor-pointer transition-colors', selectedSourceFilename === source.filename ? 'bg-blue-500/20' : 'hover:bg-black/5 dark:hover:bg-white/5']"
+          >
+            <Icon :icon="fileCodeIcon" :class="['w-5 h-5 flex-shrink-0', themeClasses.windowText, 'opacity-60']" />
+            <div class="flex-1 min-w-0">
+              <div :class="['font-medium text-sm truncate font-mono', themeClasses.windowText]">{{ source.filename }}</div>
+              <div :class="['text-xs opacity-50', themeClasses.windowText]">{{ formatDate(source.modified) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AppDialog>
+
     <AppDialog v-model:visible="showSaveAsDialog" title="Save Source As" ok-text="Save" cancel-text="Cancel" @ok="handleSaveAs" @cancel="showSaveAsDialog = false">
       <div class="space-y-2">
         <input v-model="saveAsFilename" type="text" placeholder="filename.py" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none font-mono" @keyup.enter="handleSaveAs" />
@@ -231,8 +267,9 @@
 <script lang="ts" setup>
 import axios from "axios";
 
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, nextTick, markRaw, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
+import type { EditorState, Extension, Text } from "@codemirror/state";
 
 import { Dropdown, Menu, MenuItem, MenuDivider } from "ant-design-vue";
 
@@ -255,81 +292,21 @@ import cubeIcon from "@iconify-icons/mdi/cube";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
 import exitIcon from "@iconify-icons/mdi/exit-to-app";
-
-import hljs from "highlight.js/lib/core";
-import python from "highlight.js/lib/languages/python";
-import javascript from "highlight.js/lib/languages/javascript";
-import typescript from "highlight.js/lib/languages/typescript";
-import java from "highlight.js/lib/languages/java";
-import go from "highlight.js/lib/languages/go";
-import rust from "highlight.js/lib/languages/rust";
-import ruby from "highlight.js/lib/languages/ruby";
-import php from "highlight.js/lib/languages/php";
-import c from "highlight.js/lib/languages/c";
-import cpp from "highlight.js/lib/languages/cpp";
-import csharp from "highlight.js/lib/languages/csharp";
-import swift from "highlight.js/lib/languages/swift";
-import kotlin from "highlight.js/lib/languages/kotlin";
-import lua from "highlight.js/lib/languages/lua";
-import r from "highlight.js/lib/languages/r";
-import perl from "highlight.js/lib/languages/perl";
-import bash from "highlight.js/lib/languages/bash";
-import xml from "highlight.js/lib/languages/xml";
-import css from "highlight.js/lib/languages/css";
-import scss from "highlight.js/lib/languages/scss";
-import less from "highlight.js/lib/languages/less";
-import json from "highlight.js/lib/languages/json";
-import yaml from "highlight.js/lib/languages/yaml";
-import ini from "highlight.js/lib/languages/ini";
-import sql from "highlight.js/lib/languages/sql";
-import graphql from "highlight.js/lib/languages/graphql";
-import dockerfile from "highlight.js/lib/languages/dockerfile";
-import makefile from "highlight.js/lib/languages/makefile";
-import nginx from "highlight.js/lib/languages/nginx";
-import apache from "highlight.js/lib/languages/apache";
-import markdown from "highlight.js/lib/languages/markdown";
-
-hljs.registerLanguage("python", python);
-hljs.registerLanguage("javascript", javascript);
-hljs.registerLanguage("typescript", typescript);
-hljs.registerLanguage("java", java);
-hljs.registerLanguage("go", go);
-hljs.registerLanguage("rust", rust);
-hljs.registerLanguage("ruby", ruby);
-hljs.registerLanguage("php", php);
-hljs.registerLanguage("c", c);
-hljs.registerLanguage("cpp", cpp);
-hljs.registerLanguage("csharp", csharp);
-hljs.registerLanguage("swift", swift);
-hljs.registerLanguage("kotlin", kotlin);
-hljs.registerLanguage("lua", lua);
-hljs.registerLanguage("r", r);
-hljs.registerLanguage("perl", perl);
-hljs.registerLanguage("bash", bash);
-hljs.registerLanguage("xml", xml);
-hljs.registerLanguage("css", css);
-hljs.registerLanguage("scss", scss);
-hljs.registerLanguage("less", less);
-hljs.registerLanguage("json", json);
-hljs.registerLanguage("yaml", yaml);
-hljs.registerLanguage("ini", ini);
-hljs.registerLanguage("sql", sql);
-hljs.registerLanguage("graphql", graphql);
-hljs.registerLanguage("dockerfile", dockerfile);
-hljs.registerLanguage("makefile", makefile);
-hljs.registerLanguage("nginx", nginx);
-hljs.registerLanguage("apache", apache);
-hljs.registerLanguage("markdown", markdown);
+import folderOpenIcon from "@iconify-icons/mdi/folder-open";
+import loadingIcon from "@iconify-icons/mdi/loading";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
+import { useExternalFile } from "../__Composables__/useExternalFile";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
+import CodeMirrorEditor, { createEditorState, countWords, findText as findTextInDoc, replaceAllText, loadLanguage } from "../__Components__/CodeMirrorEditor.vue";
 
 import { notifyError, notifySuccess } from "../__Components__/Notifications.vue";
+import { uniqueStorageName } from "../__Utils__/StorageUpload";
 
 interface ExternalFile {
   path: string;
@@ -340,19 +317,26 @@ interface ExternalFile {
   disk?: string;
 }
 
+type TabFile = Omit<ExternalFile, "content">;
+
 interface Tab {
   id: string;
   title: string;
-  content: string;
-  originalContent: string;
+  savedDoc: Text;
   isModified: boolean;
   originalFilename: string | null;
-  externalFile: ExternalFile | null;
+  externalFile: TabFile | null;
+}
+
+interface TextFile {
+  name: string;
+  content: string;
 }
 
 interface Props {
   _windowId?: string;
   externalFile?: ExternalFile;
+  textFile?: TextFile;
   data?: {
     externalFile?: ExternalFile;
   };
@@ -363,40 +347,56 @@ const { themeClasses } = useTheme();
 const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
-const disksPlusStore = useDisksPlusStore();
+const { saveToSource } = useExternalFile();
+
+function saveDoc(target: TabFile, doc: Text) {
+  return saveToSource({ ...target, name: target.path.split("/").pop() || target.path }, new Blob([doc.toString()]), "text/plain");
+}
 
 function generateTabId(): string {
   return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-function createEmptyTab(): Tab {
-  return {
-    id: generateTabId(),
-    title: "Untitled",
-    content: "",
-    originalContent: "",
-    isModified: false,
-    originalFilename: null,
-    externalFile: null,
-  };
+const editorStates = new Map<string, EditorState>();
+
+function toTabFile({ content: _content, ...file }: ExternalFile): TabFile {
+  return file;
 }
 
-const tabs = ref<Tab[]>([createEmptyTab()]);
+function createTab(text: string, fields: Partial<Omit<Tab, "id" | "savedDoc">> = {}): Tab {
+  const state = createEditorState(text);
+  const tab: Tab = { id: generateTabId(), title: "Untitled", isModified: false, originalFilename: null, externalFile: null, ...fields, savedDoc: markRaw(state.doc) };
+  editorStates.set(tab.id, state);
+  return tab;
+}
+
+function createInitialTab(): Tab {
+  const extFile = props.externalFile || props.data?.externalFile;
+  if (extFile) return createTab(extFile.content, { title: extFile.path.split("/").pop() || "File", externalFile: toTabFile(extFile) });
+  if (props.textFile) return createTab(props.textFile.content, { title: props.textFile.name });
+  return createTab("");
+}
+
+const tabs = ref<Tab[]>([createInitialTab()]);
 const activeTabId = ref(tabs.value[0].id);
 
 const activeTab = computed(() => tabs.value.find((t) => t.id === activeTabId.value) || tabs.value[0]);
 
-const activeTabContent = computed({
-  get: () => activeTab.value?.content || "",
-  set: (value: string) => {
-    const tab = tabs.value.find((t) => t.id === activeTabId.value);
-    if (tab) {
-      tab.content = value;
-    }
-  },
-});
+function loadState(tabId: string): EditorState {
+  return editorStates.get(tabId)!;
+}
 
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
+function tabDoc(tab: Tab): Text {
+  return editorStates.get(tab.id)!.doc;
+}
+
+function markSaved(tab: Tab, doc: Text) {
+  tab.savedDoc = markRaw(doc);
+  tab.isModified = !tabDoc(tab).eq(doc);
+}
+
+const editorRef = ref<InstanceType<typeof CodeMirrorEditor> | null>(null);
+const languageExtension = shallowRef<Extension | null>(null);
 
 const showFindReplace = ref(false);
 const findText = ref("");
@@ -406,6 +406,7 @@ const fontSize = ref(12);
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 24;
 const DEFAULT_FONT_SIZE = 12;
+const REFRESH_DELAY_MS = 150;
 
 const wordWrap = ref(true);
 
@@ -430,6 +431,17 @@ function flashLangBadge() {
 const showSaveAsDialog = ref(false);
 const saveAsFilename = ref("");
 
+interface StorageSource {
+  filename: string;
+  modified: number;
+  size: number;
+}
+
+const showOpenDialog = ref(false);
+const selectedSourceFilename = ref<string | null>(null);
+const savedSources = ref<StorageSource[]>([]);
+const isLoadingSources = ref(false);
+
 const showCloseConfirmDialog = ref(false);
 const pendingCloseTabId = ref<string | null>(null);
 const pendingCloseTabTitle = ref("");
@@ -438,8 +450,6 @@ const showEncodingWarningDialog = ref(false);
 const pendingSaveAction = ref<(() => Promise<void>) | null>(null);
 
 const showWindowCloseDialog = ref(false);
-
-const codeEditorRef = ref<HTMLElement | null>(null);
 
 const CODE_EXTS: Record<string, string> = {
   py: "python",
@@ -497,21 +507,18 @@ function getFileExtension(tab: Tab): string {
 
 const codeLanguage = computed(() => CODE_EXTS[getFileExtension(activeTab.value)] || "");
 
-const highlightedCode = computed(() => {
-  const content = activeTab.value?.content || "";
-  if (!content) return "";
-  const lang = codeLanguage.value;
-  let result: string;
-  if (lang && hljs.getLanguage(lang)) {
-    result = hljs.highlight(content, { language: lang }).value;
-  } else {
-    result = hljs.highlightAuto(content).value;
-  }
-  if (content.endsWith("\n")) {
-    result += " ";
-  }
-  return result;
-});
+const tabFilename = computed(() => activeTab.value.externalFile?.path || activeTab.value.originalFilename || activeTab.value.title);
+let languageToken = 0;
+
+watch(
+  tabFilename,
+  async (filename) => {
+    const token = ++languageToken;
+    const extension = await loadLanguage(filename);
+    if (token === languageToken) languageExtension.value = extension;
+  },
+  { immediate: true },
+);
 
 const hljsCssVars = computed(() => ({
   "--hljs-base": themeClasses.value.notepadHljsBase,
@@ -538,13 +545,33 @@ const hljsCssVars = computed(() => ({
   "--notepad-caret": themeClasses.value.notepadCaret,
 }));
 
-const lineCount = computed(() => (activeTab.value?.content || "").split("\n").length);
-const wordCount = computed(() => {
-  const text = (activeTab.value?.content || "").trim();
-  if (!text) return 0;
-  return text.split(/\s+/).length;
-});
-const charCount = computed(() => (activeTab.value?.content || "").length);
+const textStats = ref({ lines: 1, words: 0, chars: 0 });
+const hasText = computed(() => textStats.value.words > 0);
+let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+let statsToken = 0;
+
+async function refreshText() {
+  const tab = activeTab.value;
+  const doc = loadState(tab.id).doc;
+  tab.isModified = !doc.eq(tab.savedDoc);
+
+  const token = ++statsToken;
+  textStats.value = { lines: doc.lines, words: textStats.value.words, chars: doc.length };
+  const words = await countWords(doc, () => token === statsToken);
+  if (words !== null) textStats.value = { ...textStats.value, words };
+}
+
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refreshText, REFRESH_DELAY_MS);
+}
+
+function handleEditorUpdate(state: EditorState, docChanged: boolean) {
+  editorStates.set(activeTabId.value, state);
+  if (!docChanged) return;
+  activeTab.value.isModified = true;
+  scheduleRefresh();
+}
 
 const statusIcon = computed(() => {
   const tab = activeTab.value;
@@ -566,7 +593,7 @@ const statusMessage = computed(() => {
   }
   return t("Editing in Sources");
 });
-const statusInfo = computed(() => `Ln ${lineCount.value} | Words ${wordCount.value} | ${charCount.value} chars`);
+const statusInfo = computed(() => `Ln ${textStats.value.lines} | Words ${textStats.value.words} | ${textStats.value.chars} chars`);
 
 const windowCloseDialogMessage = computed(() => {
   const unsavedTabs = tabs.value.filter((tab) => tab.isModified);
@@ -648,22 +675,8 @@ function updateWindowTitle() {
 
 watch([activeTabId, () => activeTab.value?.title, () => activeTab.value?.isModified], updateWindowTitle);
 
-function handleInput() {
-  const tab = activeTab.value;
-  if (tab) {
-    tab.isModified = tab.content !== tab.originalContent;
-  }
-}
-
-function syncCodeScroll() {
-  if (textareaRef.value && codeEditorRef.value) {
-    codeEditorRef.value.scrollTop = textareaRef.value.scrollTop;
-    codeEditorRef.value.scrollLeft = textareaRef.value.scrollLeft;
-  }
-}
-
 function handleNewTab() {
-  const newTab = createEmptyTab();
+  const newTab = createTab("");
   tabs.value.push(newTab);
   activeTabId.value = newTab.id;
 }
@@ -693,6 +706,7 @@ function performCloseTab(tabId: string) {
   if (activeTabId.value === tabId) {
     activeTabId.value = tabs.value[Math.max(0, index - 1)].id;
   }
+  editorStates.delete(tabId);
 }
 
 function confirmCloseTab() {
@@ -714,7 +728,7 @@ async function handleSave() {
   const tab = activeTab.value;
   if (!tab) return;
 
-  if (hasEncodingIssues(tab.content)) {
+  if (hasEncodingIssues(tabDoc(tab).toString())) {
     pendingSaveAction.value = performSave;
     showEncodingWarningDialog.value = true;
     return;
@@ -774,35 +788,15 @@ async function ensureSourcesFolderExists() {
   }
 }
 
-async function checkFileExists(path: string): Promise<boolean> {
-  try {
-    await axios.get("/api/storage/download", {
-      params: { file: path },
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      responseType: "blob",
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 async function saveSourceToStorage(tab: Tab) {
   try {
     const filename = tab.originalFilename || sanitizeFilename(tab.title);
     await ensureSourcesFolderExists();
 
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, filename);
-    formData.append("path", "Sources");
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Sources/${filename}` }, doc);
 
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = filename;
     notifySuccess(t("Source saved"), t("Saved to Sources/{f}", { f: filename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
@@ -814,7 +808,7 @@ async function handleSaveAs() {
   const tab = activeTab.value;
   if (!tab) return;
 
-  if (hasEncodingIssues(tab.content)) {
+  if (hasEncodingIssues(tabDoc(tab).toString())) {
     showSaveAsDialog.value = false;
     pendingSaveAction.value = performSaveAs;
     showEncodingWarningDialog.value = true;
@@ -834,34 +828,12 @@ async function performSaveAs() {
   try {
     await ensureSourcesFolderExists();
 
-    let finalFilename = filename;
-    let counter = 1;
-    while (await checkFileExists(`Sources/${finalFilename}`)) {
-      const dot = filename.lastIndexOf(".");
-      if (dot > 0) {
-        finalFilename = `${filename.substring(0, dot)} (${counter})${filename.substring(dot)}`;
-      } else {
-        finalFilename = `${filename} (${counter})`;
-      }
-      counter++;
-      if (counter > 100) {
-        notifyError(t("Too many files with this name"));
-        return;
-      }
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, finalFilename);
-    formData.append("path", "Sources");
-
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
+    const finalFilename = await uniqueStorageName("Sources", filename, csrfToken.value);
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Sources/${finalFilename}` }, doc);
 
     tab.title = finalFilename;
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = finalFilename;
     tab.externalFile = null;
     showSaveAsDialog.value = false;
@@ -878,31 +850,12 @@ async function autoSaveNewSource(tab: Tab) {
   try {
     await ensureSourcesFolderExists();
 
-    let finalFilename = filename;
-    let counter = 1;
-    while (await checkFileExists(`Sources/${finalFilename}`)) {
-      const dot = filename.lastIndexOf(".");
-      if (dot > 0) {
-        finalFilename = `${filename.substring(0, dot)} (${counter})${filename.substring(dot)}`;
-      } else {
-        finalFilename = `${filename} (${counter})`;
-      }
-      counter++;
-      if (counter > 100) throw new Error("Too many files with this name");
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, finalFilename);
-    formData.append("path", "Sources");
-
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
+    const finalFilename = await uniqueStorageName("Sources", filename, csrfToken.value);
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Sources/${finalFilename}` }, doc);
 
     tab.title = finalFilename;
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = finalFilename;
     notifySuccess(t("Source saved"), t("Saved to Sources/{f}", { f: finalFilename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
@@ -916,75 +869,15 @@ async function handleSaveToExternal() {
 
   try {
     const ext = tab.externalFile;
-
-    if (ext.source === "storage") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/storage/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "dropzone") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/dropzone/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "appdrive") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-      formData.append("container", ext.container || "");
-      formData.append("mount", String(ext.mountIndex ?? 0));
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/appdrive/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "disksplus") {
-      if (!ext.disk) {
-        notifyError(t("Disks+ save failed: missing disk id"));
-        return;
-      }
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-      formData.append("disk", ext.disk);
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/disksplus/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-      disksPlusStore.slideSession();
+    if (ext.source === "disksplus" && !ext.disk) {
+      notifyError(t("Disks+ save failed: missing disk id"));
+      return;
     }
 
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    const doc = tabDoc(tab);
+    await saveDoc(ext, doc);
+
+    markSaved(tab, doc);
     const sourceNames: Record<string, string> = {
       appdrive: "App Drive",
       storage: "Storage",
@@ -1000,64 +893,43 @@ async function handleSaveToExternal() {
 
 function toggleFindReplace() {
   showFindReplace.value = !showFindReplace.value;
-  if (showFindReplace.value) {
-    const selection = window.getSelection()?.toString();
-    if (selection) {
-      findText.value = selection;
-    }
-  }
+  const view = editorRef.value?.view;
+  if (!showFindReplace.value || !view) return;
+  const { from, to } = view.state.selection.main;
+  if (from !== to) findText.value = view.state.sliceDoc(from, to);
 }
 
 function findNext() {
-  if (!findText.value || !textareaRef.value) return;
-
-  const textarea = textareaRef.value;
-  const text = activeTabContent.value;
-  const searchStart = textarea.selectionEnd;
-  let index = text.indexOf(findText.value, searchStart);
-
-  if (index === -1) {
-    index = text.indexOf(findText.value);
-  }
-
-  if (index !== -1) {
-    textarea.focus();
-    textarea.setSelectionRange(index, index + findText.value.length);
-  }
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const match = findTextInDoc(view.state.doc, findText.value, view.state.selection.main.to);
+  if (match) view.dispatch({ selection: { anchor: match.from, head: match.to }, scrollIntoView: true });
+  view.focus();
 }
 
 function replaceNext() {
-  if (!findText.value || !textareaRef.value) return;
-
-  const textarea = textareaRef.value;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selectedText = activeTabContent.value.substring(start, end);
-
-  if (selectedText === findText.value) {
-    activeTabContent.value = activeTabContent.value.substring(0, start) + replaceText.value + activeTabContent.value.substring(end);
-    textarea.setSelectionRange(start, start + replaceText.value.length);
-    handleInput();
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const { from, to } = view.state.selection.main;
+  if (view.state.sliceDoc(from, to) === findText.value) {
+    view.dispatch({ changes: { from, to, insert: replaceText.value }, selection: { anchor: from + replaceText.value.length } });
   }
-
   findNext();
 }
 
 function replaceAllInTab() {
-  if (!findText.value) return;
-
-  const count = (activeTabContent.value.match(new RegExp(escapeRegex(findText.value), "g")) || []).length;
-  activeTabContent.value = activeTabContent.value.split(findText.value).join(replaceText.value);
-  handleInput();
-  notifySuccess(t("Replace all"), t("Replaced {n} occurrences", { n: count }), themeClasses.value.scopeSelector);
-}
-
-function escapeRegex(str: string) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const result = replaceAllText(view.state.doc, findText.value, replaceText.value);
+  if (result) view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: result.text } });
+  notifySuccess(t("Replace all"), t("Replaced {n} occurrences", { n: result?.count ?? 0 }), themeClasses.value.scopeSelector);
 }
 
 function selectAll() {
-  textareaRef.value?.select();
+  const view = editorRef.value?.view;
+  if (!view) return;
+  view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+  view.focus();
 }
 
 function zoomIn() {
@@ -1076,6 +948,76 @@ function resetZoom() {
   fontSize.value = DEFAULT_FONT_SIZE;
 }
 
+function formatDate(timestamp: number) {
+  return new Date(timestamp * 1000).toLocaleString();
+}
+
+async function loadSourcesList() {
+  isLoadingSources.value = true;
+  try {
+    await ensureSourcesFolderExists();
+    const response = await axios.get("/api/storage/files", {
+      params: { path: "Sources" },
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+    });
+
+    if (response.data.files) {
+      savedSources.value = response.data.files
+        .filter((file: any) => !file.is_directory)
+        .map((file: any) => ({
+          filename: file.display_name || file.name.split("/").pop() || file.name,
+          modified: file.modified,
+          size: file.size,
+        }))
+        .sort((a: StorageSource, b: StorageSource) => b.modified - a.modified);
+    }
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      savedSources.value = [];
+    } else {
+      console.error("Failed to load sources list:", error);
+    }
+  } finally {
+    isLoadingSources.value = false;
+  }
+}
+
+async function handleOpenSource() {
+  const selectedSource = savedSources.value.find((source) => source.filename === selectedSourceFilename.value);
+  if (!selectedSource) return;
+
+  try {
+    const existingTab = tabs.value.find((tab) => tab.originalFilename === selectedSource.filename && !tab.externalFile);
+    if (existingTab) {
+      activeTabId.value = existingTab.id;
+      showOpenDialog.value = false;
+      selectedSourceFilename.value = null;
+      return;
+    }
+
+    const response = await axios.get("/api/storage/download", {
+      params: { file: `Sources/${selectedSource.filename}` },
+      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      responseType: "text",
+    });
+
+    const content = typeof response.data === "string" ? response.data : JSON.stringify(response.data, null, 2);
+    const newTab = createTab(content, { title: selectedSource.filename, originalFilename: selectedSource.filename });
+
+    tabs.value.push(newTab);
+    activeTabId.value = newTab.id;
+
+    showOpenDialog.value = false;
+    selectedSourceFilename.value = null;
+  } catch (error: any) {
+    notifyError(t(error.response?.data?.error || "Failed to open source"));
+  }
+}
+
+watch(showOpenDialog, (isOpen) => {
+  if (isOpen) loadSourcesList();
+});
+
 function handleKeydown(e: KeyboardEvent) {
   if (e.ctrlKey || e.metaKey) {
     switch (e.key.toLowerCase()) {
@@ -1086,6 +1028,10 @@ function handleKeydown(e: KeyboardEvent) {
       case "n":
         e.preventDefault();
         handleNewTab();
+        break;
+      case "o":
+        e.preventDefault();
+        showOpenDialog.value = true;
         break;
       case "f":
         e.preventDefault();
@@ -1111,12 +1057,14 @@ function handleKeydown(e: KeyboardEvent) {
         resetZoom();
         break;
     }
+    if (e.defaultPrevented) e.stopPropagation();
   }
 }
 
 watch(activeTabId, () => {
   nextTick(() => {
     flashLangBadge();
+    refreshText();
   });
 });
 
@@ -1130,15 +1078,14 @@ function openExternalFileAsTab(extFile: ExternalFile) {
     return;
   }
 
-  const newTab: Tab = {
-    id: generateTabId(),
-    title: fileName,
-    content: extFile.content,
-    originalContent: extFile.content,
-    isModified: false,
-    originalFilename: null,
-    externalFile: extFile,
-  };
+  const newTab = createTab(extFile.content, { title: fileName, externalFile: toTabFile(extFile) });
+
+  tabs.value.push(newTab);
+  activeTabId.value = newTab.id;
+}
+
+function openTextFileAsTab(textFile: TextFile) {
+  const newTab = createTab(textFile.content, { title: textFile.name });
 
   tabs.value.push(newTab);
   activeTabId.value = newTab.id;
@@ -1148,6 +1095,8 @@ function handleIncomingFile(event: CustomEvent) {
   const data = event.detail;
   if (data?.externalFile) {
     openExternalFileAsTab(data.externalFile);
+  } else if (data?.textFile) {
+    openTextFileAsTab(data.textFile);
   }
 }
 
@@ -1205,19 +1154,10 @@ function handleExit() {
 }
 
 onMounted(() => {
-  const extFile = props.externalFile || props.data?.externalFile;
-
-  if (extFile) {
-    const tab = tabs.value[0];
-    tab.externalFile = extFile;
-    tab.content = extFile.content;
-    tab.originalContent = extFile.content;
-    tab.title = extFile.path.split("/").pop() || "File";
-  }
-
   updateWindowTitle();
   nextTick(() => {
     flashLangBadge();
+    refreshText();
   });
 
   if (props._windowId) {
@@ -1228,6 +1168,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (langBadgeTimer) clearTimeout(langBadgeTimer);
+  clearTimeout(refreshTimer);
+  statsToken++;
   if (props._windowId) {
     window.removeEventListener(`homedock:open-file-${props._windowId}`, handleIncomingFile as EventListener);
     window.removeEventListener(`homedock:request-close-${props._windowId}`, handleWindowCloseRequest);
@@ -1240,29 +1182,8 @@ onUnmounted(() => {
   background: inherit;
 }
 
-.utils-notepad textarea,
-.utils-notepad .notepad-code-overlay pre,
-.utils-notepad .notepad-code-overlay code {
-  font-family: Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace !important;
-  line-height: 1.625 !important;
-  letter-spacing: 0 !important;
-  word-spacing: 0 !important;
-  tab-size: 4 !important;
-  -moz-tab-size: 4 !important;
-  word-break: break-all !important;
-  overflow-wrap: break-word !important;
-}
-
-.utils-notepad textarea::-webkit-scrollbar {
-  cursor: default;
-}
-
-.utils-notepad textarea::-webkit-scrollbar-thumb {
-  cursor: default;
-}
-
-.utils-notepad textarea::-webkit-scrollbar-track {
-  cursor: default;
+.code-surface {
+  color: var(--hljs-base, #d4d4d4);
 }
 
 .slide-down-enter-active,
@@ -1292,105 +1213,5 @@ onUnmounted(() => {
 .lang-badge-leave-to {
   opacity: 0;
   transform: translateY(-4px);
-}
-
-.notepad-code-overlay {
-  color: var(--hljs-base, #d4d4d4);
-  caret-color: transparent;
-}
-
-.notepad-code-overlay pre,
-.notepad-code-overlay code {
-  background: transparent !important;
-  color: var(--hljs-base, #d4d4d4);
-  font-family: inherit;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-}
-
-.utils-notepad textarea.code-active {
-  color: transparent;
-  caret-color: var(--notepad-caret, #e5e7eb);
-}
-
-/* highlight.js theme-aware colors via CSS variables */
-.notepad-code-overlay :deep(.hljs-keyword) {
-  color: var(--hljs-keyword);
-}
-.notepad-code-overlay :deep(.hljs-string) {
-  color: var(--hljs-string);
-}
-.notepad-code-overlay :deep(.hljs-number) {
-  color: var(--hljs-number);
-}
-.notepad-code-overlay :deep(.hljs-comment) {
-  color: var(--hljs-comment);
-  font-style: italic;
-}
-.notepad-code-overlay :deep(.hljs-function) {
-  color: var(--hljs-function);
-}
-.notepad-code-overlay :deep(.hljs-title) {
-  color: var(--hljs-title);
-}
-.notepad-code-overlay :deep(.hljs-params) {
-  color: var(--hljs-params);
-}
-.notepad-code-overlay :deep(.hljs-built_in) {
-  color: var(--hljs-built-in);
-}
-.notepad-code-overlay :deep(.hljs-type) {
-  color: var(--hljs-type);
-}
-.notepad-code-overlay :deep(.hljs-literal) {
-  color: var(--hljs-literal);
-}
-.notepad-code-overlay :deep(.hljs-attr) {
-  color: var(--hljs-attr);
-}
-.notepad-code-overlay :deep(.hljs-variable),
-.notepad-code-overlay :deep(.hljs-template-variable) {
-  color: var(--hljs-variable);
-}
-.notepad-code-overlay :deep(.hljs-tag) {
-  color: var(--hljs-tag);
-}
-.notepad-code-overlay :deep(.hljs-name) {
-  color: var(--hljs-name);
-}
-.notepad-code-overlay :deep(.hljs-attribute) {
-  color: var(--hljs-attribute);
-}
-.notepad-code-overlay :deep(.hljs-selector-tag),
-.notepad-code-overlay :deep(.hljs-selector-class),
-.notepad-code-overlay :deep(.hljs-selector-id) {
-  color: var(--hljs-selector);
-}
-.notepad-code-overlay :deep(.hljs-regexp) {
-  color: var(--hljs-regexp);
-}
-.notepad-code-overlay :deep(.hljs-meta),
-.notepad-code-overlay :deep(.hljs-meta .hljs-keyword) {
-  color: var(--hljs-meta);
-}
-.notepad-code-overlay :deep(.hljs-symbol) {
-  color: var(--hljs-number);
-}
-.notepad-code-overlay :deep(.hljs-operator),
-.notepad-code-overlay :deep(.hljs-punctuation) {
-  color: var(--hljs-operator);
-}
-.notepad-code-overlay :deep(.hljs-property) {
-  color: var(--hljs-property);
-}
-.notepad-code-overlay :deep(.hljs-decorator) {
-  color: var(--hljs-function);
-}
-.notepad-code-overlay :deep(.hljs-doctag) {
-  color: var(--hljs-comment);
-}
-.notepad-code-overlay :deep(.hljs-section) {
-  color: var(--hljs-title);
 }
 </style>

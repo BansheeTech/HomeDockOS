@@ -7,6 +7,7 @@ https://www.banshee.pro
 
 import os
 import hashlib
+import importlib
 import subprocess
 
 from pymodules.hd_FunctionsGlobals import running_OS, current_directory
@@ -84,6 +85,7 @@ def check_and_update_dependencies():
         print(" * Changes detected in requirements.txt. Updating dependencies...")
         if install_requirements():
             update_hash_in_requirements(new_hash)
+            importlib.invalidate_caches()
 
 
 if __name__ == "__main__":

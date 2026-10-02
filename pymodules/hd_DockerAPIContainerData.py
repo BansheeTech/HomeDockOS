@@ -11,15 +11,16 @@ import json
 
 
 from flask import jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from pymodules.hd_FunctionsGlobals import compose_upload_folder, current_directory, user_packages_available_folder
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
 from pymodules.hd_AppSubdomains import slugify_container_name
-from pymodules.hd_ThreadContainerResourceUsage import cpu_usage, memory_usage, network_rx_bytes, network_tx_bytes
+from pymodules.hd_ThreadContainerResourceUsage import cpu_usage, memory_usage, memory_bytes, memory_limit_bytes, network_rx_bytes, network_tx_bytes
 
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_ThreadAppUpdatesChecker import get_updates_state
+from pymodules.hd_AppUpdateMarks import get_unseen_updates
 
 _appstore_json_path = os.path.join(current_directory, "homedock-ui", "vue3", "static", "js", "__Data__", "AppStoreDefault.json")
 
@@ -205,6 +206,7 @@ def get_docker_containers():
     container_data = []
 
     updates_dict = get_updates_state()
+    unseen_updates = get_unseen_updates(current_user.id)
 
     ports_file_name = os.path.join(current_directory, "homedock_ports.conf")
     try:
@@ -230,29 +232,28 @@ def get_docker_containers():
             sanitized_name = sanitize_container_name(container.name)
             image_path = "docker-icons/notfound.jpg"  # Default
 
-            for ext in [".jpg", ".jpeg", ".png"]:
-                os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{sanitized_name}{ext}")
-                if os.path.exists(os_image_path):
-                    image_path = f"docker-icons/{sanitized_name}{ext}"
-                    break
+            icon_candidates = [sanitized_name]
+            if "_" in sanitized_name:
+                icon_candidates.append(sanitized_name.split("_")[0])
+            if labels.get("HDGroup"):
+                icon_candidates.append(sanitize_container_name(labels["HDGroup"]))
 
-            if image_path == "docker-icons/notfound.jpg" and "_" in sanitized_name:
-                base_name = sanitized_name.split("_")[0]
+            for candidate in icon_candidates:
                 for ext in [".jpg", ".jpeg", ".png"]:
-                    os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{base_name}{ext}")
+                    os_image_path = os.path.join(current_directory, "homedock-ui", "static", "images", f"docker-icons/{candidate}{ext}")
                     if os.path.exists(os_image_path):
-                        image_path = f"docker-icons/{base_name}{ext}"
+                        image_path = f"docker-icons/{candidate}{ext}"
                         break
+                if image_path != "docker-icons/notfound.jpg":
+                    break
 
             if image_path == "docker-icons/notfound.jpg":
                 app_store, external_apps = load_app_store_data()
 
-                if sanitized_name in external_apps and isinstance(external_apps[sanitized_name], dict):
-                    image_path = external_apps[sanitized_name]["picture_path"]
-                elif "_" in sanitized_name:
-                    base_name = sanitized_name.split("_")[0]
-                    if base_name in external_apps and isinstance(external_apps[base_name], dict):
-                        image_path = external_apps[base_name]["picture_path"]
+                for candidate in icon_candidates:
+                    if candidate in external_apps and isinstance(external_apps[candidate], dict):
+                        image_path = external_apps[candidate]["picture_path"]
+                        break
 
             host_display = request.host.split(":")[0]
             if host_display.startswith("www."):
@@ -283,7 +284,31 @@ def get_docker_containers():
 
             display_name = get_display_name_for_container(container.name)
 
-            basic_data = {"name": container.name, "slug": slugify_container_name(container.name), "display_name": display_name, "id": container.short_id, "status": container.status, "image": str(container.image.tags[0]) if container.image.tags else "", "image_path": image_path, "usagePercent": cpu_usage.get(container.name, 0), "memoryUsagePercent": memory_usage.get(container.name, 0), "networkRxBytes": network_rx_bytes.get(container.name, 0), "networkTxBytes": network_tx_bytes.get(container.name, 0), "statusColor": statusColor, "host": host_display, "composeLink": file_status, "ports": ports_list, "service_url": service_url, "has_update": updates_dict.get(container.name, False)}
+            started_at = container.attrs.get("State", {}).get("StartedAt", "") if container.status == "running" else ""
+
+            basic_data = {
+                "name": container.name,
+                "slug": slugify_container_name(container.name),
+                "display_name": display_name,
+                "id": container.short_id,
+                "status": container.status,
+                "image": str(container.image.tags[0]) if container.image.tags else "",
+                "image_path": image_path,
+                "usagePercent": cpu_usage.get(container.name, 0),
+                "memoryUsagePercent": memory_usage.get(container.name, 0),
+                "memoryUsageBytes": memory_bytes.get(container.name, 0),
+                "memoryLimitBytes": memory_limit_bytes.get(container.name, 0),
+                "networkRxBytes": network_rx_bytes.get(container.name, 0),
+                "networkTxBytes": network_tx_bytes.get(container.name, 0),
+                "statusColor": statusColor,
+                "host": host_display,
+                "composeLink": file_status,
+                "ports": ports_list,
+                "service_url": service_url,
+                "startedAt": started_at,
+                "has_update": updates_dict.get(container.name, False),
+                "recently_updated": unseen_updates.get(container.name) == container.id,
+            }
 
             if "HDGroup" in labels:
                 basic_data["HDGroup"] = labels["HDGroup"]

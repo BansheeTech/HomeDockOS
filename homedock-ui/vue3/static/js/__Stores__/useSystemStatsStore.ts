@@ -18,6 +18,10 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
   const cpuCores = ref(dashboardData?.cpu_cores || "0");
   const ramUsage = ref(dashboardData?.ram_usage || "0");
   const totalRam = ref(dashboardData?.total_ram || "0");
+  const diskUsage = ref("0");
+  const diskIo = ref("0*0");
+  const netIo = ref("0*0");
+  const loadAverage = ref("0.00*0.00*0.00");
   const interfaceName = ref(dashboardData?.interface_name || "Network");
   const downloadData = ref(dashboardData?.vdownload || "0 GB");
   const uploadData = ref(dashboardData?.vupload || "0 GB");
@@ -29,6 +33,10 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
   registerSSERef("cpu_temp", cpuTemp);
   registerSSERef("cpu_usage", cpuUsage);
   registerSSERef("ram_usage", ramUsage);
+  registerSSERef("disk_usage", diskUsage);
+  registerSSERef("disk_io", diskIo);
+  registerSSERef("net_io", netIo);
+  registerSSERef("load_average", loadAverage);
   registerSSERef("download_data", downloadData);
   registerSSERef("upload_data", uploadData);
   registerSSERef("total_containers", totalContainers);
@@ -43,6 +51,10 @@ export const useSystemStatsStore = defineStore("systemStats", () => {
     cpuCores,
     ramUsage,
     totalRam,
+    diskUsage,
+    diskIo,
+    netIo,
+    loadAverage,
     interfaceName,
     downloadData,
     uploadData,

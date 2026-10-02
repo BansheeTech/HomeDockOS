@@ -5,9 +5,8 @@
 
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import axios from "axios";
 
-import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { useDesktopSyncStore, type DesktopContent, type DesktopMode, type LayoutItems } from "./useDesktopSyncStore";
 import { getWidgetDims, getWidgetDefinition, type WidgetSize } from "../__Config__/WidgetDefaultDetails";
 
 // HDOS00078
@@ -31,19 +30,16 @@ export interface WidgetRect {
 }
 
 export const WIDGET_MAX_INSTANCES = 100;
-const PERSIST_DEBOUNCE_MS = 500;
 
 function generateInstanceId(): string {
   return `widget-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 export const useWidgetsStore = defineStore("WidgetsStore", () => {
-  const csrfToken = useCsrfToken();
+  const sync = useDesktopSyncStore();
 
   const instances = ref<WidgetInstance[]>([]);
   const loaded = ref(false);
-
-  let persistTimeout: ReturnType<typeof setTimeout> | null = null;
 
   function instanceRect(instance: WidgetInstance): WidgetRect {
     const dims = getWidgetDims(instance.type, instance.size);
@@ -67,29 +63,49 @@ export const useWidgetsStore = defineStore("WidgetsStore", () => {
     return instances.value.find((i) => i.instanceId === instanceId);
   }
 
-  async function load() {
-    try {
-      const { data } = await axios.get<{ widgets: WidgetInstance[] }>("/api/desktop-widgets", {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+  function applyContent(content: DesktopContent) {
+    const previous = new Map(instances.value.map((instance) => [instance.instanceId, instance]));
+
+    instances.value = content.widgets
+      .filter((meta) => getWidgetDefinition(meta.type))
+      .map((meta) => {
+        const existing = previous.get(meta.instanceId);
+
+        return {
+          ...meta,
+          gridRow: existing?.gridRow ?? 0,
+          gridCol: existing?.gridCol ?? 0,
+          mobileRow: existing?.mobileRow,
+          mobileCol: existing?.mobileCol,
+          mobilePage: existing?.mobilePage,
+        };
       });
 
-      instances.value = (data?.widgets ?? []).filter((instance) => getWidgetDefinition(instance.type));
-    } catch {
-      instances.value = [];
-    } finally {
-      loaded.value = true;
-    }
+    loaded.value = true;
   }
 
-  function persist() {
-    if (persistTimeout) {
-      clearTimeout(persistTimeout);
-    }
+  function layoutItems(mode: DesktopMode): LayoutItems {
+    const items: LayoutItems = {};
 
-    persistTimeout = setTimeout(() => {
-      persistTimeout = null;
-      axios.post("/api/desktop-widgets", { widgets: instances.value }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } }).catch(() => {});
-    }, PERSIST_DEBOUNCE_MS);
+    instances.value.forEach((instance) => {
+      if (mode === "desktop") {
+        items[instance.instanceId] = [instance.gridRow, instance.gridCol];
+      } else if (instance.mobileRow !== undefined && instance.mobileCol !== undefined) {
+        items[instance.instanceId] = [instance.mobilePage ?? 0, instance.mobileRow, instance.mobileCol];
+      }
+    });
+
+    return items;
+  }
+
+  sync.onContentApplied(applyContent);
+  sync.registerLayoutProvider({ items: layoutItems, owns: (key) => key.startsWith("widget-") });
+
+  function persist() {
+    sync.updateContent((draft) => {
+      draft.widgets = instances.value.map((instance) => ({ instanceId: instance.instanceId, type: instance.type, size: instance.size, ...(instance.settings && { settings: instance.settings }) }));
+    });
+    sync.persistLayout();
   }
 
   function add(type: string, gridRow: number, gridCol: number, size?: WidgetSize): WidgetInstance | null {
@@ -169,7 +185,7 @@ export const useWidgetsStore = defineStore("WidgetsStore", () => {
     instanceRect,
     getInstance,
 
-    load,
+    applyContent,
     add,
     move,
     resize,

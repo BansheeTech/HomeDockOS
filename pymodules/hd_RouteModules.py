@@ -59,11 +59,11 @@ def RouteAllModules(homedock_www, send_public_key):
     from pymodules.hd_SubdomainAuth import api_app_token, api_subdomain_diagnostics
 
     homedock_www.add_url_rule("/api/app-token", "api_app_token", CSRF_Protect(api_app_token), methods=["POST"])
-    homedock_www.add_url_rule("/api/subdomain-diagnostics", "api_subdomain_diagnostics", api_subdomain_diagnostics, methods=["GET"])
+    homedock_www.add_url_rule("/api/subdomain-diagnostics", "api_subdomain_diagnostics", CSRF_Protect(api_subdomain_diagnostics), methods=["GET"])
 
     from pymodules.hd_UIAcme import api_acme_status, api_acme_issue
 
-    homedock_www.add_url_rule("/api/acme/status", "api_acme_status", api_acme_status, methods=["GET"])
+    homedock_www.add_url_rule("/api/acme/status", "api_acme_status", CSRF_Protect(api_acme_status), methods=["GET"])
     homedock_www.add_url_rule("/api/acme/issue", "api_acme_issue", CSRF_Protect(api_acme_issue), methods=["POST"])
 
     from pymodules.hd_AppViewMode import api_app_view_mode
@@ -74,9 +74,15 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/app-exposure", "api_app_exposure", CSRF_Protect(api_app_exposure), methods=["GET", "POST"])
 
-    from pymodules.hd_DesktopWidgets import api_desktop_widgets
+    from pymodules.hd_DesktopState import api_desktop_state, api_desktop_state_content, api_desktop_state_layout
 
-    homedock_www.add_url_rule("/api/desktop-widgets", "api_desktop_widgets", CSRF_Protect(api_desktop_widgets), methods=["GET", "POST"])
+    homedock_www.add_url_rule("/api/desktop-state", "api_desktop_state", CSRF_Protect(api_desktop_state), methods=["GET"])
+    homedock_www.add_url_rule("/api/desktop-state/content", "api_desktop_state_content", CSRF_Protect(api_desktop_state_content), methods=["POST"])
+    homedock_www.add_url_rule("/api/desktop-state/layout", "api_desktop_state_layout", CSRF_Protect(api_desktop_state_layout), methods=["POST"])
+
+    from pymodules.hd_GamesScores import api_games_scores
+
+    homedock_www.add_url_rule("/api/games/scores", "api_games_scores", CSRF_Protect(api_games_scores), methods=["GET", "POST"])
 
     from pymodules.hd_WhatsNew import api_whats_new_seen
 
@@ -114,9 +120,15 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/port_route", "port_route", CSRF_Protect(port_route_function), methods=["POST"])
 
-    from pymodules.hd_UIControlHubViewLogs import view_container_logs
+    from pymodules.hd_UIControlHubViewLogs import view_container_logs, create_download_ticket, download_container_logs
 
     homedock_www.add_url_rule("/api/view-container-logs", "view_container_logs", CSRF_Protect(view_container_logs), methods=["GET"])
+    homedock_www.add_url_rule("/api/view-container-logs/download-ticket", "create_download_ticket", CSRF_Protect(create_download_ticket), methods=["POST"])
+    homedock_www.add_url_rule("/api/view-container-logs/download", "download_container_logs", download_container_logs, methods=["GET"])
+
+    from pymodules.hd_UIContainerTerminal import api_container_terminal_session
+
+    homedock_www.add_url_rule("/api/container-terminal/session", "api_container_terminal_session", CSRF_Protect(api_container_terminal_session), methods=["POST"])
 
     from pymodules.hd_UIControlHubReadSaveYML import get_compose_info, update_yml_config
 
@@ -127,9 +139,10 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/recreate-container", "recreate_container", CSRF_Protect(recreate_container), methods=["POST"])
 
-    from pymodules.hd_UIAppStoreReadSaveYML import get_appstore_info, process_config
+    from pymodules.hd_UIAppStoreReadSaveYML import get_appstore_info, process_config, get_app_download_size
 
     homedock_www.add_url_rule("/api/get-appstore-info", "get_appstore_info", CSRF_Protect(get_appstore_info), methods=["GET"])
+    homedock_www.add_url_rule("/api/get-app-download-size", "get_app_download_size", CSRF_Protect(get_app_download_size), methods=["GET"])
     homedock_www.add_url_rule("/api/process-config", "process_config", CSRF_Protect(process_config), methods=["POST"])
 
     from pymodules.hd_UIAppStoreInstallApp import app_store_install_container, get_installation_status
@@ -178,7 +191,11 @@ def RouteAllModules(homedock_www, send_public_key):
 
     homedock_www.add_url_rule("/api/update_containers", "update_containers", CSRF_Protect(update_containers), methods=["POST"])
 
-    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose, export_hdstore, preview_hdstore, import_hdstore, preview_third_party_url, import_third_party_selected, migrate_single_compose
+    from pymodules.hd_AppUpdateMarks import api_app_update_seen
+
+    homedock_www.add_url_rule("/api/app-update-seen", "api_app_update_seen", CSRF_Protect(api_app_update_seen), methods=["POST"])
+
+    from pymodules.hd_HDSPackageManager import list_external_apps, upload_hds_package, install_hds_app, delete_external_app, create_hds_from_files, list_imported_apps, export_imported_app, get_external_apps_for_store, parse_compose, export_hdstore, preview_hdstore, import_hdstore, preview_third_party_url, import_third_party_selected, migrate_single_compose, third_party_progress
 
     homedock_www.add_url_rule("/api/pkg/list", "list_external_apps", CSRF_Protect(list_external_apps), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/upload", "upload_hds_package", CSRF_Protect(upload_hds_package), methods=["POST"])
@@ -194,6 +211,7 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/pkg/import-hdstore", "import_hdstore", CSRF_Protect(import_hdstore), methods=["POST"])
     homedock_www.add_url_rule("/api/pkg/preview-third-party", "preview_third_party_url", CSRF_Protect(preview_third_party_url), methods=["POST"])
     homedock_www.add_url_rule("/api/pkg/import-third-party", "import_third_party_selected", CSRF_Protect(import_third_party_selected), methods=["POST"])
+    homedock_www.add_url_rule("/api/pkg/third-party-progress", "third_party_progress", CSRF_Protect(third_party_progress), methods=["GET"])
     homedock_www.add_url_rule("/api/pkg/migrate-compose", "migrate_single_compose", CSRF_Protect(migrate_single_compose), methods=["POST"])
 
     from pymodules.hd_NotificationHandler import dismiss_notification, get_notifications
@@ -209,7 +227,7 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/2fa/disable", "2fa_disable", CSRF_Protect(api_2fa_disable), methods=["POST"])
     homedock_www.add_url_rule("/api/2fa/regenerate-backup-codes", "2fa_regenerate_backup_codes", CSRF_Protect(api_2fa_regenerate_backup_codes), methods=["POST"])
 
-    from pymodules.hd_UIStorage import list_files as storage_list_files, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files, upload_init as storage_upload_init, upload_chunk as storage_upload_chunk, upload_finalize as storage_upload_finalize, upload_abort as storage_upload_abort, edit_file as storage_edit_file
+    from pymodules.hd_UIStorage import list_files as storage_list_files, download_file as storage_download_file, download_multiple as storage_download_multiple, delete_file as storage_delete_file, create_folder as storage_create_folder, rename_item as storage_rename_item, search_files as storage_search_files, upload_init as storage_upload_init, upload_chunk as storage_upload_chunk, upload_finalize as storage_upload_finalize, upload_abort as storage_upload_abort, edit_file as storage_edit_file, thumbnail_file as storage_thumbnail_file, preview_file as storage_preview_file
 
     homedock_www.add_url_rule("/api/storage/files", "storage_list_files", CSRF_Protect(storage_list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/storage/search", "storage_search_files", CSRF_Protect(storage_search_files), methods=["GET"])
@@ -219,12 +237,23 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/storage/upload/finalize", "storage_upload_finalize", CSRF_Protect(storage_upload_finalize), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/upload/abort", "storage_upload_abort", CSRF_Protect(storage_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/storage/download", "storage_download_file", CSRF_Protect(storage_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/storage/thumbnail", "storage_thumbnail_file", CSRF_Protect(storage_thumbnail_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/storage/preview", "storage_preview_file", CSRF_Protect(storage_preview_file), methods=["GET"])
     homedock_www.add_url_rule("/api/storage/download-multiple", "storage_download_multiple", CSRF_Protect(storage_download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/delete", "storage_delete_file", CSRF_Protect(storage_delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/create-folder", "storage_create_folder", CSRF_Protect(storage_create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/storage/rename", "storage_rename_item", CSRF_Protect(storage_rename_item), methods=["POST"])
 
-    from pymodules.hd_UIDropzone import list_files, download_file, download_multiple, delete_file, create_folder, rename_item, search_files, upload_init as dropzone_upload_init, upload_chunk as dropzone_upload_chunk, upload_finalize as dropzone_upload_finalize, upload_abort as dropzone_upload_abort, edit_file as dropzone_edit_file
+    from pymodules.hd_UIArchives import archive_list, archive_entry, archive_extract, archive_compress, archive_job, archive_cancel
+
+    homedock_www.add_url_rule("/api/archive/list", "archive_list", CSRF_Protect(archive_list), methods=["POST"])
+    homedock_www.add_url_rule("/api/archive/entry", "archive_entry", CSRF_Protect(archive_entry), methods=["POST"])
+    homedock_www.add_url_rule("/api/archive/extract", "archive_extract", CSRF_Protect(archive_extract), methods=["POST"])
+    homedock_www.add_url_rule("/api/archive/compress", "archive_compress", CSRF_Protect(archive_compress), methods=["POST"])
+    homedock_www.add_url_rule("/api/archive/job", "archive_job", CSRF_Protect(archive_job), methods=["GET"])
+    homedock_www.add_url_rule("/api/archive/cancel", "archive_cancel", CSRF_Protect(archive_cancel), methods=["POST"])
+
+    from pymodules.hd_UIDropzone import list_files, download_file, download_multiple, delete_file, create_folder, rename_item, search_files, upload_init as dropzone_upload_init, upload_chunk as dropzone_upload_chunk, upload_finalize as dropzone_upload_finalize, upload_abort as dropzone_upload_abort, edit_file as dropzone_edit_file, thumbnail_file as dropzone_thumbnail_file, preview_file as dropzone_preview_file
 
     homedock_www.add_url_rule("/api/dropzone/files", "dropzone_list_files", CSRF_Protect(list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/dropzone/search", "dropzone_search_files", CSRF_Protect(search_files), methods=["GET"])
@@ -234,12 +263,14 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/dropzone/upload/finalize", "dropzone_upload_finalize", CSRF_Protect(dropzone_upload_finalize), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/upload/abort", "dropzone_upload_abort", CSRF_Protect(dropzone_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/dropzone/download", "dropzone_download_file", CSRF_Protect(download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/dropzone/thumbnail", "dropzone_thumbnail_file", CSRF_Protect(dropzone_thumbnail_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/dropzone/preview", "dropzone_preview_file", CSRF_Protect(dropzone_preview_file), methods=["GET"])
     homedock_www.add_url_rule("/api/dropzone/download-multiple", "dropzone_download_multiple", CSRF_Protect(download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/delete", "dropzone_delete_file", CSRF_Protect(delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/create-folder", "dropzone_create_folder", CSRF_Protect(create_folder), methods=["POST"])
     homedock_www.add_url_rule("/api/dropzone/rename", "dropzone_rename_item", CSRF_Protect(rename_item), methods=["POST"])
 
-    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item, appdrive_search_files, appdrive_upload_init, appdrive_upload_chunk, appdrive_upload_finalize, appdrive_upload_abort, appdrive_edit_file
+    from pymodules.hd_UIAppDrive import appdrive_list_containers, appdrive_get_mounts, appdrive_list_files, appdrive_download_file, appdrive_download_multiple, appdrive_delete_file, appdrive_create_folder, appdrive_rename_item, appdrive_search_files, appdrive_upload_init, appdrive_upload_chunk, appdrive_upload_finalize, appdrive_upload_abort, appdrive_edit_file, appdrive_thumbnail_file, appdrive_preview_file
 
     homedock_www.add_url_rule("/api/appdrive/containers", "appdrive_list_containers", CSRF_Protect(appdrive_list_containers), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/mounts", "appdrive_get_mounts", CSRF_Protect(appdrive_get_mounts), methods=["GET"])
@@ -251,6 +282,8 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/appdrive/upload/finalize", "appdrive_upload_finalize", CSRF_Protect(appdrive_upload_finalize), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/upload/abort", "appdrive_upload_abort", CSRF_Protect(appdrive_upload_abort), methods=["DELETE"])
     homedock_www.add_url_rule("/api/appdrive/download", "appdrive_download_file", CSRF_Protect(appdrive_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/thumbnail", "appdrive_thumbnail_file", CSRF_Protect(appdrive_thumbnail_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/appdrive/preview", "appdrive_preview_file", CSRF_Protect(appdrive_preview_file), methods=["GET"])
     homedock_www.add_url_rule("/api/appdrive/download-multiple", "appdrive_download_multiple", CSRF_Protect(appdrive_download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/delete", "appdrive_delete_file", CSRF_Protect(appdrive_delete_file), methods=["POST"])
     homedock_www.add_url_rule("/api/appdrive/create-folder", "appdrive_create_folder", CSRF_Protect(appdrive_create_folder), methods=["POST"])
@@ -276,7 +309,7 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/shortcuts/icon/<filename>", "serve_shortcut_icon", serve_shortcut_icon, methods=["GET"])
 
     from pymodules.hd_DisksPlusAuth import disksplus_status, disksplus_danger_zones, disksplus_unlock, disksplus_lock, disksplus_danger_auth
-    from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files, disksplus_upload_init, disksplus_upload_chunk, disksplus_upload_finalize, disksplus_upload_abort, disksplus_edit_file
+    from pymodules.hd_UIDisksPlus import disksplus_list_disks, disksplus_list_files, disksplus_download_file, disksplus_delete_file, disksplus_create_folder, disksplus_rename_item, disksplus_download_multiple, disksplus_search_files, disksplus_upload_init, disksplus_upload_chunk, disksplus_upload_finalize, disksplus_upload_abort, disksplus_edit_file, disksplus_thumbnail_file, disksplus_preview_file
     from pymodules.hd_ThreadDisksPlus import disksplus_events_stream
 
     homedock_www.add_url_rule("/api/disksplus/status", "disksplus_status", CSRF_Protect(disksplus_status), methods=["GET"])
@@ -288,6 +321,8 @@ def RouteAllModules(homedock_www, send_public_key):
     homedock_www.add_url_rule("/api/disksplus/files", "disksplus_list_files", CSRF_Protect(disksplus_list_files), methods=["GET"])
     homedock_www.add_url_rule("/api/disksplus/search", "disksplus_search_files", CSRF_Protect(disksplus_search_files), methods=["GET"])
     homedock_www.add_url_rule("/api/disksplus/download", "disksplus_download_file", CSRF_Protect(disksplus_download_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/thumbnail", "disksplus_thumbnail_file", CSRF_Protect(disksplus_thumbnail_file), methods=["GET"])
+    homedock_www.add_url_rule("/api/disksplus/preview", "disksplus_preview_file", CSRF_Protect(disksplus_preview_file), methods=["GET"])
     homedock_www.add_url_rule("/api/disksplus/download-multiple", "disksplus_download_multiple", CSRF_Protect(disksplus_download_multiple), methods=["POST"])
     homedock_www.add_url_rule("/api/disksplus/edit", "disksplus_edit_file", CSRF_Protect(disksplus_edit_file), methods=["POST"])
     homedock_www.add_url_rule("/api/disksplus/upload/init", "disksplus_upload_init", CSRF_Protect(disksplus_upload_init), methods=["POST"])

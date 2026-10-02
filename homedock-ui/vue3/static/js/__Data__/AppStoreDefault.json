@@ -12,7 +12,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Databag",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 386893474,
+      "arm64": 364599636
+    }
   },
   {
     "dependencies": [],
@@ -27,7 +31,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "The Atlas",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "download_size": {
+      "amd64": 205917166,
+      "arm64": 197441807
+    }
   },
   {
     "dependencies": [],
@@ -42,7 +50,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Navidrome",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 94043896,
+      "arm64": 91285108
+    }
   },
   {
     "dependencies": [],
@@ -58,7 +70,11 @@
     "new_until": false,
     "display_name": "File Browser",
     "screenshot_count": 3,
-    "pwd_min_required": 12
+    "pwd_min_required": 12,
+    "download_size": {
+      "amd64": 16838032,
+      "arm64": 15923885
+    }
   },
   {
     "dependencies": [],
@@ -73,7 +89,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Stirling PDF",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1128270211,
+      "arm64": 1102016246
+    }
   },
   {
     "dependencies": [],
@@ -88,7 +108,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Audiobookshelf",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 115486647,
+      "arm64": 113053672
+    }
   },
   {
     "dependencies": [],
@@ -103,7 +127,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MeTube",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 318517018,
+      "arm64": 312982394
+    }
   },
   {
     "dependencies": [],
@@ -118,7 +146,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "autobrr",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 29345783,
+      "arm64": 28171282
+    }
   },
   {
     "dependencies": ["zipline_postgres"],
@@ -133,7 +165,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Zipline",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 442750190,
+      "arm64": 437358431
+    }
   },
   {
     "dependencies": ["redis", "postgres15"],
@@ -148,7 +184,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Immich",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1357473517,
+      "arm64": 994336979
+    }
   },
   {
     "dependencies": ["ollama"],
@@ -163,7 +203,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Ollama GPT",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "download_size": {
+      "amd64": 5406535317,
+      "arm64": 4279136183
+    }
   },
   {
     "dependencies": [],
@@ -178,7 +222,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MC Bedrock Server",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "download_size": {
+      "amd64": 75633230,
+      "arm64": 129760257
+    }
   },
   {
     "dependencies": [],
@@ -193,7 +241,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Minecraft Server",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "download_size": {
+      "amd64": 354539143,
+      "arm64": 351159279
+    }
   },
   {
     "dependencies": [],
@@ -208,7 +260,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Nginx Proxy Manager",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 474768231,
+      "arm64": 467750551
+    }
   },
   {
     "dependencies": [],
@@ -223,7 +279,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Draw.io",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 410918256,
+      "arm64": 406635367
+    }
   },
   {
     "dependencies": [],
@@ -238,7 +298,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "JDownloader 2",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 203695442,
+      "arm64": 195862453
+    }
   },
   {
     "dependencies": [],
@@ -253,7 +317,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "AdGuard Home Sync",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 26921606,
+      "arm64": 26259654
+    }
   },
   {
     "dependencies": [],
@@ -269,7 +337,14 @@
     "new_until": false,
     "display_name": "Airsonic Advanced",
     "screenshot_count": 4,
-    "default_credentials": { "username": "admin", "password": "admin" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin"
+    },
+    "download_size": {
+      "amd64": 258078573,
+      "arm64": 256596046
+    }
   },
   {
     "dependencies": [],
@@ -284,7 +359,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Altus",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1104128241,
+      "arm64": 1061135911
+    }
   },
   {
     "dependencies": [],
@@ -299,7 +378,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Apprise API",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 65635546,
+      "arm64": 66105679
+    }
   },
   {
     "dependencies": [],
@@ -314,7 +397,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Ardour",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1360438355,
+      "arm64": 1371741619
+    }
   },
   {
     "dependencies": [],
@@ -329,7 +416,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Audacity",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1066249981
+    }
   },
   {
     "dependencies": [],
@@ -345,7 +435,14 @@
     "new_until": false,
     "display_name": "Baby Buddy",
     "screenshot_count": 3,
-    "default_credentials": { "username": "admin", "password": "admin" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin"
+    },
+    "download_size": {
+      "amd64": 128492560,
+      "arm64": 128664824
+    }
   },
   {
     "dependencies": [],
@@ -360,7 +457,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Bambu Studio",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1600409933
+    }
   },
   {
     "dependencies": [],
@@ -375,7 +475,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Bazarr",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 155862605,
+      "arm64": 150980198
+    }
   },
   {
     "dependencies": [],
@@ -390,7 +494,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Beets",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 236869874,
+      "arm64": 228067414
+    }
   },
   {
     "dependencies": [],
@@ -405,7 +513,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Blender",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1460319886,
+      "arm64": 1154101541
+    }
   },
   {
     "dependencies": [],
@@ -420,7 +532,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Brave Browser",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1202362369,
+      "arm64": 1160537623
+    }
   },
   {
     "dependencies": [],
@@ -435,7 +551,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "BOINC",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1060280855,
+      "arm64": 1031140431
+    }
   },
   {
     "dependencies": [],
@@ -450,7 +570,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Budge",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 150593613,
+      "arm64": 169946608
+    }
   },
   {
     "dependencies": [],
@@ -465,7 +589,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Calibre",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1293416060,
+      "arm64": 1250482876
+    }
   },
   {
     "dependencies": [],
@@ -480,7 +608,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Calligra",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1216367153,
+      "arm64": 1171794193
+    }
   },
   {
     "dependencies": [],
@@ -495,7 +627,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Change Detection",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 269608104,
+      "arm64": 264355858
+    }
   },
   {
     "dependencies": [],
@@ -510,7 +646,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Chromium",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1176519375,
+      "arm64": 1136618559
+    }
   },
   {
     "dependencies": [],
@@ -525,7 +665,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Code Server",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 299905437,
+      "arm64": 297054966
+    }
   },
   {
     "dependencies": [],
@@ -540,7 +684,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Cura",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1447159601
+    }
   },
   {
     "dependencies": [],
@@ -555,7 +702,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Darktable",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1375050921,
+      "arm64": 1417108791
+    }
   },
   {
     "dependencies": [],
@@ -570,7 +721,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Davos",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 115075433,
+      "arm64": 115916987
+    }
   },
   {
     "dependencies": [],
@@ -585,7 +740,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "DDClient",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 26402580,
+      "arm64": 27447830
+    }
   },
   {
     "dependencies": [],
@@ -601,7 +760,14 @@
     "new_until": false,
     "display_name": "Deluge",
     "screenshot_count": 3,
-    "default_credentials": { "username": "admin", "password": "deluge" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "deluge"
+    },
+    "download_size": {
+      "amd64": 76238398,
+      "arm64": 75257184
+    }
   },
   {
     "dependencies": [],
@@ -616,7 +782,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "DigiKam",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1581876237
+    }
   },
   {
     "dependencies": [],
@@ -632,7 +801,14 @@
     "new_until": false,
     "display_name": "Disavow Generator",
     "screenshot_count": 3,
-    "default_credentials": { "username": "user", "password": "passwd" }
+    "default_credentials": {
+      "username": "user",
+      "password": "passwd"
+    },
+    "download_size": {
+      "amd64": 113022992,
+      "arm64": 114582051
+    }
   },
   {
     "dependencies": [],
@@ -647,7 +823,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "DokuWiki",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 53911589,
+      "arm64": 53935762
+    }
   },
   {
     "dependencies": [],
@@ -662,7 +842,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Doplarr",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 74249088,
+      "arm64": 74389215
+    }
   },
   {
     "dependencies": [],
@@ -677,7 +861,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Double Commander",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1042826895,
+      "arm64": 997853077
+    }
   },
   {
     "dependencies": [],
@@ -692,7 +880,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "DuckDNS",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 15709747,
+      "arm64": 16824687
+    }
   },
   {
     "dependencies": [],
@@ -707,7 +899,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Duplicati",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 187239215,
+      "arm64": 183571995
+    }
   },
   {
     "dependencies": [],
@@ -722,7 +918,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Emby",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 434989495,
+      "arm64": 203323478
+    }
   },
   {
     "dependencies": ["facturascripts_mariadb"],
@@ -737,7 +937,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "FacturaScripts",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 401228081,
+      "arm64": 391807684
+    }
   },
   {
     "dependencies": [],
@@ -752,7 +956,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Fail2ban",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 30534349,
+      "arm64": 31624155
+    }
   },
   {
     "dependencies": [],
@@ -767,7 +975,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Ferdium",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1160527230,
+      "arm64": 1117044331
+    }
   },
   {
     "dependencies": [],
@@ -782,7 +994,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "FileZilla",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 987274924,
+      "arm64": 958437074
+    }
   },
   {
     "dependencies": [],
@@ -797,7 +1013,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Firefox",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1110233493,
+      "arm64": 1065903293
+    }
   },
   {
     "dependencies": [],
@@ -812,7 +1032,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "FlexGet",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 216964963,
+      "arm64": 212966224
+    }
   },
   {
     "dependencies": [],
@@ -827,7 +1051,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Folding@Home",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 142877904,
+      "arm64": 52074555
+    }
   },
   {
     "dependencies": [],
@@ -842,7 +1070,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "FreeCAD",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1931827253,
+      "arm64": 1815907242
+    }
   },
   {
     "dependencies": [],
@@ -857,7 +1089,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "FreshRSS",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 40752057,
+      "arm64": 41456858
+    }
   },
   {
     "dependencies": [],
@@ -872,7 +1108,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "GhostInk",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 309837324,
+      "arm64": 299312949
+    }
   },
   {
     "dependencies": [],
@@ -887,7 +1127,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "GIMP",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1112441904,
+      "arm64": 1065189235
+    }
   },
   {
     "dependencies": [],
@@ -902,7 +1146,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "GitHub Desktop",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1661515947,
+      "arm64": 1579305475
+    }
   },
   {
     "dependencies": [],
@@ -917,7 +1165,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "GitQlient",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 637890348,
+      "arm64": 592095028
+    }
   },
   {
     "dependencies": [],
@@ -932,7 +1184,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Grav",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 61258208,
+      "arm64": 61851452
+    }
   },
   {
     "dependencies": [],
@@ -948,7 +1204,14 @@
     "new_until": false,
     "display_name": "Grocy",
     "screenshot_count": 3,
-    "default_credentials": { "username": "admin", "password": "admin" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin"
+    },
+    "download_size": {
+      "amd64": 86639584,
+      "arm64": 87188303
+    }
   },
   {
     "dependencies": [],
@@ -963,7 +1226,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "HABridge",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 86477345,
+      "arm64": 87811673
+    }
   },
   {
     "dependencies": [],
@@ -978,7 +1245,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Healthchecks",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 90350612,
+      "arm64": 90745634
+    }
   },
   {
     "dependencies": [],
@@ -993,7 +1264,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "HedgeDoc",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 179154690,
+      "arm64": 189794715
+    }
   },
   {
     "dependencies": [],
@@ -1008,7 +1283,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Heimdall",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 53031842,
+      "arm64": 53756296
+    }
   },
   {
     "dependencies": [],
@@ -1023,7 +1302,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Hishtory Server",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 50034037,
+      "arm64": 48554697
+    }
   },
   {
     "dependencies": [],
@@ -1039,7 +1322,11 @@
     "new_until": false,
     "display_name": "Home Assistant",
     "screenshot_count": 6,
-    "suggested_port": 8123
+    "suggested_port": 8123,
+    "download_size": {
+      "amd64": 724223940,
+      "arm64": 711951707
+    }
   },
   {
     "dependencies": [],
@@ -1054,7 +1341,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "HTPC Manager",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 71344229,
+      "arm64": 71688497
+    }
   },
   {
     "dependencies": [],
@@ -1069,7 +1360,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Inkscape",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 630154237,
+      "arm64": 585815352
+    }
   },
   {
     "dependencies": [],
@@ -1084,7 +1379,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Jackett",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 81229007,
+      "arm64": 80149849
+    }
   },
   {
     "dependencies": ["jellystat_postgres"],
@@ -1099,7 +1398,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Jellystat",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 316457465,
+      "arm64": 310168637
+    }
   },
   {
     "dependencies": [],
@@ -1114,7 +1417,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Jellyfin",
-    "screenshot_count": 6
+    "screenshot_count": 6,
+    "download_size": {
+      "amd64": 349631531,
+      "arm64": 313026625
+    }
   },
   {
     "dependencies": [],
@@ -1129,7 +1436,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Kasm",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 294030289,
+      "arm64": 283786381
+    }
   },
   {
     "dependencies": [],
@@ -1144,7 +1455,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Kavita",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 196524851,
+      "arm64": 193874010
+    }
   },
   {
     "dependencies": [],
@@ -1159,7 +1474,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Kdenlive",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1625217683,
+      "arm64": 1664903308
+    }
   },
   {
     "dependencies": [],
@@ -1174,7 +1493,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "KeePassXC",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 624290648,
+      "arm64": 580421906
+    }
   },
   {
     "dependencies": [],
@@ -1189,7 +1512,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "KiCad",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1586010600,
+      "arm64": 1523475567
+    }
   },
   {
     "dependencies": ["kimai_mariadb"],
@@ -1204,7 +1531,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Kimai",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 223259464,
+      "arm64": 228935846
+    }
   },
   {
     "dependencies": [],
@@ -1219,7 +1550,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Krita",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1415669829
+    }
   },
   {
     "dependencies": [],
@@ -1234,7 +1568,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "LazyLibrarian",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 171254378,
+      "arm64": 167543743
+    }
   },
   {
     "dependencies": [],
@@ -1249,7 +1587,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "LDAP Auth",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 42334910,
+      "arm64": 43159106
+    }
   },
   {
     "dependencies": [],
@@ -1264,7 +1606,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "LibreOffice",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1004131253,
+      "arm64": 952164458
+    }
   },
   {
     "dependencies": [],
@@ -1279,7 +1625,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "LibreSpeed",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 64376805,
+      "arm64": 64917633
+    }
   },
   {
     "dependencies": [],
@@ -1294,7 +1644,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "LibreWolf",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1140765342,
+      "arm64": 1092032427
+    }
   },
   {
     "dependencies": [],
@@ -1309,7 +1663,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Lidarr",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 122702875,
+      "arm64": 118384135
+    }
   },
   {
     "dependencies": [],
@@ -1324,7 +1682,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Lollypop",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 638370822,
+      "arm64": 593517429
+    }
   },
   {
     "dependencies": ["lychee_mariadb"],
@@ -1339,7 +1701,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Lychee",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 249009525,
+      "arm64": 244027005
+    }
   },
   {
     "dependencies": [],
@@ -1354,7 +1720,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MariaDB",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 110454820,
+      "arm64": 108345692
+    }
   },
   {
     "dependencies": [],
@@ -1369,7 +1739,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Mastodon",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 255743068,
+      "arm64": 255591448
+    }
   },
   {
     "dependencies": [],
@@ -1384,7 +1758,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MediaElch",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1100780432
+    }
   },
   {
     "dependencies": [],
@@ -1399,7 +1776,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Medusa",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 140300658,
+      "arm64": 138071542
+    }
   },
   {
     "dependencies": [],
@@ -1414,7 +1795,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Minisatip",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 50888278,
+      "arm64": 50680847
+    }
   },
   {
     "dependencies": [],
@@ -1429,7 +1814,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Microsoft Edge",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1271617731
+    }
   },
   {
     "dependencies": [],
@@ -1444,7 +1832,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "mStream",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 395000527,
+      "arm64": 396636513
+    }
   },
   {
     "dependencies": [],
@@ -1459,7 +1851,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Mullvad Browser",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1107208030
+    }
   },
   {
     "dependencies": [],
@@ -1474,7 +1869,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Mylar3",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 193773467,
+      "arm64": 188673332
+    }
   },
   {
     "dependencies": [],
@@ -1489,7 +1888,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MySQL Workbench",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1258843155
+    }
   },
   {
     "dependencies": [],
@@ -1504,7 +1906,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "n8n",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 266888877,
+      "arm64": 266098092
+    }
   },
   {
     "dependencies": [],
@@ -1519,7 +1925,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "NetBox",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 141821277,
+      "arm64": 141590930
+    }
   },
   {
     "dependencies": [],
@@ -1534,7 +1944,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Nextcloud",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 396138850,
+      "arm64": 394671366
+    }
   },
   {
     "dependencies": [],
@@ -1549,7 +1963,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "NGINX",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 56580617,
+      "arm64": 57167177
+    }
   },
   {
     "dependencies": [],
@@ -1564,7 +1982,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "ngIRCd",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 12392757,
+      "arm64": 13414405
+    }
   },
   {
     "dependencies": [],
@@ -1579,7 +2001,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Obsidian",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 1327838773,
+      "arm64": 1288057371
+    }
   },
   {
     "dependencies": [],
@@ -1594,7 +2020,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Ombi",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 124823545,
+      "arm64": 123080267
+    }
   },
   {
     "dependencies": [],
@@ -1609,7 +2039,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "OpenSSH Server",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 15834259,
+      "arm64": 16781327
+    }
   },
   {
     "dependencies": [],
@@ -1624,7 +2058,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "OpenVSCode Server",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 154908445,
+      "arm64": 152786861
+    }
   },
   {
     "dependencies": [],
@@ -1639,7 +2077,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Opera",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1201382557
+    }
   },
   {
     "dependencies": [],
@@ -1654,7 +2095,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "OrcaSlicer",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1749058916,
+      "arm64": 1672431314
+    }
   },
   {
     "dependencies": [],
@@ -1669,7 +2114,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "OSCam",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 21401510,
+      "arm64": 22272526
+    }
   },
   {
     "dependencies": [],
@@ -1684,7 +2133,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Overseerr",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 180815611,
+      "arm64": 178805203
+    }
   },
   {
     "dependencies": [],
@@ -1699,7 +2152,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "PairDrop",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 53268058,
+      "arm64": 53502408
+    }
   },
   {
     "dependencies": [],
@@ -1714,7 +2171,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Perplexica",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 838019043,
+      "arm64": 579174262
+    }
   },
   {
     "dependencies": [],
@@ -1729,7 +2190,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "phpMyAdmin",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 54913684,
+      "arm64": 55462802
+    }
   },
   {
     "dependencies": [],
@@ -1744,7 +2209,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Pidgin",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 736283091,
+      "arm64": 686513709
+    }
   },
   {
     "dependencies": [],
@@ -1759,7 +2228,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Piwigo",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 126339374,
+      "arm64": 124497212
+    }
   },
   {
     "dependencies": [],
@@ -1774,7 +2247,11 @@
     "is_new": true,
     "new_until": "2026-04-17",
     "display_name": "Planchette",
-    "screenshot_count": 5
+    "screenshot_count": 5,
+    "download_size": {
+      "amd64": 372183050,
+      "arm64": 360359512
+    }
   },
   {
     "dependencies": [],
@@ -1791,7 +2268,11 @@
     "display_name": "Plex",
     "screenshot_count": 6,
     "suggested_port": 32400,
-    "suggested_trail": "/web"
+    "suggested_trail": "/web",
+    "download_size": {
+      "amd64": 177565013,
+      "arm64": 169985751
+    }
   },
   {
     "dependencies": [],
@@ -1806,7 +2287,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "ProjectSend",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 55250646,
+      "arm64": 56469069
+    }
   },
   {
     "dependencies": [],
@@ -1821,7 +2306,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Prowlarr",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 80049358,
+      "arm64": 79337948
+    }
   },
   {
     "dependencies": [],
@@ -1836,7 +2325,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "pwndrop",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 18719322,
+      "arm64": 19334488
+    }
   },
   {
     "dependencies": [],
@@ -1851,7 +2344,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Pydio Cells",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 154552705,
+      "arm64": 146704934
+    }
   },
   {
     "dependencies": [],
@@ -1867,22 +2364,14 @@
     "new_until": false,
     "display_name": "PyLoad NG",
     "screenshot_count": 3,
-    "default_credentials": { "username": "pyload", "password": "pyload" }
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/pylon:latest",
-    "picture_path": "docker-icons/pylon.jpg",
-    "is_group": false,
-    "name": "pylon",
-    "category": "Developer Tools",
-    "type": "Source Code Editor",
-    "icon": "mdi:source-branch",
-    "description": "Streamline coding with a sleek editor that supports a wide number of languages and frameworks",
-    "is_new": false,
-    "new_until": false,
-    "display_name": "Pylon",
-    "screenshot_count": 2
+    "default_credentials": {
+      "username": "pyload",
+      "password": "pyload"
+    },
+    "download_size": {
+      "amd64": 151079056,
+      "arm64": 149108712
+    }
   },
   {
     "dependencies": [],
@@ -1897,7 +2386,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "qBittorrent",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 100473595,
+      "arm64": 99164389
+    }
   },
   {
     "dependencies": [],
@@ -1912,7 +2405,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "QDirStat",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 990708350,
+      "arm64": 953725314
+    }
   },
   {
     "dependencies": [],
@@ -1923,11 +2420,15 @@
     "category": "Media",
     "type": "Movie Tracker",
     "icon": "mdi:movie-open",
-    "description": "Automatically manage and download movies via Usenet and BitTorrent, following the user’s defined criteria",
+    "description": "Automatically manage and download movies via Usenet and BitTorrent, following the user\u2019s defined criteria",
     "is_new": false,
     "new_until": false,
     "display_name": "Radarr",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 90129182,
+      "arm64": 88536715
+    }
   },
   {
     "dependencies": [],
@@ -1943,7 +2444,14 @@
     "new_until": false,
     "display_name": "Raneto",
     "screenshot_count": 2,
-    "default_credentials": { "username": "admin", "password": "password" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "password"
+    },
+    "download_size": {
+      "amd64": 47454287,
+      "arm64": 47682254
+    }
   },
   {
     "dependencies": [],
@@ -1958,7 +2466,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Remmina",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1125355858,
+      "arm64": 1095932545
+    }
   },
   {
     "dependencies": [],
@@ -1973,7 +2485,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Resilio Sync",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 63644818,
+      "arm64": 63047909
+    }
   },
   {
     "dependencies": [],
@@ -1988,7 +2504,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "RetroArch",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1103970857,
+      "arm64": 1061860891
+    }
   },
   {
     "dependencies": [],
@@ -2003,7 +2523,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "rsnapshot",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 24623636,
+      "arm64": 25577793
+    }
   },
   {
     "dependencies": [],
@@ -2018,7 +2542,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SABnzbd",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 69130472,
+      "arm64": 68699542
+    }
   },
   {
     "dependencies": [],
@@ -2029,11 +2557,15 @@
     "category": "Media",
     "type": "TV Series Manager",
     "icon": "mdi:television",
-    "description": "TV series manager that tracks TV show episodes, ensuring you’re up-to-date with your favorite series",
+    "description": "TV series manager that tracks TV show episodes, ensuring you\u2019re up-to-date with your favorite series",
     "is_new": false,
     "new_until": false,
     "display_name": "Series Troxide",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 927793864,
+      "arm64": 845519114
+    }
   },
   {
     "dependencies": [],
@@ -2048,7 +2580,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Shotcut",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1227262002
+    }
   },
   {
     "dependencies": [],
@@ -2063,7 +2598,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SickGear",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 71894607,
+      "arm64": 70763568
+    }
   },
   {
     "dependencies": [],
@@ -2078,22 +2617,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SmokePing",
-    "screenshot_count": 3
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/snapdrop:latest",
-    "picture_path": "docker-icons/snapdrop.jpg",
-    "is_group": false,
-    "name": "snapdrop",
-    "category": "Files & Productivity",
-    "type": "File Sharing",
-    "icon": "mdi:share-variant",
-    "description": "File-sharing tool inspired by Apple's AirDrop, facilitating quick and easy file transfers between devices",
-    "is_new": false,
-    "new_until": false,
-    "display_name": "Snapdrop",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 123103402,
+      "arm64": 124075866
+    }
   },
   {
     "dependencies": [],
@@ -2108,7 +2636,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Sonarr",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 87080988,
+      "arm64": 84885726
+    }
   },
   {
     "dependencies": [],
@@ -2124,7 +2656,14 @@
     "new_until": false,
     "display_name": "Speedtest Tracker",
     "screenshot_count": 2,
-    "default_credentials": { "username": "admin@example.com", "password": "password" }
+    "default_credentials": {
+      "username": "admin@example.com",
+      "password": "password"
+    },
+    "download_size": {
+      "amd64": 65929705,
+      "arm64": 66467847
+    }
   },
   {
     "dependencies": [],
@@ -2139,7 +2678,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Spotube",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1155552656,
+      "arm64": 1108240057
+    }
   },
   {
     "dependencies": [],
@@ -2154,22 +2697,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SQLite Browser",
-    "screenshot_count": 3
-  },
-  {
-    "dependencies": [],
-    "docker_image": "lscr.io/linuxserver/steamos:latest",
-    "picture_path": "docker-icons/steamos.jpg",
-    "is_group": false,
-    "name": "steamos",
-    "category": "Gaming",
-    "type": "Game OS",
-    "icon": "mdi:gamepad-round",
-    "description": "Linux-based OS designed for the Steam Machine gaming console platform, optimizing gaming",
-    "is_new": false,
-    "new_until": false,
-    "display_name": "SteamOS",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 654826549,
+      "arm64": 610527448
+    }
   },
   {
     "dependencies": [],
@@ -2184,7 +2716,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SWAG",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 158734932,
+      "arm64": 158813174
+    }
   },
   {
     "dependencies": [],
@@ -2199,7 +2735,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "SyncLounge",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 57092844,
+      "arm64": 57788177
+    }
   },
   {
     "dependencies": [],
@@ -2214,7 +2754,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Syncthing",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 25546853,
+      "arm64": 25751383
+    }
   },
   {
     "dependencies": [],
@@ -2229,7 +2773,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Syslog-NG",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 32806329,
+      "arm64": 33733645
+    }
   },
   {
     "dependencies": [],
@@ -2244,7 +2792,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Tautulli",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 58409906,
+      "arm64": 59286781
+    }
   },
   {
     "dependencies": [],
@@ -2259,7 +2811,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "The Lounge",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 186006359,
+      "arm64": 181492676
+    }
   },
   {
     "dependencies": [],
@@ -2274,7 +2830,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Transmission",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 34420165,
+      "arm64": 35463740
+    }
   },
   {
     "dependencies": [],
@@ -2289,7 +2849,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "TVHeadend",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 300294950,
+      "arm64": 284569105
+    }
   },
   {
     "dependencies": [],
@@ -2304,7 +2868,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Ubooquity",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 110917796,
+      "arm64": 111150784
+    }
   },
   {
     "dependencies": [],
@@ -2319,7 +2887,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "VSCodium",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 1454451148,
+      "arm64": 1410911214
+    }
   },
   {
     "dependencies": [],
@@ -2334,7 +2906,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Watch Your LAN",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 17777701,
+      "arm64": 17217083
+    }
   },
   {
     "dependencies": [],
@@ -2349,7 +2925,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WebCord",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 1306299985,
+      "arm64": 1267802752
+    }
   },
   {
     "dependencies": [],
@@ -2364,7 +2944,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WebGrab+Plus",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 131113342,
+      "arm64": 130405676
+    }
   },
   {
     "dependencies": [],
@@ -2379,7 +2963,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Webtop",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 913565649,
+      "arm64": 858806163
+    }
   },
   {
     "dependencies": [],
@@ -2394,7 +2982,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Wiki.js",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 140134620,
+      "arm64": 140285128
+    }
   },
   {
     "dependencies": [],
@@ -2409,7 +3001,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WireGuard",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 40690497,
+      "arm64": 39430893
+    }
   },
   {
     "dependencies": [],
@@ -2424,7 +3020,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Wireshark",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 683977107,
+      "arm64": 636453311
+    }
   },
   {
     "dependencies": [],
@@ -2439,7 +3039,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WPS Office",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 2373277971
+    }
   },
   {
     "dependencies": [],
@@ -2454,7 +3057,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "XBackbone",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 49057050,
+      "arm64": 49627289
+    }
   },
   {
     "dependencies": [],
@@ -2470,7 +3077,14 @@
     "new_until": false,
     "display_name": "ZNC",
     "screenshot_count": 2,
-    "default_credentials": { "username": "admin", "password": "admin" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin"
+    },
+    "download_size": {
+      "amd64": 26400658,
+      "arm64": 27159244
+    }
   },
   {
     "dependencies": [],
@@ -2485,7 +3099,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "PicoShare",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 19639160,
+      "arm64": 18354097
+    }
   },
   {
     "dependencies": [],
@@ -2500,7 +3118,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Netdata",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 323458785,
+      "arm64": 315738176
+    }
   },
   {
     "dependencies": ["owncloud_mariadb", "owncloud_redis"],
@@ -2515,7 +3137,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "ownCloud",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 585199936,
+      "arm64": 568375391
+    }
   },
   {
     "dependencies": [],
@@ -2531,7 +3157,11 @@
     "new_until": false,
     "display_name": "Pi-hole",
     "screenshot_count": 4,
-    "suggested_trail": "/admin"
+    "suggested_trail": "/admin",
+    "download_size": {
+      "amd64": 42757053,
+      "arm64": 43728177
+    }
   },
   {
     "dependencies": [],
@@ -2546,7 +3176,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Portainer",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 44820755,
+      "arm64": 41317474
+    }
   },
   {
     "dependencies": [],
@@ -2562,7 +3196,14 @@
     "new_until": false,
     "display_name": "RobiPet",
     "screenshot_count": 3,
-    "default_credentials": { "username": "admin", "password": "admin123" }
+    "default_credentials": {
+      "username": "admin",
+      "password": "admin123"
+    },
+    "download_size": {
+      "amd64": 180071368,
+      "arm64": 172891403
+    }
   },
   {
     "dependencies": [],
@@ -2577,7 +3218,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Rotki",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 135083032,
+      "arm64": 132655644
+    }
   },
   {
     "dependencies": [],
@@ -2592,7 +3237,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Vaultwarden",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 90311438,
+      "arm64": 90566854
+    }
   },
   {
     "dependencies": ["wordpress_mariadb"],
@@ -2607,7 +3256,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WordPress",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 394063592,
+      "arm64": 383929923
+    }
   },
   {
     "dependencies": [],
@@ -2622,7 +3275,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Uptime Kuma",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 156125301,
+      "arm64": 152902772
+    }
   },
   {
     "dependencies": [],
@@ -2637,7 +3294,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "IT Tools",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 22548366,
+      "arm64": 23576837
+    }
   },
   {
     "dependencies": [],
@@ -2652,7 +3313,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Jellyseerr",
-    "screenshot_count": 4
+    "screenshot_count": 4,
+    "download_size": {
+      "amd64": 428772772,
+      "arm64": 418055914
+    }
   },
   {
     "dependencies": [],
@@ -2667,7 +3332,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Homebox",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 51206481,
+      "arm64": 48154481
+    }
   },
   {
     "dependencies": [],
@@ -2682,7 +3351,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "MorphOS",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 781457852,
+      "arm64": 760557060
+    }
   },
   {
     "dependencies": [],
@@ -2697,7 +3370,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Web Check",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 522718997,
+      "arm64": 525116517
+    }
   },
   {
     "dependencies": [],
@@ -2712,7 +3389,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Compose Toolbox",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 82967936,
+      "arm64": 83896487
+    }
   },
   {
     "dependencies": [],
@@ -2727,7 +3408,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "WireGuard Easy",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 77935015,
+      "arm64": 77899305
+    }
   },
   {
     "dependencies": [],
@@ -2742,7 +3427,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Downtify",
-    "screenshot_count": 2
+    "screenshot_count": 2,
+    "download_size": {
+      "amd64": 195088637,
+      "arm64": 191245039
+    }
   },
   {
     "dependencies": [],
@@ -2757,7 +3446,11 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Homebridge",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 430363161,
+      "arm64": 425405853
+    }
   },
   {
     "dependencies": ["booklore_mariadb"],
@@ -2772,6 +3465,10 @@
     "is_new": false,
     "new_until": false,
     "display_name": "Booklore",
-    "screenshot_count": 3
+    "screenshot_count": 3,
+    "download_size": {
+      "amd64": 277587576,
+      "arm64": 275740552
+    }
   }
 ]

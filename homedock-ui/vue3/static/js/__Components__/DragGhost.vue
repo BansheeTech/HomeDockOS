@@ -8,11 +8,8 @@
     <div v-if="visible && items.length > 0" class="fixed pointer-events-none" :style="style">
       <div class="relative">
         <div class="flex flex-col items-center gap-1 p-3 rounded-lg w-[100px] opacity-90" :class="[themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected]">
-          <div class="relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden border" :class="[themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerBorderSelected]">
-            <BaseImage v-if="items[0].image_path" :src="items[0].image_path" class="w-12 h-12 object-contain pointer-events-none rounded-xl" alt="" draggable="false" />
-            <div v-else :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-              <Icon :icon="items[0].presetIcon" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
-            </div>
+          <div class="relative w-16 h-16 flex items-center justify-center">
+            <AppIconGraphic :image-src="items[0].image_path || undefined" :icon="items[0].presetIcon" :color="items[0].color" :size="52" />
           </div>
           <span :class="[themeClasses.desktopIconText]" class="text-xs text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium">
             {{ items[0].display_name || items[0].name }}
@@ -29,15 +26,15 @@
 
 <script lang="ts" setup>
 import type { CSSProperties } from "vue";
-import { Icon } from "@iconify/vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import BaseImage from "./BaseImage.vue";
+import AppIconGraphic from "./AppIconGraphic.vue";
 
 export interface DragGhostItem {
   name: string;
   display_name?: string;
   image_path?: string;
   presetIcon?: any;
+  color?: string;
 }
 
 defineProps<{

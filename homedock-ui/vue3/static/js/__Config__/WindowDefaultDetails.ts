@@ -9,6 +9,7 @@ import type { SystemApp } from "./WindowTypes";
 
 import { UTILITIES_APPS } from "./UtilitiesDefaultDetails";
 import { AUXILIARY_APPS } from "./AuxiliaryDefaultDetails";
+import { GAMES_APPS } from "./GamesDefaultDetails";
 
 import WindowLoading from "../__Components__/WindowLoading.vue";
 
@@ -77,6 +78,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "My Home",
     description: "View system information and access applications",
     icon: homedockIcon,
+    color: "#2563eb",
     component: AppHome,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -96,6 +98,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "Finder",
     description: "Search apps, files, and more",
     icon: fileSearchIcon,
+    color: "#6d28d9",
     component: AppFinder,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -115,6 +118,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "App Store",
     description: "Browse and install Docker applications",
     icon: widgetsOutlineIcon,
+    color: "#4f46e5",
     component: AppAppStore,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -134,6 +138,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "File Explorer",
     description: "Manage your files, encrypted storage, and container volumes",
     icon: folderMultipleIcon,
+    color: "#0ea5e9",
     component: AppFileExplorer,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -153,6 +158,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "Packager",
     description: "Export and import .hds application packages",
     icon: packageVariantIcon,
+    color: "#d97706",
     component: AppPackager,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -172,6 +178,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "Control Hub",
     description: "Manage your Docker containers",
     icon: nutIcon,
+    color: "#0d9488",
     component: AppControlHub,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -191,6 +198,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "System Logs",
     description: "View system and application logs",
     icon: chartTimelineVariantIcon,
+    color: "#16a34a",
     component: AppSystemLogs,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -210,6 +218,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "Settings",
     description: "Configure HomeDock OS",
     icon: tuneIcon,
+    color: "#52525b",
     component: AppSettings,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -229,6 +238,7 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
     name: "About",
     description: "View version, license, and system information",
     icon: informationOutlineIcon,
+    color: "#475569",
     component: AppAbout,
     defaultWidth: 1024,
     defaultHeight: 768,
@@ -245,7 +255,9 @@ const MAIN_SYSTEM_APPS: SystemApp[] = [
   },
 ];
 
-export const SYSTEM_APPS: SystemApp[] = [...MAIN_SYSTEM_APPS, ...AUXILIARY_APPS, ...UTILITIES_APPS];
+export const SYSTEM_APPS: SystemApp[] = [...MAIN_SYSTEM_APPS, ...AUXILIARY_APPS, ...UTILITIES_APPS, ...GAMES_APPS];
+
+export const ENTERPRISE_APP_COLOR = "#27272a";
 
 export function getAppById(appId: string): SystemApp | undefined {
   return SYSTEM_APPS.find((app) => app.id === appId);

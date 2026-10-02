@@ -66,7 +66,7 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
   const desktopFolders = computed(() => desktopStore.desktopFolders);
   const systemDesktopIcons = computed(() => desktopStore.desktopRootSystemIcons);
 
-  const isShortcutIconId = (id: string) => desktopStore.systemDesktopIcons.find((i) => i.id === id)?.shortcut !== undefined;
+  const isFolderableIconId = (id: string) => desktopStore.isFolderableIconId(id);
 
   function snapToGrid(x: number, y: number): GridPosition {
     const { sizeX, sizeY, padding } = gridConfig.value;
@@ -273,8 +273,8 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
       }
     }
 
-    if (mode === "ghost" && (item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id)))) {
-      const draggableIds = isMultiSelect ? allSelected.filter((i) => i.type === "app" || (i.type === "systemicon" && isShortcutIconId(i.id))).map((i) => i.id) : [item.id];
+    if (mode === "ghost" && (item.type === "app" || (item.type === "systemicon" && isFolderableIconId(item.id)))) {
+      const draggableIds = isMultiSelect ? allSelected.filter((i) => i.type === "app" || (i.type === "systemicon" && isFolderableIconId(i.id))).map((i) => i.id) : [item.id];
       desktopStore.setDraggedApps(draggableIds, containerId);
     }
 
@@ -342,7 +342,7 @@ export function useDesktopDragAndDrop(options: UseDragAndDropOptions): UseDragAn
     let targetFolder: DesktopFolder | null = null;
 
     if (hasMoved.value && mode === "direct") {
-      const isDroppableInFolder = (item: DragItem) => item.type === "app" || (item.type === "systemicon" && isShortcutIconId(item.id));
+      const isDroppableInFolder = (item: DragItem) => item.type === "app" || (item.type === "systemicon" && isFolderableIconId(item.id));
 
       if (isDroppableInFolder(mainItem)) {
         const mainPos = getItemPosition(mainItem);

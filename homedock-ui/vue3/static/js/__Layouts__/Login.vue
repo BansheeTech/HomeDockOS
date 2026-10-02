@@ -11,10 +11,10 @@
   <SplashScreen />
   <StaticOscillatingLines :isSuccess="isLoginSuccessful" :isError="loginError" :isLimited="isLockdown" :isChecking="!loginError && !isLoginSuccessful && !isLockdown" />
   <div :class="[themeClasses.back]" class="flex items-center justify-center min-h-screen login-wrapper relative p-3 overflow-hidden">
-    <div :class="{ bounce: isBouncing }" class="w-full max-w-xl">
-      <div :class="[themeClasses.scopeSelector, themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2">
+    <div :class="{ bounce: isBouncing }" class="w-full max-w-xl login-tilt">
+      <div ref="cardRef" :class="[themeClasses.scopeSelector, themeClasses.form]" class="group px-6 py-12 lg:px-12 rounded-3xl shadow-lg w-full relative z-10 anim-pusher mb-2 login-card" :style="tiltStyle">
         <div class="flex justify-between items-start mb-6">
-          <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-20 hd-top-form-logo animate-pulse" />
+          <HomeDockLogo3D ref="logoRef" :state="logoState" :size="120" />
         </div>
         <div class="flip-card-container" :class="{ flipped: requires2FA }">
           <div class="flip-card-inner">
@@ -24,7 +24,7 @@
               <Form layout="vertical" :model="formState" :rules="rules" @finish="handleFinish" @finishFailed="handleFinishFailed">
                 <Form.Item name="username">
                   <label class="text-gray-300" for="username">{{ $t("Username") }}</label>
-                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser" autocomplete="username" v-model:value="formState.username" :placeholder="$t('Username...')" :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group inputUser login-field" autocomplete="username" v-model:value="formState.username" :placeholder="$t('Username...')" :maxlength="30" :status="validationStatus" required @focus="showCloudInstances">
                     <template #prefix>
                       <Icon :icon="accountIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
                     </template>
@@ -33,7 +33,7 @@
                 <div class="mt-2"></div>
                 <Form.Item name="">
                   <label class="text-gray-300" for="password">{{ $t("Password") }}</label>
-                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group" autocomplete="current-password" v-model:value="formState.password" :type="passwordVisible ? 'text' : 'password'" placeholder="••••••••" :status="validationStatus" :maxlength="30" required @focus="showCloudInstances">
+                  <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10 group login-field" autocomplete="current-password" v-model:value="formState.password" :type="passwordVisible ? 'text' : 'password'" placeholder="••••••••" :status="validationStatus" :maxlength="30" required @focus="showCloudInstances">
                     <template #prefix>
                       <Icon :icon="passIcon" class="mr-0.5 transition duration-300" :class="[themeClasses.formIcon, { 'text-gray-300 group-hover:text-blue-500': validationStatus !== 'error', 'text-red-500': validationStatus === 'error' }]" width="16" height="16" />
                     </template>
@@ -46,12 +46,13 @@
                   </Input>
                 </Form.Item>
                 <Button id="main_button_login" @click="triggerBounce" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" htmlType="submit" class="w-full flex items-center justify-center h-14 mt-8 relative overflow-hidden border-0" :disabled="isSubmitting || isLoginSuccessful">
+                  <span v-if="isSubmitting" class="login-progress"></span>
                   <div v-if="!isLoginSuccessful" class="flex items-center justify-center">
                     <Icon :icon="isSubmitting ? loadingIcon : passIcon" :class="['text-white', { 'animate-spin': isSubmitting }]" width="16" height="16" />
                     <span class="ml-1">{{ $t("Sign In") }}</span>
                   </div>
                   <span v-else class="flex items-center justify-center">
-                    <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
+                    <Icon :icon="checkIcon" class="text-white login-check" width="28" height="28" />
                   </span>
                 </Button>
                 <Transition name="slide-down-error">
@@ -68,7 +69,7 @@
                 <h3 :class="[themeClasses.mainText]" class="text-lg font-medium">{{ $t("Two-Factor Authentication") }}</h3>
               </div>
               <p :class="[themeClasses.subText]" class="text-sm mb-4">{{ $t("Enter the 6-digit code from your authenticator app or a backup code:") }}</p>
-              <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-14 text-center text-xl tracking-wide mb-4" v-model:value="totpCode" :placeholder="$t('Ex: 123456')" :maxlength="12" autocomplete="one-time-code" @keyup.enter="handle2FAVerify" />
+              <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-14 text-center text-xl tracking-wide mb-4 login-field" v-model:value="totpCode" :placeholder="$t('Ex: 123456')" :maxlength="12" autocomplete="one-time-code" @keyup.enter="handle2FAVerify" />
               <div :class="[themeClasses.subText]" class="flex items-center gap-2 select-none mb-2">
                 <Switch v-model:checked="trustDevice" size="small" />
                 <span class="text-sm">{{ $t("Don't ask on this device for 30 days") }}</span>
@@ -79,12 +80,16 @@
                   {{ $t("Back") }}
                 </Button>
                 <Button id="main_button_login_2fa" class="flex-1 h-14 border-0" :class="[themeClasses.loginPrimaryButton, { clicked: isLoginSuccessful }]" @click="handle2FAVerify" :disabled="verifying2FA || isLoginSuccessful">
+                  <span v-if="verifying2FA" class="login-progress"></span>
                   <div v-if="!isLoginSuccessful && !verifying2FA" class="flex items-center justify-center">
                     <Icon :icon="checkIcon" class="text-white" width="16" height="16" />
                     <span class="ml-1">{{ $t("Verify") }}</span>
                   </div>
-                  <span v-else>
+                  <span v-else-if="verifying2FA">
                     <Icon :icon="loadingIcon" class="text-white animate-spin" width="26" height="26" />
+                  </span>
+                  <span v-else class="flex items-center justify-center">
+                    <Icon :icon="checkIcon" class="text-white login-check" width="28" height="28" />
                   </span>
                 </Button>
               </div>
@@ -109,6 +114,7 @@
             </svg>
           </a>
         </div>
+        <div class="login-glare" :class="themeClasses.loginCardGlare" :style="glareStyle"></div>
       </div>
       <CloudInstances :isVisible="cloudInstancesVisible" @update:isVisible="cloudInstancesVisible = $event" />
     </div>
@@ -117,9 +123,10 @@
 <script setup lang="ts">
 import axios from "axios";
 
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useCardTilt } from "../__Composables__/useCardTilt";
 
 const { t } = useI18n();
 
@@ -186,7 +193,7 @@ import Favicon from "../__Components__/Favicon.vue";
 import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
-import BaseImage from "../__Components__/BaseImage.vue";
+import HomeDockLogo3D from "../__Components__/HomeDockLogo3D.vue";
 import StaticOscillatingLines from "../__Components__/StaticOscillatingLines.vue";
 import SplashScreen from "../__Components__/SplashScreen.vue";
 import CloudInstances from "../__Components__/CloudInstances.vue";
@@ -196,20 +203,30 @@ const formState = ref({
   password: "",
 });
 
+const logoRef = ref<InstanceType<typeof HomeDockLogo3D> | null>(null);
+
 watch(
   () => formState.value.username,
   (next) => {
     const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
     if (clamped !== next) formState.value.username = clamped;
+    else logoRef.value?.nudge("front");
   },
 );
 watch(
   () => formState.value.password,
   (next) => {
     const clamped = clampToBytes(next, BCRYPT_MAX_BYTES);
-    if (clamped !== next) formState.value.password = clamped;
+    if (clamped !== next) {
+      formState.value.password = clamped;
+      return;
+    }
+    logoRef.value?.setSecretLength(next.length);
+    logoRef.value?.nudge("back");
   },
 );
+
+const { cardRef, tiltStyle, glareStyle } = useCardTilt();
 
 const isBouncing = ref(false);
 
@@ -254,6 +271,15 @@ const flashLoginError = () => {
 };
 
 const { themeClasses } = useTheme();
+
+const logoState = computed(() => {
+  if (isLockdown.value) return "limited";
+  if (isLoginSuccessful.value) return "success";
+  if (loginError.value) return "error";
+  if (isSubmitting.value || verifying2FA.value) return "checking";
+  if (requires2FA.value) return "awaiting";
+  return "idle";
+});
 
 const requires2FA = ref<boolean>(false);
 const pending2FAToken = ref<string>("");
@@ -546,17 +572,104 @@ const cancel2FA = () => {
 /* Theme-specific clicked animation colors */
 .white-mode-theme #main_button_login::before,
 .white-mode-theme #main_button_login_2fa::before {
-  --login-button-clicked-bg: rgb(156, 163, 175);
+  --login-button-clicked-bg: rgb(22, 163, 74);
 }
 
 .dark-mode-theme #main_button_login::before,
 .dark-mode-theme #main_button_login_2fa::before {
-  --login-button-clicked-bg: rgb(82, 82, 91);
+  --login-button-clicked-bg: rgb(22, 163, 74);
 }
 
 .aero-mode-theme #main_button_login::before,
 .aero-mode-theme #main_button_login_2fa::before {
-  --login-button-clicked-bg: rgba(255, 255, 255, 0.2);
+  --login-button-clicked-bg: rgba(34, 197, 94, 0.55);
+}
+
+.login-progress {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) no-repeat;
+  background-size: 45% 100%;
+  animation: login-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes login-progress {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+
+.login-check {
+  animation: login-check-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+}
+
+@keyframes login-check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Field glow */
+@property --login-field-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.login-field {
+  --login-field-glow: #3b82f6;
+  --login-field-glow-soft: #93c5fd;
+}
+
+.login-field.ant-input-affix-wrapper-status-error,
+.login-field.ant-input-status-error {
+  --login-field-glow: #ef4444;
+  --login-field-glow-soft: #fca5a5;
+}
+
+.login-field.ant-input-affix-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--login-field-angle), transparent 0deg, var(--login-field-glow) 70deg, var(--login-field-glow-soft) 110deg, transparent 180deg, transparent 360deg);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: login-field-spin 3s linear infinite;
+}
+
+.login-field.ant-input-affix-wrapper-focused::before,
+.login-field.ant-input-affix-wrapper-status-error::before {
+  opacity: 1;
+}
+
+.login-field.ant-input-affix-wrapper-focused,
+.login-field.ant-input:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--login-field-glow) 18%, transparent) !important;
+}
+
+@keyframes login-field-spin {
+  to {
+    --login-field-angle: 360deg;
+  }
 }
 
 /* Bounce Effect */
@@ -634,25 +747,5 @@ const cancel2FA = () => {
 
 ::v-deep(.aero-mode-theme input::placeholder) {
   color: rgb(100, 100, 100) !important;
-}
-
-::v-deep(.white-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill) {
-  background-color: transparent !important;
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
-  -webkit-text-fill-color: #fff !important;
-}
-
-::v-deep(.white-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(255, 255, 255) inset !important;
-}
-
-::v-deep(.dark-mode-theme input:autofill:hover) {
-  box-shadow: 0 0 0 1000px rgb(39, 39, 42) inset !important;
 }
 </style>

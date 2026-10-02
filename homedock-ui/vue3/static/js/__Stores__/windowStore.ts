@@ -19,6 +19,11 @@ export type WindowState = Omit<PrismWindowState, "icon" | "data"> & {
   data?: Record<string, unknown> & { app?: { name?: string } };
 };
 
+export function windowIconOverlay(win: Pick<WindowState, "appId" | "icon">): IconifyIcon | null {
+  const app = getAppById(win.appId);
+  return app?.iconOverlay && isImageIcon(win.icon) ? (app.icon as IconifyIcon) : null;
+}
+
 export interface PreSnapBounds {
   x: number;
   y: number;
@@ -28,7 +33,11 @@ export interface PreSnapBounds {
 
 export type SnapPreviewSide = "left" | "right" | null;
 
-const core = new WindowManagerStore({
+declare global {
+  var __homedock_prism_store__: WindowManagerStore | undefined;
+}
+
+const core: WindowManagerStore = (globalThis.__homedock_prism_store__ ??= new WindowManagerStore({
   resolveApp: (appId) => getAppById(appId),
   translate: (appId) => {
     const app = getAppById(appId);
@@ -39,7 +48,7 @@ const core = new WindowManagerStore({
     if (!win) return true;
     return window.dispatchEvent(new CustomEvent(`homedock:request-close-${win.id}`, { cancelable: true }));
   },
-});
+}));
 
 const useWindowStoreBase = defineStore("window", {
   state: () => ({

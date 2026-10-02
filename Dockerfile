@@ -7,7 +7,7 @@ FROM python:3.12-alpine
 
 LABEL maintainer="Banshee Technologies S.L."
 LABEL description="HomeDock OS - One Docker container to rule them all, a self-hosted Cloud OS for your Home Server."
-LABEL version="2.4.2.120"
+LABEL version="2.6.2.88"
 
 # Workdir
 WORKDIR /homedock

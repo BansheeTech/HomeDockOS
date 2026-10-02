@@ -400,7 +400,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="calendarIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="calendarIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Calendar") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -454,6 +454,7 @@ import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useWindowStore } from "../__Stores__/windowStore";
 import { useCalendarStore } from "../__Stores__/useCalendarStore";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
 
 import type { SettingsData } from "../__Types__/SettingsData";

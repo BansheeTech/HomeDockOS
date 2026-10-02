@@ -14,5 +14,5 @@ const props = defineProps<{
   src: string;
 }>();
 
-const computedSrc = computed(() => (props.src.startsWith("/") ? props.src : `/images/${props.src}`));
+const computedSrc = computed(() => (props.src.startsWith("/") || /^(data:|blob:|https?:)/.test(props.src) ? props.src : `/images/${props.src}`));
 </script>

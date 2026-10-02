@@ -13,8 +13,7 @@
   <div v-if="isOpen" class="hd-qv-layer" @mousedown.self="close">
     <button v-for="item in slots" :key="item.id" type="button" class="hd-qv-slot" :class="[hoveredId === item.id ? 'hd-qv-slot-active' : '']" :style="{ left: `${item.x}px`, top: `${item.y}px`, width: `${item.width}px`, height: `${item.height}px` }" @mousedown.stop="pick(item.id)" @mouseenter="hoveredId = item.id" @mouseleave="handleLeave(item.id)" :title="item.title">
       <span class="hd-qv-label" :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder, themeClasses.contextMenuItem]">
-        <BaseImage v-if="isImageIcon(item.icon)" :src="item.icon" alt="" class="rounded-[3px] flex-shrink-0" width="14" height="14" draggable="false" />
-        <Icon v-else-if="item.icon" :icon="item.icon as IconifyIcon" width="14" height="14" class="flex-shrink-0" />
+        <WindowIcon v-if="item.icon" :window="item" :size="14" />
         <span class="hd-qv-label-text">{{ item.title }}</span>
       </span>
     </button>
@@ -24,18 +23,18 @@
 <script lang="ts" setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 
-import { Icon } from "@iconify/vue";
 import type { IconifyIcon } from "@iconify/vue";
 
-import { useWindowStore, isImageIcon, type WindowState } from "../__Stores__/windowStore";
+import { useWindowStore, type WindowState } from "../__Stores__/windowStore";
 import { useQuickViewStore } from "../__Stores__/useQuickViewStore";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import BaseImage from "../__Components__/BaseImage.vue";
+import WindowIcon from "../__Components__/WindowIcon.vue";
 
 interface ExposeSlot {
   id: string;
+  appId: string;
   title: string;
   icon: string | IconifyIcon | null;
   x: number;
@@ -166,6 +165,7 @@ function layout() {
 
     next.push({
       id: win.id,
+      appId: win.appId,
       title: win.title || "",
       icon: win.icon ?? null,
       x,

@@ -15,7 +15,7 @@ interface Application {
   status: string;
 }
 
-export async function stopContainers(applications: Application[], containerName: string, csrfToken: string): Promise<void> {
+export async function stopContainers(applications: Application[], containerName: string, csrfToken: string, force = false): Promise<void> {
   const mainContainer = applications.find((app) => app.name === containerName);
 
   if (!mainContainer) {
@@ -26,7 +26,9 @@ export async function stopContainers(applications: Application[], containerName:
   const store = useSelectedAppsStore();
   const group = mainContainer.HDGroup;
 
-  const dependencies = applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group);
+  const isGrouped = !!group && mainContainer.HDRole !== "dependency";
+
+  const dependencies = isGrouped ? applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group) : [];
 
   const affectedContainers = [mainContainer, ...dependencies];
 
@@ -41,7 +43,7 @@ export async function stopContainers(applications: Application[], containerName:
   const namesToStop = containersToStop.map((app) => app.name);
 
   try {
-    const response = await axios.post("/api/stop_containers", { container_names: namesToStop }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
+    const response = await axios.post("/api/stop_containers", { container_names: namesToStop, force }, { headers: { "X-HomeDock-CSRF-Token": csrfToken } });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

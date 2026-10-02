@@ -9,10 +9,11 @@
       <div v-if="fileData" class="flex flex-col">
         <div class="hero-section" :class="[themeClasses.aeroExtraScope, themeClasses.appPropsHeroBorder]">
           <div class="hero-gradient"></div>
+          <FolderGraphic v-if="fileData.is_directory" :emblem="folderEmblem" :size="190" class="hero-watermark" :class="themeClasses.appPropsHeroWatermark" />
+          <FileGraphic v-else :name="fileData.name" :size="190" class="hero-watermark" :class="themeClasses.appPropsHeroWatermark" />
           <div class="relative flex items-center gap-4 px-4 py-3">
-            <div class="file-icon-container">
-              <Icon :icon="fileIcon" width="48" height="48" :class="[themeClasses.appPropsCardHeaderIcon]" />
-            </div>
+            <FolderGraphic v-if="fileData.is_directory" :emblem="folderEmblem" />
+            <FileGraphic v-else :name="fileData.name" />
             <div class="flex-1 flex flex-col justify-center gap-1 min-w-0">
               <h2 class="text-xl font-bold m-0 leading-tight truncate" :class="[themeClasses.notTextUp]">{{ displayName }}</h2>
               <p class="text-sm opacity-70 m-0" :class="[themeClasses.notTextDown]">{{ $t(fileTypeLabel) }}</p>
@@ -165,7 +166,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="infoIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="infoIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("File Properties") }}</h4>
           </div>
 
@@ -197,17 +198,13 @@ import fileDocumentIcon from "@iconify-icons/mdi/file-document";
 import chartIcon from "@iconify-icons/mdi/chart-box-outline";
 import containerIcon from "@iconify-icons/mdi/package-variant-closed";
 import dockerIcon from "@iconify-icons/mdi/docker";
-import folderIcon from "@iconify-icons/mdi/folder";
-import defaultFileIcon from "@iconify-icons/mdi/file";
-import imageIcon from "@iconify-icons/mdi/file-image";
-import videoIcon from "@iconify-icons/mdi/file-video";
-import musicIcon from "@iconify-icons/mdi/file-music";
-import pdfIcon from "@iconify-icons/mdi/file-pdf-box";
-import codeIcon from "@iconify-icons/mdi/file-code";
-import zipIcon from "@iconify-icons/mdi/zip-box";
-import textIcon from "@iconify-icons/mdi/file-document";
+
+import { SPECIAL_FOLDER_ICONS } from "../__Config__/FileIcons";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
+import FolderGraphic from "../__Components__/FolderGraphic.vue";
+import FileGraphic from "../__Components__/FileGraphic.vue";
 
 interface FileData {
   name: string;
@@ -325,26 +322,10 @@ const fileTypeLabel = computed(() => {
   return typeMap[ext] || t("{ext} File", { ext: ext.toUpperCase() });
 });
 
-const fileIcon = computed(() => {
-  if (!fileData.value) return defaultFileIcon;
-  if (fileData.value.is_directory) return folderIcon;
-
-  const ext = fileExtension.value;
-  const imageExts = ["jpg", "jpeg", "png", "gif", "webp", "svg", "ico", "bmp"];
-  const videoExts = ["mp4", "webm", "mov", "avi", "mkv"];
-  const audioExts = ["mp3", "wav", "flac", "ogg", "m4a"];
-  const codeExts = ["js", "ts", "vue", "py", "go", "rs", "java", "c", "cpp", "h", "html", "css", "json", "xml"];
-  const archiveExts = ["zip", "rar", "7z", "tar", "gz"];
-
-  if (ext === "pdf") return pdfIcon;
-  if (imageExts.includes(ext)) return imageIcon;
-  if (videoExts.includes(ext)) return videoIcon;
-  if (audioExts.includes(ext)) return musicIcon;
-  if (codeExts.includes(ext)) return codeIcon;
-  if (archiveExts.includes(ext)) return zipIcon;
-  if (["txt", "md", "log", "doc", "docx"].includes(ext)) return textIcon;
-
-  return defaultFileIcon;
+const folderEmblem = computed(() => {
+  if (!fileData.value?.is_directory || location.value !== "storage" || filePath.value) return undefined;
+  const folderName = fileData.value.name.split("/").pop() || fileData.value.name;
+  return SPECIAL_FOLDER_ICONS[folderName];
 });
 
 const locationLabel = computed(() => {
@@ -429,20 +410,12 @@ const relativeTime = computed(() => {
   pointer-events: none;
 }
 
-/* File Icon Container */
-.file-icon-container {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+.hero-section .hero-watermark {
+  position: absolute;
+  top: 50%;
+  right: -36px;
+  transform: translateY(-50%) rotate(-33deg);
+  pointer-events: none;
 }
 
 /* Tab transition animations - Cross-Fade */

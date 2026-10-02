@@ -7,6 +7,7 @@ https://www.banshee.pro
 
 import os
 import re
+import json
 import yaml
 import hashlib
 
@@ -18,6 +19,7 @@ from pymodules.hd_FunctionsNativeSSL import ssl_enabled
 from pymodules.hd_ComposeDevHooks import process_devhooks, extract_devhook_placeholders, DEVHOOK_USER_NAME_KEY, DEVHOOK_PASSWORD_KEY, DEVHOOK_SYSTEM_PASSWORD_KEY, DEVHOOK_RANDOM_STRING_KEY
 from pymodules.hd_HDSPackageManager import normalize_app_slug
 from pymodules.hd_PortValidator import validate_ports
+from pymodules.hd_ImageDownloadSize import compose_images, host_architecture, images_download_size
 
 
 @login_required
@@ -329,6 +331,65 @@ def process_config():
 
     else:
         return jsonify({"success": False, "message": "Invalid configuration type provided"}), 400
+
+
+_catalog_sizes = {"mtime": None, "sizes": {}}
+
+
+def catalog_download_sizes():
+    catalog_path = os.path.join(current_directory, "homedock-ui", "vue3", "static", "js", "__Data__", "AppStoreDefault.json")
+    try:
+        mtime = os.path.getmtime(catalog_path)
+    except OSError:
+        return {}
+
+    if _catalog_sizes["mtime"] != mtime:
+        try:
+            with open(catalog_path, "r", encoding="utf-8") as file:
+                catalog = json.load(file)
+            _catalog_sizes["sizes"] = {app["name"]: app["download_size"] for app in catalog if isinstance(app.get("download_size"), dict)}
+        except (OSError, ValueError, KeyError, TypeError):
+            _catalog_sizes["sizes"] = {}
+        _catalog_sizes["mtime"] = mtime
+
+    return _catalog_sizes["sizes"]
+
+
+def resolve_appstore_yml_path(container_name):
+    app_store_folder = os.path.join(current_directory, "app-store")
+    user_packages_folder = os.path.join(current_directory, "_user_packages", "_available")
+
+    candidates = [os.path.join(app_store_folder, f"{container_name}.yml"), os.path.join(user_packages_folder, f"{container_name}.yml")]
+    if " " in container_name:
+        candidates.append(os.path.join(user_packages_folder, f"{normalize_app_slug(container_name)}.yml"))
+
+    return next((path for path in candidates if os.path.exists(path)), None)
+
+
+@login_required
+def get_app_download_size():
+    containerName = request.args.get("containerName")
+
+    if not is_valid_container_name(containerName):
+        return jsonify({"success": False, "message": "Invalid container name"}), 400
+
+    architecture = host_architecture()
+
+    catalog_size = catalog_download_sizes().get(containerName, {}).get(architecture)
+    if isinstance(catalog_size, int):
+        return jsonify({"success": True, "data": {"size": catalog_size, "complete": True, "compatible": True, "architecture": architecture}})
+
+    yml_file_path = resolve_appstore_yml_path(containerName)
+    if not yml_file_path:
+        return jsonify({"success": False, "message": "Container not found"}), 404
+
+    with open(yml_file_path, "r") as file:
+        result = images_download_size(compose_images(file.read()), architecture)
+
+    if result is None:
+        return jsonify({"success": True, "data": None})
+
+    return jsonify({"success": True, "data": {**result, "architecture": architecture}})
 
 
 def is_valid_container_name(name):

@@ -25,6 +25,7 @@ export interface App {
   author?: string;
   version?: string;
   screenshot_count?: number;
+  download_size?: { amd64?: number; arm64?: number };
   default_credentials?: { username: string; password: string };
   pwd_min_required?: number;
   suggested_port?: number;

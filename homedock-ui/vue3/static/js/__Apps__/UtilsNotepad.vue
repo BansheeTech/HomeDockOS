@@ -25,14 +25,14 @@
               </div>
             </MenuItem>
             <MenuDivider />
-            <MenuItem key="save" @click="handleSave" :disabled="!activeTab?.content?.trim()">
+            <MenuItem key="save" @click="handleSave" :disabled="!hasText">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveIcon" class="w-4 h-4" />
                 <span>{{ $t("Save") }}</span>
                 <span class="ml-auto text-[10px] opacity-50">Ctrl+S</span>
               </div>
             </MenuItem>
-            <MenuItem key="saveas" @click="openSaveAsDialog" :disabled="!activeTab?.content?.trim()">
+            <MenuItem key="saveas" @click="openSaveAsDialog" :disabled="!hasText">
               <div class="flex items-center gap-2">
                 <Icon :icon="contentSaveEditIcon" class="w-4 h-4" />
                 <span>{{ $t("Save As...") }}</span>
@@ -184,8 +184,8 @@
 
       <!-- Split view: editor + live preview -->
       <div v-else-if="isMarkdownFile && previewMode === 'split'" class="flex gap-2 w-full h-full">
-        <div class="relative w-1/2 h-full flex-shrink-0">
-          <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowText, themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap overflow-x-hidden' : 'whitespace-pre overflow-x-auto']" class="w-full h-full resize-none p-3 leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" @scroll="syncSplitScroll('editor')" spellcheck="false"></textarea>
+        <div :class="[themeClasses.windowText, themeClasses.windowBorder]" class="relative w-1/2 h-full flex-shrink-0 rounded-lg border overflow-hidden" @keydown.capture="handleKeydown">
+          <CodeMirrorEditor ref="editorRef" :state-key="activeTabId" :load-state="loadState" :wrap="wordWrap" :font-size="fontSize" @update="handleEditorUpdate" @scroll="syncSplitScroll('editor')" />
         </div>
         <div ref="splitPreviewRef" class="w-1/2 h-full overflow-auto rounded-lg border p-4" :class="[themeClasses.windowBorder]" @scroll="syncSplitScroll('preview')">
           <div class="notepad-markdown-preview prose prose-sm prose-invert max-w-none select-text" :class="[themeClasses.windowText]" :style="{ fontSize: fontSize + 'px', ...cssVars, userSelect: 'text', cursor: 'text' }" v-html="renderedMarkdown"></div>
@@ -193,8 +193,8 @@
       </div>
 
       <!-- Editor only -->
-      <div v-else class="relative w-full h-full">
-        <textarea ref="textareaRef" v-model="activeTabContent" :class="[themeClasses.windowText, themeClasses.windowBorder, wordWrap ? 'whitespace-pre-wrap overflow-x-hidden' : 'whitespace-pre overflow-x-auto']" class="w-full h-full resize-none p-3 leading-relaxed rounded-lg border outline-none bg-transparent" :style="{ fontSize: fontSize + 'px' }" @input="handleInput" @keydown="handleKeydown" spellcheck="false"></textarea>
+      <div v-else :class="[themeClasses.windowText, themeClasses.windowBorder]" class="relative w-full h-full rounded-lg border overflow-hidden" @keydown.capture="handleKeydown">
+        <CodeMirrorEditor ref="editorRef" :state-key="activeTabId" :load-state="loadState" :wrap="wordWrap" :font-size="fontSize" @update="handleEditorUpdate" />
       </div>
     </div>
 
@@ -202,7 +202,7 @@
       <template #help>
         <div class="space-y-3 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="textFileIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="textFileIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Notepad") }}</h4>
           </div>
           <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
@@ -307,8 +307,9 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, nextTick, markRaw } from "vue";
 import { useI18n } from "vue-i18n";
+import type { EditorState, Text } from "@codemirror/state";
 
 import { Dropdown, Menu, MenuItem, MenuDivider } from "ant-design-vue";
 
@@ -340,12 +341,15 @@ import pencilIcon from "@iconify-icons/mdi/pencil";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useWindowStore } from "../__Stores__/windowStore";
-import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
+import { useExternalFile } from "../__Composables__/useExternalFile";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
+import CodeMirrorEditor, { createEditorState, countWords, findText as findTextInDoc, replaceAllText } from "../__Components__/CodeMirrorEditor.vue";
 
 import { notifyError, notifySuccess } from "../__Components__/Notifications.vue";
+import { uniqueStorageName } from "../__Utils__/StorageUpload";
 
 interface ExternalFile {
   path: string;
@@ -363,19 +367,26 @@ interface StorageNote {
   size: number;
 }
 
+type TabFile = Omit<ExternalFile, "content">;
+
 interface Tab {
   id: string;
   title: string;
-  content: string;
-  originalContent: string;
+  savedDoc: Text;
   isModified: boolean;
   originalFilename: string | null;
-  externalFile: ExternalFile | null;
+  externalFile: TabFile | null;
+}
+
+interface TextFile {
+  name: string;
+  content: string;
 }
 
 interface Props {
   _windowId?: string;
   externalFile?: ExternalFile;
+  textFile?: TextFile;
   data?: {
     externalFile?: ExternalFile;
   };
@@ -386,47 +397,62 @@ const { themeClasses } = useTheme();
 const { t } = useI18n();
 const csrfToken = useCsrfToken();
 const windowStore = useWindowStore();
-const disksPlusStore = useDisksPlusStore();
+const { saveToSource } = useExternalFile();
+
+function saveDoc(target: TabFile, doc: Text) {
+  return saveToSource({ ...target, name: target.path.split("/").pop() || target.path }, new Blob([doc.toString()]), "text/plain");
+}
 
 function generateTabId(): string {
   return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-function createEmptyTab(): Tab {
-  return {
-    id: generateTabId(),
-    title: "Untitled",
-    content: "",
-    originalContent: "",
-    isModified: false,
-    originalFilename: null,
-    externalFile: null,
-  };
+const editorStates = new Map<string, EditorState>();
+
+function toTabFile({ content: _content, ...file }: ExternalFile): TabFile {
+  return file;
 }
 
-const tabs = ref<Tab[]>([createEmptyTab()]);
+function createTab(text: string, fields: Partial<Omit<Tab, "id" | "savedDoc">> = {}): Tab {
+  const state = createEditorState(text);
+  const tab: Tab = { id: generateTabId(), title: "Untitled", isModified: false, originalFilename: null, externalFile: null, ...fields, savedDoc: markRaw(state.doc) };
+  editorStates.set(tab.id, state);
+  return tab;
+}
+
+function createInitialTab(): Tab {
+  const extFile = props.externalFile || props.data?.externalFile;
+  if (extFile) return createTab(extFile.content, { title: extFile.path.split("/").pop() || "File", externalFile: toTabFile(extFile) });
+  if (props.textFile) return createTab(props.textFile.content, { title: props.textFile.name });
+  return createTab("");
+}
+
+const tabs = ref<Tab[]>([createInitialTab()]);
 const activeTabId = ref(tabs.value[0].id);
 
 const activeTab = computed(() => tabs.value.find((t) => t.id === activeTabId.value) || tabs.value[0]);
 
-const activeTabContent = computed({
-  get: () => activeTab.value?.content || "",
-  set: (value: string) => {
-    const tab = tabs.value.find((t) => t.id === activeTabId.value);
-    if (tab) {
-      tab.content = value;
-    }
-  },
-});
+function loadState(tabId: string): EditorState {
+  return editorStates.get(tabId)!;
+}
 
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
+function tabDoc(tab: Tab): Text {
+  return editorStates.get(tab.id)!.doc;
+}
+
+function markSaved(tab: Tab, doc: Text) {
+  tab.savedDoc = markRaw(doc);
+  tab.isModified = !tabDoc(tab).eq(doc);
+}
+
+const editorRef = ref<InstanceType<typeof CodeMirrorEditor> | null>(null);
 const splitPreviewRef = ref<HTMLElement | null>(null);
 
 let isSyncingScroll = false;
 function syncSplitScroll(source: "editor" | "preview") {
   if (isSyncingScroll) return;
   isSyncingScroll = true;
-  const editor = textareaRef.value;
+  const editor = editorRef.value?.view?.scrollDOM;
   const preview = splitPreviewRef.value;
   if (!editor || !preview) {
     isSyncingScroll = false;
@@ -452,6 +478,7 @@ const fontSize = ref(12);
 const MIN_FONT_SIZE = 8;
 const MAX_FONT_SIZE = 24;
 const DEFAULT_FONT_SIZE = 12;
+const REFRESH_DELAY_MS = 150;
 
 const wordWrap = ref(true);
 
@@ -554,9 +581,11 @@ markedRenderer.link = function ({ href, title, text }: { href: string; title?: s
   return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
 };
 
+const previewSource = ref("");
+
 const renderedMarkdown = computed(() => {
   if (!isMarkdownFile.value || previewMode.value === "edit") return "";
-  const raw = marked.parse(activeTab.value?.content || "", {
+  const raw = marked.parse(previewSource.value, {
     breaks: true,
     gfm: true,
     renderer: markedRenderer,
@@ -571,13 +600,34 @@ const cssVars = computed(() => ({
   "--extimg-icon": EXTIMG_ICON_MASK,
 }));
 
-const lineCount = computed(() => (activeTab.value?.content || "").split("\n").length);
-const wordCount = computed(() => {
-  const text = (activeTab.value?.content || "").trim();
-  if (!text) return 0;
-  return text.split(/\s+/).length;
-});
-const charCount = computed(() => (activeTab.value?.content || "").length);
+const textStats = ref({ lines: 1, words: 0, chars: 0 });
+const hasText = computed(() => textStats.value.words > 0);
+let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+let statsToken = 0;
+
+async function refreshText() {
+  const tab = activeTab.value;
+  const doc = loadState(tab.id).doc;
+  tab.isModified = !doc.eq(tab.savedDoc);
+  if (isMarkdownFile.value && previewMode.value !== "edit") previewSource.value = doc.toString();
+
+  const token = ++statsToken;
+  textStats.value = { lines: doc.lines, words: textStats.value.words, chars: doc.length };
+  const words = await countWords(doc, () => token === statsToken);
+  if (words !== null) textStats.value = { ...textStats.value, words };
+}
+
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refreshText, REFRESH_DELAY_MS);
+}
+
+function handleEditorUpdate(state: EditorState, docChanged: boolean) {
+  editorStates.set(activeTabId.value, state);
+  if (!docChanged) return;
+  activeTab.value.isModified = true;
+  scheduleRefresh();
+}
 
 const statusIcon = computed(() => {
   const tab = activeTab.value;
@@ -599,7 +649,7 @@ const statusMessage = computed(() => {
   }
   return t("Editing in Notes");
 });
-const statusInfo = computed(() => `Ln ${lineCount.value} | Words ${wordCount.value} | ${charCount.value} chars`);
+const statusInfo = computed(() => `Ln ${textStats.value.lines} | Words ${textStats.value.words} | ${textStats.value.chars} chars`);
 
 const windowCloseDialogMessage = computed(() => {
   const unsavedTabs = tabs.value.filter((tab) => tab.isModified);
@@ -681,15 +731,8 @@ function updateWindowTitle() {
 
 watch([activeTabId, () => activeTab.value?.title, () => activeTab.value?.isModified], updateWindowTitle);
 
-function handleInput() {
-  const tab = activeTab.value;
-  if (tab) {
-    tab.isModified = tab.content !== tab.originalContent;
-  }
-}
-
 function handleNewTab() {
-  const newTab = createEmptyTab();
+  const newTab = createTab("");
   tabs.value.push(newTab);
   activeTabId.value = newTab.id;
 }
@@ -719,6 +762,7 @@ function performCloseTab(tabId: string) {
   if (activeTabId.value === tabId) {
     activeTabId.value = tabs.value[Math.max(0, index - 1)].id;
   }
+  editorStates.delete(tabId);
 }
 
 function confirmCloseTab() {
@@ -763,66 +807,15 @@ async function ensureNotesFolderExists() {
   }
 }
 
-async function checkFileExists(path: string): Promise<boolean> {
-  try {
-    await axios.get("/api/storage/download", {
-      params: { file: path },
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      responseType: "blob",
-    });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 async function saveNoteToStorage(tab: Tab) {
   try {
     const filename = tab.originalFilename || sanitizeFilename(tab.title) + ".txt";
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, filename);
-    formData.append("path", "Notes");
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Notes/${filename}` }, doc);
 
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = filename;
     notifySuccess(t("Note saved"), t("Saved to Notes/{f}", { f: filename }), themeClasses.value.scopeSelector);
-  } catch (error: any) {
-    notifyError(t(error.response?.data?.error || "Failed to save note"));
-  }
-}
-
-async function saveNoteWithRename(tab: Tab, newFilename: string) {
-  try {
-    const exists = await checkFileExists(`Notes/${newFilename}`);
-    if (exists) {
-      t(`A note named "${newFilename.replace(".txt", "")}" already exists`);
-      return;
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, newFilename);
-    formData.append("path", "Notes");
-
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    if (tab.originalFilename) {
-      await axios.post("/api/storage/delete", { file: `Notes/${tab.originalFilename}` }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
-    }
-
-    tab.originalContent = tab.content;
-    tab.isModified = false;
-    tab.originalFilename = newFilename;
-    tab.title = newFilename.replace(".txt", "");
-    notifySuccess(t("Note saved"), t("Saved to Notes/{f}", { f: newFilename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
     notifyError(t(error.response?.data?.error || "Failed to save note"));
   }
@@ -832,7 +825,7 @@ async function handleSave() {
   const tab = activeTab.value;
   if (!tab) return;
 
-  if (hasEncodingIssues(tab.content)) {
+  if (hasEncodingIssues(tabDoc(tab).toString())) {
     pendingSaveAction.value = performSave;
     showEncodingWarningDialog.value = true;
     return;
@@ -856,12 +849,7 @@ async function performSave() {
     return;
   }
 
-  const expectedFilename = sanitizeFilename(tab.title) + ".txt";
-  if (expectedFilename !== tab.originalFilename) {
-    await saveNoteWithRename(tab, expectedFilename);
-  } else {
-    await saveNoteToStorage(tab);
-  }
+  await saveNoteToStorage(tab);
 }
 
 function openSaveAsDialog() {
@@ -875,7 +863,7 @@ async function handleSaveAs() {
   const tab = activeTab.value;
   if (!tab) return;
 
-  if (hasEncodingIssues(tab.content)) {
+  if (hasEncodingIssues(tabDoc(tab).toString())) {
     showSaveAsDialog.value = false;
     pendingSaveAction.value = performSaveAs;
     showEncodingWarningDialog.value = true;
@@ -895,29 +883,12 @@ async function performSaveAs() {
   try {
     await ensureNotesFolderExists();
 
-    let finalFilename = baseFilename + ".txt";
-    let counter = 1;
-    while (await checkFileExists(`Notes/${finalFilename}`)) {
-      finalFilename = `${baseFilename} (${counter}).txt`;
-      counter++;
-      if (counter > 100) {
-        notifyError(t("Too many notes with this name"));
-        return;
-      }
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, finalFilename);
-    formData.append("path", "Notes");
-
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
+    const finalFilename = await uniqueStorageName("Notes", baseFilename + ".txt", csrfToken.value);
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Notes/${finalFilename}` }, doc);
 
     tab.title = finalFilename.replace(".txt", "");
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = finalFilename;
     tab.externalFile = null;
     showSaveAsDialog.value = false;
@@ -933,75 +904,15 @@ async function handleSaveToExternal() {
 
   try {
     const ext = tab.externalFile;
-
-    if (ext.source === "storage") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/storage/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "dropzone") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/dropzone/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "appdrive") {
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-      formData.append("container", ext.container || "");
-      formData.append("mount", String(ext.mountIndex ?? 0));
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/appdrive/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } else if (ext.source === "disksplus") {
-      if (!ext.disk) {
-        notifyError(t("Disks+ save failed: missing disk id"));
-        return;
-      }
-      const formData = new FormData();
-      const blob = new Blob([tab.content], { type: "text/plain" });
-      formData.append("file", blob, ext.path.split("/").pop() || "file.txt");
-      formData.append("disk", ext.disk);
-
-      const pathParts = ext.path.split("/");
-      pathParts.pop();
-      if (pathParts.length > 0) {
-        formData.append("path", pathParts.join("/"));
-      }
-
-      await axios.post("/api/disksplus/edit", formData, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-      disksPlusStore.slideSession();
+    if (ext.source === "disksplus" && !ext.disk) {
+      notifyError(t("Disks+ save failed: missing disk id"));
+      return;
     }
 
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    const doc = tabDoc(tab);
+    await saveDoc(ext, doc);
+
+    markSaved(tab, doc);
     const sourceNames: Record<string, string> = {
       appdrive: "App Drive",
       storage: "Storage",
@@ -1068,17 +979,7 @@ async function handleOpenNote() {
       responseType: "text",
     });
 
-    const content = response.data;
-
-    const newTab: Tab = {
-      id: generateTabId(),
-      title: selectedNote.title,
-      content: content,
-      originalContent: content,
-      isModified: false,
-      originalFilename: selectedNote.filename,
-      externalFile: null,
-    };
+    const newTab = createTab(response.data, { title: selectedNote.title, originalFilename: selectedNote.filename });
 
     tabs.value.push(newTab);
     activeTabId.value = newTab.id;
@@ -1092,64 +993,43 @@ async function handleOpenNote() {
 
 function toggleFindReplace() {
   showFindReplace.value = !showFindReplace.value;
-  if (showFindReplace.value) {
-    const selection = window.getSelection()?.toString();
-    if (selection) {
-      findText.value = selection;
-    }
-  }
+  const view = editorRef.value?.view;
+  if (!showFindReplace.value || !view) return;
+  const { from, to } = view.state.selection.main;
+  if (from !== to) findText.value = view.state.sliceDoc(from, to);
 }
 
 function findNext() {
-  if (!findText.value || !textareaRef.value) return;
-
-  const textarea = textareaRef.value;
-  const text = activeTabContent.value;
-  const searchStart = textarea.selectionEnd;
-  let index = text.indexOf(findText.value, searchStart);
-
-  if (index === -1) {
-    index = text.indexOf(findText.value);
-  }
-
-  if (index !== -1) {
-    textarea.focus();
-    textarea.setSelectionRange(index, index + findText.value.length);
-  }
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const match = findTextInDoc(view.state.doc, findText.value, view.state.selection.main.to);
+  if (match) view.dispatch({ selection: { anchor: match.from, head: match.to }, scrollIntoView: true });
+  view.focus();
 }
 
 function replaceNext() {
-  if (!findText.value || !textareaRef.value) return;
-
-  const textarea = textareaRef.value;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selectedText = activeTabContent.value.substring(start, end);
-
-  if (selectedText === findText.value) {
-    activeTabContent.value = activeTabContent.value.substring(0, start) + replaceText.value + activeTabContent.value.substring(end);
-    textarea.setSelectionRange(start, start + replaceText.value.length);
-    handleInput();
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const { from, to } = view.state.selection.main;
+  if (view.state.sliceDoc(from, to) === findText.value) {
+    view.dispatch({ changes: { from, to, insert: replaceText.value }, selection: { anchor: from + replaceText.value.length } });
   }
-
   findNext();
 }
 
 function replaceAllInTab() {
-  if (!findText.value) return;
-
-  const count = (activeTabContent.value.match(new RegExp(escapeRegex(findText.value), "g")) || []).length;
-  activeTabContent.value = activeTabContent.value.split(findText.value).join(replaceText.value);
-  handleInput();
-  notifySuccess(t("Replace all"), t("Replaced {n} occurrences", { n: count }), themeClasses.value.scopeSelector);
-}
-
-function escapeRegex(str: string) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const view = editorRef.value?.view;
+  if (!findText.value || !view) return;
+  const result = replaceAllText(view.state.doc, findText.value, replaceText.value);
+  if (result) view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: result.text } });
+  notifySuccess(t("Replace all"), t("Replaced {n} occurrences", { n: result?.count ?? 0 }), themeClasses.value.scopeSelector);
 }
 
 function selectAll() {
-  textareaRef.value?.select();
+  const view = editorRef.value?.view;
+  if (!view) return;
+  view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+  view.focus();
 }
 
 function zoomIn() {
@@ -1223,6 +1103,7 @@ function handleKeydown(e: KeyboardEvent) {
         resetZoom();
         break;
     }
+    if (e.defaultPrevented) e.stopPropagation();
   }
 }
 
@@ -1238,6 +1119,8 @@ watch(activeTabId, () => {
   });
 });
 
+watch([activeTabId, previewMode], () => nextTick(refreshText));
+
 function openExternalFileAsTab(extFile: ExternalFile) {
   const fileName = extFile.path.split("/").pop() || "File";
 
@@ -1248,15 +1131,7 @@ function openExternalFileAsTab(extFile: ExternalFile) {
     return;
   }
 
-  const newTab: Tab = {
-    id: generateTabId(),
-    title: fileName,
-    content: extFile.content,
-    originalContent: extFile.content,
-    isModified: false,
-    originalFilename: null,
-    externalFile: extFile,
-  };
+  const newTab = createTab(extFile.content, { title: fileName, externalFile: toTabFile(extFile) });
 
   tabs.value.push(newTab);
   activeTabId.value = newTab.id;
@@ -1267,10 +1142,19 @@ function openExternalFileAsTab(extFile: ExternalFile) {
   }
 }
 
+function openTextFileAsTab(textFile: TextFile) {
+  const newTab = createTab(textFile.content, { title: textFile.name });
+
+  tabs.value.push(newTab);
+  activeTabId.value = newTab.id;
+}
+
 function handleIncomingFile(event: CustomEvent) {
   const data = event.detail;
   if (data?.externalFile) {
     openExternalFileAsTab(data.externalFile);
+  } else if (data?.textFile) {
+    openTextFileAsTab(data.textFile);
   }
 }
 
@@ -1316,28 +1200,12 @@ async function autoSaveNewNote(tab: Tab) {
   try {
     await ensureNotesFolderExists();
 
-    let finalFilename = baseFilename + ".txt";
-    let counter = 1;
-    while (await checkFileExists(`Notes/${finalFilename}`)) {
-      finalFilename = `${baseFilename} (${counter}).txt`;
-      counter++;
-      if (counter > 100) {
-        throw new Error("Too many notes with this name");
-      }
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([tab.content], { type: "text/plain" });
-    formData.append("file", blob, finalFilename);
-    formData.append("path", "Notes");
-
-    await axios.post("/api/storage/edit", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
+    const finalFilename = await uniqueStorageName("Notes", baseFilename + ".txt", csrfToken.value);
+    const doc = tabDoc(tab);
+    await saveDoc({ source: "storage", path: `Notes/${finalFilename}` }, doc);
 
     tab.title = finalFilename.replace(".txt", "");
-    tab.originalContent = tab.content;
-    tab.isModified = false;
+    markSaved(tab, doc);
     tab.originalFilename = finalFilename;
     notifySuccess(t("Note saved"), t("Saved to Notes/{f}", { f: finalFilename }), themeClasses.value.scopeSelector);
   } catch (error: any) {
@@ -1364,19 +1232,10 @@ function handleExit() {
 }
 
 onMounted(() => {
-  const extFile = props.externalFile || props.data?.externalFile;
-
-  if (extFile) {
-    const tab = tabs.value[0];
-    tab.externalFile = extFile;
-    tab.content = extFile.content;
-    tab.originalContent = extFile.content;
-    tab.title = extFile.path.split("/").pop() || "File";
-  }
-
   updateWindowTitle();
   nextTick(() => {
     if (isMarkdownFile.value) previewMode.value = "preview";
+    refreshText();
   });
 
   if (props._windowId) {
@@ -1386,6 +1245,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearTimeout(refreshTimer);
+  statsToken++;
   if (props._windowId) {
     window.removeEventListener(`homedock:open-file-${props._windowId}`, handleIncomingFile as EventListener);
     window.removeEventListener(`homedock:request-close-${props._windowId}`, handleWindowCloseRequest);
@@ -1396,23 +1257,6 @@ onUnmounted(() => {
 <style scoped>
 .utils-notepad {
   background: inherit;
-}
-
-.utils-notepad textarea {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  line-height: 1.625 !important;
-}
-
-.utils-notepad textarea::-webkit-scrollbar {
-  cursor: default;
-}
-
-.utils-notepad textarea::-webkit-scrollbar-thumb {
-  cursor: default;
-}
-
-.utils-notepad textarea::-webkit-scrollbar-track {
-  cursor: default;
 }
 
 .slide-down-enter-active,

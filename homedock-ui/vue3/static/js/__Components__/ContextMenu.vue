@@ -7,14 +7,30 @@
   <Teleport to="body">
     <Transition name="context-menu-fade">
       <div v-if="visible" ref="menuRef" class="context-menu" :class="[themeClasses.contextMenuBg, themeClasses.contextMenuBorder, themeClasses.contextMenuShadow]" :style="menuStyle" @click.stop @contextmenu.prevent>
-        <div v-for="(item, index) in items" :key="index" class="context-menu-item group" :class="[themeClasses.contextMenuItem, !item.disabled && !item.divider ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : '', item.disabled ? themeClasses.contextMenuItemDisabled : '', { divider: item.divider, disabled: item.disabled }]" @click="handleItemClick(item)">
-          <template v-if="!item.divider">
-            <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, !item.disabled ? themeClasses.contextMenuIconHover : '']" />
-            <span class="item-label">{{ item.label ? $t(item.label) : "" }}</span>
-            <span v-if="item.shortcut" class="item-shortcut" :class="themeClasses.contextMenuShortcut">{{ item.shortcut }}</span>
-          </template>
-          <div v-else class="divider-line" :class="themeClasses.contextMenuDivider"></div>
-        </div>
+        <template v-for="(item, index) in items" :key="index">
+          <div v-if="item.actions" class="context-menu-actions">
+            <button v-for="(entry, entryIndex) in item.actions" :key="entryIndex" type="button" class="context-menu-action group" :class="[themeClasses.contextMenuItem, !entry.disabled ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : themeClasses.contextMenuItemDisabled, { disabled: entry.disabled }]" :title="$t(entry.label)" :aria-label="$t(entry.label)" @click="handleActionClick(entry)">
+              <Icon :icon="entry.icon" width="18" height="18" :class="[themeClasses.contextMenuIcon, !entry.disabled ? themeClasses.contextMenuIconHover : '']" />
+            </button>
+          </div>
+          <div v-else-if="item.trailing" class="context-menu-split" :class="[themeClasses.contextMenuItem]">
+            <div class="context-menu-split-main group" :class="[!item.disabled ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : themeClasses.contextMenuItemDisabled, { disabled: item.disabled }]" @click="handleItemClick(item)">
+              <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, !item.disabled ? themeClasses.contextMenuIconHover : '']" />
+              <span class="item-label">{{ item.label ? $t(item.label) : "" }}</span>
+            </div>
+            <button type="button" class="item-trailing group" :class="[!item.trailing.disabled ? themeClasses.contextMenuItemBgHover : themeClasses.contextMenuItemDisabled, { disabled: item.trailing.disabled }]" :title="$t(item.trailing.label)" :aria-label="$t(item.trailing.label)" @click="handleActionClick(item.trailing)">
+              <Icon :icon="item.trailing.icon" width="16" height="16" :class="[themeClasses.contextMenuIcon, !item.trailing.disabled ? themeClasses.contextMenuIconHover : '']" />
+            </button>
+          </div>
+          <div v-else class="context-menu-item group" :class="[themeClasses.contextMenuItem, !item.disabled && !item.divider ? [themeClasses.contextMenuItemBgHover, themeClasses.contextMenuItemTextHover] : '', item.disabled ? themeClasses.contextMenuItemDisabled : '', { divider: item.divider, disabled: item.disabled }]" @click="handleItemClick(item)">
+            <template v-if="!item.divider">
+              <Icon v-if="item.icon" :icon="item.icon" width="16" height="16" class="item-icon" :class="[themeClasses.contextMenuIcon, !item.disabled ? themeClasses.contextMenuIconHover : '']" />
+              <span class="item-label">{{ item.label ? $t(item.label) : "" }}</span>
+              <span v-if="item.shortcut" class="item-shortcut" :class="themeClasses.contextMenuShortcut">{{ item.shortcut }}</span>
+            </template>
+            <div v-else class="divider-line" :class="themeClasses.contextMenuDivider"></div>
+          </div>
+        </template>
       </div>
     </Transition>
   </Teleport>
@@ -25,6 +41,13 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { Icon } from "@iconify/vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
+export interface ContextMenuAction {
+  label: string;
+  icon: any;
+  action: () => void;
+  disabled?: boolean;
+}
+
 export interface ContextMenuItem {
   label?: string;
   icon?: any;
@@ -32,6 +55,8 @@ export interface ContextMenuItem {
   shortcut?: string;
   disabled?: boolean;
   divider?: boolean;
+  actions?: ContextMenuAction[];
+  trailing?: ContextMenuAction;
 }
 
 interface Props {
@@ -119,6 +144,13 @@ function handleItemClick(item: ContextMenuItem) {
   emit("close");
 }
 
+function handleActionClick(entry: ContextMenuAction) {
+  if (entry.disabled) return;
+
+  entry.action();
+  emit("close");
+}
+
 function handlePointerOutside(e: Event) {
   if (props.visible && menuRef.value && !menuRef.value.contains(e.target as Node)) {
     emit("close");
@@ -169,6 +201,27 @@ onUnmounted(() => {
   cursor: not-allowed;
 }
 
+.context-menu-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.context-menu-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-menu-action.disabled {
+  cursor: not-allowed;
+}
+
 .context-menu-item.divider {
   padding: 0.25rem 0;
   cursor: default;
@@ -191,6 +244,44 @@ onUnmounted(() => {
 .item-shortcut {
   font-size: 0.75rem;
   margin-left: auto;
+}
+
+.context-menu-split {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.context-menu-split-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-menu-split-main.disabled {
+  cursor: not-allowed;
+}
+
+.item-trailing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.item-trailing.disabled {
+  cursor: not-allowed;
 }
 
 /* Transitions */

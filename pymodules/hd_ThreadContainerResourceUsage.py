@@ -15,6 +15,8 @@ from pymodules.hd_ClassDockerClientManager import DockerClientManager
 
 cpu_usage = {}
 memory_usage = {}
+memory_bytes = {}
+memory_limit_bytes = {}
 network_rx_bytes = {}
 network_tx_bytes = {}
 
@@ -24,7 +26,7 @@ def update_resource_usage():
     manager = DockerClientManager.get_instance()
     client = manager.get_client()
 
-    global cpu_usage, memory_usage, network_rx_bytes, network_tx_bytes
+    global cpu_usage, memory_usage, memory_bytes, memory_limit_bytes, network_rx_bytes, network_tx_bytes
     while True:
         current_containers = client.containers.list()
         current_container_names = set(container.name for container in current_containers)
@@ -35,6 +37,10 @@ def update_resource_usage():
             del cpu_usage[container_name]
             if container_name in memory_usage:
                 del memory_usage[container_name]
+            if container_name in memory_bytes:
+                del memory_bytes[container_name]
+            if container_name in memory_limit_bytes:
+                del memory_limit_bytes[container_name]
             if container_name in network_rx_bytes:
                 del network_rx_bytes[container_name]
             if container_name in network_tx_bytes:
@@ -42,6 +48,8 @@ def update_resource_usage():
 
         temp_cpu = {}
         temp_memory = {}
+        temp_memory_bytes = {}
+        temp_memory_limit = {}
         temp_network_rx = {}
         temp_network_tx = {}
 
@@ -59,6 +67,8 @@ def update_resource_usage():
 
                 memory_percent = round((mem_usage_val / mem_limit) * 100.0, 1) if mem_limit > 0 else 0.0
                 temp_memory[container.name] = memory_percent
+                temp_memory_bytes[container.name] = mem_usage_val
+                temp_memory_limit[container.name] = mem_limit
 
                 total_rx = 0
                 total_tx = 0
@@ -106,11 +116,15 @@ def update_resource_usage():
 
                 cpu_usage[container.name] = round(min(avg_cpu, 100.0), 1)
                 memory_usage[container.name] = round(min(avg_memory, 100.0), 1)
+                memory_bytes[container.name] = sum(temp_memory_bytes.get(member, 0) for member in group_members)
+                memory_limit_bytes[container.name] = temp_memory_limit.get(container.name, 0)
                 network_rx_bytes[container.name] = total_rx
                 network_tx_bytes[container.name] = total_tx
             else:
                 cpu_usage[container.name] = temp_cpu.get(container.name, 0.0)
                 memory_usage[container.name] = temp_memory.get(container.name, 0.0)
+                memory_bytes[container.name] = temp_memory_bytes.get(container.name, 0)
+                memory_limit_bytes[container.name] = temp_memory_limit.get(container.name, 0)
                 network_rx_bytes[container.name] = temp_network_rx.get(container.name, 0)
                 network_tx_bytes[container.name] = temp_network_tx.get(container.name, 0)
 

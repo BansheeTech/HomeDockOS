@@ -10,10 +10,10 @@
         <div class="text-center mb-8">
           <div class="flex justify-center mb-4">
             <EnterpriseSlotReplacer module="WhiteLabel" slot-name="logo" :theme-classes="themeClasses">
-              <LogoIcon class="h-24 w-24 p-4 rounded-3xl ring-1 shadow-xl" :class="[themeClasses.aboutLogo]" />
+              <HomeDockLogo3D :width="LOGO_SCENE_WIDTH" :height="LOGO_SCENE_HEIGHT" :frame="LOGO_SCENE_FRAME" :satellites="STACK_SATELLITES" intro class="-mt-10 -mb-10" />
             </EnterpriseSlotReplacer>
           </div>
-          <h1 :class="['text-3xl font-bold', themeClasses.aboutTitle]">
+          <h1 :class="['relative text-3xl font-bold', themeClasses.aboutTitle]">
             <EnterpriseSlotReplacer module="WhiteLabel" slot-name="companyName">HomeDock OS</EnterpriseSlotReplacer>
           </h1>
           <EnterpriseSlotRenderer module="AboutBranding" />
@@ -26,7 +26,7 @@
           </p>
         </div>
 
-        <div :class="['rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
+        <div :class="['relative isolate overflow-hidden rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <Icon class="w-4 h-4 max-w-4 max-h-4 min-w-4 min-h-4" :icon="tagIcon" :class="[themeClasses.aboutIcon]" />
@@ -34,6 +34,16 @@
             </div>
             <span :class="['font-mono text-xs', themeClasses.aboutValue]">{{ version }}</span>
           </div>
+
+          <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <BaseImage src="/images/releases/fathom.svg" alt="" draggable="false" class="w-4 h-4" />
+                <span :class="['font-semibold text-xs', themeClasses.aboutLabel]">{{ $t("Release name") }}</span>
+              </div>
+              <span :class="['font-semibold text-xs', themeClasses.aboutValue]">Fathom</span>
+            </div>
+          </EnterpriseSlotReplacer>
 
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -53,6 +63,10 @@
 
           <EnterpriseSlotRenderer module="LicenseGrant" :theme-classes="themeClasses" />
           <EnterpriseSlotReplacer module="WhiteLabel" slot-name="licensedTo" :theme-classes="themeClasses" />
+
+          <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
+            <BaseImage src="/images/releases/fathom.svg" alt="" draggable="false" class="release-watermark !mt-0" :class="themeClasses.aboutReleaseWatermark" />
+          </EnterpriseSlotReplacer>
         </div>
 
         <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
@@ -158,12 +172,19 @@
 
           <div class="space-y-4">
             <div class="flex items-center gap-2">
-              <Icon :icon="vueIcon" :class="[themeClasses.aboutIcon]" size="14px" />
+              <span class="flex items-center gap-0.5">
+                <Icon :icon="vueIcon" :class="[themeClasses.aboutIcon]" size="14px" />
+                <Icon :icon="reactIcon" :class="[themeClasses.aboutIcon]" size="14px" />
+              </span>
               <span :class="['text-xs font-semibold uppercase tracking-wide opacity-60', themeClasses.aboutDescription]">{{ $t("Frontend") }}</span>
             </div>
             <div class="grid grid-cols-2 gap-1">
               <a href="https://github.com/vuejs/core/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>Vue 3</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/facebook/react/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>React 19</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
               <a href="https://github.com/vitejs/vite/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
@@ -186,7 +207,7 @@
                 <span>TypeScript</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
-              <a href="https://github.com/BansheeTech/Prism-WM/blob/main/LICENSE.txt" target="_blank" rel="noopener noreferrer" :class="['hd-own-chip flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold ring-1 ring-inset transition-all', themeClasses.aboutLinkOwn]">
+              <a href="https://github.com/BansheeTech/Prism-WM/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['hd-own-chip flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold ring-1 ring-inset transition-all', themeClasses.aboutLinkOwn]">
                 <Icon :icon="heartIcon" size="12px" class="shrink-0" />
                 <span>Prism-WM</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
@@ -245,6 +266,38 @@
               </a>
               <a href="https://github.com/mozilla/pdf.js/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
                 <span>PDF.js</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/xtermjs/xterm.js/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>xterm.js</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/codemirror/dev/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>CodeMirror</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/ruilisi/fortune-sheet/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>FortuneSheet</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/Corbe30/FortuneExcel/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>FortuneExcel</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/exceljs/exceljs/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>ExcelJS</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/eigenpal/docx-editor/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>docx-editor</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/mrdoob/three.js/blob/dev/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>Three.js</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
+              <a href="https://github.com/googlefonts/noto-emoji/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>Noto Emoji</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
             </div>
@@ -329,10 +382,27 @@
                 <span>PyOTP</span>
                 <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
               </a>
+              <a href="https://github.com/python-pillow/Pillow/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" :class="['flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all', themeClasses.aboutLink]">
+                <span>Pillow</span>
+                <Icon :icon="openInNewIcon" size="12px" class="opacity-50" />
+              </a>
             </div>
             <p :class="['text-xs leading-relaxed opacity-70 pt-1', themeClasses.aboutDescription]">{{ $t("The ones marked with a heart are ours. We said we would open our core once we could afford to, and we are doing it piece by piece.") }}</p>
           </div>
         </div>
+
+        <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
+          <div class="flex flex-col items-center gap-2 pt-6 select-none">
+            <i18n-t keypath="Made with {heart} by" tag="p" scope="global" :class="['flex items-center gap-1 text-[10px] opacity-50', themeClasses.aboutSubtitle]">
+              <template #heart>
+                <Icon :icon="loveIcon" size="11px" class="text-red-500" />
+              </template>
+            </i18n-t>
+            <a href="https://www.banshee.pro" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-opacity">
+              <BaseImage :class="[themeClasses.compLogo]" class="h-3" src="/images/optin_banshee.png" alt="Banshee" draggable="false" />
+            </a>
+          </div>
+        </EnterpriseSlotReplacer>
       </div>
     </div>
 
@@ -340,7 +410,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="infoIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="infoIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("About") }}</h4>
           </div>
 
@@ -375,19 +445,39 @@ import docsIcon from "@iconify-icons/mdi/lifebuoy";
 import donateIcon from "@iconify-icons/mdi/coffee";
 import codeIcon from "@iconify-icons/mdi/code-braces";
 import vueIcon from "@iconify-icons/mdi/vuejs";
+import reactIcon from "@iconify-icons/mdi/react";
 import pythonIcon from "@iconify-icons/mdi/language-python";
 import shareIcon from "@iconify-icons/mdi/share-variant";
 import starIcon from "@iconify-icons/mdi/star";
 import twitterIcon from "@iconify-icons/mdi/twitter";
 import accountGroupIcon from "@iconify-icons/mdi/account-group";
 import heartIcon from "@iconify-icons/mdi/hand-heart";
+import loveIcon from "@iconify-icons/mdi/heart";
+import typescriptIcon from "@iconify-icons/mdi/language-typescript";
+import dockerIcon from "@iconify-icons/mdi/docker";
 
 import StatusBar from "../__Components__/StatusBar.vue";
-import LogoIcon from "../__Components__/LogoIcon.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
+import HomeDockLogo3D from "../__Components__/HomeDockLogo3D.vue";
+import BaseImage from "../__Components__/BaseImage.vue";
 import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 import EnterpriseSlotReplacer from "../__Components__/EnterpriseSlotReplacer.vue";
 
 import type { CommonData } from "../__Types__/CommonData";
+import type { HomeDockSatellite } from "../__Utils__/HomeDockLogoEngine";
+
+const LOGO_SCENE_WIDTH = 340;
+const LOGO_SCENE_HEIGHT = 240;
+const LOGO_SCENE_ORBIT_WIDTH = 3.6;
+const LOGO_SCENE_FRAME = Math.max(2.6, (LOGO_SCENE_ORBIT_WIDTH * LOGO_SCENE_HEIGHT) / LOGO_SCENE_WIDTH);
+
+const STACK_SATELLITES: HomeDockSatellite[] = [
+  { icon: vueIcon, color: "#42b883" },
+  { icon: reactIcon, color: "#087ea4" },
+  { icon: typescriptIcon, color: "#3178c6" },
+  { icon: pythonIcon, color: "#3776ab" },
+  { icon: dockerIcon, color: "#1d63ed" },
+];
 
 const commonData = inject<CommonData | null>("data-common", null);
 
@@ -406,6 +496,17 @@ function openWhatsNew() {
 </script>
 
 <style scoped>
+.release-watermark {
+  position: absolute;
+  top: 50%;
+  right: -24px;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 .hd-own-chip {
   background-image: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.38) 50%, transparent 58%);
   background-size: 250% 100%;
@@ -423,16 +524,6 @@ function openWhatsNew() {
   }
   to {
     background-position: 0% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hd-own-chip {
-    background-image: none;
-  }
-
-  .hd-own-chip:hover {
-    animation: none;
   }
 }
 </style>

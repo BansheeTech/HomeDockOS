@@ -7,10 +7,50 @@ import axios from "axios";
 
 import { defineStore } from "pinia";
 import { useWindowStore } from "./windowStore";
-import { appExists } from "../__Config__/WindowDefaultDetails";
+import { useAppUpdateMarksStore } from "./useAppUpdateMarksStore";
+import { useDesktopSyncStore, appLayoutKey, MAX_RECENT_APPS, type DesktopContent, type DesktopMode, type LayoutItems, type SystemIconMeta } from "./useDesktopSyncStore";
+import { appExists, getAppById } from "../__Config__/WindowDefaultDetails";
 import { appWindowsAvailable, isLocalNetworkHost, buildDirectPortUrl } from "../__Composables__/useAppSubdomain";
+import { DESKTOP_GRID } from "../__Composables__/desktopLayoutFit";
 
 import type { FileExplorerLocation } from "./useFileExplorerStore";
+
+const DEFAULT_ICON_IDS = ["apphome", "fileexplorer"];
+const LEGACY_KEYS = ["homedock_icon_positions", "homedock_desktop_folders", "homedock_system_icon_positions", "homedock_system_icons_list", "homedock_removed_default_icons"];
+
+type LegacyPosition = { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null };
+
+let enterpriseResolver: ((meta: SystemIconMeta) => boolean) | null = null;
+let legacyAppPositions: Record<string, LegacyPosition> | null = null;
+let syncWired = false;
+
+function readLegacy<T>(key: string, fallback: T): T {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? (JSON.parse(stored) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function legacyCell(mode: DesktopMode, position: LegacyPosition | undefined): number[] | null {
+  if (!position || position.gridRow === undefined || position.gridCol === undefined) return null;
+  return mode === "desktop" ? [position.gridRow, position.gridCol] : [position.page ?? 0, position.gridRow, position.gridCol];
+}
+
+function layoutCell(mode: DesktopMode, item: { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }): number[] | null {
+  if (mode === "desktop") {
+    if (item.x === undefined || item.y === undefined) return null;
+    return [Math.max(0, Math.round((item.y - DESKTOP_GRID.padding) / DESKTOP_GRID.sizeY)), Math.max(0, Math.round((item.x - DESKTOP_GRID.padding) / DESKTOP_GRID.sizeX))];
+  }
+
+  if (item.gridRow === undefined || item.gridCol === undefined) return null;
+  return [item.page ?? 0, item.gridRow, item.gridCol];
+}
+
+function positionOf(item: { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number } | undefined) {
+  return { x: item?.x, y: item?.y, gridRow: item?.gridRow, gridCol: item?.gridCol, page: item?.page };
+}
 
 export interface DockerApp {
   id: string;
@@ -19,20 +59,24 @@ export interface DockerApp {
   display_name?: string;
   image: string;
   image_path: string;
-  status: "running" | "exited" | "paused" | "created";
+  status: "running" | "exited" | "paused" | "created" | "restarting" | "removing" | "dead";
   statusColor: string;
   service_url: string | null;
   host: string;
   ports: string[];
   usagePercent: number;
   memoryUsagePercent: number;
+  memoryUsageBytes?: number;
+  memoryLimitBytes?: number;
   networkRxBytes: number;
   networkTxBytes: number;
+  startedAt?: string;
   HDGroup: string;
   HDRole?: string;
   checked: boolean;
   isProcessing: boolean;
   has_update?: boolean;
+  recently_updated?: boolean;
 
   x?: number;
   y?: number;
@@ -124,6 +168,13 @@ export interface SystemDesktopIcon {
 
 export type DesktopItemType = "app" | "folder" | "systemicon";
 
+export function isFolderableIcon(icon: Pick<SystemDesktopIcon, "appId" | "shortcut">): boolean {
+  if (icon.shortcut) return true;
+
+  const category = getAppById(icon.appId)?.category;
+  return category === "utilities" || category === "games";
+}
+
 export function shortcutTargetData(target: ShortcutTarget, shortcutId?: string): Record<string, unknown> {
   const relativePath = target.path ? `${target.path}/${target.fileName}` : target.fileName;
 
@@ -141,11 +192,10 @@ export function shortcutTargetData(target: ShortcutTarget, shortcutId?: string):
 export const useDesktopStore = defineStore("desktop", {
   state: () => ({
     startMenuOpen: false,
+    arrivingIconId: null as string | null,
     dockerApps: [] as DockerApp[],
     desktopFolders: [] as DesktopFolder[],
     systemDesktopIcons: [] as SystemDesktopIcon[],
-    recentApps: [] as string[],
-    pinnedApps: [] as string[],
     appViewModes: {} as Record<string, "window" | "tab" | "port">,
     appViewSchemes: {} as Record<string, "http" | "https">,
     subdomainCertificate: { ssl: false, selfSigned: false, coversApps: false },
@@ -153,6 +203,7 @@ export const useDesktopStore = defineStore("desktop", {
     iconSize: "medium" as "small" | "medium" | "large",
     draggedAppIds: [] as string[],
     dragSourceFolderId: null as string | null,
+    shortcutsLoaded: false,
   }),
 
   getters: {
@@ -173,8 +224,8 @@ export const useDesktopStore = defineStore("desktop", {
 
     desktopRootSystemIcons: (state) => state.systemDesktopIcons.filter((icon) => !icon.folderId),
 
-    getShortcutsInFolder: (state) => (folderId: string) => {
-      return state.systemDesktopIcons.filter((icon) => icon.shortcut && icon.folderId === folderId);
+    getSystemIconsInFolder: (state) => (folderId: string) => {
+      return state.systemDesktopIcons.filter((icon) => icon.folderId === folderId);
     },
 
     getFolderById: (state) => (folderId: string) => {
@@ -182,6 +233,22 @@ export const useDesktopStore = defineStore("desktop", {
     },
 
     dependencyDockerApps: (state) => state.dockerApps.filter((app) => app.HDRole === "dependency"),
+
+    stoppedDependenciesByGroup: (state) => {
+      const groups: Record<string, string[]> = {};
+
+      for (const app of state.dockerApps) {
+        if (app.HDRole !== "dependency" || !app.HDGroup || app.status === "running") continue;
+        if (!groups[app.HDGroup]) groups[app.HDGroup] = [];
+        groups[app.HDGroup].push(app.name);
+      }
+
+      return groups;
+    },
+
+    pinnedApps: () => useDesktopSyncStore().content.pinned,
+
+    recentApps: () => useDesktopSyncStore().content.recents,
 
     totalDockerApps: (state) => state.dockerApps.length,
 
@@ -248,9 +315,11 @@ export const useDesktopStore = defineStore("desktop", {
       }
     },
 
-    async loadCertificateTrust() {
+    async loadCertificateTrust(csrfToken: string) {
       try {
-        const { data } = await axios.get<{ ssl: boolean; self_signed: boolean; covers_apps: boolean }>("/api/subdomain-diagnostics");
+        const { data } = await axios.get<{ ssl: boolean; self_signed: boolean; covers_apps: boolean }>("/api/subdomain-diagnostics", {
+          headers: { "X-HomeDock-CSRF-Token": csrfToken },
+        });
 
         this.subdomainCertificate = { ssl: Boolean(data?.ssl), selfSigned: Boolean(data?.self_signed), coversApps: Boolean(data?.covers_apps) };
       } catch {
@@ -260,6 +329,8 @@ export const useDesktopStore = defineStore("desktop", {
 
     launchDockerApp(app: DockerApp) {
       if (!app.service_url) return;
+
+      this.markUpdateSeen(app);
 
       const mode = this.appViewModes[app.name] ?? "window";
 
@@ -306,26 +377,53 @@ export const useDesktopStore = defineStore("desktop", {
         });
       }
 
-      this.addToRecent(`docker:${app.id}`);
+      this.addToRecent(appLayoutKey(app.name));
     },
 
     loadDockerApps(apps: DockerApp[]) {
-      const savedPositions = this.loadIconPositions();
+      const sync = useDesktopSyncStore();
+      const marks = useAppUpdateMarksStore();
+      const previous = new Map(this.dockerApps.map((app) => [app.name, app]));
 
-      this.dockerApps = apps.map((app) => {
-        const savedPos = savedPositions[app.id];
-        return {
-          ...app,
-          x: savedPos?.x,
-          y: savedPos?.y,
-          gridRow: savedPos?.gridRow,
-          gridCol: savedPos?.gridCol,
-          page: savedPos?.page,
-          folderId: savedPos?.folderId,
-        };
-      });
+      this.resolveLegacyApps(apps);
+
+      this.dockerApps = apps.map((app) => ({
+        ...app,
+        recently_updated: marks.isUnseen(app),
+        ...positionOf(previous.get(app.name)),
+        folderId: sync.content.membership[appLayoutKey(app.name)] ?? null,
+      }));
 
       this.syncFolderItems();
+    },
+
+    resolveLegacyApps(apps: DockerApp[]) {
+      if (!legacyAppPositions || apps.length === 0) return;
+
+      const sync = useDesktopSyncStore();
+      const legacy = legacyAppPositions;
+      const folderIds = new Set(sync.content.folders.map((folder) => folder.id));
+      const seed: LayoutItems = {};
+
+      legacyAppPositions = null;
+
+      sync.updateContent((draft) => {
+        apps.forEach((app) => {
+          const position = legacy[app.id];
+          if (!position) return;
+
+          const key = appLayoutKey(app.name);
+          if (position.folderId && folderIds.has(position.folderId)) {
+            draft.membership[key] = position.folderId;
+            return;
+          }
+
+          const cell = legacyCell(sync.mode, position);
+          if (cell) seed[key] = cell;
+        });
+      });
+
+      sync.addSeedItems(sync.mode, seed);
     },
 
     updateDockerApp(appId: string, updates: Partial<DockerApp>) {
@@ -342,70 +440,52 @@ export const useDesktopStore = defineStore("desktop", {
       }
     },
 
+    markUpdateSeen(app: DockerApp) {
+      const current = this.dockerApps.find((a) => a.name === app.name) ?? app;
+
+      if (useAppUpdateMarksStore().markSeen(current)) {
+        this.updateDockerAppByName(app.name, { recently_updated: false });
+      }
+    },
+
     addToRecent(appId: string) {
-      this.recentApps = this.recentApps.filter((id) => id !== appId);
+      const sync = useDesktopSyncStore();
+      if (!sync.loaded) return;
 
-      this.recentApps.unshift(appId);
+      const at = Math.floor(Date.now() / 1000);
 
-      this.recentApps = this.recentApps.slice(0, 10);
-
-      this.saveRecentApps();
+      sync.updateContent((draft) => {
+        draft.recents = [{ id: appId, at }, ...draft.recents.filter((entry) => entry.id !== appId)].slice(0, MAX_RECENT_APPS);
+      });
     },
 
-    saveRecentApps() {
-      try {
-        localStorage.setItem("homedock_recent_apps", JSON.stringify(this.recentApps));
-      } catch (error) {
-        console.error("Error saving recent apps:", error);
-      }
-    },
-
-    loadRecentApps() {
-      try {
-        const stored = localStorage.getItem("homedock_recent_apps");
-        if (stored) {
-          this.recentApps = JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading recent apps:", error);
-        this.recentApps = [];
-      }
+    removeFromRecent(appId: string) {
+      useDesktopSyncStore().updateContent((draft) => {
+        draft.recents = draft.recents.filter((entry) => entry.id !== appId);
+      });
     },
 
     togglePinApp(appId: string) {
-      const index = this.pinnedApps.indexOf(appId);
+      useDesktopSyncStore().updateContent((draft) => {
+        draft.pinned = draft.pinned.includes(appId) ? draft.pinned.filter((id) => id !== appId) : [...draft.pinned, appId];
+      });
+    },
 
-      if (index !== -1) {
-        this.pinnedApps.splice(index, 1);
-      } else {
-        this.pinnedApps.push(appId);
-      }
+    movePinnedApp(appId: string, targetId: string) {
+      useDesktopSyncStore().updateContent((draft) => {
+        const from = draft.pinned.indexOf(appId);
+        const to = draft.pinned.indexOf(targetId);
+        if (from === -1 || to === -1 || from === to) return;
 
-      this.savePinnedApps();
+        const pinned = [...draft.pinned];
+        pinned.splice(from, 1);
+        pinned.splice(to, 0, appId);
+        draft.pinned = pinned;
+      });
     },
 
     isAppPinned(appId: string): boolean {
       return this.pinnedApps.includes(appId);
-    },
-
-    savePinnedApps() {
-      try {
-        localStorage.setItem("homedock_pinned_apps", JSON.stringify(this.pinnedApps));
-      } catch (error) {
-        console.error("Error saving pinned apps:", error);
-      }
-    },
-
-    loadPinnedApps() {
-      try {
-        const stored = localStorage.getItem("homedock_pinned_apps");
-        if (stored) {
-          this.pinnedApps = JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading pinned apps:", error);
-        this.pinnedApps = [];
-      }
     },
 
     setDesktopLayout(layout: "grid" | "list") {
@@ -435,80 +515,190 @@ export const useDesktopStore = defineStore("desktop", {
     },
 
     initialize() {
-      this.loadRecentApps();
-      this.loadPinnedApps();
+      ["homedock_recent_apps", "homedock_pinned_apps"].forEach((key) => {
+        try {
+          localStorage.removeItem(key);
+        } catch {
+          // Halp!
+        }
+      });
       this.loadDesktopPreferences();
       this.initializeSystemIcons();
     },
 
     initializeSystemIcons() {
-      const savedPositions = this.loadSystemIconPositions();
-      const additionalIcons = this.loadSystemIconsList();
-      const removedDefaultIcons = this.loadRemovedDefaultIcons();
-
+      const sync = useDesktopSyncStore();
+      const { systemIcons, removedDefaults } = sync.content;
+      const previous = new Map(this.systemDesktopIcons.map((icon) => [icon.id, icon]));
       const existingShortcuts = this.systemDesktopIcons.filter((icon) => icon.shortcut);
 
-      const defaultIcons: SystemDesktopIcon[] = [];
+      const defaults: SystemIconMeta[] = [
+        { appId: "apphome", name: "My Home", icon: "homedock:logo" },
+        { appId: "fileexplorer", name: "File Explorer", icon: "mdi:folder-multiple" },
+      ];
 
-      if (!removedDefaultIcons.includes("apphome")) {
-        defaultIcons.push({
-          id: "system-icon-apphome",
-          appId: "apphome",
-          name: "My Home",
-          icon: "homedock:logo",
+      const visible = [
+        ...defaults.filter((meta) => !removedDefaults.includes(meta.appId)),
+        ...systemIcons.filter((meta) => {
+          if (DEFAULT_ICON_IDS.includes(meta.appId)) return false;
+          if (meta.appId.startsWith("enterprise-")) return enterpriseResolver !== null && enterpriseResolver(meta);
+          return appExists(meta.appId);
+        }),
+      ];
+
+      this.systemDesktopIcons = visible.map((meta) => {
+        const id = `system-icon-${meta.appId}`;
+
+        return {
+          id,
+          appId: meta.appId,
+          name: meta.name,
+          icon: meta.icon,
           isPermanent: false,
-          ...savedPositions["system-icon-apphome"],
-        });
-      }
-
-      if (!removedDefaultIcons.includes("fileexplorer")) {
-        defaultIcons.push({
-          id: "system-icon-fileexplorer",
-          appId: "fileexplorer",
-          name: "File Explorer",
-          icon: "mdi:folder-multiple",
-          isPermanent: false,
-          ...savedPositions["system-icon-fileexplorer"],
-        });
-      }
-
-      this.systemDesktopIcons = defaultIcons;
-
-      let needsCleanup = false;
-      additionalIcons.forEach((iconData) => {
-        if (iconData.appId !== "apphome" && iconData.appId !== "fileexplorer") {
-          const isEnterpriseModule = iconData.appId.startsWith("enterprise-");
-
-          if (isEnterpriseModule) {
-            return;
-          }
-
-          if (!appExists(iconData.appId)) {
-            needsCleanup = true;
-            return;
-          }
-
-          const icon: SystemDesktopIcon = {
-            id: `system-icon-${iconData.appId}`,
-            appId: iconData.appId,
-            name: iconData.name,
-            icon: iconData.icon,
-            isPermanent: false,
-            ...(iconData.moduleName && { moduleName: iconData.moduleName }),
-            ...savedPositions[`system-icon-${iconData.appId}`],
-          };
-          this.systemDesktopIcons.push(icon);
-        }
+          folderId: isFolderableIcon(meta) ? (sync.content.membership[id] ?? null) : null,
+          ...(meta.moduleName && { moduleName: meta.moduleName }),
+          ...positionOf(previous.get(id)),
+        };
       });
-
-      if (needsCleanup) {
-        this.saveSystemIconsList();
-      }
 
       this.systemDesktopIcons.push(...existingShortcuts);
     },
 
-    buildShortcutIcon(shortcut: any, savedPositions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }>): SystemDesktopIcon {
+    setEnterpriseResolver(resolver: (meta: SystemIconMeta) => boolean) {
+      enterpriseResolver = resolver;
+      this.initializeSystemIcons();
+    },
+
+    wireDesktopSync() {
+      if (syncWired) return;
+      syncWired = true;
+
+      const sync = useDesktopSyncStore();
+
+      sync.onContentApplied((content) => this.applyContent(content));
+
+      sync.registerLayoutProvider({
+        items: (mode) => this.layoutItems(mode),
+        owns: (key) => {
+          if (key in sync.content.membership || key.startsWith("folder-")) return true;
+          if (key.startsWith("shortcut-")) return this.shortcutsLoaded;
+          if (!key.startsWith("system-icon-")) return false;
+
+          const appId = key.slice("system-icon-".length);
+          if (DEFAULT_ICON_IDS.includes(appId)) return sync.content.removedDefaults.includes(appId);
+          return !sync.content.systemIcons.some((meta) => meta.appId === appId);
+        },
+      });
+    },
+
+    async loadDesktopState() {
+      const sync = useDesktopSyncStore();
+
+      this.wireDesktopSync();
+      await sync.load();
+
+      if (!sync.initialized) {
+        this.importLegacyLocalState();
+      }
+
+      sync.notifyContent();
+    },
+
+    importLegacyLocalState() {
+      const sync = useDesktopSyncStore();
+      const mode = sync.mode;
+
+      const folders = readLegacy<DesktopFolder[]>("homedock_desktop_folders", []);
+      const iconsList = readLegacy<SystemIconMeta[]>("homedock_system_icons_list", []);
+      const removed = readLegacy<string[]>("homedock_removed_default_icons", []);
+      const iconPositions = readLegacy<Record<string, LegacyPosition>>("homedock_system_icon_positions", {});
+      const appPositions = readLegacy<Record<string, LegacyPosition>>("homedock_icon_positions", {});
+
+      const validFolders = Array.isArray(folders) ? folders.filter((folder) => folder && typeof folder.id === "string") : [];
+      const folderIds = new Set(validFolders.map((folder) => folder.id));
+      const seed: LayoutItems = {};
+
+      sync.updateContent((draft) => {
+        validFolders.forEach((folder) => {
+          if (draft.folders.some((existing) => existing.id === folder.id)) return;
+          draft.folders.push({ id: folder.id, name: this.sanitizeFolderName(folder.name || "New Folder"), color: folder.color, icon: folder.icon, createdAt: folder.createdAt ?? Date.now() });
+
+          const cell = legacyCell(mode, folder);
+          if (cell) seed[folder.id] = cell;
+        });
+
+        (Array.isArray(iconsList) ? iconsList : []).forEach((meta) => {
+          if (!meta?.appId || DEFAULT_ICON_IDS.includes(meta.appId) || draft.systemIcons.some((existing) => existing.appId === meta.appId)) return;
+          draft.systemIcons.push({ appId: meta.appId, name: meta.name, icon: meta.icon, ...(meta.moduleName && { moduleName: meta.moduleName }) });
+        });
+
+        draft.removedDefaults = DEFAULT_ICON_IDS.filter((id) => Array.isArray(removed) && removed.includes(id));
+
+        Object.entries(iconPositions || {}).forEach(([id, position]) => {
+          if (id.startsWith("shortcut-") && position?.folderId && folderIds.has(position.folderId)) {
+            draft.membership[id] = position.folderId;
+            return;
+          }
+
+          const cell = legacyCell(mode, position);
+          if (cell) seed[id] = cell;
+        });
+      });
+
+      legacyAppPositions = appPositions && typeof appPositions === "object" ? appPositions : null;
+      sync.addSeedItems(mode, seed);
+      this.resolveLegacyApps(this.dockerApps);
+
+      LEGACY_KEYS.forEach((key) => {
+        try {
+          localStorage.removeItem(key);
+        } catch {
+          // Halp!
+        }
+      });
+    },
+
+    applyContent(content: DesktopContent) {
+      const previousFolders = new Map(this.desktopFolders.map((folder) => [folder.id, folder]));
+
+      this.desktopFolders = content.folders.map((meta) => ({
+        ...meta,
+        name: this.sanitizeFolderName(meta.name || "New Folder"),
+        items: [],
+        ...positionOf(previousFolders.get(meta.id)),
+      }));
+
+      this.dockerApps.forEach((app) => {
+        app.folderId = content.membership[appLayoutKey(app.name)] ?? null;
+      });
+
+      this.systemDesktopIcons.forEach((icon) => {
+        if (icon.shortcut) icon.folderId = content.membership[icon.id] ?? null;
+      });
+
+      this.initializeSystemIcons();
+      this.syncFolderItems();
+    },
+
+    layoutItems(mode: DesktopMode): LayoutItems {
+      const items: LayoutItems = {};
+      const put = (key: string, item: { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number }) => {
+        const cell = layoutCell(mode, item);
+        if (cell) items[key] = cell;
+      };
+
+      this.desktopRootApps.forEach((app) => put(appLayoutKey(app.name), app));
+      this.desktopFolders.forEach((folder) => put(folder.id, folder));
+      this.desktopRootSystemIcons.forEach((icon) => put(icon.id, icon));
+
+      return items;
+    },
+
+    persistLayout() {
+      useDesktopSyncStore().persistLayout();
+    },
+
+    buildShortcutIcon(shortcut: any): SystemDesktopIcon {
       const isFile = shortcut.type === "file" && shortcut.target;
 
       const data: ShortcutData = isFile
@@ -543,7 +733,7 @@ export const useDesktopStore = defineStore("desktop", {
         icon: "shortcut",
         isPermanent: false,
         shortcut: data,
-        ...savedPositions[`shortcut-${shortcut.id}`],
+        folderId: useDesktopSyncStore().content.membership[`shortcut-${shortcut.id}`] ?? null,
       };
     },
 
@@ -553,13 +743,15 @@ export const useDesktopStore = defineStore("desktop", {
           headers: { "X-HomeDock-CSRF-Token": csrfToken },
         });
 
-        const savedPositions = this.loadSystemIconPositions();
+        const previous = new Map(this.systemDesktopIcons.filter((icon) => icon.shortcut).map((icon) => [icon.id, icon]));
 
         this.systemDesktopIcons = this.systemDesktopIcons.filter((icon) => !icon.shortcut);
         (response.data.shortcuts || []).forEach((shortcut: any) => {
-          this.systemDesktopIcons.push(this.buildShortcutIcon(shortcut, savedPositions));
+          const icon = this.buildShortcutIcon(shortcut);
+          this.systemDesktopIcons.push({ ...icon, ...positionOf(previous.get(icon.id)) });
         });
 
+        this.shortcutsLoaded = true;
         this.syncFolderItems();
       } catch (error) {
         console.error("Error loading shortcuts:", error);
@@ -573,7 +765,7 @@ export const useDesktopStore = defineStore("desktop", {
         });
 
         if (response.data.shortcut) {
-          this.systemDesktopIcons.push(this.buildShortcutIcon(response.data.shortcut, {}));
+          this.systemDesktopIcons.push(this.buildShortcutIcon(response.data.shortcut));
         }
         return true;
       } catch (error) {
@@ -594,7 +786,7 @@ export const useDesktopStore = defineStore("desktop", {
 
         const icon = this.systemDesktopIcons.find((i) => i.shortcut?.shortcutId === shortcutId);
         if (icon && response.data.shortcut) {
-          const rebuilt = this.buildShortcutIcon(response.data.shortcut, {});
+          const rebuilt = this.buildShortcutIcon(response.data.shortcut);
           icon.name = rebuilt.name;
           icon.shortcut = rebuilt.shortcut;
         }
@@ -617,7 +809,7 @@ export const useDesktopStore = defineStore("desktop", {
 
         const index = this.systemDesktopIcons.findIndex((i) => i.shortcut?.shortcutId === shortcutId);
         if (index !== -1) {
-          this.removeShortcutFromFolder(this.systemDesktopIcons[index].id);
+          this.removeSystemIconFromFolder(this.systemDesktopIcons[index].id);
           this.systemDesktopIcons.splice(index, 1);
         }
         this.saveSystemIconPositions();
@@ -629,86 +821,7 @@ export const useDesktopStore = defineStore("desktop", {
     },
 
     saveSystemIconPositions() {
-      try {
-        const positions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> = {};
-
-        this.systemDesktopIcons.forEach((icon) => {
-          if (icon.x !== undefined || icon.y !== undefined || icon.gridRow !== undefined || icon.gridCol !== undefined || icon.page !== undefined || icon.folderId) {
-            positions[icon.id] = {
-              x: icon.x,
-              y: icon.y,
-              gridRow: icon.gridRow,
-              gridCol: icon.gridCol,
-              page: icon.page,
-              folderId: icon.folderId,
-            };
-          }
-        });
-
-        localStorage.setItem("homedock_system_icon_positions", JSON.stringify(positions));
-      } catch (error) {
-        console.error("Error saving system icon positions:", error);
-      }
-    },
-
-    loadSystemIconPositions(): Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> {
-      try {
-        const stored = localStorage.getItem("homedock_system_icon_positions");
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading system icon positions:", error);
-      }
-      return {};
-    },
-
-    saveSystemIconsList() {
-      try {
-        const icons = this.systemDesktopIcons
-          .filter((icon) => !icon.isPermanent && !icon.shortcut)
-          .map((icon) => ({
-            appId: icon.appId,
-            name: icon.name,
-            icon: icon.icon,
-            ...(icon.moduleName && { moduleName: icon.moduleName }),
-          }));
-        localStorage.setItem("homedock_system_icons_list", JSON.stringify(icons));
-      } catch (error) {
-        console.error("Error saving system icons list:", error);
-      }
-    },
-
-    loadSystemIconsList(): Array<{ appId: string; name: string; icon: any; moduleName?: string }> {
-      try {
-        const stored = localStorage.getItem("homedock_system_icons_list");
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading system icons list:", error);
-      }
-      return [];
-    },
-
-    saveRemovedDefaultIcons(removedIds: string[]) {
-      try {
-        localStorage.setItem("homedock_removed_default_icons", JSON.stringify(removedIds));
-      } catch (error) {
-        console.error("Error saving removed default icons:", error);
-      }
-    },
-
-    loadRemovedDefaultIcons(): string[] {
-      try {
-        const stored = localStorage.getItem("homedock_removed_default_icons");
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading removed default icons:", error);
-      }
-      return [];
+      this.persistLayout();
     },
 
     isSystemIconOnDesktop(appId: string): boolean {
@@ -718,16 +831,6 @@ export const useDesktopStore = defineStore("desktop", {
     addSystemIconToDesktop(appId: string, name: string, icon: any, moduleName?: string): boolean {
       if (this.isSystemIconOnDesktop(appId)) {
         return false;
-      }
-
-      const defaultIconIds = ["apphome", "fileexplorer"];
-      if (defaultIconIds.includes(appId)) {
-        const removedDefaults = this.loadRemovedDefaultIcons();
-        const index = removedDefaults.indexOf(appId);
-        if (index !== -1) {
-          removedDefaults.splice(index, 1);
-          this.saveRemovedDefaultIcons(removedDefaults);
-        }
       }
 
       const newIcon: SystemDesktopIcon = {
@@ -740,7 +843,15 @@ export const useDesktopStore = defineStore("desktop", {
       };
 
       this.systemDesktopIcons.push(newIcon);
-      this.saveSystemIconsList();
+
+      useDesktopSyncStore().updateContent((draft) => {
+        if (DEFAULT_ICON_IDS.includes(appId)) {
+          draft.removedDefaults = draft.removedDefaults.filter((id) => id !== appId);
+        } else if (!draft.systemIcons.some((meta) => meta.appId === appId)) {
+          draft.systemIcons.push({ appId, name, icon, ...(moduleName && { moduleName }) });
+        }
+      });
+
       return true;
     },
 
@@ -750,38 +861,33 @@ export const useDesktopStore = defineStore("desktop", {
         return false;
       }
 
+      this.removeSystemIconFromFolder(this.systemDesktopIcons[index].id);
       this.systemDesktopIcons.splice(index, 1);
 
-      const defaultIconIds = ["apphome", "fileexplorer"];
-      if (defaultIconIds.includes(appId)) {
-        const removedDefaults = this.loadRemovedDefaultIcons();
-        if (!removedDefaults.includes(appId)) {
-          removedDefaults.push(appId);
-          this.saveRemovedDefaultIcons(removedDefaults);
+      useDesktopSyncStore().updateContent((draft) => {
+        if (DEFAULT_ICON_IDS.includes(appId)) {
+          if (!draft.removedDefaults.includes(appId)) draft.removedDefaults.push(appId);
+        } else {
+          draft.systemIcons = draft.systemIcons.filter((meta) => meta.appId !== appId);
         }
-      }
+      });
 
-      this.saveSystemIconsList();
-      this.saveSystemIconPositions();
+      this.persistLayout();
       return true;
     },
 
     updateItemPosition(type: DesktopItemType, id: string, x: number, y: number, gridRow?: number, gridCol?: number, page?: number) {
       let item: { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number } | undefined;
-      let saveFunc: (() => void) | undefined;
 
       switch (type) {
         case "app":
           item = this.dockerApps.find((a) => a.id === id);
-          saveFunc = () => this.saveIconPositions();
           break;
         case "folder":
           item = this.desktopFolders.find((f) => f.id === id);
-          saveFunc = () => this.saveFolders();
           break;
         case "systemicon":
           item = this.systemDesktopIcons.find((i) => i.id === id);
-          saveFunc = () => this.saveSystemIconPositions();
           break;
       }
 
@@ -791,43 +897,12 @@ export const useDesktopStore = defineStore("desktop", {
         if (gridRow !== undefined) item.gridRow = gridRow;
         if (gridCol !== undefined) item.gridCol = gridCol;
         if (page !== undefined) item.page = page;
-        saveFunc?.();
+        this.persistLayout();
       }
     },
 
     saveIconPositions() {
-      try {
-        const positions: Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> = {};
-
-        this.dockerApps.forEach((app) => {
-          if (app.x !== undefined || app.y !== undefined || app.gridRow !== undefined || app.gridCol !== undefined || app.page !== undefined || app.folderId) {
-            positions[app.id] = {
-              x: app.x,
-              y: app.y,
-              gridRow: app.gridRow,
-              gridCol: app.gridCol,
-              page: app.page,
-              folderId: app.folderId,
-            };
-          }
-        });
-
-        localStorage.setItem("homedock_icon_positions", JSON.stringify(positions));
-      } catch (error) {
-        console.error("Error saving icon positions:", error);
-      }
-    },
-
-    loadIconPositions(): Record<string, { x?: number; y?: number; gridRow?: number; gridCol?: number; page?: number; folderId?: string | null }> {
-      try {
-        const stored = localStorage.getItem("homedock_icon_positions");
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error("Error loading icon positions:", error);
-      }
-      return {};
+      this.persistLayout();
     },
 
     resetIconPositions() {
@@ -857,9 +932,10 @@ export const useDesktopStore = defineStore("desktop", {
         icon.page = undefined;
       });
 
-      this.saveIconPositions();
-      this.saveFolders();
-      this.saveSystemIconPositions();
+      const sync = useDesktopSyncStore();
+      const current = sync.layouts[sync.mode] ?? {};
+      sync.persistLayout({ replace: Object.fromEntries(Object.entries(current).filter(([key]) => key.startsWith("widget-"))) });
+      sync.contentVersion += 1;
     },
 
     generateFolderId(): string {
@@ -913,13 +989,7 @@ export const useDesktopStore = defineStore("desktop", {
       const folder = this.desktopFolders.find((f) => f.id === folderId);
       if (!folder) return;
 
-      folder.items.forEach((itemId) => {
-        if (itemId.startsWith("shortcut-")) {
-          this.removeShortcutFromFolder(itemId);
-        } else {
-          this.removeAppFromFolder(itemId);
-        }
-      });
+      [...folder.items].forEach((itemId) => this.removeItemFromFolder(itemId));
 
       const windowStore = useWindowStore();
       const folderWindows = windowStore.windows.filter((w) => w.appId === "folder-view" && w.data?.folderId === folderId);
@@ -972,18 +1042,41 @@ export const useDesktopStore = defineStore("desktop", {
         folder.items.push(appId);
       }
 
-      this.saveFolders();
-      this.saveIconPositions();
+      useDesktopSyncStore().updateContent((draft) => {
+        draft.membership[appLayoutKey(app.name)] = folderId;
+      });
+      this.persistLayout();
     },
 
-    addShortcutToFolder(iconId: string, folderId: string) {
-      const icon = this.systemDesktopIcons.find((i) => i.id === iconId && i.shortcut);
+    isFolderableIconId(iconId: string): boolean {
+      const icon = this.systemDesktopIcons.find((i) => i.id === iconId);
+      return Boolean(icon && isFolderableIcon(icon));
+    },
+
+    addItemToFolder(itemId: string, folderId: string) {
+      if (this.systemDesktopIcons.some((icon) => icon.id === itemId)) {
+        this.addSystemIconToFolder(itemId, folderId);
+      } else {
+        this.addAppToFolder(itemId, folderId);
+      }
+    },
+
+    removeItemFromFolder(itemId: string) {
+      if (this.systemDesktopIcons.some((icon) => icon.id === itemId)) {
+        this.removeSystemIconFromFolder(itemId);
+      } else {
+        this.removeAppFromFolder(itemId);
+      }
+    },
+
+    addSystemIconToFolder(iconId: string, folderId: string) {
+      const icon = this.systemDesktopIcons.find((i) => i.id === iconId && isFolderableIcon(i));
       const folder = this.desktopFolders.find((f) => f.id === folderId);
 
       if (!icon || !folder) return;
 
       if (icon.folderId) {
-        this.removeShortcutFromFolder(iconId);
+        this.removeSystemIconFromFolder(iconId);
       }
 
       icon.folderId = folderId;
@@ -996,11 +1089,13 @@ export const useDesktopStore = defineStore("desktop", {
       icon.gridRow = undefined;
       icon.gridCol = undefined;
 
-      this.saveFolders();
-      this.saveSystemIconPositions();
+      useDesktopSyncStore().updateContent((draft) => {
+        draft.membership[iconId] = folderId;
+      });
+      this.persistLayout();
     },
 
-    removeShortcutFromFolder(iconId: string) {
+    removeSystemIconFromFolder(iconId: string) {
       const icon = this.systemDesktopIcons.find((i) => i.id === iconId);
       if (!icon || !icon.folderId) return;
 
@@ -1016,8 +1111,10 @@ export const useDesktopStore = defineStore("desktop", {
       icon.gridRow = undefined;
       icon.gridCol = undefined;
 
-      this.saveFolders();
-      this.saveSystemIconPositions();
+      useDesktopSyncStore().updateContent((draft) => {
+        delete draft.membership[iconId];
+      });
+      this.persistLayout();
     },
 
     removeAppFromFolder(appId: string) {
@@ -1036,33 +1133,23 @@ export const useDesktopStore = defineStore("desktop", {
       app.gridRow = undefined;
       app.gridCol = undefined;
 
-      this.saveFolders();
-      this.saveIconPositions();
+      useDesktopSyncStore().updateContent((draft) => {
+        delete draft.membership[appLayoutKey(app.name)];
+      });
+      this.persistLayout();
     },
 
     saveFolders() {
-      try {
-        localStorage.setItem("homedock_desktop_folders", JSON.stringify(this.desktopFolders));
-      } catch (error) {
-        console.error("Error saving folders:", error);
-      }
-    },
+      const folders = this.desktopFolders.map((folder) => ({ id: folder.id, name: folder.name, createdAt: folder.createdAt, ...(folder.color && { color: folder.color }), ...(folder.icon && { icon: folder.icon }) }));
+      const folderIds = new Set(folders.map((folder) => folder.id));
 
-    loadFolders() {
-      try {
-        const stored = localStorage.getItem("homedock_desktop_folders");
-        if (stored) {
-          const folders = JSON.parse(stored);
-
-          this.desktopFolders = folders.map((folder: DesktopFolder) => ({
-            ...folder,
-            name: this.sanitizeFolderName(folder.name || "New Folder"),
-          }));
-        }
-      } catch (error) {
-        console.error("Error loading folders:", error);
-        this.desktopFolders = [];
-      }
+      useDesktopSyncStore().updateContent((draft) => {
+        draft.folders = folders;
+        Object.keys(draft.membership).forEach((key) => {
+          if (!folderIds.has(draft.membership[key])) delete draft.membership[key];
+        });
+      });
+      this.persistLayout();
     },
 
     syncFolderItems() {
@@ -1071,7 +1158,7 @@ export const useDesktopStore = defineStore("desktop", {
       });
 
       this.systemDesktopIcons.forEach((icon) => {
-        if (icon.shortcut && icon.folderId) {
+        if (icon.folderId) {
           const folder = this.desktopFolders.find((f) => f.id === icon.folderId);
           if (folder && !folder.items.includes(icon.id)) {
             folder.items.push(icon.id);
@@ -1087,8 +1174,6 @@ export const useDesktopStore = defineStore("desktop", {
           }
         }
       });
-
-      this.saveFolders();
     },
 
     openFolder(folderId: string) {
@@ -1116,8 +1201,6 @@ export const useDesktopStore = defineStore("desktop", {
       this.startMenuOpen = false;
       this.dockerApps = [];
       this.desktopFolders = [];
-      this.recentApps = [];
-      this.pinnedApps = [];
       this.desktopLayout = "grid";
       this.iconSize = "medium";
       this.draggedAppIds = [];

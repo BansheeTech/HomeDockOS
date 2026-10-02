@@ -1,0 +1,1 @@
+var e=/Mac|iPhone|iPad|iPod/.test(navigator.platform||navigator.userAgent),t=e?`⌘`:`Ctrl`;function n(n){return e?`${t}${n}`:`${t}+${n}`}export{n as t};

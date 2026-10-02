@@ -20,6 +20,8 @@ from pymodules.hd_FunctionsDiskEnum import find_disk_by_id, enumerate_disks
 from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename, validate_no_symlinks
 from pymodules.hd_DisksPlusAuth import authorize_request, matching_danger_zone, is_danger_zone_path
 from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
+from pymodules.hd_ImageThumbnails import thumbnail_response
+from pymodules.hd_ExtendedSupportImage import preview_response
 
 MAX_FILES_FOR_ZIP = 50000
 MAX_TIME_FOR_ZIP = 30.0
@@ -232,6 +234,54 @@ def disksplus_download_file():
         return send_file(file_path, mimetype="application/octet-stream", as_attachment=True, download_name=os.path.basename(file_name))
     except Exception:
         return jsonify({"error": "read_failed"}), 500
+
+
+def _resolve_image_file():
+    disk, err = _resolve_disk()
+    if err:
+        return None, err
+    base_dir = disk["mountpoint"]
+
+    file_name = request.args.get("file")
+    if not file_name:
+        return None, (jsonify({"error": "no_file_specified"}), 400)
+
+    try:
+        file_path = _build_absolute(base_dir, file_name)
+    except ValueError:
+        return None, (jsonify({"error": "invalid_path"}), 400)
+
+    access_err = _check_access(file_path)
+    if access_err:
+        return None, access_err
+
+    if not os.path.isfile(file_path):
+        return None, (jsonify({"error": "file_not_found"}), 404)
+
+    try:
+        validate_no_symlinks(file_path, base_dir)
+    except ValueError:
+        return None, (jsonify({"error": "security_violation"}), 403)
+
+    return file_path, None
+
+
+@login_required
+def disksplus_thumbnail_file():
+    file_path, err = _resolve_image_file()
+    if err:
+        return err
+
+    return thumbnail_response(file_path)
+
+
+@login_required
+def disksplus_preview_file():
+    file_path, err = _resolve_image_file()
+    if err:
+        return err
+
+    return preview_response(file_path)
 
 
 def _zip_directory(dir_path, base_dir):

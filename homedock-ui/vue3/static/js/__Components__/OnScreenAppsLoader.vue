@@ -11,12 +11,7 @@
       <div class="relative z-10" :class="iconClass">
         <div class="icon-float" :class="{ 'is-drifting': isChecking }">
           <div class="absolute -inset-5 rounded-full blur-2xl transition-all ease-out" :class="haloClass" />
-          <div class="relative">
-            <BaseImage draggable="false" :src="icon" :alt="displayName" class="block w-10 h-10 rounded-[10px] shadow-[0_12px_28px_-10px_rgba(0,0,0,0.55),0_3px_8px_-4px_rgba(0,0,0,0.4)]" />
-            <div class="absolute inset-0 rounded-[10px] bg-gradient-to-b from-white/25 via-transparent to-black/15 pointer-events-none" />
-            <div class="absolute inset-0 rounded-[10px] ring-1 ring-inset ring-white/20 pointer-events-none" />
-            <div class="absolute inset-0 rounded-[10px] ring-[1px] ring-gray-500/10 pointer-events-none" />
-          </div>
+          <AppIconGraphic :image-src="icon" :size="40" />
         </div>
       </div>
     </div>
@@ -70,7 +65,7 @@ import cursorDefaultClickIcon from "@iconify-icons/mdi/cursor-default-click";
 import newTabIcon from "@iconify-icons/mdi/open-in-new";
 import checkBoldIcon from "@iconify-icons/mdi/check-bold";
 
-import BaseImage from "./BaseImage.vue";
+import AppIconGraphic from "./AppIconGraphic.vue";
 import PrismPanesLoader from "./PrismPanesLoader.vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
@@ -89,7 +84,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{ ready: [url: string]; openExternal: []; failed: [value: boolean] }>();
+const emit = defineEmits<{ ready: [url: string]; openExternal: []; failed: [value: boolean]; proxyRejected: [] }>();
 
 const { t } = useI18n();
 const { themeClasses } = useTheme();
@@ -171,10 +166,14 @@ const giveUp = () => {
 const check = async () => {
   if (cancelled) return;
 
+  let proxyRejected = false;
+
   try {
-    const { data } = await axios.post("/api/check-port", { port: props.port, subpath: props.subpath ?? "" }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+    const { data } = await axios.post("/api/check-port", { port: props.port, subpath: props.subpath ?? "", via_proxy: true }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
 
     if (!data?.available) throw new Error("unavailable");
+
+    proxyRejected = data.proxy_rejected === true;
   } catch {
     if (cancelled) return;
 
@@ -186,6 +185,13 @@ const check = async () => {
     }
 
     timer = setTimeout(check, RETRY_DELAY);
+    return;
+  }
+
+  if (cancelled) return;
+
+  if (proxyRejected) {
+    emit("proxyRejected");
     return;
   }
 

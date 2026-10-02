@@ -13,10 +13,13 @@ if (!globalThis.crypto?.subtle || !window.isSecureContext) {
 }
 
 import * as Vue from "vue";
+import * as PrismCore from "@prism-wm/core";
+import * as PrismVue from "@prism-wm/vue";
 
 import { ref, reactive, computed, watch, onMounted, onUnmounted, h, defineComponent, createApp, type Component } from "vue";
 import { getThemeClasses } from "../__Themes__/ThemeSelector";
 import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useDesktopSyncStore } from "../__Stores__/useDesktopSyncStore";
 
 import type { MessageInstance } from "ant-design-vue/es/message";
 import type { NotificationInstance } from "ant-design-vue/es/notification";
@@ -127,6 +130,7 @@ function registerModule(moduleName: string, entry: EnterpriseModuleEntry): void 
 if (typeof window !== "undefined") {
   (window as any).__HOMEDOCK_REGISTER_MODULE__ = registerModule;
   (window as any).Vue = Vue;
+  (window as any).PrismWM = { core: PrismCore, vue: PrismVue };
 }
 
 function hexToBase64(hexString: string): string {
@@ -331,43 +335,12 @@ async function loadAndInitModule(module: EnterpriseModule): Promise<void> {
 async function restoreValidEnterpriseDesktopIcons(): Promise<void> {
   try {
     const desktopStore = useDesktopStore();
+    const desktopSync = useDesktopSyncStore();
 
-    const savedIconsList = desktopStore.loadSystemIconsList();
-    const savedPositions = desktopStore.loadSystemIconPositions();
+    await desktopSync.whenLoaded;
 
-    const savedEnterpriseIcons = savedIconsList.filter((icon) => icon.appId.startsWith("enterprise-"));
-
-    let needsCleanup = false;
-
-    for (const iconData of savedEnterpriseIcons) {
-      if (!iconData.moduleName) {
-        needsCleanup = true;
-        continue;
-      }
-
-      const moduleEntry = moduleRegistry.get(`${iconData.moduleName}StartMenuIcon`);
-
-      if (moduleEntry) {
-        if (!desktopStore.isSystemIconOnDesktop(iconData.appId)) {
-          const savedPos = savedPositions[`system-icon-${iconData.appId}`] || {};
-          desktopStore.systemDesktopIcons.push({
-            id: `system-icon-${iconData.appId}`,
-            appId: iconData.appId,
-            name: iconData.name,
-            icon: iconData.icon,
-            isPermanent: false,
-            moduleName: iconData.moduleName,
-            ...savedPos,
-          });
-        }
-      } else {
-        needsCleanup = true;
-      }
-    }
-
-    if (needsCleanup) {
-      desktopStore.saveSystemIconsList();
-    }
+    desktopStore.setEnterpriseResolver((meta) => Boolean(meta.moduleName && moduleRegistry.get(`${meta.moduleName}StartMenuIcon`)));
+    desktopSync.contentVersion += 1;
   } catch (error) {
     console.error("[EnterpriseSRILoader] Error restoring enterprise desktop icons:", error);
   }

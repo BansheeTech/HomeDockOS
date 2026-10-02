@@ -5,232 +5,100 @@
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
-    <div ref="containerRef" class="flex-1 overflow-y-auto px-4 py-4">
-      <div class="mb-8">
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
-          <Icon :icon="harddiskIcon" class="w-4 h-4" />
-          <span>{{ $t("My Devices") }}</span>
-        </h3>
-
-        <div class="grid gap-4 mb-4" :class="gridColsClass">
-          <div class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0" :class="themeClasses.iconHolder">
-                <Icon :icon="cloudIcon" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.label || $t("OS Disk") }}</h3>
-                <p class="text-xs" :class="themeClasses.statSubtleText">{{ osDiskSubtitle }}</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ diskStore.osDisk?.usage_percent ?? 0 }}%</div>
-                <button v-if="diskStore.osDisk" @click="openDiskInExplorer(diskStore.osDisk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" :title="$t('Open in File Explorer')">
-                  <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                </button>
-              </div>
-            </div>
-            <div class="relative w-full h-2 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-              <div class="absolute inset-0 h-full bg-blue-500 transition-all duration-150" :style="{ width: (diskStore.osDisk?.usage_percent ?? 0) + '%' }"></div>
-              <div class="absolute inset-0 h-full bg-green-500 transition-all duration-150" :style="{ width: encryptedStoragePercentage + '%' }"></div>
-            </div>
-            <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ formatDiskSize(diskStore.osDisk?.used_gb ?? 0) }} {{ $t("used") }}</span>
-              <span>{{ formatDiskSize(diskStore.osDisk?.total_gb ?? 0) }} {{ $t("total") }}</span>
-            </div>
-            <div @click="openStorage" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.25rem">
-              <div class="flex items-center gap-2">
-                <Icon :icon="folderIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                <span class="text-xs font-medium" :class="themeClasses.statInnerText">{{ $t("Storage") }}: {{ storageInfo.usedFormatted }}</span>
-              </div>
-              <span class="text-xs" :class="themeClasses.statSubtleText">{{ storageInfo.fileCount }} {{ storageInfo.fileCount === 1 ? $t("file") : $t("files") }} • {{ storageInfo.folderCount }} {{ storageInfo.folderCount === 1 ? $t("folder") : $t("folders") }}</span>
-            </div>
-            <div @click="openDropZone" class="flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-all hover:bg-opacity-50" :class="[themeClasses.windowBorder]" style="margin-top: -0.5rem">
-              <div class="flex items-center gap-2">
-                <Icon :icon="lockIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                <span class="text-xs font-medium" :class="themeClasses.statInnerText">{{ $t("Encrypted") }}: {{ encryptedStorageInfo.usedFormatted }}</span>
-              </div>
-              <span class="text-xs" :class="themeClasses.statSubtleText">{{ encryptedStorageInfo.fileCount }} {{ encryptedStorageInfo.fileCount === 1 ? $t("file") : $t("files") }} • {{ encryptedStorageInfo.folderCount }} {{ encryptedStorageInfo.folderCount === 1 ? $t("folder") : $t("folders") }}</span>
-            </div>
-          </div>
-
-          <div v-for="disk in disksForHome" :key="disk.id" class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0">
-                <Icon :icon="iconForMediaType(disk.media_type)" class="w-8 h-8" :class="themeClasses.explorerItemIcon" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <h3 class="text-sm font-semibold truncate" :class="themeClasses.statInnerText">{{ disk.label || disk.device }}</h3>
-                  <Icon v-if="disk.device === externalDefaultDisk" :icon="pinIcon" class="w-3 h-3 flex-shrink-0 opacity-70" :class="themeClasses.explorerItemIcon" :title="$t('Tracked external disk')" />
-                </div>
-                <p class="text-xs" :class="themeClasses.statSubtleText">{{ subtitleForDisk(disk) }}</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="text-lg font-bold" :class="themeClasses.statInnerText">{{ disk.usage_percent }}%</div>
-                <button @click="openDiskInExplorer(disk)" class="p-1 rounded-md transition-colors opacity-40 hover:opacity-100" :class="themeClasses.explorerResultItemHover" :title="$t('Open in File Explorer')">
-                  <Icon :icon="openInNewIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-                </button>
-              </div>
-            </div>
-            <div class="w-full h-2 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-              <div class="h-full bg-green-500 transition-all duration-150" :style="{ width: disk.usage_percent + '%' }"></div>
-            </div>
-            <div class="flex justify-between text-xs" :class="themeClasses.statSubtleText">
-              <span>{{ formatDiskSize(disk.used_gb) }} {{ $t("used") }}</span>
-              <span>{{ formatDiskSize(disk.total_gb) }} {{ $t("total") }}</span>
-            </div>
-          </div>
+    <div ref="containerRef" class="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4">
+      <section class="home-section">
+        <h2 :class="[themeClasses.storeModalAppName]" class="home-section-title">{{ $t("Folders") }}</h2>
+        <div class="folder-grid">
+          <button v-for="folder in storageFolders" :key="folder" type="button" class="folder-tile" @click="openStorageFolder(folder)">
+            <FolderGraphic :emblem="specialFolderIcons[folder]" :emblem-key="folder" :size="60" />
+            <span :class="[themeClasses.explorerItemName]" class="folder-name">{{ $t(folder) }}</span>
+          </button>
         </div>
-      </div>
+      </section>
 
-      <div class="mb-8">
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
-          <Icon :icon="serverIcon" class="w-4 h-4" />
-          <span>{{ $t("System Overview") }}</span>
-        </h3>
-
-        <div class="grid gap-4" :class="gridColsClass">
-          <div class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon :icon="cpuIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("Performance") }}</h3>
-            </div>
-
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span :class="themeClasses.statSubtleText">{{ $t("CPU") }}</span>
-                <span class="font-semibold" :class="themeClasses.statInnerText">{{ cpuValue }}%</span>
-              </div>
-              <div class="w-full h-1.5 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-                <div class="h-full bg-blue-500 transition-all duration-150" :style="{ width: cpuValue + '%' }"></div>
-              </div>
-              <div class="text-[10px]" :class="themeClasses.statSubtleText">{{ cpuInfoText }}</div>
-            </div>
-
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span :class="themeClasses.statSubtleText">{{ $t("Memory") }}</span>
-                <span class="font-semibold" :class="themeClasses.statInnerText">{{ ramValue }}%</span>
-              </div>
-              <div class="w-full h-1.5 rounded-full overflow-hidden" :class="themeClasses.processingBarScope">
-                <div class="h-full bg-purple-500 transition-all duration-150" :style="{ width: ramValue + '%' }"></div>
-              </div>
-              <div class="text-[10px]" :class="themeClasses.statSubtleText">{{ totalRam }} {{ $t("GB total") }}</div>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3 p-4 rounded-xl border" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon :icon="downloadIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("Network") }}</h3>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
-                <div class="flex items-center gap-1.5">
-                  <Icon :icon="downloadIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Download") }}</span>
-                </div>
-                <div class="text-sm font-bold" :class="themeClasses.statInnerText">
-                  {{ networkDownValue }} <span class="text-[10px] font-normal" :class="themeClasses.statSubtleText">{{ networkDownUnit }}</span>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
-                <div class="flex items-center gap-1.5">
-                  <Icon :icon="uploadIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Upload") }}</span>
-                </div>
-                <div class="text-sm font-bold" :class="themeClasses.statInnerText">
-                  {{ networkUpValue }} <span class="text-[10px] font-normal" :class="themeClasses.statSubtleText">{{ networkUpUnit }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3 p-4 rounded-xl border transition-all duration-150" :class="[themeClasses.windowBorder, themeClasses.statHolder]">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon :icon="serverIcon" class="w-4 h-4" :class="themeClasses.explorerItemIcon" />
-              <h3 class="text-xs font-semibold uppercase tracking-wide" :class="themeClasses.statInnerText">{{ $t("System Health") }}</h3>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
-                <div class="flex items-center gap-1.5">
-                  <Icon :icon="uptimeIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("System") }}</span>
-                </div>
-                <div class="text-xs font-bold" :class="themeClasses.statInnerText">{{ systemUptime }}</div>
-              </div>
-
-              <div class="flex flex-col gap-1 p-2 rounded-lg border" :class="themeClasses.windowBorder">
-                <div class="flex items-center gap-1.5">
-                  <Icon :icon="homeIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                  <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">HomeDock OS</span>
-                </div>
-                <div class="text-xs font-bold" :class="themeClasses.statInnerText">{{ homeDockUptime }}</div>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between p-2 rounded-lg border" :class="themeClasses.windowBorder">
-              <div class="flex items-center gap-1.5">
-                <Icon :icon="containerIcon" class="w-3 h-3" :class="themeClasses.explorerItemIcon" />
-                <span class="text-[10px] font-medium" :class="themeClasses.statSubtleText">{{ $t("Installed Applications") }}</span>
-              </div>
-              <span class="text-xs font-bold" :class="themeClasses.statInnerText">{{ activeContainers }} / {{ totalContainers }}</span>
-            </div>
-          </div>
+      <section class="home-section">
+        <h2 :class="[themeClasses.storeModalAppName, themeClasses.storeListSeparator]" class="home-section-title home-section-divided">{{ $t("Devices and drives") }}</h2>
+        <div class="card-grid">
+          <button v-for="drive in drives" :key="drive.key" type="button" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.aeroExtraScope]" class="home-card" :title="$t('Open in File Explorer')" @click="openDrive(drive.disk)">
+            <span class="flex items-center gap-3 min-w-0">
+              <AppIconGraphic :icon="drive.icon" :color="drive.color" :size="40" />
+              <span class="flex flex-col flex-1 min-w-0 text-left">
+                <span class="flex items-center gap-1.5 min-w-0">
+                  <span :class="[themeClasses.windowTitleTextFocused]" class="text-[13px] font-semibold truncate">{{ drive.name }}</span>
+                  <Icon v-if="drive.tracked" :icon="pinIcon" :class="[themeClasses.appPropsInfoLabel]" class="w-3 h-3 flex-shrink-0" :title="$t('Tracked external disk')" />
+                </span>
+                <span :class="[themeClasses.appPropsInfoLabel]" class="text-[11px] truncate">{{ drive.subtitle }}</span>
+              </span>
+              <span :class="[themeClasses.appPropsInfoValue]" class="text-[13px] font-semibold tabular-nums flex-shrink-0">{{ drive.percent }}%</span>
+            </span>
+            <span class="usage-track">
+              <span class="usage-fill" :class="drive.percent >= FULL_THRESHOLD ? 'usage-fill-full' : ''" :style="{ width: `${drive.percent}%` }"></span>
+            </span>
+            <span :class="[themeClasses.appPropsInfoLabel]" class="text-[11px] tabular-nums text-left">{{ $t("{free} free of {total}", { free: drive.free, total: drive.total }) }}</span>
+          </button>
         </div>
-      </div>
+      </section>
 
-      <div class="mb-6">
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
-          <Icon :icon="appsIcon" class="w-4 h-4" />
-          <span>{{ $t("System Applications") }}</span>
-        </h3>
+      <section class="home-section">
+        <h2 :class="[themeClasses.storeModalAppName, themeClasses.storeListSeparator]" class="home-section-title home-section-divided">{{ $t("Locations") }}</h2>
+        <div class="card-grid">
+          <button v-for="location in locations" :key="location.key" type="button" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.aeroExtraScope]" class="home-card" :disabled="location.disabled" @click="location.open()">
+            <span class="flex items-center gap-3 min-w-0">
+              <AppIconGraphic :icon="location.icon" :color="location.color" :size="40" />
+              <span class="flex flex-col flex-1 min-w-0 text-left">
+                <span :class="[themeClasses.windowTitleTextFocused]" class="text-[13px] font-semibold truncate">{{ $t(location.name) }}</span>
+                <span :class="[themeClasses.appPropsInfoLabel]" class="text-[11px] truncate">{{ location.subtitle }}</span>
+              </span>
+              <Icon v-if="location.locked" :icon="lockIcon" :class="[themeClasses.appPropsInfoLabel]" class="w-3.5 h-3.5 flex-shrink-0" />
+            </span>
+          </button>
+        </div>
+      </section>
 
+      <section v-for="group in appGroups" :key="group.title" class="home-section">
+        <h2 :class="[themeClasses.storeModalAppName, themeClasses.storeListSeparator]" class="home-section-title home-section-divided">{{ $t(group.title) }}</h2>
         <div class="app-launchpad-grid" :style="launchpadGridStyle">
-          <div v-for="app in systemApps" :key="app.id" @click="app.id !== 'apphome' && openApp(app)" class="app-launchpad-item group" :class="app.id !== 'apphome' ? 'cursor-pointer' : 'opacity-40 cursor-default'">
-            <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
-              <Icon :icon="app.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
-            </div>
+          <div v-for="app in group.apps" :key="app.id" @click="app.id !== 'apphome' && openApp(app)" class="app-launchpad-item group cursor-pointer">
+            <AppIconGraphic :icon="app.icon" :color="app.color" :size="52" class="app-launchpad-icon" />
             <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ $t(app.name) }}</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div>
-        <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-3" :class="themeClasses.explorerGroupHeader">
-          <Icon :icon="toolboxOutlineIcon" class="w-4 h-4" />
-          <span>{{ $t("Utilities") }}</span>
-        </h3>
-
-        <div class="app-launchpad-grid" :style="launchpadGridStyle">
-          <div v-for="util in utilitiesApps" :key="util.id" @click="openApp(util)" class="app-launchpad-item group cursor-pointer">
-            <div class="app-launchpad-icon" :class="[themeClasses.iconHolder, themeClasses.explorerResultItemHover]">
-              <Icon :icon="util.icon" class="w-7 h-7" :class="themeClasses.explorerItemIcon" />
-            </div>
-            <span class="app-launchpad-name" :class="themeClasses.explorerItemName">{{ $t(util.name) }}</span>
-          </div>
+      <section v-if="recentFiles.length" class="home-section">
+        <h2 :class="[themeClasses.storeModalAppName, themeClasses.storeListSeparator]" class="home-section-title home-section-divided">{{ $t("Recent Files") }}</h2>
+        <div class="recent-grid">
+          <button v-for="item in recentFiles" :key="recentKey(item)" type="button" class="recent-row" @click="openRecent(item)" @contextmenu.stop.prevent="openRecentMenu($event, item)">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center">
+              <FolderGraphic v-if="item.is_directory" :size="30" />
+              <FileGraphic v-else :name="baseName(item.name)" :size="30" />
+            </span>
+            <span class="flex flex-col flex-1 min-w-0 text-left">
+              <span :class="[themeClasses.windowTitleTextFocused]" class="text-[13px] font-medium truncate">{{ baseName(item.name) }}</span>
+              <span :class="[themeClasses.appPropsInfoLabel]" class="text-[11px] truncate">{{ relativeTime(item.accessed_at) }} · {{ recentLocation(item) }}</span>
+            </span>
+          </button>
         </div>
-      </div>
+      </section>
     </div>
+
+    <ContextMenu :visible="menu.visible" :x="menu.x" :y="menu.y" :items="menu.items" @close="menu.visible = false" />
 
     <StatusBar :icon="homedockIcon" :message="$t('My Home')" :info="`${$t('CPU')} ${cpuValue}% • ${$t('RAM')} ${ramValue}% • ${activeContainers}/${totalContainers} ${$t('apps')}`" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="homedockIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="homedockIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("My Home") }}</h4>
           </div>
 
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p>{{ $t("My Home is your central hub for accessing system information and applications. Monitor storage, performance, network activity, and system health at a glance.") }}</p>
+            <p>{{ $t("My Home is the front door to your server: your folders, your drives and every app, one click away.") }}</p>
             <p>
-              <strong>{{ $t("Storage") }}:</strong> {{ $t("OS Disk shows total disk usage (blue bar) with encrypted data overlay (green bar). Click encrypted info to access Drop Zone.") }}
+              <strong>{{ $t("Devices and drives") }}:</strong> {{ $t("Every disk HomeDock OS can see and how much room it has left. The bar turns red once a disk is 90% full.") }}
             </p>
             <p>
-              <strong>{{ $t("System Overview") }}:</strong> {{ $t("Real-time performance metrics, network statistics, and system health indicators help you keep track of your HomeDock OS.") }}
+              <strong>{{ $t("Locations") }}:</strong> {{ $t("Storage holds your files, the Drop Zone keeps them encrypted, and App Drive opens the volumes of your apps.") }}
             </p>
           </div>
         </div>
@@ -250,6 +118,7 @@ import { useDropZoneStore } from "../__Stores__/useDropZoneStore";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { getFinderApps } from "../__Config__/WindowDefaultDetails";
+import { SPECIAL_FOLDER_ICONS as specialFolderIcons } from "../__Config__/FileIcons";
 
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
@@ -257,7 +126,15 @@ import { useDisksPlusStore } from "../__Stores__/useDisksPlusStore";
 import type { DiskData } from "../__Types__/DiskData";
 
 import StatusBar from "../__Components__/StatusBar.vue";
-import cloudIcon from "@iconify-icons/mdi/cloud";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
+import FolderGraphic from "../__Components__/FolderGraphic.vue";
+import FileGraphic from "../__Components__/FileGraphic.vue";
+import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
+import { shortcutTargetData } from "../__Stores__/desktopStore";
+import { useFileExplorerStore, type RecentItem } from "../__Stores__/useFileExplorerStore";
+import folderOpenIcon from "@iconify-icons/mdi/folder-open";
+import historyRemoveIcon from "@iconify-icons/mdi/history";
 import { homedockIcon } from "../__Config__/HomeDockIcon";
 
 import { Icon } from "@iconify/vue";
@@ -269,60 +146,87 @@ import lockIcon from "@iconify-icons/mdi/lock";
 import folderIcon from "@iconify-icons/mdi/folder";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
 import pinIcon from "@iconify-icons/mdi/pin";
-import appsIcon from "@iconify-icons/mdi/apps";
-import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
-
-import homeIcon from "@iconify-icons/mdi/home";
-import cpuIcon from "@iconify-icons/mdi/speedometer";
-import downloadIcon from "@iconify-icons/mdi/download";
-import uploadIcon from "@iconify-icons/mdi/upload";
-import containerIcon from "@iconify-icons/mdi/docker";
-import uptimeIcon from "@iconify-icons/mdi/clock-outline";
-import serverIcon from "@iconify-icons/mdi/server";
-import openInNewIcon from "@iconify-icons/mdi/open-in-new";
+import cubeIcon from "@iconify-icons/mdi/cube";
+import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
 
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
+import { GAMES_APPS } from "../__Config__/GamesDefaultDetails";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
+const fileExplorerStore = useFileExplorerStore();
 const windowStore = useWindowStore();
 const dropZoneStore = useDropZoneStore();
 const systemStatsStore = useSystemStatsStore();
 const diskStore = useDisksPlusStore();
 const csrfToken = useCsrfToken();
 
-interface EncryptedStorageInfo {
-  used: number;
-  usedFormatted: string;
-  fileCount: number;
-  folderCount: number;
+const FOLDER_ORDER = ["Documents", "Photos", "Music", "Videos", "Downloads", "Archives", "Sources", "Notes"];
+const FULL_THRESHOLD = 90;
+const SYSTEM_DISK_COLOR = "#475569";
+const DISK_COLOR = "#64748b";
+const REMOVABLE_DISK_COLOR = "#0891b2";
+const RECENT_LIMIT = 8;
+
+const LOCATION_LABELS: Record<RecentItem["location"], string> = {
+  storage: "Storage",
+  dropzone: "Drop Zone",
+  appdrive: "App Drive",
+  disksplus: "Disks+",
+};
+
+const RELATIVE_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+  ["year", 31536000],
+  ["month", 2592000],
+  ["week", 604800],
+  ["day", 86400],
+  ["hour", 3600],
+  ["minute", 60],
+];
+
+interface LocationSummary {
+  size: number;
+  folders: number;
+  files: number;
 }
 
-const storageInfo = ref<EncryptedStorageInfo>({
-  used: 0,
-  usedFormatted: "0 B",
-  fileCount: 0,
-  folderCount: 0,
-});
+interface AppDriveContainer {
+  name: string;
+  has_external?: boolean;
+}
 
-const encryptedStorageInfo = ref<EncryptedStorageInfo>({
-  used: 0,
-  usedFormatted: "0 B",
-  fileCount: 0,
-  folderCount: 0,
-});
+interface DriveCard {
+  key: string;
+  disk: DiskData;
+  name: string;
+  subtitle: string;
+  icon: any;
+  color: string;
+  percent: number;
+  free: string;
+  total: string;
+  tracked: boolean;
+}
+
+interface LocationCard {
+  key: string;
+  name: string;
+  subtitle: string;
+  icon: any;
+  color: string;
+  locked?: boolean;
+  disabled?: boolean;
+  open: () => void;
+}
+
+const storageSummary = ref<LocationSummary>({ size: 0, folders: 0, files: 0 });
+const dropZoneSummary = ref<LocationSummary>({ size: 0, folders: 0, files: 0 });
+const storageFolderNames = ref<string[]>([]);
+const appDriveContainers = ref<AppDriveContainer[]>([]);
 
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
-
-const gridColsClass = computed(() => {
-  const totalCards = 1 + disksForHome.value.length;
-  if (containerWidth.value < 600 || totalCards <= 1) {
-    return "grid-cols-1";
-  }
-  return "grid-cols-2";
-});
 
 const LAUNCHPAD_MIN_CELL = 88;
 
@@ -333,31 +237,13 @@ const launchpadGridStyle = computed(() => {
 });
 
 const cpuValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuUsage) || 0));
-const cpuCores = computed(() => systemStatsStore.cpuCores);
-const cpuGhz = computed(() => systemStatsStore.cpuGhz);
-
-const cpuInfoText = computed(() => {
-  const ghz = parseFloat(cpuGhz.value as string) || 0;
-  if (ghz > 0) {
-    return `${cpuCores.value} ${t("cores")} @ ${cpuGhz.value} GHz`;
-  }
-  return `${cpuCores.value} ${t("cores")}`;
-});
-
 const ramValue = computed(() => Math.round(parseFloat(systemStatsStore.ramUsage) || 0));
-const totalRam = computed(() => systemStatsStore.totalRam);
+const totalContainers = computed(() => systemStatsStore.totalContainers);
+const activeContainers = computed(() => systemStatsStore.activeContainers);
 
-const tempValue = computed(() => Math.round(parseFloat(systemStatsStore.cpuTemp) || 0));
-
-const externalDefaultDisk = computed(() => diskStore.trackedExternalDevice);
-
-const osDiskSubtitle = computed(() => {
-  const disk = diskStore.osDisk;
-  if (!disk) return t("System Disk");
-  const bits: string[] = [];
-  if (disk.media_type) bits.push(disk.media_type.toUpperCase());
-  bits.push(t("System Disk"));
-  return bits.join(" · ");
+const storageFolders = computed(() => {
+  const present = new Set(storageFolderNames.value);
+  return FOLDER_ORDER.filter((folder) => present.size === 0 || present.has(folder));
 });
 
 function iconForMediaType(mediaType: string) {
@@ -365,7 +251,6 @@ function iconForMediaType(mediaType: string) {
     case "nvme":
       return harddiskPlusIcon;
     case "ssd":
-      return harddiskIcon;
     case "hdd":
       return harddiskIcon;
     case "usb":
@@ -377,147 +262,137 @@ function iconForMediaType(mediaType: string) {
   }
 }
 
-const disksForHome = computed<DiskData[]>(() => {
-  const disks = diskStore.otherDisks.filter((d) => !d.is_system);
-  const trackedDevice = externalDefaultDisk.value;
-  disks.sort((a, b) => {
-    if (a.device === trackedDevice && b.device !== trackedDevice) return -1;
-    if (b.device === trackedDevice && a.device !== trackedDevice) return 1;
-    if (a.internal && !b.internal) return -1;
-    if (!a.internal && b.internal) return 1;
-    return (a.label || a.device).localeCompare(b.label || b.device);
-  });
-  return disks;
-});
+function formatGb(gb: number): string {
+  const value = Math.max(0, gb || 0);
+  if (value >= 1024) return `${(value / 1024).toFixed(1)} TB`;
+  if (value >= 10) return `${value.toFixed(0)} GB`;
+  return `${value.toFixed(1)} GB`;
+}
 
-function subtitleForDisk(disk: DiskData): string {
+function formatBytes(bytes: number): string {
+  if (!bytes) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+  return `${Math.round((bytes / Math.pow(k, i)) * 10) / 10} ${sizes[i]}`;
+}
+
+function diskSubtitle(disk: DiskData): string {
   const bits: string[] = [];
   if (disk.media_type) bits.push(disk.media_type.toUpperCase());
-  if (disk.internal) bits.push(t("Internal"));
+  if (disk.is_system) bits.push(t("System Disk"));
+  else if (disk.internal) bits.push(t("Internal"));
   else if (disk.removable) bits.push(t("Removable"));
   return bits.join(" · ") || t("Disk");
 }
 
-function formatDiskSize(gb: number): string {
-  if (!gb || gb <= 0) return "";
-  if (gb >= 1024) return `${(gb / 1024).toFixed(1)} TB`;
-  return `${gb.toFixed(0)} GB`;
+function driveCard(disk: DiskData, isSystem: boolean): DriveCard {
+  return {
+    key: disk.id,
+    disk,
+    name: isSystem ? disk.label || t("System Disk") : disk.label || disk.device,
+    subtitle: diskSubtitle({ ...disk, is_system: isSystem }),
+    icon: iconForMediaType(disk.media_type),
+    color: isSystem ? SYSTEM_DISK_COLOR : disk.removable && !disk.internal ? REMOVABLE_DISK_COLOR : DISK_COLOR,
+    percent: Math.round(disk.usage_percent || 0),
+    free: formatGb(disk.free_gb ?? disk.total_gb - disk.used_gb),
+    total: formatGb(disk.total_gb),
+    tracked: disk.device === diskStore.trackedExternalDevice,
+  };
 }
 
-const osDiskTotalBytes = computed(() => (diskStore.osDisk?.total_gb ?? 0) * 1073741824);
-
-const storagePercentage = computed(() => {
-  if (osDiskTotalBytes.value === 0) return 0;
-  return Math.round((storageInfo.value.used / osDiskTotalBytes.value) * 100 * 100) / 100;
+const drives = computed<DriveCard[]>(() => {
+  const tracked = diskStore.trackedExternalDevice;
+  const others = diskStore.otherDisks
+    .filter((disk) => !disk.is_system)
+    .sort((a, b) => {
+      if (a.device === tracked && b.device !== tracked) return -1;
+      if (b.device === tracked && a.device !== tracked) return 1;
+      if (a.internal && !b.internal) return -1;
+      if (!a.internal && b.internal) return 1;
+      return (a.label || a.device).localeCompare(b.label || b.device);
+    });
+  const cards = others.map((disk) => driveCard(disk, false));
+  if (diskStore.osDisk) cards.unshift(driveCard(diskStore.osDisk, true));
+  return cards;
 });
 
-const encryptedStoragePercentage = computed(() => {
-  if (osDiskTotalBytes.value === 0) return 0;
-  return Math.round((encryptedStorageInfo.value.used / osDiskTotalBytes.value) * 100 * 100) / 100;
-});
+function summaryText(summary: LocationSummary): string {
+  const count = summary.folders === 1 ? `1 ${t("folder")}` : `${summary.folders} ${t("folders")}`;
+  return `${formatBytes(summary.size)} · ${count}`;
+}
 
-const networkDown = computed(() => systemStatsStore.downloadData);
-const networkUp = computed(() => systemStatsStore.uploadData);
+const firstAppDriveContainer = computed(() => [...appDriveContainers.value].sort((a, b) => a.name.localeCompare(b.name))[0]?.name || "");
 
-const networkDownValue = computed(() => {
-  const val = networkDown.value;
-  if (typeof val === "string") {
-    return val.split(" ")[0];
-  }
-  return "0";
-});
+const locations = computed<LocationCard[]>(() => [
+  {
+    key: "storage",
+    name: "Storage",
+    subtitle: summaryText(storageSummary.value),
+    icon: folderIcon,
+    color: "#0ea5e9",
+    open: () => openFileExplorer({ initialLocation: "storage" }),
+  },
+  {
+    key: "dropzone",
+    name: "Drop Zone",
+    subtitle: `${t("Encrypted")} · ${formatBytes(dropZoneSummary.value.size)}`,
+    icon: cubeIcon,
+    color: "#16a34a",
+    open: () => openFileExplorer({ initialLocation: "dropzone" }),
+  },
+  {
+    key: "appdrive",
+    name: "App Drive",
+    subtitle: `${appDriveContainers.value.length} ${t("apps")}`,
+    icon: cubeScanIcon,
+    color: "#d97706",
+    locked: appDriveContainers.value.some((container) => container.has_external),
+    disabled: !firstAppDriveContainer.value,
+    open: () => openFileExplorer({ initialLocation: "appdrive", initialContainer: firstAppDriveContainer.value }),
+  },
+]);
 
-const networkDownUnit = computed(() => {
-  const val = networkDown.value;
-  if (typeof val === "string") {
-    return val.split(" ")[1] || "GB";
-  }
-  return "GB";
-});
+const appGroups = computed(() => [
+  { title: "System Applications", apps: getFinderApps() },
+  { title: "Utilities", apps: UTILITIES_APPS },
+  { title: "Games", apps: GAMES_APPS },
+]);
 
-const networkUpValue = computed(() => {
-  const val = networkUp.value;
-  if (typeof val === "string") {
-    return val.split(" ")[0];
-  }
-  return "0";
-});
-
-const networkUpUnit = computed(() => {
-  const val = networkUp.value;
-  if (typeof val === "string") {
-    return val.split(" ")[1] || "GB";
-  }
-  return "GB";
-});
-
-const totalContainers = computed(() => systemStatsStore.totalContainers);
-const activeContainers = computed(() => systemStatsStore.activeContainers);
-
-const systemUptime = computed(() => systemStatsStore.uptimeData);
-const homeDockUptime = computed(() => systemStatsStore.startTime);
-
-const systemApps = computed(() => {
-  return getFinderApps();
-});
-
-const utilitiesApps = computed(() => {
-  return UTILITIES_APPS;
-});
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+function summarize(files: any[]): LocationSummary {
+  return {
+    size: files.reduce((sum, file) => sum + (file.size || 0), 0),
+    folders: files.filter((item) => item.is_directory).length,
+    files: files.filter((item) => !item.is_directory).length,
+  };
 }
 
 async function fetchStorageInfo() {
   try {
-    const response = await axios.get("/api/storage/files", {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    if (response.data.files && Array.isArray(response.data.files)) {
-      const totalUsed = response.data.files.reduce((sum: number, file: any) => sum + (file.size || 0), 0);
-
-      const files = response.data.files.filter((item: any) => !item.is_directory);
-      const folders = response.data.files.filter((item: any) => item.is_directory);
-
-      storageInfo.value = {
-        used: totalUsed,
-        usedFormatted: formatBytes(totalUsed),
-        fileCount: files.length,
-        folderCount: folders.length,
-      };
-    }
+    const response = await axios.get("/api/storage/files", { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+    const files = Array.isArray(response.data?.files) ? response.data.files : [];
+    storageSummary.value = summarize(files);
+    storageFolderNames.value = files.filter((item: any) => item.is_directory).map((item: any) => item.name);
   } catch (error) {
     console.error("Failed to fetch storage info:", error);
   }
 }
 
-async function fetchEncryptedStorageInfo() {
+async function fetchDropZoneInfo() {
   try {
-    const response = await axios.get("/api/dropzone/files", {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    if (response.data.files && Array.isArray(response.data.files)) {
-      const totalUsed = response.data.files.reduce((sum: number, file: any) => sum + (file.size || 0), 0);
-
-      const files = response.data.files.filter((item: any) => !item.is_directory);
-      const folders = response.data.files.filter((item: any) => item.is_directory);
-
-      encryptedStorageInfo.value = {
-        used: totalUsed,
-        usedFormatted: formatBytes(totalUsed),
-        fileCount: files.length,
-        folderCount: folders.length,
-      };
-    }
+    const response = await axios.get("/api/dropzone/files", { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+    dropZoneSummary.value = summarize(Array.isArray(response.data?.files) ? response.data.files : []);
   } catch (error) {
     console.error("Failed to fetch encrypted storage info:", error);
+  }
+}
+
+async function fetchAppDriveContainers() {
+  try {
+    const response = await axios.get("/api/appdrive/containers", { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
+    appDriveContainers.value = Array.isArray(response.data?.containers) ? response.data.containers : [];
+  } catch (error) {
+    console.error("Failed to fetch App Drive containers:", error);
   }
 }
 
@@ -525,28 +400,76 @@ function openApp(app: any) {
   desktopStore.openSystemApp(app.id);
 }
 
-function openStorage() {
-  windowStore.openWindow("fileexplorer", {
-    data: { initialLocation: "storage" },
-  });
+function openFileExplorer(data: Record<string, unknown>) {
+  windowStore.openFileInApp("fileexplorer", { data });
 }
 
-function openDropZone() {
-  windowStore.openWindow("fileexplorer", {
-    data: { initialLocation: "dropzone" },
-  });
+function openStorageFolder(folder: string) {
+  openFileExplorer({ initialLocation: "storage", initialPath: folder });
 }
 
-function openDiskInExplorer(disk: DiskData) {
-  windowStore.openWindow("fileexplorer", {
-    data: { initialLocation: "disksplus", initialDiskId: disk.id },
-  });
+function openDrive(disk: DiskData) {
+  openFileExplorer({ initialLocation: "disksplus", initialDiskId: disk.id });
+}
+
+const recentFiles = computed(() => [...fileExplorerStore.recents].sort((a, b) => b.accessed_at - a.accessed_at).slice(0, RECENT_LIMIT));
+
+const menu = ref<{ visible: boolean; x: number; y: number; items: ContextMenuItem[] }>({ visible: false, x: 0, y: 0, items: [] });
+
+function baseName(path: string): string {
+  return path.split("/").filter(Boolean).pop() || path;
+}
+
+function recentKey(item: RecentItem): string {
+  return `${item.location}-${item.container ?? ""}-${item.disk ?? ""}-${item.name}`;
+}
+
+function relativeTime(at: number): string {
+  const seconds = Math.round(at - Date.now() / 1000);
+  const format = new Intl.RelativeTimeFormat(locale.value, { numeric: "auto" });
+
+  for (const [unit, length] of RELATIVE_UNITS) {
+    if (Math.abs(seconds) >= length) return format.format(Math.round(seconds / length), unit);
+  }
+
+  return format.format(0, "second");
+}
+
+function recentLocation(item: RecentItem): string {
+  const parts = [t(LOCATION_LABELS[item.location])];
+  if (item.container) parts.push(item.container);
+  const folder = baseName(item.path || "");
+  if (folder) parts.push(folder);
+  return parts.join(" › ");
+}
+
+function openRecent(item: RecentItem) {
+  openFileExplorer(
+    shortcutTargetData({
+      location: item.location,
+      path: item.path,
+      fileName: baseName(item.name),
+      isDirectory: item.is_directory,
+      container: item.container,
+      mountIndex: item.mount_index,
+      diskId: item.disk,
+    }),
+  );
+}
+
+function openRecentMenu(event: MouseEvent, item: RecentItem) {
+  menu.value = {
+    visible: true,
+    x: event.clientX,
+    y: event.clientY,
+    items: [{ label: "Open", icon: folderOpenIcon, action: () => openRecent(item) }, { divider: true }, { label: "Remove from Recents", icon: historyRemoveIcon, action: () => fileExplorerStore.removeFromRecents({ location: item.location, path: item.path, name: item.name }) }],
+  };
 }
 
 watch(
   () => dropZoneStore.lastUpdate,
   () => {
-    fetchEncryptedStorageInfo();
+    fetchDropZoneInfo();
   },
 );
 
@@ -554,7 +477,9 @@ let resizeObserver: ResizeObserver | null = null;
 
 onMounted(() => {
   fetchStorageInfo();
-  fetchEncryptedStorageInfo();
+  fetchDropZoneInfo();
+  fetchAppDriveContainers();
+  fileExplorerStore.fetchRecents();
 
   if (containerRef.value) {
     resizeObserver = new ResizeObserver((entries) => {
@@ -563,20 +488,141 @@ onMounted(() => {
       }
     });
     resizeObserver.observe(containerRef.value);
-
     containerWidth.value = containerRef.value.clientWidth;
   }
 });
 
 onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-    resizeObserver = null;
-  }
+  resizeObserver?.disconnect();
+  resizeObserver = null;
 });
 </script>
 
 <style scoped>
+.home-section-title {
+  margin: 0 0 0.625rem;
+  padding-top: 1rem;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.home-section-divided {
+  margin-top: 1.25rem;
+  padding-top: 0.875rem;
+  border-top-width: 1px;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.25rem;
+}
+
+.folder-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.folder-tile:hover {
+  background-color: rgba(127, 127, 127, 0.08);
+}
+
+.folder-tile:active {
+  background-color: rgba(127, 127, 127, 0.14);
+}
+
+.folder-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.75rem;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.875rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.home-card:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.45);
+}
+
+.home-card:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.usage-track {
+  display: block;
+  height: 6px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: rgba(127, 127, 127, 0.16);
+}
+
+.usage-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-color: #3b82f6;
+  transition:
+    width 0.4s ease,
+    background-color 0.3s ease;
+}
+
+.usage-fill-full {
+  background-color: #ef4444;
+}
+
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.125rem 0.5rem;
+}
+
+.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.recent-row:hover {
+  background-color: rgba(127, 127, 127, 0.08);
+}
+
+.recent-row:active {
+  background-color: rgba(127, 127, 127, 0.14);
+}
+
 .app-launchpad-grid {
   display: grid;
   gap: 0.5rem;
@@ -596,14 +642,15 @@ onUnmounted(() => {
   transform: scale(0.92);
 }
 
-.app-launchpad-icon {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  transition: all 0.15s ease;
+.app-launchpad-item .app-launchpad-icon {
+  transition:
+    transform 0.15s ease,
+    filter 0.5s ease,
+    opacity 0.5s ease;
+}
+
+.app-launchpad-item.cursor-pointer:hover .app-launchpad-icon {
+  transform: scale(1.06);
 }
 
 .app-launchpad-name {

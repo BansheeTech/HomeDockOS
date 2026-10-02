@@ -11,6 +11,7 @@ type AsyncAction<T> = () => Promise<T>;
 interface PendingPrompt<T> {
   absolutePath: string;
   zone: string;
+  scope?: string;
   action: AsyncAction<T>;
   resolve: (value: T | { _canceled: true }) => void;
   reject: (err: any) => void;
@@ -79,31 +80,32 @@ export function useDangerAuth() {
     return zones.some((z) => /^[A-Za-z]:\\/.test(z));
   }
 
-  async function withDangerCheck<T>(absolutePath: string, action: AsyncAction<T>): Promise<T | { _canceled: true }> {
+  async function withDangerCheck<T>(absolutePath: string, action: AsyncAction<T>, scope?: string): Promise<T | { _canceled: true }> {
     if (!store.session.protected_paths_enforced) {
       return await action();
     }
 
     const isWindows = detectIsWindows();
     const zone = matchingDangerZoneClient(absolutePath, store.dangerZonesList, isWindows);
+    const granted = scope ? store.appSession(scope)?.granted_zones || [] : store.grantedZones;
 
-    if (zone === null || store.grantedZones.includes(zone)) {
+    if (zone === null || granted.includes(zone)) {
       try {
         return await action();
       } catch (err: any) {
         const status = err?.response?.status;
         const data = err?.response?.data;
         if (status === 401 && data?.requires_danger_auth) {
-          return await promptAndRetry(absolutePath, action);
+          return await promptAndRetry(absolutePath, action, scope);
         }
         throw err;
       }
     }
 
-    return await promptAndRetry(absolutePath, action);
+    return await promptAndRetry(absolutePath, action, scope);
   }
 
-  function promptAndRetry<T>(absolutePath: string, action: AsyncAction<T>): Promise<T | { _canceled: true }> {
+  function promptAndRetry<T>(absolutePath: string, action: AsyncAction<T>, scope?: string): Promise<T | { _canceled: true }> {
     const isWindows = detectIsWindows();
     const zone = matchingDangerZoneClient(absolutePath, store.dangerZonesList, isWindows) || "";
 
@@ -111,6 +113,7 @@ export function useDangerAuth() {
       shared.pending = {
         absolutePath,
         zone,
+        scope,
         action: action as AsyncAction<any>,
         resolve: resolve as any,
         reject,
@@ -134,7 +137,7 @@ export function useDangerAuth() {
     shared.modalState.loading = true;
     shared.modalState.error = "";
     try {
-      const result = await store.authorizeDangerZone(password, pending.absolutePath);
+      const result = await store.authorizeDangerZone(password, pending.absolutePath, pending.scope);
       if (!result.ok) {
         shared.modalState.error = mapAuthError(result.error, result.remaining_attempts, result.retry_after);
         shared.modalState.remainingAttempts = typeof result.remaining_attempts === "number" ? result.remaining_attempts : null;

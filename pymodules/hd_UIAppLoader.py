@@ -16,7 +16,7 @@ from flask_login import login_required
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_FunctionsGlobals import version_hash
 from pymodules.hd_FunctionsHostSelector import docker_host, is_docker
-from pymodules.hd_AppSubdomains import get_emittable_hosts
+from pymodules.hd_AppSubdomains import get_emittable_hosts, get_slug_map, resolve_app_for_host, build_forwarding_headers
 from pymodules.hd_DockerAPIContainerData import get_container_name_by_port_direct, get_display_name_for_container
 from pymodules.hd_FunctionsNetwork import local_ip, internet_ip, get_local_ip, get_internet_ip
 
@@ -79,11 +79,70 @@ def get_safe_hostname():
     return None
 
 
+def _public_app_host(container_name, port, hostname):
+    slug = next((slug for slug, entry in get_slug_map().items() if entry["container"] == container_name), None)
+
+    if slug is None:
+        return None
+
+    _, separator, host_port = request.host.rpartition(":")
+    port_suffix = f":{host_port}" if separator and host_port.isdigit() and not request.host.startswith("[") else ""
+
+    public_host = f"{slug}.{hostname}{port_suffix}"
+    app = resolve_app_for_host(public_host)
+
+    if app is None or app["container"] != container_name or app["port"] != port:
+        return None
+
+    return public_host
+
+
+def _probe_status(url, headers):
+    try:
+        response = requests.get(url, timeout=5, allow_redirects=False, stream=True, headers=headers, verify=True)
+    except requests.exceptions.SSLError:
+        response = requests.get(url, timeout=5, allow_redirects=False, stream=True, headers=headers, verify=False)
+
+    with response:
+        return response.status_code
+
+
+def _rejects_proxied_requests(url, headers, public_host):
+    try:
+        client = (request.remote_addr, 0) if request.remote_addr else None
+        forwarding = build_forwarding_headers(public_host, request.scheme, client)
+        proxied_headers = {**headers, **{name: value for name, value in forwarding.items() if value != ""}}
+
+        if _probe_status(url, headers) == 400:
+            return False
+
+        return _probe_status(url, proxied_headers) == 400
+    except Exception:
+        return False
+
+
+def _available_response(url, hostname, port, headers, via_proxy, container_name):
+    protocol = url.split("://")[0]
+    payload = {"available": True, "url": f"{protocol}://{hostname}:{port}"}
+
+    # HDOS00129
+    if via_proxy:
+        try:
+            public_host = _public_app_host(container_name, port, hostname)
+        except Exception:
+            public_host = None
+
+        payload["proxy_rejected"] = public_host is not None and _rejects_proxied_requests(url, headers, public_host)
+
+    return jsonify(payload)
+
+
 @login_required
 def check_port():
     data = request.json
     port = data.get("port")
     subpath = sanitize_subpath(data.get("subpath", "").lstrip("/"))
+    via_proxy = data.get("via_proxy") is True
 
     if not isinstance(port, int) or port < 1 or port > 65535:
         return jsonify({"error": "Invalid port. Must be an integer between 1 and 65535."}), 400
@@ -117,9 +176,7 @@ def check_port():
                 response = requests.head(url, timeout=5, allow_redirects=True, headers=headers, verify=False)
 
             if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
-                protocol = url.split("://")[0]
-                base_url = f"{protocol}://{hostname}:{port}"
-                return jsonify({"available": True, "url": base_url})
+                return _available_response(url, hostname, port, headers, via_proxy, container_name)
 
             if response.status_code in [404, 405]:
                 try:
@@ -127,10 +184,11 @@ def check_port():
                 except requests.exceptions.SSLError:
                     response = requests.get(url, timeout=5, allow_redirects=True, stream=True, headers=headers, verify=False)
 
-                if response.status_code < 400 or response.status_code in [401, 301, 302, 308]:
-                    protocol = url.split("://")[0]
-                    base_url = f"{protocol}://{hostname}:{port}"
-                    return jsonify({"available": True, "url": base_url})
+                with response:
+                    available = response.status_code < 400 or response.status_code in [401, 301, 302, 308]
+
+                if available:
+                    return _available_response(url, hostname, port, headers, via_proxy, container_name)
 
         except requests.RequestException:
             continue

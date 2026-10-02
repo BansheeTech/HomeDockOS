@@ -9,74 +9,58 @@
       <Icon :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-[18px] h-[18px] text-current transition-transform duration-200 hover:scale-110" />
     </Badge>
     <Icon v-else :class="[themeClasses.navBarIcon]" :icon="bellIcon" class="w-[18px] h-[18px] text-current transition-transform duration-200 hover:scale-110" />
-    <Transition name="slide-fade">
-      <Teleport to="body">
-        <div v-if="showDropdown" @click.stop class="notification-dropdown shadow-lg rounded-lg border z-[9999] overflow-hidden backdrop-blur-sm" :class="[themeClasses.notCont, themeClasses.aeroExtraScope]">
-          <div :class="[themeClasses.topBack]" class="px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="[themeClasses.notInnerIcon]">
-              <Icon :icon="notifications.length > 0 ? bellIcon : checkIcon" class="w-4 h-4" />
-            </div>
-            <div>
-              <h3 class="font-semibold text-sm" :class="[themeClasses.notTextUp]">{{ $t("Notifications") }}</h3>
-              <p class="text-xs opacity-70" :class="[themeClasses.notTextDown]">
-                {{ notifications.length > 0 ? `${notifications.length} ${$t("new")}` : $t("All caught up") }}
-              </p>
-            </div>
-          </div>
-          <TransitionGroup name="list" tag="div" :class="[themeClasses.notMainContainer]" class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-thumb-opacity-20 scrollbar-track-transparent">
-            <div :class="['notification-item flex items-start px-4 py-3 cursor-pointer relative group transition-all duration-200 hover:bg-white hover:bg-opacity-5 border-b border-white border-opacity-5 last:border-b-0', { removing: notification.removing }, themeClasses.notBack]" v-if="notifications.length > 0" v-for="notification in notifications" :key="notification.hash || notification.title + notification.message" @click="notification.onClick ? notification.onClick() : null">
-              <div class="relative flex-shrink-0">
-                <div :class="[themeClasses.notInnerIcon]" class="w-10 h-10 rounded-xl flex items-center justify-center">
-                  <Icon
-                    :icon="notification.isUpdating ? loadingIcon : notification.isUpdate ? updateIcon : messageBadgeIcon"
-                    :class="{
-                      'w-4 h-4 text-current': true,
-                      'animate-pulse': notification.isUpdate && !notification.isUpdating,
-                      'animate-spin': notification.isUpdating,
-                    }"
-                  />
-                </div>
-                <div v-if="notification.isUpdate" class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-              </div>
-              <div class="flex-1 min-w-0 overflow-hidden px-3">
-                <h4 class="text-sm font-semibold leading-tight mb-0.5" :class="[themeClasses.notTextUp, { underline: notification.isUpdate }]">{{ notification.title }}</h4>
-                <p class="text-xs leading-relaxed opacity-80 break-words leading-tight" :class="[themeClasses.notTextDown]">{{ notification.message }}</p>
-                <div v-if="notification.showDate && (notification.startDate || notification.endDate)" :class="[themeClasses.notTextDown]" class="flex items-center underline text-[10px] mt-1">
-                  <Icon :icon="calendarIcon" class="mr-1" size="12px" />
+    <TrayPanel :open="showDropdown" :anchor="anchorEl" :title="$t('Notifications')" :subtitle="notifications.length > 0 ? `${notifications.length} ${$t('new')}` : $t('All caught up')" :icon="bellIcon" icon-color="#ef4444" @close="closeDropdown">
+      <div v-if="notifications.length > 0 || leavingCount > 0" class="pt-1">
+        <TransitionGroup :css="false" @leave="onNotificationLeave">
+          <div v-for="notification in notifications" :key="notification.hash || notification.title + notification.message" class="pb-1.5">
+            <div :class="[themeClasses.storeInfoBar, { 'cursor-pointer': notification.onClick }]" class="group relative flex items-start gap-2.5 p-2.5 rounded-xl border transition-colors duration-150" @click="notification.onClick ? notification.onClick() : null">
+              <AppIconGraphic :icon="notification.isUpdating ? loadingIcon : notification.isUpdate ? updateIcon : messageBadgeIcon" :color="notification.isUpdate ? '#16a34a' : '#3b82f6'" :size="32" :class="notification.isUpdating && 'tile-busy'" />
+              <div class="flex-1 min-w-0" :class="notification.allowRemove ? 'pr-5' : ''">
+                <p :class="[themeClasses.storeModalAppName]" class="m-0 text-xs font-semibold leading-snug">{{ localText(notification.title) }}</p>
+                <p :class="[themeClasses.storeCardSubtitle]" class="m-0 mt-0.5 text-[11px] leading-relaxed break-words">{{ localText(notification.message) }}</p>
+                <p v-if="notification.showDate && (notification.startDate || notification.endDate)" :class="[themeClasses.storeCardSubtitle]" class="m-0 mt-1 flex items-center gap-1 text-[10px] tabular-nums">
+                  <Icon :icon="calendarIcon" class="w-3 h-3 flex-shrink-0" />
                   <span v-if="notification.startDate">{{ formatDate(notification.startDate) }}</span>
-                  <span v-if="notification.startDate && notification.endDate" class="mx-1">></span>
+                  <span v-if="notification.startDate && notification.endDate">–</span>
                   <span v-if="notification.endDate">{{ formatDate(notification.endDate) }}</span>
-                </div>
-                <a v-if="notification.actionUrl" :href="notification.actionUrl" target="_blank" rel="noopener noreferrer" @click.stop class="inline-flex items-center mt-2 px-2.5 py-1 text-[10px] font-medium rounded-md transition-all duration-200 hover:scale-105" :class="[themeClasses.notInnerIcon, themeClasses.notTextUp]">
-                  {{ notification.actionText || $t("See more") }}
-                  <Icon :icon="openInNewIcon" class="ml-1" size="10px" />
+                </p>
+                <a v-if="notification.actionUrl" :href="notification.actionUrl" target="_blank" rel="noopener noreferrer" :class="[themeClasses.storeCardGetPill]" class="inline-flex items-center gap-1 h-6 mt-2 px-2.5 rounded-full text-[11px] font-semibold no-underline transition-colors duration-150" @click.stop>
+                  {{ notification.actionText ? localText(notification.actionText) : $t("See more") }}
+                  <Icon :icon="openInNewIcon" class="w-3 h-3" />
                 </a>
               </div>
-              <button v-if="notification.allowRemove" @click="removeNotification(notification)" class="transition-all duration-200 hover:scale-110 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" :class="[themeClasses.notCloseBtn]">
-                <Icon :icon="closeIcon" class="w-4 h-4" />
+              <button v-if="notification.allowRemove" type="button" :class="[themeClasses.storeCardInstalledPill]" class="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full border-0 cursor-pointer opacity-60 transition-opacity duration-150 group-hover:opacity-100" :aria-label="$t('Close')" @click.stop="removeNotification(notification)">
+                <Icon :icon="closeIcon" class="w-3 h-3" />
               </button>
             </div>
-            <div v-else class="flex flex-col items-center py-10 px-5 text-center">
-              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 opacity-60" :class="[themeClasses.notInnerIcon]">
-                <Icon :icon="checkIcon" class="w-6 h-6" />
-              </div>
-              <p class="text-base font-semibold mb-1" :class="[themeClasses.notTextUp]">{{ $t("You're all caught up!") }}</p>
-              <p class="text-sm opacity-70" :class="[themeClasses.notTextDown]">{{ $t("No new notifications at the moment") }}</p>
-            </div>
-          </TransitionGroup>
+          </div>
+        </TransitionGroup>
+      </div>
+      <Transition :css="false" @enter="onCaughtUpEnter">
+        <div v-if="notifications.length === 0 && leavingCount === 0" class="flex flex-col items-center px-5 pt-5 pb-6 text-center" :class="{ 'is-celebrating': celebrate }">
+          <AppIconGraphic color="#16a34a" :size="44" class="caught-up-tile mb-3">
+            <template #glyph>
+              <svg viewBox="0 0 24 24" class="w-6 h-6 text-white" fill="none" aria-hidden="true">
+                <path class="caught-up-check" d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </template>
+            <span class="caught-up-ring absolute inset-0 pointer-events-none"></span>
+          </AppIconGraphic>
+          <p :class="[themeClasses.storeModalAppName]" class="caught-up-text m-0 text-[13px] font-semibold">{{ $t("You're all caught up!") }}</p>
+          <p :class="[themeClasses.storeCardSubtitle]" class="caught-up-text caught-up-text-late m-0 mt-0.5 text-xs">{{ $t("No new notifications at the moment") }}</p>
         </div>
-      </Teleport>
-    </Transition>
+      </Transition>
+    </TrayPanel>
   </div>
 </template>
 
 <script setup lang="ts">
 import axios from "axios";
 
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useTrayPanel } from "../__Composables__/useTrayManager";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useUpdateStore } from "../__Stores__/useUpdateStore";
 import { useNotificationsPolling, type Notification } from "../__Services__/NotificationsPolling";
@@ -89,20 +73,26 @@ import bellIcon from "@iconify-icons/mdi/bell-outline";
 import messageBadgeIcon from "@iconify-icons/mdi/message-badge";
 import calendarIcon from "@iconify-icons/mdi/calendar";
 import closeIcon from "@iconify-icons/mdi/close-thick";
-import checkIcon from "@iconify-icons/mdi/check-all";
 import updateIcon from "@iconify-icons/mdi/check-decagram";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import openInNewIcon from "@iconify-icons/mdi/open-in-new";
 
+import { collapseLeave, expandEnter } from "../__Utils__/collapseLeave";
+
+import AppIconGraphic from "./AppIconGraphic.vue";
+import TrayPanel from "./TrayPanel.vue";
+
 const { themeClasses } = useTheme();
-const { t } = useI18n();
-const trayManager = useTrayManager();
+const { t, te } = useI18n();
 const csrfToken = useCsrfToken();
 
-const TRAY_ID = "notification-bell";
+function localText(text: string) {
+  return text && te(text) ? t(text) : text;
+}
 
-const showDropdown = ref(false);
+const { isOpen: showDropdown, toggle: toggleDropdown, close: closeDropdown } = useTrayPanel("notification-bell");
 const dropdown = ref<HTMLElement | null>(null);
+const anchorEl = computed(() => dropdown.value?.parentElement ?? dropdown.value);
 
 const { notifications } = useNotificationsPolling(csrfToken.value, 60000, 300000);
 const updateStore = useUpdateStore();
@@ -124,42 +114,28 @@ const saveDismissedNotification = async (hash: string): Promise<void> => {
   }
 };
 
-const toggleDropdown = (): void => {
-  if (!showDropdown.value) {
-    trayManager.openTray(TRAY_ID);
-    showDropdown.value = true;
-  } else {
-    trayManager.closeTray(TRAY_ID);
-    showDropdown.value = false;
-  }
-};
+const leavingCount = ref(0);
+const celebrate = ref(false);
 
 const removeNotification = async (notification: Notification): Promise<void> => {
-  notification.removing = true;
-  setTimeout(async () => {
-    notifications.value = notifications.value.filter((n) => n !== notification);
-
-    if (notification.hash) {
-      await saveDismissedNotification(notification.hash);
-    }
-  }, 300);
+  notifications.value = notifications.value.filter((n) => n !== notification);
+  if (notifications.value.length === 0) celebrate.value = true;
+  if (notification.hash) await saveDismissedNotification(notification.hash);
 };
 
-const handleClickOutside = (event: MouseEvent): void => {
-  if (dropdown.value && !dropdown.value.contains(event.target as Node)) {
-    trayManager.closeTray(TRAY_ID);
-    showDropdown.value = false;
-  }
-};
+function onNotificationLeave(el: Element, done: () => void) {
+  leavingCount.value++;
+  collapseLeave(el, done, () => leavingCount.value--);
+}
 
-watch(
-  () => trayManager.activeTrayId.value,
-  (newTrayId) => {
-    if (newTrayId !== TRAY_ID && showDropdown.value) {
-      showDropdown.value = false;
-    }
-  },
-);
+function onCaughtUpEnter(el: Element, done: () => void) {
+  if (celebrate.value) expandEnter(el, done);
+  else done();
+}
+
+watch(showDropdown, (open) => {
+  if (!open) celebrate.value = false;
+});
 
 const formatDate = (date: string | null): string => {
   if (!date) return "";
@@ -213,69 +189,14 @@ onMounted(async () => {
     updateNotification.hash = "homedock-os-update-notification";
     notifications.value.push(updateNotification);
   }
-
-  document.addEventListener("click", handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
 });
 
 defineExpose({
-  toggleDropdown,
+  toggleDropdown: () => toggleDropdown(),
 });
 </script>
 
 <style scoped>
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(10px);
-  opacity: 0;
-}
-
-.slide-fade-enter-to,
-.slide-fade-leave-from {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.3s ease;
-}
-
-.list-enter,
-.list-leave-to {
-  opacity: 0;
-  height: 0;
-}
-
-.notification-item {
-  overflow: hidden;
-  transition:
-    height 0.3s ease,
-    opacity 0.3s ease;
-}
-
-.notification-item.removing {
-  height: 0;
-  opacity: 0;
-  padding: 0;
-  margin: 0;
-  transition:
-    height 0.3s ease,
-    opacity 0.3s ease,
-    padding 0.3s ease,
-    margin 0.3s ease;
-}
-
 @keyframes blink {
   0%,
   80%,
@@ -291,11 +212,78 @@ defineExpose({
   animation: blink 4s infinite;
 }
 
-.notification-dropdown {
-  position: fixed;
-  bottom: 4rem;
-  right: 1rem;
-  left: auto;
-  width: 280px;
+.tile-busy :deep(.app-icon-glyph) {
+  animation: spin 1s linear infinite;
+}
+
+.caught-up-ring {
+  border-radius: inherit;
+  border: 2px solid #22c55e;
+  opacity: 0;
+}
+
+.caught-up-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.is-celebrating .caught-up-tile {
+  animation: caught-up-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+}
+
+.is-celebrating .caught-up-check {
+  stroke-dashoffset: 1;
+  animation: caught-up-draw 340ms cubic-bezier(0.65, 0, 0.35, 1) 380ms forwards;
+}
+
+.is-celebrating .caught-up-ring {
+  animation: caught-up-ring 600ms ease-out 420ms both;
+}
+
+.is-celebrating .caught-up-text {
+  animation: caught-up-rise 380ms cubic-bezier(0.32, 0.72, 0, 1) 300ms both;
+}
+
+.is-celebrating .caught-up-text-late {
+  animation-delay: 370ms;
+}
+
+@keyframes caught-up-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes caught-up-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes caught-up-ring {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@keyframes caught-up-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

@@ -32,6 +32,16 @@ const UtilsPDFViewer = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const UtilsSheets = defineAsyncComponent({
+  loader: () => import("../__Apps__/UtilsSheets.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
+const UtilsWriter = defineAsyncComponent({
+  loader: () => import("../__Apps__/UtilsWriter.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 const UtilsBrusher = defineAsyncComponent({
   loader: () => import("../__Apps__/UtilsBrusher.vue"),
   loadingComponent: WindowLoading,
@@ -47,15 +57,23 @@ const UtilsCalendar = defineAsyncComponent({
   loadingComponent: WindowLoading,
   delay: 200,
 });
+const UtilsZipfile = defineAsyncComponent({
+  loader: () => import("../__Apps__/UtilsZipfile.vue"),
+  loadingComponent: WindowLoading,
+  delay: 200,
+});
 
 import fileDocumentOutlineIcon from "@iconify-icons/mdi/file-document-outline";
 import codeTagsIcon from "@iconify-icons/mdi/code-tags";
 import calculatorIcon from "@iconify-icons/mdi/calculator";
 import imageOutlineIcon from "@iconify-icons/mdi/image-outline";
 import filePdfBoxIcon from "@iconify-icons/mdi/file-pdf-box";
+import fileTableBoxIcon from "@iconify-icons/mdi/file-table-box";
+import fileDocumentEditIcon from "@iconify-icons/mdi/file-document-edit";
 import brushIcon from "@iconify-icons/mdi/brush";
 import movieOutlineIcon from "@iconify-icons/mdi/movie-outline";
 import calendarMonthIcon from "@iconify-icons/mdi/calendar-month";
+import zipBoxIcon from "@iconify-icons/mdi/zip-box";
 
 export const UTILITIES_APPS: SystemApp[] = [
   {
@@ -63,6 +81,7 @@ export const UTILITIES_APPS: SystemApp[] = [
     name: "Notepad",
     description: "Create and edit text files",
     icon: fileDocumentOutlineIcon,
+    color: "#eab308",
     component: UtilsNotepad,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -75,13 +94,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "code",
     name: "Code",
     description: "Code editor with syntax highlighting",
     icon: codeTagsIcon,
+    color: "#1e3a8a",
     component: UtilsCode,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -94,13 +114,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "calculator",
     name: "Calculator",
     description: "Quick calculations",
     icon: calculatorIcon,
+    color: "#ea580c",
     component: UtilsCalculator,
     defaultWidth: 320,
     defaultHeight: 480,
@@ -113,13 +134,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "imageviewer",
     name: "Image Viewer",
     description: "View and browse images",
     icon: imageOutlineIcon,
+    color: "#db2777",
     component: UtilsImageViewer,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -132,13 +154,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "pdfviewer",
     name: "PDF Viewer",
     description: "View PDF documents",
     icon: filePdfBoxIcon,
+    color: "#dc2626",
     component: UtilsPDFViewer,
     defaultWidth: 800,
     defaultHeight: 700,
@@ -151,13 +174,54 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
+  },
+  {
+    id: "sheets",
+    name: "Sheets",
+    description: "Create and edit spreadsheets",
+    icon: fileTableBoxIcon,
+    color: "#15803d",
+    component: UtilsSheets,
+    defaultWidth: 800,
+    defaultHeight: 700,
+    minWidth: 500,
+    minHeight: 500,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "utilities",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: true,
+  },
+  {
+    id: "writer",
+    name: "Writer",
+    description: "Create and edit documents",
+    icon: fileDocumentEditIcon,
+    color: "#1d4ed8",
+    component: UtilsWriter,
+    defaultWidth: 800,
+    defaultHeight: 700,
+    minWidth: 500,
+    minHeight: 500,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "utilities",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "brusher",
     name: "Brusher",
     description: "Simple drawing and painting tool",
     icon: brushIcon,
+    color: "#9333ea",
     component: UtilsBrusher,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -170,13 +234,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "mediaplayer",
     name: "Media Player",
     description: "Play video and audio files",
     icon: movieOutlineIcon,
+    color: "#e11d48",
     component: UtilsMediaPlayer,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -189,13 +254,14 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
   },
   {
     id: "calendar",
     name: "Calendar",
     description: "Calendar and world clock",
     icon: calendarMonthIcon,
+    color: "#0891b2",
     component: UtilsCalendar,
     defaultWidth: 800,
     defaultHeight: 600,
@@ -208,6 +274,26 @@ export const UTILITIES_APPS: SystemApp[] = [
     category: "utilities",
     showInStartMenu: false,
     showInFinderApp: false,
-    showInMyHomeApp: false,
+    showInMyHomeApp: true,
+  },
+  {
+    id: "zipfile",
+    name: "Zipfile",
+    description: "Browse, open and extract ZIP and TAR archives",
+    icon: zipBoxIcon,
+    color: "#d97706",
+    component: UtilsZipfile,
+    defaultWidth: 800,
+    defaultHeight: 600,
+    minWidth: 400,
+    minHeight: 600,
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    closeable: true,
+    category: "utilities",
+    showInStartMenu: false,
+    showInFinderApp: false,
+    showInMyHomeApp: true,
   },
 ];

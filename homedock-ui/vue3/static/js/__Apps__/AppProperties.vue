@@ -9,16 +9,26 @@
       <div v-if="app" class="flex flex-col">
         <div class="hero-section" :class="[themeClasses.aeroExtraScope, themeClasses.appPropsHeroBorder]">
           <div class="hero-gradient"></div>
+          <AppIconGraphic :image-src="app.image_path" :size="190" class="hero-watermark" :class="themeClasses.appPropsHeroWatermark" />
           <div class="relative flex items-center gap-5 px-4 py-3">
-            <div class="app-icon-container" :class="getContainerClasses(app)">
-              <BaseImage :src="app.image_path" alt="App Icon" class="app-icon rounded-xl" draggable="false" />
+            <div class="relative flex-shrink-0">
+              <AppIconGraphic :image-src="app.image_path" :size="isMobile ? 60 : 72" :class="getContainerClasses(app)" />
+              <Icon v-if="isDependency" :icon="dependencyBadgeIcon" :class="[themeClasses.hubDependencyBadge]" class="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full p-1 ring-1" :title="groupMain ? $t('Dependency of {name}', { name: groupMain.display_name || groupMain.name }) : $t('Dependency')" />
             </div>
             <div class="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
-              <h2 class="text-2xl font-bold m-0 leading-tight" :class="[themeClasses.notTextUp]">{{ app.display_name || app.name }}</h2>
+              <h2 class="text-2xl font-bold m-0 leading-tight truncate" :class="[themeClasses.notTextUp]" :title="displayTitle">{{ displayTitle }}</h2>
               <p class="text-sm opacity-70 m-0 overflow-hidden text-ellipsis whitespace-nowrap" :class="[themeClasses.notTextDown]">{{ app.image }}</p>
-              <div :class="[...getStatusClasses(app.statusColor), 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border w-fit']">
-                <div :class="[getStatusDotClasses(app.status), 'w-1.5 h-1.5 rounded-full shadow-[0_0_6px_currentColor]', { 'animate-[pulse-success_2s_cubic-bezier(0.4,0,0.6,1)_infinite]': app.status === 'running' }]"></div>
-                <span class="text-[11px] font-semibold uppercase tracking-wide">{{ $t(app.status) }}</span>
+
+              <div class="flex items-center gap-2 flex-wrap min-w-0">
+                <div v-if="isDependency && groupMain" :class="[themeClasses.appPropsBadgeDependency]" class="inline-flex items-center gap-1.5 h-6 pl-1.5 pr-2.5 rounded-full border w-fit flex-shrink-0" :title="$t('Dependency of {name}', { name: groupMain.display_name || groupMain.name })">
+                  <AppIconGraphic :image-src="groupMain.image_path" :size="14" />
+                  <span class="text-[11px] font-semibold uppercase tracking-wide leading-none">{{ $t("Dependency") }}</span>
+                </div>
+
+                <div :class="[...getStatusClasses(app.statusColor), 'inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full border w-fit flex-shrink-0']">
+                  <div :class="[getStatusDotClasses(app.status), 'w-1.5 h-1.5 rounded-full shadow-[0_0_6px_currentColor]', { 'animate-[pulse-success_2s_cubic-bezier(0.4,0,0.6,1)_infinite]': app.status === 'running' }]"></div>
+                  <span class="text-[11px] font-semibold uppercase tracking-wide leading-none">{{ $t(app.status) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -42,6 +52,23 @@
         <div class="p-4">
           <Transition name="tab-fade" mode="out-in">
             <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
+              <div v-if="stoppedDependencies.length" class="flex items-start gap-3 rounded-[10px] px-3.5 py-3 border" :class="[themeClasses.appPropsDependencyWarningBg, themeClasses.appPropsDependencyWarningBorder, themeClasses.aeroExtraScope]">
+                <Icon :icon="dependencyOffIcon" width="20" height="20" class="flex-shrink-0 mt-0.5" :class="[themeClasses.appPropsDependencyWarningIcon]" />
+                <div class="flex flex-col items-start gap-2 min-w-0">
+                  <div class="flex flex-col gap-1 min-w-0">
+                    <span class="text-sm font-semibold" :class="[themeClasses.appPropsDependencyWarningTitle]">{{ $t("Dependencies stopped") }}</span>
+                    <span class="text-xs opacity-80" :class="[themeClasses.appPropsDependencyWarningText]">{{ $t("This application may not work correctly until they are running again.") }}</span>
+                  </div>
+
+                  <div class="flex flex-wrap gap-1.5 min-w-0">
+                    <button v-for="dependency in stoppedDependencies" :key="dependency.id" @click="openMemberProperties(dependency)" :title="$t('Properties')" class="flex items-center gap-1.5 h-6 pl-1.5 pr-2.5 rounded-md border text-xs font-medium cursor-pointer transition-colors duration-200 max-w-full min-w-0" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]">
+                      <AppIconGraphic :image-src="dependency.image_path" :size="14" />
+                      <span class="truncate leading-none">{{ dependency.name }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div class="grid md:grid-cols-2 grid-cols-1 gap-3">
                 <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                   <div class="flex items-center gap-2 mb-2.5">
@@ -87,6 +114,19 @@
                 </div>
               </div>
 
+              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <Icon :icon="lightningIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                  <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Quick Access") }}</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                  <button v-for="action in quickAccessActions" :key="action.label" :disabled="action.disabled" :title="$t(action.label)" class="flex flex-col items-center justify-center gap-1.5 px-1 py-2.5 rounded-lg border transition-colors duration-200 min-w-0 enabled:cursor-pointer disabled:opacity-40 disabled:cursor-default" :class="[themeClasses.appPropsActionListItemBg, themeClasses.appPropsActionListItemBorder, themeClasses.appPropsActionListItemText, !action.disabled && [themeClasses.appPropsActionListItemBgHover, themeClasses.appPropsActionListItemBorderHover]]" @click="action.action()">
+                    <Icon :icon="action.icon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                    <span class="text-[11px] font-medium leading-tight text-center max-w-full [overflow-wrap:anywhere]" :class="[themeClasses.appPropsInfoValue]">{{ $t(action.label) }}</span>
+                  </button>
+                </div>
+              </div>
+
               <div v-if="defaultCredentials" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="accountKeyIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
@@ -115,7 +155,7 @@
                 <p class="text-[10px] mt-2 opacity-50" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Please change these credentials after your first sign-in.") }}</p>
               </div>
 
-              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+              <div v-if="!isDependency" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="webIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
                   <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Addresses") }}</span>
@@ -183,7 +223,7 @@
                 <p class="text-[10px] mt-1.5 leading-snug" :class="[exposureMode === 'direct' ? 'text-amber-500 opacity-90' : `opacity-50 ${themeClasses.appPropsInfoLabel}`]">{{ exposureDescription }}</p>
               </div>
 
-              <div class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
+              <div v-if="!isDependency" class="rounded-[10px] px-3.5 py-3 transition-all duration-200" :class="[themeClasses.appPropsUsageCardBg, themeClasses.appPropsUsageCardBorder, themeClasses.appPropsUsageCardBgHover, themeClasses.appPropsUsageCardBorderHover, themeClasses.aeroExtraScope]">
                 <div class="flex items-center gap-2 mb-2.5">
                   <Icon :icon="dockWindowIcon" width="20" height="20" :class="[themeClasses.appPropsCardHeaderIcon]" />
                   <span class="text-[15px] font-semibold m-0" :class="[themeClasses.appPropsCardHeaderText]">{{ $t("Opening behavior") }}</span>
@@ -216,22 +256,31 @@
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Group") }}</span>
                     <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ app.HDGroup }}</span>
                   </div>
-                  <div v-if="app.HDRole === 'dependency'" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
+                  <div v-if="groupMembers.length > 0" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Role") }}</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border" :class="[themeClasses.appPropsBadgeDependency]">{{ $t("Dependency") }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border" :class="[isDependency ? themeClasses.appPropsBadgeDependency : themeClasses.appPropsBadgeMain]">{{ isDependency ? $t("Dependency") : $t("Main") }}</span>
                   </div>
-                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Group Containers") }}</span>
-                    <span class="text-xs font-medium text-right break-all" :class="[themeClasses.appPropsInfoValue]">{{ groupContainers.length + 1 }} {{ $t("containers") }}</span>
-                  </div>
-                  <div v-if="groupContainers.length > 0" class="flex justify-between items-start gap-4 py-1.5 border-b-0" :class="[themeClasses.appPropsInfoRowBorder]">
-                    <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Related") }}</span>
-                    <div class="flex flex-col gap-0.5 flex-1">
-                      <div v-for="container in groupContainers" :key="container.id" class="flex items-center gap-1.5" :class="[themeClasses.appPropsInfoValue]">
-                        <Icon :icon="containerIcon" width="12" height="12" />
-                        <span class="text-xs">{{ container.name }}</span>
-                        <span class="text-[10px] opacity-60">({{ $t(container.status) }})</span>
-                      </div>
+
+                  <div v-if="groupMembers.length > 0" class="flex flex-col gap-1 pt-2">
+                    <span class="text-xs font-medium" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Related") }}</span>
+
+                    <div v-for="member in groupMembers" :key="member.id" class="flex items-center gap-2 py-1 min-w-0">
+                      <Icon v-if="member.name === app.name" :icon="checkIcon" width="14" height="14" class="flex-shrink-0" :class="[themeClasses.appPropsCardHeaderIcon]" />
+                      <span v-else class="w-3.5 flex-shrink-0"></span>
+
+                      <span class="relative flex-shrink-0">
+                        <AppIconGraphic :image-src="member.image_path" :size="20" />
+                        <Icon v-if="member.HDRole === 'dependency'" :icon="dependencyBadgeIcon" :class="[themeClasses.hubDependencyBadge]" class="absolute -top-1 -right-1 w-3 h-3 rounded-full p-px ring-1" />
+                      </span>
+
+                      <span class="text-xs truncate flex-1 min-w-0" :class="[themeClasses.appPropsInfoValue]">{{ member.name }}</span>
+
+                      <span :class="[getStatusDotClasses(member.status)]" class="w-1.5 h-1.5 rounded-full flex-shrink-0"></span>
+
+                      <button v-if="member.name !== app.name" @click="openMemberProperties(member)" :title="$t('Properties')" :class="[themeClasses.appPropsActionListItemBgHover, themeClasses.appPropsInfoLabel]" class="flex items-center justify-center w-6 h-6 rounded-md border-0 bg-transparent cursor-pointer flex-shrink-0">
+                        <Icon :icon="infoIcon" width="14" height="14" />
+                      </button>
+                      <span v-else class="w-6 flex-shrink-0"></span>
                     </div>
                   </div>
                 </div>
@@ -278,41 +327,32 @@
                 <div class="grid md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] grid-cols-1 gap-3">
                   <button v-if="app.status === 'exited' || app.status === 'created'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover, themeClasses.aeroExtraScope]" @click="handleStart" :disabled="isProcessing">
                     <Icon :icon="isStarting ? loadingIcon : playIcon" width="20" height="20" :class="{ 'animate-spin': isStarting }" />
-                    <span>{{ $t("Start Application") }}</span>
+                    <span>{{ $t("Start {target}", { target: targetNoun }) }}</span>
                   </button>
 
                   <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonDangerBg, themeClasses.appPropsActionButtonDangerBorder, themeClasses.appPropsActionButtonDangerText, themeClasses.appPropsActionButtonDangerBgHover, themeClasses.appPropsActionButtonDangerBorderHover, themeClasses.aeroExtraScope]" @click="handleStop" :disabled="isProcessing">
                     <Icon :icon="isStopping ? loadingIcon : stopIcon" width="20" height="20" :class="{ 'animate-spin': isStopping }" />
-                    <span>{{ $t("Stop Application") }}</span>
+                    <span>{{ $t("Stop {target}", { target: targetNoun }) }}</span>
                   </button>
 
-                  <button v-if="app.status === 'paused'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover, themeClasses.aeroExtraScope]" @click="handleUnpause" :disabled="isProcessing">
+                  <button v-if="app.status === 'paused' && !isDependency" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover, themeClasses.aeroExtraScope]" @click="handleUnpause" :disabled="isProcessing">
                     <Icon :icon="isUnpausing ? loadingIcon : unpauseIcon" width="20" height="20" :class="{ 'animate-spin': isUnpausing }" />
                     <span>{{ $t("Unpause Application") }}</span>
                   </button>
 
                   <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="handleRestart" :disabled="isProcessing">
                     <Icon :icon="isRestarting ? loadingIcon : restartIcon" width="20" height="20" :class="{ 'animate-spin': isRestarting }" />
-                    <span>{{ $t("Restart Application") }}</span>
+                    <span>{{ $t("Restart {target}", { target: targetNoun }) }}</span>
                   </button>
 
-                  <button v-if="app.status === 'running'" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="handlePause" :disabled="isProcessing">
+                  <button v-if="app.status === 'running' && !isDependency" class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="handlePause" :disabled="isProcessing">
                     <Icon :icon="isPausing ? loadingIcon : pauseIcon" width="20" height="20" :class="{ 'animate-spin': isPausing }" />
                     <span>{{ $t("Pause Application") }}</span>
                   </button>
-                </div>
-              </div>
 
-              <div v-if="app.service_url && app.status === 'running'" class="flex flex-col gap-4">
-                <h3 class="text-sm font-semibold uppercase tracking-wide m-0" :class="[themeClasses.appPropsSectionTitle]">{{ $t("Application") }}</h3>
-                <div class="flex flex-col gap-2">
-                  <button class="flex items-center gap-4 px-5 py-4 rounded-[10px] cursor-pointer transition-all duration-200 text-left border hover:translate-x-1 disabled:opacity-50 disabled:cursor-not-allowed" :class="[themeClasses.appPropsActionListItemBg, themeClasses.appPropsActionListItemBorder, themeClasses.appPropsActionListItemText, themeClasses.appPropsActionListItemBgHover, themeClasses.appPropsActionListItemBorderHover, themeClasses.aeroExtraScope]" @click="openApplication">
-                    <Icon :icon="openIcon" width="20" height="20" />
-                    <div class="flex-1 flex flex-col gap-1 min-w-0">
-                      <span class="text-sm font-semibold" :class="[themeClasses.appPropsInfoValue]">{{ $t("Open Application") }}</span>
-                      <span class="text-xs opacity-70" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Launch app in new tab") }}</span>
-                    </div>
-                    <Icon :icon="chevronRightIcon" width="16" height="16" :class="[themeClasses.appPropsInfoLabel]" />
+                  <button class="flex items-center justify-center gap-2.5 px-6 py-4 rounded-[10px] text-sm font-medium cursor-pointer transition-all duration-200 border hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] active:translate-y-0" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover, themeClasses.aeroExtraScope]" @click="openInControlHub">
+                    <Icon :icon="nutIcon" width="20" height="20" />
+                    <span>{{ $t("View in Control Hub") }}</span>
                   </button>
                 </div>
               </div>
@@ -332,7 +372,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="infoIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="infoIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Properties") }}</h4>
           </div>
 
@@ -351,16 +391,17 @@ import axios from "axios";
 import { Select } from "ant-design-vue";
 
 const SelectOption = Select.Option;
-import { ref, computed, watch, onMounted, inject } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
+import { useResponsive } from "../__Composables__/useResponsive";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { subdomainTrail, requestAppToken, buildAppSubdomainUrl, hostSupportsAppWindows, appWindowsAvailable, isLocalNetworkHost, isAddressLiteral, isMulticastTrail, buildDirectPortUrl } from "../__Composables__/useAppSubdomain";
-import type { SettingsData } from "../__Types__/SettingsData";
 import type { DockerApp } from "../__Stores__/desktopStore";
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useAppQuickActions } from "../__Composables__/useAppQuickActions";
 
 import { Icon } from "@iconify/vue";
 import playIcon from "@iconify-icons/mdi/play";
@@ -378,7 +419,6 @@ import networkIcon from "@iconify-icons/mdi/network-outline";
 import settingsIcon from "@iconify-icons/mdi/tune";
 import loadingIcon from "@iconify-icons/mdi/loading";
 import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
-import containerIcon from "@iconify-icons/mdi/package-variant-closed";
 import downloadIcon from "@iconify-icons/mdi/download";
 import uploadIcon from "@iconify-icons/mdi/upload";
 import folderIcon from "@iconify-icons/mdi/folder";
@@ -386,6 +426,10 @@ import lockIcon from "@iconify-icons/mdi/lock";
 import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import alertCircleIcon from "@iconify-icons/mdi/alert-circle";
 import cubeScanIcon from "@iconify-icons/mdi/cube-scan";
+import dependencyOffIcon from "@iconify-icons/mdi/cube-off-outline";
+import dependencyBadgeIcon from "@iconify-icons/mdi/cube-outline";
+import nutIcon from "@iconify-icons/mdi/nut";
+import lightningIcon from "@iconify-icons/mdi/lightning-bolt-outline";
 import accountKeyIcon from "@iconify-icons/mdi/account-key";
 import contentCopyIcon from "@iconify-icons/mdi/content-copy";
 import checkIcon from "@iconify-icons/mdi/check";
@@ -394,9 +438,10 @@ import dockWindowIcon from "@iconify-icons/mdi/dock-window";
 import shieldLockIcon from "@iconify-icons/mdi/shield-lock-outline";
 import earthIcon from "@iconify-icons/mdi/earth";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import PortRouter from "../__Components__/PortRouter.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 
 import { useAppStore } from "../__Stores__/useAppStore";
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer } from "../__Services__/DockerActions";
@@ -414,6 +459,7 @@ const props = defineProps<Props>();
 
 const { t } = useI18n();
 const { themeClasses } = useTheme();
+const { isMobile } = useResponsive();
 const desktopStore = useDesktopStore();
 const appStore = useAppStore();
 
@@ -441,6 +487,7 @@ const isLoadingMounts = ref(false);
 const mountsError = ref<string | null>(null);
 
 const windowStore = useWindowStore();
+const { quickActionsFor } = useAppQuickActions();
 
 const app = computed<DockerApp | null>(() => {
   const appId = props.appId || props.containerName || props.data?.appId || props.data?.containerName;
@@ -455,6 +502,53 @@ const app = computed<DockerApp | null>(() => {
 const groupContainers = computed<DockerApp[]>(() => {
   if (!app.value?.HDGroup) return [];
   return desktopStore.dockerApps.filter((a) => a.HDGroup === app.value?.HDGroup && a.id !== app.value?.id);
+});
+
+const isDependency = computed(() => app.value?.HDRole === "dependency");
+
+const displayTitle = computed(() => {
+  const current = app.value;
+  if (!current) return "";
+
+  return current.HDRole === "dependency" ? current.name : current.display_name || current.name;
+});
+const targetNoun = computed(() => (isDependency.value ? t("Dependency") : t("Application")));
+
+const groupMembers = computed<DockerApp[]>(() => {
+  const group = app.value?.HDGroup;
+  if (!group) return [];
+
+  return desktopStore.dockerApps
+    .filter((candidate) => candidate.HDGroup === group)
+    .slice()
+    .sort((a, b) => {
+      const aDependency = a.HDRole === "dependency" ? 1 : 0;
+      const bDependency = b.HDRole === "dependency" ? 1 : 0;
+      if (aDependency !== bDependency) return aDependency - bDependency;
+      return a.name.localeCompare(b.name);
+    });
+});
+
+const groupMain = computed<DockerApp | null>(() => groupMembers.value.find((member) => member.HDRole !== "dependency") || null);
+
+const quickAccessActions = computed(() => {
+  if (!app.value) return [];
+  const parent = isDependency.value ? groupMain.value : null;
+  return quickActionsFor(app.value, { parent }).actions ?? [];
+});
+
+function openMemberProperties(member: DockerApp) {
+  if (member.name === app.value?.name) return;
+
+  windowStore.openUniqueWindow("properties", member.id, {
+    title: `${member.HDRole === "dependency" ? member.name : member.display_name || member.name} - ${t("Properties")}`,
+    data: { appId: member.id },
+  });
+}
+
+const stoppedDependencies = computed<DockerApp[]>(() => {
+  if (!app.value || app.value.HDRole === "dependency") return [];
+  return groupContainers.value.filter((a) => a.HDRole === "dependency" && a.status !== "running");
 });
 
 const showConfiguration = computed<boolean>(() => {
@@ -591,8 +685,6 @@ async function handleUnpause() {
     isProcessing.value = false;
   }
 }
-
-const settingsData = inject<SettingsData | null>("data-settings", null);
 
 const appAddresses = computed(() => {
   if (!app.value?.service_url) return [];
@@ -769,23 +861,10 @@ function openDirectRoute(url: string) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-async function openApplication() {
+function openInControlHub() {
   if (!app.value) return;
 
-  const trail = subdomainTrail();
-
-  if (trail) {
-    const handoff = await requestAppToken(app.value.name, csrfToken.value);
-
-    if (handoff) {
-      window.open(buildAppSubdomainUrl(handoff, "", trail), "_blank", "noopener,noreferrer");
-      return;
-    }
-  }
-
-  if (app.value.service_url) {
-    window.open(`${window.location.origin}${app.value.service_url}`, "_blank", "noopener,noreferrer");
-  }
+  windowStore.openFileInApp("controlhub", { data: { selectedApp: app.value.name } });
 }
 
 function sanitizeContainerName(name: string): string {
@@ -853,8 +932,16 @@ onMounted(() => {
   }
 
   desktopStore.loadAppViewModes(csrfToken.value);
-  desktopStore.loadCertificateTrust();
+  desktopStore.loadCertificateTrust(csrfToken.value);
 });
+
+watch(
+  () => app.value?.recently_updated,
+  (unseen) => {
+    if (unseen && app.value) desktopStore.markUpdateSeen(app.value);
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
@@ -873,26 +960,12 @@ onMounted(() => {
   pointer-events: none;
 }
 
-/* App Icon Container */
-.app-icon-container {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.app-icon {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
+.hero-section .hero-watermark {
+  position: absolute;
+  top: 50%;
+  right: -36px;
+  transform: translateY(-50%) rotate(-33deg);
+  pointer-events: none;
 }
 
 /* Pulse animation */
@@ -903,19 +976,6 @@ onMounted(() => {
   }
   50% {
     opacity: 0.5;
-  }
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-  .app-icon-container {
-    width: 64px;
-    height: 64px;
-  }
-
-  .app-icon {
-    width: 48px;
-    height: 48px;
   }
 }
 

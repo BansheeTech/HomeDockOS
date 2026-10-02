@@ -4,37 +4,61 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="app-edit flex flex-col h-full overflow-hidden">
-    <div class="flex-1 overflow-hidden p-4 flex flex-col">
-      <div class="app-details flex items-center space-x-4 mb-4">
-        <BaseImage draggable="false" :src="appIcon" alt="App Icon" class="app-icon w-12 h-12 min-w-12 min-h-12 rounded-xl drop-shadow-md ring-[1px] ring-gray-500/10" />
-        <div class="flex flex-col justify-center">
-          <p :class="[themeClasses.hubCardTextAppName]" class="app-name font-bold text-sm">{{ displayName }} {{ $t("config") }}</p>
-          <p :class="[themeClasses.hubCardTextRepo]" class="app-docker-image text-xs">{{ $t("Docker Compose configuration") }}</p>
+  <div class="app-edit flex flex-col h-full overflow-hidden" style="container-type: inline-size; container-name: window">
+    <div :class="[themeClasses.fileExplorerToolbar]" class="edit-toolbar flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 border-b flex-shrink-0">
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div class="relative flex-shrink-0">
+          <AppIconGraphic :image-src="app?.image_path" :size="32" />
+          <span :class="[isRunning ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-1 ring-black/20"></span>
+        </div>
+
+        <div class="flex flex-col min-w-0 flex-1">
+          <span :class="[themeClasses.windowText]" class="text-sm font-semibold leading-tight truncate">{{ displayName }}</span>
+          <span :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[11px] leading-tight truncate">{{ $t("Docker Compose configuration") }}</span>
         </div>
       </div>
 
-      <hr :class="[themeClasses.hubSeparator]" class="border-0 h-px mb-4" />
+      <div class="edit-actions flex items-center gap-2 flex-shrink-0">
+        <button @click="revertChanges" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action edit-action-square h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0 disabled:opacity-40 disabled:pointer-events-none" :title="$t('Revert')">
+          <Icon :icon="undoIcon" class="w-4 h-4" />
+        </button>
 
-      <textarea :class="[themeClasses.hubTextArea]" class="flex-1 rounded-lg w-full font-mono text-xs resize-none p-3" v-model="composeInfo" :placeholder="$t('Loading configuration...')"></textarea>
+        <button @click="saveCompose" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action h-7 px-2.5 rounded transition-colors flex items-center justify-center gap-1.5 text-xs disabled:opacity-40 disabled:pointer-events-none" :title="$t('Save')">
+          <Icon :icon="isSaving ? loadingIcon : contentSaveIcon" :class="{ 'animate-spin': isSaving }" class="w-4 h-4 flex-shrink-0" />
+          <span class="truncate">{{ $t("Save") }}</span>
+        </button>
 
-      <div class="space-x-2 mt-3 flex">
-        <Button @click="saveCompose" type="primary" size="small" class="bg-blue-600 hover:!bg-blue-800 py-1 px-4 flex items-center">
-          <Icon :icon="contentSaveIcon" class="mb-0.5 mr-1 h-3 w-3 min-w-3 min-h-3" />
-          <span>{{ $t("Save") }}</span>
-        </Button>
-        <Button @click="handleRecreateConfirm" :disabled="isRecreating" type="primary" size="small" class="bg-indigo-600 hover:!bg-indigo-800 py-1 px-4 flex items-center">
-          <Icon :icon="arrowURightBottomBoldIcon" class="mb-0.5 mr-1 h-3 w-3 min-w-3 min-h-3" />
-          <span>{{ $t(buttonText) }}</span>
-        </Button>
+        <button @click="handleRecreateConfirm" :disabled="state !== 'ready' || isBusy" :class="[isConfirmingRecreate ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700']" class="edit-action edit-action-primary h-7 px-3 rounded text-xs font-medium text-white border-0 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none" :title="$t(recreateLabel)">
+          <Icon :icon="isRecreating ? loadingIcon : arrowURightBottomBoldIcon" :class="{ 'animate-spin': isRecreating }" class="w-3.5 h-3.5 flex-shrink-0" />
+          <span class="truncate">{{ $t(recreateLabel) }}</span>
+        </button>
       </div>
     </div>
 
-    <StatusBar :icon="codeBracesIcon" :message="$t('Edit Config')" :info="`${$t('Editing')} ${displayName}`" :showHelp="true">
+    <div class="relative flex-1 min-h-0 flex overflow-hidden">
+      <div v-if="state !== 'ready'" class="flex-1 flex flex-col items-center justify-center gap-2 px-6 text-center">
+        <template v-if="state === 'loading'">
+          <Icon :icon="loadingIcon" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="w-6 h-6 animate-spin" />
+          <p :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="m-0 text-xs">{{ $t("Loading configuration...") }}</p>
+        </template>
+        <template v-else>
+          <Icon :icon="state === 'error' ? alertIcon : fileHiddenIcon" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="w-8 h-8 opacity-50" />
+          <p :class="[themeClasses.windowText]" class="m-0 text-sm opacity-80">{{ state === "error" ? $t("Failed to fetch application information.") : $t("No content found for this application.") }}</p>
+          <button @click="fetchComposeInfo" :class="[themeClasses.dropZoneSortButton]" class="mt-1 h-7 px-3 rounded transition-colors flex items-center gap-1.5 text-xs">
+            <Icon :icon="refreshIcon" class="w-4 h-4" />
+            <span>{{ $t("Refresh") }}</span>
+          </button>
+        </template>
+      </div>
+
+      <ComposeEditor v-else v-model="composeInfo" class="flex-1 min-w-0" @cursor="cursor = $event" @save="saveCompose" />
+    </div>
+
+    <StatusBar :icon="isDirty ? pencilIcon : codeBracesIcon" :message="isDirty ? $t('Modified') : $t('Edit Config')" :info="statusInfo" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="codeBracesIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="codeBracesIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Edit Config") }}</h4>
           </div>
 
@@ -50,21 +74,28 @@
 <script lang="ts" setup>
 import axios from "axios";
 
-import { ref, onMounted, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
-import { Button } from "ant-design-vue";
 
 import { Icon } from "@iconify/vue";
 import contentSaveIcon from "@iconify-icons/mdi/content-save";
 import arrowURightBottomBoldIcon from "@iconify-icons/mdi/arrow-u-right-bottom-bold";
 import codeBracesIcon from "@iconify-icons/mdi/code-braces";
+import undoIcon from "@iconify-icons/mdi/undo-variant";
+import loadingIcon from "@iconify-icons/mdi/loading";
+import refreshIcon from "@iconify-icons/mdi/refresh";
+import alertIcon from "@iconify-icons/mdi/alert-circle-outline";
+import fileHiddenIcon from "@iconify-icons/mdi/file-hidden";
+import pencilIcon from "@iconify-icons/mdi/pencil";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
+import ComposeEditor, { type ComposeCursor } from "../__Components__/ComposeEditor.vue";
 
 import { notifyError, notifySuccess, notifyWarning } from "../__Components__/Notifications.vue";
 
@@ -75,29 +106,45 @@ interface Props {
   };
 }
 
+type EditorState = "loading" | "ready" | "empty" | "error";
+
+const RECREATE_LABEL = "Save and Recreate";
+const CONFIRM_LABEL = "Click again to confirm";
+const CONFIRM_TIMEOUT_MS = 3000;
+
 const props = defineProps<Props>();
 const { t } = useI18n();
 const { themeClasses } = useTheme();
 const desktopStore = useDesktopStore();
+const csrfToken = useCsrfToken();
 
 const appName = computed(() => props.appName || props.data?.appName || "Unknown");
-const displayName = computed(() => {
-  const app = desktopStore.mainDockerApps.find((a) => a.name === appName.value);
-  return app?.display_name || appName.value;
-});
+const app = computed(() => desktopStore.mainDockerApps.find((entry) => entry.name === appName.value));
+const displayName = computed(() => app.value?.display_name || appName.value);
+const isRunning = computed(() => app.value?.status === "running");
 
+const state = ref<EditorState>("loading");
 const composeInfo = ref("");
+const savedContent = ref("");
+const isSaving = ref(false);
 const isRecreating = ref(false);
-const buttonText = ref("Save and Recreate");
+const recreateLabel = ref(RECREATE_LABEL);
+const cursor = ref<ComposeCursor>({ line: 1, column: 1 });
 
-const csrfToken = useCsrfToken();
-const fallbackIcon = "docker-icons/notfound.jpg";
-const appIcon = computed(() => {
-  const app = desktopStore.mainDockerApps.find((a) => a.name === appName.value);
-  return app?.image_path || fallbackIcon;
+let confirmTimer: ReturnType<typeof setTimeout> | null = null;
+
+const isDirty = computed(() => state.value === "ready" && composeInfo.value !== savedContent.value);
+const isBusy = computed(() => isSaving.value || isRecreating.value);
+const isConfirmingRecreate = computed(() => recreateLabel.value === CONFIRM_LABEL);
+
+const statusInfo = computed(() => {
+  if (state.value !== "ready") return `${t("Editing")} ${displayName.value}`;
+  return `${t("Ln")} ${cursor.value.line}, ${t("Col")} ${cursor.value.column} · YAML`;
 });
 
 const fetchComposeInfo = async () => {
+  state.value = "loading";
+
   try {
     const response = await axios.get(`/api/get-compose-info`, {
       headers: {
@@ -108,25 +155,41 @@ const fetchComposeInfo = async () => {
       },
     });
 
-    if (response.data?.data?.ymlContent && response.data.data.ymlContent.trim() !== "") {
-      composeInfo.value = response.data.data.ymlContent;
+    const content = response.data?.data?.ymlContent;
+    if (content && content.trim() !== "") {
+      composeInfo.value = content;
+      savedContent.value = content;
+      cursor.value = { line: 1, column: 1 };
+      state.value = "ready";
     } else {
-      composeInfo.value = t("No content found for this application.");
+      state.value = "empty";
     }
   } catch (error) {
-    composeInfo.value = t("Failed to fetch application information.");
+    state.value = "error";
   }
 };
 
-const saveCompose = async () => {
-  try {
-    const response = await axios.post("/api/update-yml-config", {
-      containerName: appName.value,
-      ymlContent: composeInfo.value,
-      homedock_csrf_token: csrfToken.value,
-    });
+async function writeCompose(): Promise<boolean> {
+  const response = await axios.post("/api/update-yml-config", {
+    containerName: appName.value,
+    ymlContent: composeInfo.value,
+    homedock_csrf_token: csrfToken.value,
+  });
 
-    if (response.data.success) {
+  if (response.data.success) {
+    savedContent.value = composeInfo.value;
+    return true;
+  }
+
+  return false;
+}
+
+const saveCompose = async () => {
+  if (!isDirty.value || isBusy.value) return;
+  isSaving.value = true;
+
+  try {
+    if (await writeCompose()) {
       notifySuccess(t("Configuration saved successfully!"), undefined, themeClasses.value.scopeSelector);
     } else {
       notifyWarning(t("Failed to save the configuration. Please check the YML format."), themeClasses.value.scopeSelector);
@@ -137,62 +200,65 @@ const saveCompose = async () => {
     } else {
       notifyWarning(t("Unknown error occurred while saving configuration"), themeClasses.value.scopeSelector);
     }
+  } finally {
+    isSaving.value = false;
   }
 };
 
-const handleRecreateConfirm = () => {
-  if (buttonText.value === "Click again to confirm") {
-    recreateContainer();
-  } else {
-    buttonText.value = "Click again to confirm";
-    setTimeout(() => {
-      if (buttonText.value === "Click again to confirm") {
-        buttonText.value = "Save and Recreate";
-      }
-    }, 3000);
+function revertChanges() {
+  if (!isDirty.value || isBusy.value) return;
+  composeInfo.value = savedContent.value;
+}
+
+function resetRecreateLabel() {
+  if (confirmTimer) {
+    clearTimeout(confirmTimer);
+    confirmTimer = null;
   }
+  recreateLabel.value = RECREATE_LABEL;
+}
+
+const handleRecreateConfirm = () => {
+  if (isConfirmingRecreate.value) {
+    resetRecreateLabel();
+    recreateContainer();
+    return;
+  }
+
+  recreateLabel.value = CONFIRM_LABEL;
+  confirmTimer = setTimeout(resetRecreateLabel, CONFIRM_TIMEOUT_MS);
 };
 
 const recreateContainer = async () => {
   isRecreating.value = true;
+  recreateLabel.value = "Recreating...";
 
   try {
-    const updateResponse = await axios.post("/api/update-yml-config", {
-      containerName: appName.value,
-      ymlContent: composeInfo.value,
-      homedock_csrf_token: csrfToken.value,
-    });
-
-    if (updateResponse.data.success) {
-      buttonText.value = "Recreating...";
-
-      try {
-        const recreateResponse = await axios.post("/api/recreate-container", {
-          container_name: appName.value,
-          yml_content: composeInfo.value,
-          homedock_csrf_token: csrfToken.value,
-        });
-
-        if (recreateResponse.data.message) {
-          notifySuccess(t("Application recreated successfully!"), undefined, themeClasses.value.scopeSelector);
-          buttonText.value = "Save and Recreate";
-        } else {
-          notifyWarning(t("Failed to recreate the application."), themeClasses.value.scopeSelector);
-          buttonText.value = "Save and Recreate";
-        }
-      } catch (recreateError: any) {
-        if (recreateError.response?.status === 400 && recreateError.response?.data?.messages) {
-          notifyWarning(recreateError.response.data.messages.map((m: any) => t(m.key, m.params || {})).join("\n"), themeClasses.value.scopeSelector, 10);
-        } else if (recreateError.response) {
-          notifyError(recreateError, themeClasses.value.scopeSelector);
-        } else {
-          notifyWarning(t("Failed to recreate the application."), themeClasses.value.scopeSelector);
-        }
-        buttonText.value = "Save and Recreate";
-      }
-    } else {
+    if (!(await writeCompose())) {
       notifyWarning(t("Failed to update the configuration file."), themeClasses.value.scopeSelector);
-      buttonText.value = "Save and Recreate";
+      return;
+    }
+
+    try {
+      const recreateResponse = await axios.post("/api/recreate-container", {
+        container_name: appName.value,
+        yml_content: composeInfo.value,
+        homedock_csrf_token: csrfToken.value,
+      });
+
+      if (recreateResponse.data.message) {
+        notifySuccess(t("Application recreated successfully!"), undefined, themeClasses.value.scopeSelector);
+      } else {
+        notifyWarning(t("Failed to recreate the application."), themeClasses.value.scopeSelector);
+      }
+    } catch (recreateError: any) {
+      if (recreateError.response?.status === 400 && recreateError.response?.data?.messages) {
+        notifyWarning(recreateError.response.data.messages.map((m: any) => t(m.key, m.params || {})).join("\n"), themeClasses.value.scopeSelector, 10);
+      } else if (recreateError.response) {
+        notifyError(recreateError, themeClasses.value.scopeSelector);
+      } else {
+        notifyWarning(t("Failed to recreate the application."), themeClasses.value.scopeSelector);
+      }
     }
   } catch (error: any) {
     if (error.response) {
@@ -200,33 +266,47 @@ const recreateContainer = async () => {
     } else {
       notifyWarning(t("An error occurred. Please check the logs."), themeClasses.value.scopeSelector);
     }
-    buttonText.value = "Save and Recreate";
   } finally {
     isRecreating.value = false;
+    recreateLabel.value = RECREATE_LABEL;
   }
 };
 
 onMounted(() => {
   fetchComposeInfo();
 });
+
+onBeforeUnmount(() => {
+  if (confirmTimer) clearTimeout(confirmTimer);
+});
 </script>
 
 <style scoped>
-textarea {
-  outline: 1px solid rgba(129, 129, 129, 0.281);
+.app-edit {
+  background: inherit;
 }
 
-textarea:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-}
+@container window (max-width: 560px) {
+  .edit-actions {
+    flex-basis: 100%;
+  }
 
-:deep(.ant-btn-primary[disabled]) {
-  background-color: rgb(79 70 229) !important;
-  border-color: transparent !important;
-  opacity: 0.6;
-}
+  .edit-action {
+    height: 2.25rem;
+    font-size: 0.8125rem;
+  }
 
-:deep(.ant-btn-primary[disabled]:hover) {
-  background-color: rgb(79 70 229) !important;
+  .edit-action-square {
+    width: 2.25rem;
+  }
+
+  .edit-action:not(.edit-action-square) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .edit-action-primary {
+    flex-grow: 1.6;
+  }
 }
 </style>

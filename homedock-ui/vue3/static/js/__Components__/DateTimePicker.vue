@@ -14,46 +14,48 @@
       </span>
     </div>
 
-    <Transition name="dropdown">
-      <Teleport to="body">
-        <div v-if="isOpen" ref="dropdownRef" class="calendar-dropdown border" :class="[themeClasses.calendarDropdownBg, themeClasses.calendarDropdownBorder, themeClasses.calendarDropdownShadow]" :style="dropdownStyle">
-          <div class="calendar-header" :class="themeClasses.topBack">
-            <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="previousMonth">
-              <Icon :icon="chevronLeftIcon" width="18" height="18" />
-            </button>
-            <span class="calendar-title" :class="themeClasses.notTextUp">{{ currentMonthYear }}</span>
-            <button class="nav-btn" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="nextMonth">
-              <Icon :icon="chevronRightIcon" width="18" height="18" />
-            </button>
-          </div>
-
-          <div class="calendar-body">
-            <div class="calendar-weekdays">
-              <div v-for="day in weekDays" :key="day" class="weekday" :class="themeClasses.calendarWeekday">{{ day }}</div>
-            </div>
-
-            <div class="calendar-days">
-              <button v-for="day in calendarDays" :key="day.date" class="calendar-day" :class="[themeClasses.calendarDayBg, day.isSelected ? themeClasses.calendarDaySelected : day.isToday ? themeClasses.calendarDayToday : !day.isCurrentMonth ? themeClasses.calendarDayOtherMonth : [themeClasses.calendarDay, themeClasses.calendarDayBgHover]]" @click="selectDate(day)">
-                <span>{{ day.day }}</span>
-                <span v-if="eventsForDate(day.date).length > 0" class="tray-event-dot"></span>
-              </button>
-            </div>
-          </div>
-
-          <div v-if="selectedDayEvents.length > 0" class="tray-events-section" :class="themeClasses.traySectionBorder">
-            <div class="tray-events-header" :class="themeClasses.calendarWeekday">{{ selectedDate.isSame(dayjs(), "day") ? t("Today's Events") : selectedDate.locale(djLocale).format("ddd, MMM D") }}</div>
-            <div v-for="evt in selectedDayEvents.slice(0, 4)" :key="evt.id" class="tray-event-item">
-              <span class="tray-event-color" :style="{ backgroundColor: eventColorHex(calendarStore.calendarColor(evt.calendar_id || 'personal')) }"></span>
-              <span class="tray-event-time" :class="themeClasses.calendarWeekday">{{ formatEventTime(evt.time) }}</span>
-              <span class="tray-event-title" :class="themeClasses.calendarDay">{{ evt.title }}</span>
-            </div>
-            <div v-if="selectedDayEvents.length > 4" class="tray-events-more" :class="themeClasses.calendarWeekday">+{{ selectedDayEvents.length - 4 }} {{ $t("more") }}</div>
-          </div>
-
-          <button class="tray-open-calendar" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover, themeClasses.calendarNavBtnTextHover]" @click="openCalendarApp">{{ $t("Open Calendar") }}</button>
+    <TrayPanel :open="isOpen" :anchor="pickerRef" :title="currentMonthYear" :subtitle="todayLabel" :icon="calendarIcon" icon-color="#0891b2" @close="closeDropdown">
+      <template #accessory>
+        <div class="flex items-center gap-0.5 flex-shrink-0">
+          <button type="button" :class="[themeClasses.storeCardSubtitle, themeClasses.storeRowHover]" class="flex items-center justify-center w-7 h-7 rounded-full border-0 bg-transparent cursor-pointer transition-colors duration-150" :aria-label="$t('Previous')" @click="previousMonth">
+            <Icon :icon="chevronLeftIcon" class="w-4 h-4" />
+          </button>
+          <button type="button" :class="[themeClasses.storeCardSubtitle, themeClasses.storeRowHover]" class="h-7 px-2 rounded-full border-0 bg-transparent text-[11px] font-semibold cursor-pointer transition-colors duration-150" @click="goToToday">{{ $t("Today") }}</button>
+          <button type="button" :class="[themeClasses.storeCardSubtitle, themeClasses.storeRowHover]" class="flex items-center justify-center w-7 h-7 rounded-full border-0 bg-transparent cursor-pointer transition-colors duration-150" :aria-label="$t('Next')" @click="nextMonth">
+            <Icon :icon="chevronRightIcon" class="w-4 h-4" />
+          </button>
         </div>
-      </Teleport>
-    </Transition>
+      </template>
+
+      <div class="calendar-body px-1.5">
+        <div class="calendar-weekdays">
+          <div v-for="day in weekDays" :key="day" :class="[themeClasses.storeCardSubtitle]" class="weekday">{{ day }}</div>
+        </div>
+
+        <div class="calendar-days">
+          <button v-for="day in calendarDays" :key="day.date" type="button" class="calendar-day" :class="day.isSelected ? (day.isToday ? 'bg-red-500 text-white font-bold' : 'bg-blue-600 text-white') : day.isToday ? ['bg-transparent text-red-500 font-bold', themeClasses.storeRowHover] : !day.isCurrentMonth ? [themeClasses.storeCardSubtitle, 'bg-transparent opacity-50'] : [themeClasses.storeModalAppName, 'bg-transparent', themeClasses.storeRowHover]" @click="selectDate(day)">
+            <span>{{ day.day }}</span>
+            <span v-if="eventsForDate(day.date).length > 0" :class="day.isSelected ? 'bg-white' : 'bg-blue-500'" class="tray-event-dot"></span>
+          </button>
+        </div>
+      </div>
+
+      <TraySection v-if="selectedDayEvents.length > 0" :title="selectedDate.isSame(dayjs(), 'day') ? t(`Today's Events`) : selectedDate.locale(djLocale).format('ddd, MMM D')">
+        <TrayRow v-for="evt in selectedDayEvents.slice(0, 4)" :key="evt.id" :title="evt.title">
+          <template #leading>
+            <span class="w-1 h-7 rounded-full flex-shrink-0" :style="{ backgroundColor: eventColorHex(calendarStore.calendarColor(evt.calendar_id || 'personal')) }"></span>
+          </template>
+          <template #trailing>
+            <span :class="[themeClasses.storeCardSubtitle]" class="flex-shrink-0 text-[11px] tabular-nums">{{ formatEventTime(evt.time) }}</span>
+          </template>
+        </TrayRow>
+        <p v-if="selectedDayEvents.length > 4" :class="[themeClasses.storeCardSubtitle]" class="m-0 px-1.5 pt-1 text-[11px]">+{{ selectedDayEvents.length - 4 }} {{ $t("more") }}</p>
+      </TraySection>
+
+      <template #footer>
+        <button type="button" :class="[themeClasses.storeCardInstalledPill]" class="flex items-center justify-center w-full h-8 rounded-full border-0 text-xs font-semibold cursor-pointer transition-colors duration-150" @click="openCalendarApp">{{ $t("Open Calendar") }}</button>
+      </template>
+    </TrayPanel>
   </div>
 </template>
 
@@ -70,6 +72,11 @@ import type { SettingsData } from "../__Types__/SettingsData";
 import { Icon } from "@iconify/vue";
 import chevronLeftIcon from "@iconify-icons/mdi/chevron-left";
 import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
+import calendarIcon from "@iconify-icons/mdi/calendar-month";
+
+import TrayPanel from "./TrayPanel.vue";
+import TraySection from "./TraySection.vue";
+import TrayRow from "./TrayRow.vue";
 
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
@@ -103,7 +110,6 @@ const weekStart = computed<number>(() => (settingsData?.week_start === "sunday" 
 const TRAY_ID = "date-time-picker";
 
 const pickerRef = ref<HTMLElement | null>(null);
-const dropdownRef = ref<HTMLElement | null>(null);
 const isOpen = ref(false);
 const currentTime = ref("");
 const currentDateFormatted = ref("");
@@ -172,14 +178,15 @@ const calendarDays = computed(() => {
   return days;
 });
 
-const dropdownStyle = computed(() => {
-  return {
-    position: "fixed",
-    bottom: "4rem",
-    right: "1rem",
-    left: "auto",
-  } as const;
+const todayLabel = computed(() => {
+  const raw = dayjs().locale(djLocale).format("dddd, D MMMM");
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 });
+
+function goToToday() {
+  selectedDate.value = dayjs();
+  viewDate.value = dayjs();
+}
 
 function previousMonth() {
   viewDate.value = viewDate.value.subtract(1, "month");
@@ -339,13 +346,6 @@ function openCalendarApp() {
   windowStore.openWindow("calendar");
 }
 
-function handleClickOutside(event: MouseEvent) {
-  const target = event.target as Node;
-  if (pickerRef.value && !pickerRef.value.contains(target) && (!dropdownRef.value || !dropdownRef.value.contains(target))) {
-    closeDropdown();
-  }
-}
-
 let clockInterval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
@@ -358,14 +358,12 @@ onMounted(() => {
     updateEventProximity();
   }, 1000);
   setInterval(fetchTrayEvents, 60000);
-  document.addEventListener("click", handleClickOutside);
 });
 
 onUnmounted(() => {
   if (clockInterval) {
     clearInterval(clockInterval);
   }
-  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -437,158 +435,58 @@ onUnmounted(() => {
   line-height: 1.1;
 }
 
-.calendar-dropdown {
-  z-index: 9999;
-  border-radius: 12px;
-  width: 280px;
-}
-
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem 0.75rem 0 0;
-}
-
-.calendar-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.nav-btn {
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .calendar-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  gap: 0.125rem;
+  padding-bottom: 0.25rem;
 }
 
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-  margin-bottom: 0.25rem;
+  gap: 0.125rem;
 }
 
 .weekday {
   text-align: center;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0;
 }
 
 .calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
+  gap: 0.125rem;
 }
 
 .calendar-day {
   aspect-ratio: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
   font-size: 0.75rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.15s ease;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
   position: relative;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .tray-event-dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background-color: #3b82f6;
   position: absolute;
   bottom: 3px;
 }
 
-.tray-events-section {
-  padding: 0.75rem 1.5rem;
-}
-
-.tray-events-header {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.tray-event-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
-}
-
-.tray-event-color {
-  width: 3px;
-  height: 14px;
-  border-radius: 1.5px;
-  flex-shrink: 0;
-}
-
-.tray-event-time {
-  font-size: 0.65rem;
-  min-width: 30px;
-}
-
-.tray-event-title {
-  font-size: 0.7rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tray-events-more {
-  font-size: 0.6rem;
-  text-align: center;
-  padding-top: 0.25rem;
-}
-
-.tray-open-calendar {
-  display: block;
-  width: calc(100% - 3rem);
-  margin: 0 1.5rem 1rem;
-  padding: 0.4rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-/* Dropdown Animation */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* Mobile adjustments */
 @media (max-width: 768px) {
   .tray-clock {
     padding: 0 0.25rem;
@@ -596,11 +494,6 @@ onUnmounted(() => {
 
   .clock-time {
     font-size: 0.75rem;
-  }
-
-  .calendar-dropdown {
-    width: 280px;
-    padding: 0.75rem;
   }
 }
 </style>

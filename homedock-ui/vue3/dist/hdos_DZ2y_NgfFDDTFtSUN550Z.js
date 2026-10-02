@@ -1,0 +1,1 @@
+function e(){let e=globalThis.process;if(typeof e?.getBuiltinModule==`function`)return e.getBuiltinModule(`module`)}function t(t){let n=e();if(!n)throw Error("createRequire is unavailable: this build reaches Node's `module` through process.getBuiltinModule, which needs Node 20.16+ or 22.3+.");return n.createRequire(t)}export{t as createRequire};

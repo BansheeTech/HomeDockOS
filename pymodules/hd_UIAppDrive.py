@@ -7,6 +7,7 @@ https://www.banshee.pro
 
 import io
 import os
+import re
 import time
 import shutil
 import zipfile
@@ -21,6 +22,10 @@ from pymodules.hd_FunctionsSecurity import validate_safe_path, validate_filename
 from pymodules.hd_FunctionsSanitize import sanitize_container_name
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_ChunkedUpload import init_upload, write_chunk, get_manifest, assemble_to_path, cleanup, is_temp_file, ChunkedUploadError
+from pymodules.hd_DisksPlusAuth import authorize_request, matching_danger_zone, get_danger_zones
+from pymodules.hd_FunctionsDiskEnum import visible_mountpoints
+from pymodules.hd_ImageThumbnails import thumbnail_response
+from pymodules.hd_ExtendedSupportImage import preview_response
 
 MAX_FILES_FOR_SIZE_CALC = 10000
 MAX_TIME_FOR_SIZE_CALC = 2.0
@@ -28,6 +33,95 @@ MAX_FILES_FOR_ZIP = 50000
 MAX_TIME_FOR_ZIP = 30.0
 MAX_SEARCH_RESULTS = 500
 MAX_SEARCH_TIME = 10.0
+
+_WINDOWS_DOCKER_DRIVE_RE = re.compile(r"^(?:/run/desktop/mnt/host|/host_mnt|/mnt)/([a-zA-Z])(?:/(.*))?$")
+_WINDOWS_DRIVE_PATH_RE = re.compile(r"^[a-zA-Z]:[\\/]")
+
+
+def _host_source_path(source):
+    if running_OS != "Windows":
+        return source
+
+    match = _WINDOWS_DOCKER_DRIVE_RE.match(source)
+    if match:
+        return f"{match.group(1).upper()}:\\" + (match.group(2) or "").replace("/", "\\")
+
+    if _WINDOWS_DRIVE_PATH_RE.match(source):
+        return source[0].upper() + source[1:].replace("/", "\\")
+
+    return source
+
+
+def _is_within(path, root):
+    path_key = os.path.normcase(os.path.normpath(path))
+    root_key = os.path.normcase(os.path.normpath(root))
+
+    return path_key == root_key or path_key.startswith(root_key.rstrip(os.path.sep) + os.path.sep)
+
+
+def _within_visible_mount(path, mountpoints):
+    return any(mountpoint != os.path.sep and _is_within(path, mountpoint) for mountpoint in mountpoints)
+
+
+def _external_mount_path(source):
+    try:
+        real = os.path.realpath(_host_source_path(source))
+    except (OSError, ValueError):
+        return None
+
+    if is_docker:
+        mountpoints = visible_mountpoints()
+        if not _within_visible_mount(os.path.normpath(source), mountpoints) or not _within_visible_mount(real, mountpoints):
+            return None
+
+    if not os.path.isdir(real) or not os.access(real, os.R_OK | os.X_OK):
+        return None
+
+    return real
+
+
+def _external_access_denied(mount, absolute_path):
+    if not mount.get("external"):
+        return None
+
+    target = os.path.realpath(absolute_path)
+    ok, code, status = authorize_request(target, scope=mount["scope"])
+
+    if ok:
+        return None
+
+    zone = matching_danger_zone(target)
+    payload = {"error": code, "requires_danger_auth": code == "danger_zone_reauth_required", "is_danger_zone": zone is not None, "path": target}
+
+    if zone is not None:
+        payload["zone"] = zone
+
+    return jsonify(payload), status or 401
+
+
+def _external_subtree_denied(mount, absolute_path):
+    denied = _external_access_denied(mount, absolute_path)
+    if denied or not mount.get("external"):
+        return denied
+
+    root = os.path.realpath(absolute_path)
+    prefix = root if root.endswith(os.sep) else root + os.sep
+
+    for zone in get_danger_zones():
+        if os.path.normpath(zone).startswith(prefix):
+            denied = _external_access_denied(mount, zone)
+            if denied:
+                return denied
+
+    return None
+
+
+def _external_path_blocked(mount, absolute_path):
+    if not mount.get("external") or matching_danger_zone(absolute_path) is None:
+        return False
+
+    ok, _code, _status = authorize_request(absolute_path, scope=mount["scope"])
+    return not ok
 
 
 def get_allowed_homedock_root():
@@ -47,6 +141,10 @@ def get_allowed_homedock_root():
         raise OSError(f"Not supported underlying operative system: {running_OS}")
 
 
+def app_unlock_scope(container):
+    return container.labels.get("HDGroup") or container.name
+
+
 def get_container_valid_mounts(container_name):
     try:
         container_name = sanitize_container_name(container_name)
@@ -59,7 +157,7 @@ def get_container_valid_mounts(container_name):
 
         mounts = container.attrs.get("Mounts", [])
         homedock_root = get_allowed_homedock_root()
-        homedock_root_normalized = os.path.normpath(homedock_root)
+        scope = app_unlock_scope(container)
 
         valid_mounts = []
         for mount in mounts:
@@ -70,16 +168,22 @@ def get_container_valid_mounts(container_name):
             if not source or not destination:
                 continue
 
-            source_normalized = os.path.normpath(source)
+            source_normalized = os.path.normpath(_host_source_path(source))
 
-            if source_normalized.startswith(homedock_root_normalized + os.sep) or source_normalized == homedock_root_normalized:
+            if _is_within(source_normalized, homedock_root):
                 if is_docker:
                     data_root = os.environ.get("DATA_ROOT", "/DATA")
                     internal_path = "/DATA" + source_normalized[len(os.path.normpath(data_root)) :]
                 else:
                     internal_path = source_normalized
 
-                valid_mounts.append({"host_path": internal_path, "container_path": destination, "type": mount_type, "read_only": mount.get("RW", True) is False})
+                valid_mounts.append({"host_path": internal_path, "container_path": destination, "type": mount_type, "read_only": mount.get("RW", True) is False, "external": False, "danger_zone": None, "scope": scope})
+                continue
+
+            external_path = _external_mount_path(source)
+
+            if external_path:
+                valid_mounts.append({"host_path": external_path, "container_path": destination, "type": mount_type, "read_only": mount.get("RW", True) is False, "external": True, "danger_zone": matching_danger_zone(external_path), "scope": scope})
 
         valid_mounts.sort(key=lambda m: m["container_path"])
 
@@ -108,7 +212,7 @@ def appdrive_list_containers():
                 valid_mounts = get_container_valid_mounts(container.name)
 
                 if valid_mounts:
-                    containers_with_mounts.append({"name": container.name, "sanitized_name": sanitized_name, "status": container.status, "mounts_count": len(valid_mounts)})
+                    containers_with_mounts.append({"name": container.name, "sanitized_name": sanitized_name, "status": container.status, "mounts_count": len(valid_mounts), "has_external": any(mount["external"] for mount in valid_mounts), "scope": app_unlock_scope(container)})
 
             except Exception:
                 continue
@@ -176,6 +280,10 @@ def appdrive_list_files():
         validate_no_symlinks(current_dir, base_dir)
     except ValueError:
         return jsonify({"error": "Security violation"}), 403
+
+    denied = _external_access_denied(mount, current_dir)
+    if denied:
+        return denied
 
     files = []
     try:
@@ -252,6 +360,10 @@ def appdrive_download_file():
     except ValueError:
         return jsonify({"error": "Security violation"}), 403
 
+    denied = _external_access_denied(mount, file_path)
+    if denied:
+        return denied
+
     if os.path.isdir(file_path):
         try:
             memory_zip = io.BytesIO()
@@ -259,7 +371,7 @@ def appdrive_download_file():
             start_time = time.time()
             with zipfile.ZipFile(memory_zip, "w", zipfile.ZIP_DEFLATED) as zf:
                 for root, dirs, files in os.walk(file_path):
-                    dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
+                    dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and not _external_path_blocked(mount, os.path.join(root, d))]
                     for file in files:
                         if is_temp_file(file):
                             continue
@@ -287,6 +399,70 @@ def appdrive_download_file():
         return send_file(file_path, mimetype="application/octet-stream", as_attachment=True, download_name=os.path.basename(file_name))
     except Exception:
         return jsonify({"error": "Error downloading file"}), 500
+
+
+def _resolve_image_file():
+    container_name = request.args.get("container")
+    file_name = request.args.get("file")
+
+    if not container_name:
+        return None, None, (jsonify({"error": "Container name is required"}), 400)
+
+    if not file_name:
+        return None, None, (jsonify({"error": "File name is required"}), 400)
+
+    try:
+        mount_index = int(request.args.get("mount", "0"))
+    except ValueError:
+        return None, None, (jsonify({"error": "Invalid mount index"}), 400)
+
+    valid_mounts = get_container_valid_mounts(container_name)
+
+    if not valid_mounts:
+        return None, None, (jsonify({"error": "No accessible mounts found for this container"}), 404)
+
+    if mount_index < 0 or mount_index >= len(valid_mounts):
+        return None, None, (jsonify({"error": "Invalid mount index"}), 400)
+
+    mount = valid_mounts[mount_index]
+    base_dir = mount["host_path"]
+
+    try:
+        file_path = validate_safe_path(base_dir, file_name)
+    except ValueError:
+        return None, None, (jsonify({"error": "Invalid file path"}), 400)
+
+    if not os.path.isfile(file_path):
+        return None, None, (jsonify({"error": "File not found"}), 404)
+
+    try:
+        validate_no_symlinks(file_path, base_dir)
+    except ValueError:
+        return None, None, (jsonify({"error": "Security violation"}), 403)
+
+    denied = _external_access_denied(mount, file_path)
+    if denied:
+        return None, None, denied
+
+    return file_path, mount, None
+
+
+@login_required
+def appdrive_thumbnail_file():
+    file_path, mount, err = _resolve_image_file()
+    if err:
+        return err
+
+    return thumbnail_response(file_path, cache_owner=None if mount.get("external") else current_user.id.lower())
+
+
+@login_required
+def appdrive_preview_file():
+    file_path, _mount, err = _resolve_image_file()
+    if err:
+        return err
+
+    return preview_response(file_path)
 
 
 @login_required
@@ -329,6 +505,10 @@ def appdrive_edit_file():
             target_dir = base_dir
     except ValueError:
         return jsonify({"error": "Invalid path"}), 400
+
+    denied = _external_access_denied(mount, target_dir)
+    if denied:
+        return denied
 
     if os.path.exists(target_dir):
         try:
@@ -437,6 +617,10 @@ def appdrive_upload_init():
     except ValueError:
         return _appdrive_err("invalid_path")
 
+    denied = _external_access_denied(mount, target_dir)
+    if denied:
+        return denied
+
     if not os.path.exists(target_dir):
         try:
             os.makedirs(target_dir, mode=0o755, exist_ok=True)
@@ -504,6 +688,11 @@ def appdrive_upload_finalize():
     except ValueError:
         cleanup(user_name, upload_id)
         return _appdrive_err("invalid_path")
+
+    denied = _external_access_denied(mount, target_dir)
+    if denied:
+        cleanup(user_name, upload_id)
+        return denied
 
     final_path = os.path.join(target_dir, safe_filename)
 
@@ -583,6 +772,13 @@ def appdrive_delete_file():
     except ValueError:
         return jsonify({"error": "Security violation"}), 403
 
+    if os.path.realpath(file_path) == os.path.realpath(base_dir):
+        return jsonify({"error": "The volume root cannot be deleted"}), 400
+
+    denied = _external_subtree_denied(mount, file_path)
+    if denied:
+        return denied
+
     try:
         if os.path.isdir(file_path):
             shutil.rmtree(file_path)
@@ -653,6 +849,10 @@ def appdrive_create_folder():
 
     new_folder_path = os.path.join(parent_dir, validated_name)
 
+    denied = _external_access_denied(mount, new_folder_path)
+    if denied:
+        return denied
+
     if os.path.exists(new_folder_path):
         return jsonify({"error": "Folder already exists"}), 409
 
@@ -715,6 +915,9 @@ def appdrive_rename_item():
     except ValueError:
         return jsonify({"error": "Security violation"}), 403
 
+    if os.path.realpath(old_path) == os.path.realpath(base_dir):
+        return jsonify({"error": "The volume root cannot be renamed"}), 400
+
     parent_dir = os.path.dirname(old_path)
     new_path = os.path.join(parent_dir, validated_new_name)
 
@@ -722,6 +925,10 @@ def appdrive_rename_item():
         new_path = validate_safe_path(base_dir, os.path.relpath(new_path, base_dir))
     except ValueError:
         return jsonify({"error": "Invalid new path"}), 400
+
+    denied = _external_subtree_denied(mount, old_path) or _external_access_denied(mount, new_path)
+    if denied:
+        return denied
 
     if os.path.exists(new_path):
         return jsonify({"error": "An item with that name already exists"}), 409
@@ -762,6 +969,16 @@ def appdrive_download_multiple():
     mount = valid_mounts[mount_index]
     base_dir = mount["host_path"]
 
+    for file_name in file_names:
+        try:
+            requested_path = validate_safe_path(base_dir, file_name)
+        except (ValueError, TypeError):
+            continue
+
+        denied = _external_access_denied(mount, requested_path)
+        if denied:
+            return denied
+
     try:
         memory_zip = io.BytesIO()
         file_count = 0
@@ -784,7 +1001,7 @@ def appdrive_download_multiple():
                 if os.path.isdir(file_path):
                     dir_basename = os.path.basename(file_name)
                     for root, dirs, files in os.walk(file_path):
-                        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
+                        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and not _external_path_blocked(mount, os.path.join(root, d))]
                         for file in files:
                             if is_temp_file(file):
                                 continue
@@ -852,6 +1069,10 @@ def appdrive_search_files():
     if not os.path.exists(base_dir):
         return jsonify({"error": "Mount path not found"}), 404
 
+    denied = _external_access_denied(mount, base_dir)
+    if denied:
+        return denied
+
     files = []
     start_time = time.time()
 
@@ -863,7 +1084,7 @@ def appdrive_search_files():
             if len(files) >= MAX_SEARCH_RESULTS:
                 break
 
-            dirs[:] = [d for d in dirs if not d.startswith(".") and not os.path.islink(os.path.join(root, d))]
+            dirs[:] = [d for d in dirs if not d.startswith(".") and not os.path.islink(os.path.join(root, d)) and not _external_path_blocked(mount, os.path.join(root, d))]
 
             for dirname in dirs:
                 if len(files) >= MAX_SEARCH_RESULTS:

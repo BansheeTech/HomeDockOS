@@ -6,9 +6,8 @@
 <template>
   <div class="w-full h-full flex items-center px-4 py-3">
     <button v-if="boundShortcut" type="button" class="group w-full h-full flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="openShortcut" :title="boundShortcut.url">
-      <div class="shrink-0 w-12 h-12 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center transition-transform duration-200 group-hover:scale-105" :class="themeClasses.desktopWidgetControlBg">
-        <img v-if="boundShortcut.iconType === 'image'" :src="getShortcutIconUrl(boundShortcut.iconValue)" class="w-8 h-8 object-contain rounded-lg" alt="" draggable="false" />
-        <Icon v-else :icon="getShortcutPresetIcon(boundShortcut.iconValue)" class="w-6 h-6" :class="themeClasses.desktopWidgetAccent" />
+      <div class="shrink-0 transition-transform duration-200 group-hover:scale-105">
+        <ShortcutGraphic :key="`${boundShortcut.shortcut.iconType}:${boundShortcut.shortcut.iconValue}`" :shortcut="boundShortcut.shortcut" :size="48" />
       </div>
       <div class="flex-1 min-w-0 flex flex-col items-start leading-tight gap-0.5">
         <span class="text-sm font-semibold truncate max-w-full" :class="themeClasses.desktopWidgetTitle">{{ boundShortcut.name }}</span>
@@ -19,10 +18,9 @@
 
     <div v-else-if="availableShortcuts.length > 0" class="w-full h-full flex flex-col justify-center gap-1 min-w-0 overflow-hidden">
       <span class="text-[10px] font-semibold uppercase tracking-wide shrink-0" :class="themeClasses.desktopWidgetMeta">{{ $t("Choose a shortcut") }}</span>
-      <div class="flex items-center gap-1.5 overflow-x-auto">
-        <button v-for="option in availableShortcuts" :key="option.shortcutId" type="button" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer" :class="[themeClasses.desktopWidgetControlBg, themeClasses.desktopWidgetControlBgHover]" :title="option.name" @mousedown.stop @click.stop="bindShortcut(option.shortcutId)">
-          <img v-if="option.iconType === 'image'" :src="getShortcutIconUrl(option.iconValue)" class="w-5 h-5 object-contain rounded" alt="" draggable="false" />
-          <Icon v-else :icon="getShortcutPresetIcon(option.iconValue)" class="w-4 h-4" :class="themeClasses.desktopWidgetText" />
+      <div class="flex items-center gap-1.5 overflow-x-auto py-2 -my-2 px-1 -mx-1">
+        <button v-for="option in availableShortcuts" :key="option.shortcutId" type="button" class="shrink-0 p-0.5 border-0 bg-transparent cursor-pointer transition-transform duration-150 hover:scale-110" :title="option.name" @mousedown.stop @click.stop="bindShortcut(option.shortcutId)">
+          <ShortcutGraphic :key="`${option.shortcut.iconType}:${option.shortcut.iconValue}`" :shortcut="option.shortcut" :size="28" />
         </button>
       </div>
     </div>
@@ -42,11 +40,12 @@ import arrowTopRightIcon from "@iconify-icons/mdi/arrow-top-right";
 import linkOffIcon from "@iconify-icons/mdi/link-variant-off";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useDesktopStore, type ShortcutData } from "../__Stores__/desktopStore";
 import { useWidgetsStore } from "../__Stores__/useWidgetsStore";
-import { getShortcutPresetIcon, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
 import type { WidgetInstance } from "../__Stores__/useWidgetsStore";
 import type { WidgetSize } from "../__Config__/WidgetDefaultDetails";
+
+import ShortcutGraphic from "../__Components__/ShortcutGraphic.vue";
 
 const props = defineProps<{
   instance: WidgetInstance;
@@ -61,8 +60,7 @@ interface ShortcutOption {
   shortcutId: string;
   name: string;
   url: string;
-  iconType: "preset" | "image";
-  iconValue: string;
+  shortcut: ShortcutData;
 }
 
 const availableShortcuts = computed<ShortcutOption[]>(() =>
@@ -72,8 +70,7 @@ const availableShortcuts = computed<ShortcutOption[]>(() =>
       shortcutId: icon.shortcut!.shortcutId,
       name: icon.name,
       url: icon.shortcut!.url,
-      iconType: icon.shortcut!.iconType as "preset" | "image",
-      iconValue: icon.shortcut!.iconValue,
+      shortcut: icon.shortcut!,
     })),
 );
 

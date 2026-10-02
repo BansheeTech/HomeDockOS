@@ -53,7 +53,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="settingsIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="settingsIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Settings") }}</h4>
           </div>
 
@@ -93,6 +93,7 @@ import SettingsTabSystem from "../__Components__/SettingsTabSystem.vue";
 import SettingsTabStorage from "../__Components__/SettingsTabStorage.vue";
 import SettingsTabTheme from "../__Components__/SettingsTabTheme.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 
 import { setLanguage } from "../__Languages__";
 
@@ -240,6 +241,7 @@ interface SystemFormData {
   disable_usage_data?: boolean;
   reverse_proxy?: boolean;
   local_http_access?: boolean;
+  dynamic_dns_sync?: boolean;
 }
 
 interface StorageFormData {
@@ -276,6 +278,7 @@ const formData = reactive({
     local_dns: settingsData.local_dns,
     reverse_proxy: settingsData.reverse_proxy,
     local_http_access: settingsData.local_http_access,
+    dynamic_dns_sync: settingsData.dynamic_dns_sync,
   } as SystemFormData,
 
   storage: {
@@ -391,6 +394,7 @@ const handleSubmit = async () => {
           delete_internal_data_volumes: formData.system.delete_internal_data_volumes,
           reverse_proxy: formData.system.reverse_proxy,
           local_http_access: formData.system.local_http_access,
+          dynamic_dns_sync: formData.system.dynamic_dns_sync,
           default_external_drive: formData.storage.default_external_drive,
           require_protected_paths_password: formData.storage.require_protected_paths_password,
           disksplus_session_timeout_minutes: formData.storage.disksplus_session_timeout_minutes,

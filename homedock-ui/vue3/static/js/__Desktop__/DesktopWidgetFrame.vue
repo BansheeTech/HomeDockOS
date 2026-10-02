@@ -6,8 +6,8 @@
 <template>
   <div v-if="definition" ref="cardRef" :class="[cardClasses, 'relative w-full h-full rounded-xl shadow-lg overflow-hidden select-none']">
     <div v-if="glassLeafActive" :class="[glassClasses, 'absolute inset-0 rounded-[inherit] pointer-events-none']" aria-hidden="true"></div>
-    <div class="absolute" :style="canvasStyle">
-      <component :is="definition.component" :instance="instance" :size="instance.size" />
+    <div :class="['absolute', resizeFading ? 'opacity-0 transition-opacity duration-[120ms] ease-in' : 'opacity-100 transition-opacity duration-[280ms] ease-out']" :style="canvasStyle">
+      <component :is="definition.component" :instance="instance" :size="displayedSize" />
     </div>
   </div>
 </template>
@@ -73,15 +73,36 @@ watch(
   { immediate: true },
 );
 
+const RESIZE_FADE_MS = 120;
+
+const displayedSize = ref(props.instance.size);
+const resizeFading = ref(false);
+
+let resizeFadeTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(
+  () => props.instance.size,
+  (size) => {
+    if (resizeFadeTimer) clearTimeout(resizeFadeTimer);
+    resizeFading.value = true;
+    resizeFadeTimer = setTimeout(() => {
+      resizeFadeTimer = null;
+      displayedSize.value = size;
+      resizeFading.value = false;
+    }, RESIZE_FADE_MS);
+  },
+);
+
 onUnmounted(() => {
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
   }
+  if (resizeFadeTimer) clearTimeout(resizeFadeTimer);
 });
 
 const designSize = computed(() => {
-  const dims = getWidgetDims(props.instance.type, props.instance.size);
+  const dims = getWidgetDims(props.instance.type, displayedSize.value);
   return {
     width: dims.cols * DESIGN_CELL_X - CELL_GUTTER,
     height: dims.rows * DESIGN_CELL_Y - CELL_GUTTER,

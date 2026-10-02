@@ -6,8 +6,10 @@
 <template>
   <PrismWindowManager :store="prismStore" :resolveComponent="resolveComponent" :resolveConfig="resolveConfig" :taskbarHeight="taskbarHeightPx" :isMobile="isMobile" :labels="labels" :classes="prismClasses" :appearance="appearance">
     <template #icon="{ window }">
-      <BaseImage v-if="isImageIcon(window.icon)" :src="window.icon" alt="" class="window-icon rounded-[3px]" width="16" height="16" draggable="false" :title="t('System menu')" @contextmenu.stop.prevent="(e: MouseEvent) => openSystemMenu(e, window)" />
-      <Icon v-else-if="window.icon" :icon="window.icon as string | IconifyIcon" class="window-icon" width="16" height="16" :title="t('System menu')" @contextmenu.stop.prevent="(e: MouseEvent) => openSystemMenu(e, window)" />
+      <span v-if="window.icon" class="window-icon-wrap" :title="iconTitle(window)" @contextmenu.stop.prevent="(e: MouseEvent) => openSystemMenu(e, window)">
+        <WindowIcon :window="{ appId: window.appId, icon: window.icon as string | IconifyIcon }" :size="isCupertino ? 16 : 20" />
+        <Icon v-if="dependencyLabel(window)" :icon="dependencyBadgeIcon" class="window-icon-badge" width="9" height="9" />
+      </span>
     </template>
 
     <template #titleBarExtra="{ window }">
@@ -41,14 +43,15 @@ import minimizeIcon from "@iconify-icons/mdi/window-minimize";
 import maximizeIcon from "@iconify-icons/mdi/window-maximize";
 import restoreIcon from "@iconify-icons/mdi/window-restore";
 import closeIcon from "@iconify-icons/mdi/close";
+import dependencyBadgeIcon from "@iconify-icons/mdi/cube-outline";
 
 import { PrismWindowManager, type PrismClassMap, type WindowState } from "@prism-wm/vue";
 
-import { getPrismStore, useWindowStore, isImageIcon } from "../__Stores__/windowStore";
+import { getPrismStore, useWindowStore } from "../__Stores__/windowStore";
 import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useResponsive } from "../__Composables__/useResponsive";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import BaseImage from "../__Components__/BaseImage.vue";
+import WindowIcon from "../__Components__/WindowIcon.vue";
 import WindowLoading from "../__Components__/WindowLoading.vue";
 import EnterpriseIndicator from "../__Components__/EnterpriseIndicator.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
@@ -78,11 +81,21 @@ const prismClasses = computed<Partial<PrismClassMap>>(() => ({
   titleBar: `${themeClasses.value.windowTitleBarBg} ${themeClasses.value.windowTitleBarBorder}`,
   title: themeClasses.value.windowTitleText,
   titleActive: themeClasses.value.windowTitleTextFocused,
-  iconContainer: isCupertino.value ? themeClasses.value.windowTitleText : `transition duration-150 ${themeClasses.value.windowIconContainerBg} ${themeClasses.value.windowTitleText}`,
-  iconContainerActive: isCupertino.value ? themeClasses.value.windowTitleTextFocused : `transition duration-150 ${themeClasses.value.windowIconContainerBgFocused} ${themeClasses.value.windowTitleTextFocused}`,
+  iconContainer: themeClasses.value.windowTitleText,
+  iconContainerActive: themeClasses.value.windowTitleTextFocused,
   control: isCupertino.value ? "" : `${themeClasses.value.windowButtonText} ${themeClasses.value.windowButtonBgHover} ${themeClasses.value.windowButtonTextHover}`,
   closeControl: isCupertino.value ? "" : `${themeClasses.value.windowButtonText} ${themeClasses.value.windowCloseButtonBgHover} ${themeClasses.value.windowCloseButtonTextHover}`,
 }));
+
+function dependencyLabel(win: WindowState): string {
+  const name = (win.data as { dependencyOf?: unknown } | undefined)?.dependencyOf;
+  return typeof name === "string" && name ? t("Dependency of {name}", { name }) : "";
+}
+
+function iconTitle(win: WindowState): string {
+  const label = dependencyLabel(win);
+  return label ? `${label} · ${t("System menu")}` : t("System menu");
+}
 
 const systemMenu = ref({ visible: false, x: 0, y: 0, windowId: "" });
 
@@ -187,23 +200,23 @@ const systemMenuItems = computed<ContextMenuItem[]>(() => {
     box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.7);
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .pwm-snap-preview {
-    animation: none;
-  }
-}
 </style>
 
 <style scoped>
-.window-icon {
+.window-icon-wrap {
+  position: relative;
+  display: inline-flex;
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  .window-icon {
-    width: 18px;
-    height: 18px;
-  }
+.window-icon-badge {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  border-radius: 9999px;
+  padding: 1px;
+  background: rgb(168 85 247);
+  color: #fff;
+  pointer-events: none;
 }
 </style>

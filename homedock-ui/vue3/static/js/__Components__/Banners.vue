@@ -4,30 +4,75 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="viewport" class="banners-viewport rounded-2xl" @pointerenter="handlePointerEnter" @pointerleave="handlePointerLeave" @mousedown="handleDragStart" @touchstart.passive="handleTouchStart" @touchend.passive="handleTouchRelease" @touchcancel.passive="handleTouchRelease" @scroll.passive="handleScroll" @click.capture="handleClickCapture">
-    <div ref="strip" class="banners-strip">
-      <span v-for="(banner, index) in loopedBanners" :key="`${index}-${banner.container}`" class="pr-4 rounded-2xl overflow-hidden flex-shrink-0">
-        <BannersTilt :appIcon="banner.appIcon" :appName="banner.container" :deskScreen="banner.deskImg" :maxTilt="5" :speed="1000" :glare="true" :maxGlare="0.4">
-          <template #image>
-            <img class="rounded-2xl" height="250" width="550" draggable="false" :src="banner.src" :alt="banner.alt" :data-container-name="banner.container" />
-          </template>
-          <template #title>
-            <h3>{{ banner.alt }}</h3>
-          </template>
-          <template #text>
-            <p class="text-balance">{{ banner.text }}</p>
-          </template>
-        </BannersTilt>
-      </span>
+  <div class="banners-root relative" @pointerenter="hovering = true" @pointerleave="hovering = false" @focusin="onFocusIn" @focusout="focused = false">
+    <div ref="viewport" class="banners-viewport" @scroll.passive="updateEdges" @pointerdown="markInteraction" @wheel.passive="markInteraction" @touchstart.passive="markInteraction">
+      <div v-for="(banner, index) in banners" :key="banner.container" role="button" tabindex="0" class="banner-card relative overflow-hidden rounded-xl cursor-pointer" @click="openBanner(banner)" @keydown.enter="openBanner(banner)">
+        <img class="banner-bg absolute inset-0 w-full h-full object-cover" :style="{ animationDelay: `${-index * 7}s` }" draggable="false" :src="banner.src" alt="" />
+        <div class="banner-front absolute inset-0">
+          <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent"></div>
+          <div :class="[appearance === 'cupertino' ? 'desk-cupertino' : 'desk-redmond']" class="banner-desk absolute">
+            <div :class="[themeClasses.screenshotThumb, themeClasses.screenshotImageBg]" class="desk-window relative w-full h-full flex flex-col overflow-hidden border shadow-xl">
+              <div v-if="appearance === 'cupertino'" :class="[themeClasses.screenshotWindowBar]" class="desk-bar relative flex-shrink-0 flex items-center border-b">
+                <div class="desk-lights flex flex-shrink-0">
+                  <span v-for="color in TRAFFIC_LIGHTS" :key="color" :class="color" class="desk-light rounded-full"></span>
+                </div>
+                <div class="desk-title-center absolute inset-y-0 flex items-center justify-center min-w-0">
+                  <div class="desk-icon flex-shrink-0"><AppIconGraphic :image-src="banner.appIcon" fluid /></div>
+                  <span :class="[themeClasses.screenshotWindowTitle]" class="desk-title truncate">{{ banner.alt }}</span>
+                </div>
+              </div>
+              <div v-else :class="[themeClasses.screenshotWindowBar]" class="desk-bar flex-shrink-0 flex items-center border-b">
+                <div class="desk-icon flex-shrink-0"><AppIconGraphic :image-src="banner.appIcon" fluid /></div>
+                <span :class="[themeClasses.screenshotWindowTitle]" class="desk-title flex-1 min-w-0 truncate">{{ banner.alt }}</span>
+                <div :class="[themeClasses.screenshotWindowTitle]" class="desk-controls flex items-center flex-shrink-0">
+                  <Icon v-for="control in WINDOW_CONTROLS" :key="control.name" :icon="control.icon" />
+                </div>
+              </div>
+              <img class="flex-1 min-h-0 w-full object-cover object-left-top" draggable="false" :src="banner.deskImg" alt="" />
+            </div>
+          </div>
+
+          <div class="banner-body absolute flex flex-col text-white">
+            <div class="flex items-center gap-3">
+              <div class="banner-icon flex-shrink-0">
+                <AppIconGraphic :image-src="banner.appIcon" fluid />
+              </div>
+              <span class="h-7 px-4 inline-flex items-center rounded-full bg-white/20 backdrop-blur-md text-xs font-bold transition-colors duration-150 hover:bg-white/30" @click.stop="primaryAction(banner)">{{ isInstalled(banner) ? $t("Open") : $t("Get") }}</span>
+            </div>
+            <div class="mt-auto min-w-0">
+              <h3 class="banner-title m-0 font-bold truncate">{{ banner.alt }}</h3>
+              <p class="banner-text m-0 text-white/85 text-balance">{{ banner.text }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <button v-if="canScrollBack" type="button" :aria-label="$t('Previous')" class="banner-arrow left-2" @click="scrollByPage(-1)">
+      <Icon :icon="chevronLeftIcon" class="w-5 h-5" />
+    </button>
+    <button v-if="canScrollForward" type="button" :aria-label="$t('Next')" class="banner-arrow right-2" @click="scrollByPage(1)">
+      <Icon :icon="chevronRightIcon" class="w-5 h-5" />
+    </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { t } from "../__Languages__";
 
-import BannersTilt from "../__Components__/BannersTilt.vue";
+import { useTheme } from "../__Themes__/ThemeSelector";
+import { useAppStore } from "../__Stores__/useAppStore";
+import { useAppStoreActions } from "../__Composables__/useAppStoreActions";
+
+import { Icon } from "@iconify/vue";
+import chevronLeftIcon from "@iconify-icons/mdi/chevron-left";
+import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
+import windowMinimizeIcon from "@iconify-icons/mdi/window-minimize";
+import windowMaximizeIcon from "@iconify-icons/mdi/window-maximize";
+import windowCloseIcon from "@iconify-icons/mdi/close";
+
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 
 interface BannerData {
   src: string;
@@ -38,9 +83,15 @@ interface BannerData {
   container: string;
 }
 
-const AUTO_SCROLL_SPEED = 9; // px/s
-const TOUCH_RESUME_DELAY = 2000; // ms
-const DRAG_THRESHOLD = 5; // px
+const BANNER_COUNT = 6;
+const AUTOPLAY_INTERVAL = 6000;
+const INTERACTION_COOLDOWN = 10000;
+const TRAFFIC_LIGHTS = ["bg-red-500", "bg-yellow-500", "bg-green-500"];
+const WINDOW_CONTROLS = [
+  { name: "minimize", icon: windowMinimizeIcon },
+  { name: "maximize", icon: windowMaximizeIcon },
+  { name: "close", icon: windowCloseIcon },
+];
 
 const bannerData: BannerData[] = [
   { alt: "Pi-Hole", container: "pihole", text: t("It's getting annoying... Block it!") },
@@ -69,194 +120,263 @@ function pickBanners(): BannerData[] {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return pool.slice(0, 4);
+  return pool.slice(0, BANNER_COUNT);
 }
+
+const { themeClasses, appearance } = useTheme();
+const appStore = useAppStore();
+const { findStoreApp, openAppDetails, openInstalledApp } = useAppStoreActions();
+
+const banners = ref<BannerData[]>(pickBanners());
 
 const viewport = ref<HTMLElement | null>(null);
-const strip = ref<HTMLElement | null>(null);
+const canScrollBack = ref(false);
+const canScrollForward = ref(false);
 
-const shuffledBanners = ref<BannerData[]>(pickBanners());
-const sets = ref(3);
-const loopedBanners = computed(() => Array.from({ length: sets.value }, () => shuffledBanners.value).flat());
+const hovering = ref(false);
+const focused = ref(false);
 
-const isHovering = ref(false);
-const isDragging = ref(false);
-const hasDragged = ref(false);
-
-let setWidth = 0;
-let maxScroll = 0;
-let offset = 0;
-let selfScroll = 0;
-let touchHoldUntil = 0;
-let rafId = 0;
-let lastFrame = 0;
-let dragStartX = 0;
-let dragStartScroll = 0;
 let resizeObserver: ResizeObserver | null = null;
+let autoplayTimer: number | null = null;
+let lastInteraction = 0;
 
-function applyScroll(value: number) {
+function markInteraction() {
+  lastInteraction = Date.now();
+}
+
+function onFocusIn(event: FocusEvent) {
+  focused.value = (event.target as Element).matches(":focus-visible");
+}
+
+function advance() {
+  const el = viewport.value;
+  const card = el?.firstElementChild as HTMLElement | null;
+  if (!el || !card || hovering.value || focused.value || document.hidden) return;
+  if (Date.now() - lastInteraction < INTERACTION_COOLDOWN) return;
+  if (el.scrollWidth <= el.clientWidth + 4) return;
+  const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+  const step = card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
+  el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + step, behavior: "smooth" });
+}
+
+function updateEdges() {
   const el = viewport.value;
   if (!el) return;
-  offset = Math.min(Math.max(value, 0), maxScroll);
-  el.scrollLeft = offset;
-  selfScroll = el.scrollLeft;
+  canScrollBack.value = el.scrollLeft > 4;
+  canScrollForward.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
 }
 
-function normalize() {
-  const el = viewport.value;
-  if (!el || !setWidth) return 0;
-
-  const shift = el.scrollLeft > setWidth * 2 ? -setWidth : el.scrollLeft < setWidth * 0.5 ? setWidth : 0;
-  if (shift) applyScroll(el.scrollLeft + shift);
-
-  return shift;
-}
-
-function measure() {
-  const el = viewport.value;
-  const track = strip.value;
-  if (!el || !track) return;
-
-  setWidth = track.scrollWidth / sets.value;
-  maxScroll = Math.max(track.scrollWidth - el.clientWidth, 0);
-  if (!setWidth) return;
-
-  const needed = Math.ceil(el.clientWidth / setWidth) + 2;
-  if (needed > sets.value) {
-    sets.value = needed;
-    nextTick(measure);
-    return;
-  }
-
-  if (el.scrollLeft < setWidth) applyScroll(setWidth);
-}
-
-function isPaused() {
-  return isHovering.value || isDragging.value || performance.now() < touchHoldUntil;
-}
-
-function tick(timestamp: number) {
-  rafId = requestAnimationFrame(tick);
-
-  const delta = lastFrame ? (timestamp - lastFrame) / 1000 : 0;
-  lastFrame = timestamp;
-
-  if (!setWidth) measure();
-  if (!isPaused() && setWidth) applyScroll(offset + AUTO_SCROLL_SPEED * Math.min(delta, 0.1));
-  normalize();
-}
-
-function handleScroll() {
+function scrollByPage(direction: number) {
   const el = viewport.value;
   if (!el) return;
-  if (Math.abs(el.scrollLeft - selfScroll) > 1) offset = el.scrollLeft;
-  normalize();
+  markInteraction();
+  el.scrollBy({ left: direction * el.clientWidth, behavior: "smooth" });
 }
 
-function handlePointerEnter(e: PointerEvent) {
-  if (e.pointerType === "mouse") isHovering.value = true;
+function isInstalled(banner: BannerData): boolean {
+  return Boolean(findStoreApp(banner.container)?.is_installed);
 }
 
-function handlePointerLeave(e: PointerEvent) {
-  if (e.pointerType === "mouse") isHovering.value = false;
+function openBanner(banner: BannerData) {
+  const app = findStoreApp(banner.container);
+  if (app) openAppDetails(app);
 }
 
-function handleTouchStart() {
-  isHovering.value = false;
-  touchHoldUntil = Infinity;
+function primaryAction(banner: BannerData) {
+  const app = findStoreApp(banner.container);
+  if (!app) return;
+  if (app.is_installed) openInstalledApp(app);
+  else openAppDetails(app);
 }
 
-function handleTouchRelease() {
-  touchHoldUntil = performance.now() + TOUCH_RESUME_DELAY;
-}
-
-function handleDragStart(e: MouseEvent) {
-  const el = viewport.value;
-  if (!el || e.button === 2 || performance.now() < touchHoldUntil) return;
-
-  isDragging.value = true;
-  hasDragged.value = false;
-  dragStartX = e.pageX;
-  dragStartScroll = el.scrollLeft;
-
-  el.style.cursor = "grabbing";
-  el.style.userSelect = "none";
-
-  window.addEventListener("mousemove", handleDragMove);
-  window.addEventListener("mouseup", handleDragEnd);
-}
-
-function handleDragMove(e: MouseEvent) {
-  const el = viewport.value;
-  if (!isDragging.value || !el) return;
-
-  e.preventDefault();
-
-  const walk = e.pageX - dragStartX;
-  if (Math.abs(walk) > DRAG_THRESHOLD) hasDragged.value = true;
-
-  applyScroll(dragStartScroll - walk);
-  dragStartScroll += normalize();
-}
-
-function handleDragEnd() {
-  const el = viewport.value;
-  if (!el) return;
-
-  isDragging.value = false;
-  el.style.cursor = "";
-  el.style.userSelect = "";
-
-  window.removeEventListener("mousemove", handleDragMove);
-  window.removeEventListener("mouseup", handleDragEnd);
-
-  setTimeout(() => {
-    hasDragged.value = false;
-  }, 50);
-}
-
-function handleClickCapture(e: MouseEvent) {
-  if (!hasDragged.value) return;
-  e.stopPropagation();
-  e.preventDefault();
-}
+watch(
+  () => appStore.apps.length,
+  () => nextTick(updateEdges),
+);
 
 onMounted(() => {
-  measure();
-  if (viewport.value && typeof ResizeObserver !== "undefined") {
-    resizeObserver = new ResizeObserver(() => measure());
+  updateEdges();
+  if (viewport.value) {
+    resizeObserver = new ResizeObserver(() => updateEdges());
     resizeObserver.observe(viewport.value);
   }
-  rafId = requestAnimationFrame(tick);
+  autoplayTimer = window.setInterval(advance, AUTOPLAY_INTERVAL);
 });
 
 onBeforeUnmount(() => {
-  cancelAnimationFrame(rafId);
   resizeObserver?.disconnect();
-  window.removeEventListener("mousemove", handleDragMove);
-  window.removeEventListener("mouseup", handleDragEnd);
+  if (autoplayTimer !== null) window.clearInterval(autoplayTimer);
 });
 </script>
 
 <style scoped>
 .banners-viewport {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 88%;
+  gap: 16px;
   overflow-x: auto;
-  overflow-y: hidden;
-  cursor: grab;
-  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
 .banners-viewport::-webkit-scrollbar {
   display: none;
-  height: 0;
-  width: 0;
 }
 
-.banners-strip {
+@container appstore-content (min-width: 640px) {
+  .banners-viewport {
+    grid-auto-columns: calc((100% - 16px) / 2);
+  }
+}
+
+.banner-card {
+  scroll-snap-align: start;
+  aspect-ratio: 1150 / 500;
+  container-type: inline-size;
+  background: #1f2937;
+}
+
+.banner-front {
+  will-change: transform;
+}
+
+.banner-body {
+  inset: 7cqw 45cqw 6cqw 6cqw;
+}
+
+.banner-icon {
+  width: 13cqw;
+  height: 13cqw;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.banner-title {
+  font-size: clamp(14px, 4.6cqw, 24px);
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.banner-text {
+  font-size: clamp(11px, 3cqw, 15px);
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.banner-bg {
+  transform-origin: 30% 50%;
+  animation: banner-drift 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes banner-drift {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-2.5%, -1.5%, 0);
+  }
+}
+
+.banner-desk {
+  right: 4cqw;
+  bottom: 0;
+  width: 38cqw;
+  height: 32cqw;
+  transform: translateY(2cqw);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.banner-desk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.banner-card:hover .banner-desk {
+  transform: translateY(0);
+}
+
+.banner-card:hover .banner-desk::before {
+  opacity: 1;
+}
+
+.desk-window {
+  border-radius: inherit;
+  border-bottom: 0;
+}
+
+.desk-cupertino {
+  border-radius: clamp(6px, 1.4cqw, 10px) clamp(6px, 1.4cqw, 10px) 0 0;
+}
+
+.desk-redmond {
+  border-radius: clamp(4px, 0.8cqw, 6px) clamp(4px, 0.8cqw, 6px) 0 0;
+}
+
+.desk-bar {
+  height: clamp(16px, 3.6cqw, 28px);
+  padding: 0 clamp(6px, 1.4cqw, 12px);
+  gap: clamp(4px, 0.9cqw, 8px);
+}
+
+.desk-lights {
+  gap: clamp(3px, 0.6cqw, 6px);
+}
+
+.desk-light {
+  width: clamp(5px, 1cqw, 9px);
+  height: clamp(5px, 1cqw, 9px);
+}
+
+.desk-title-center {
+  left: clamp(30px, 7cqw, 56px);
+  right: clamp(30px, 7cqw, 56px);
+  gap: clamp(3px, 0.7cqw, 6px);
+}
+
+.desk-icon {
+  width: clamp(9px, 2cqw, 16px);
+  height: clamp(9px, 2cqw, 16px);
+}
+
+.desk-title {
+  font-size: clamp(8px, 1.7cqw, 12px);
+  line-height: 1;
+}
+
+.desk-controls {
+  gap: clamp(5px, 1.2cqw, 10px);
+  font-size: clamp(7px, 1.5cqw, 11px);
+}
+
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
   display: flex;
-  width: max-content;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #111827;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.banners-root:hover .banner-arrow {
+  opacity: 1;
 }
 </style>

@@ -22,7 +22,7 @@
     <Transition name="onb-final">
       <div v-if="isSetupSuccessful" class="absolute inset-0 z-[5] flex items-center justify-center p-8">
         <div class="text-center max-w-[560px]">
-          <BaseImage src="/images/logo_trans.svg" alt="Logo" :class="[themeClasses.logo]" class="h-16 sm:h-20 mx-auto mb-10 onb-final-logo" />
+          <HomeDockLogo3D :size="140" :theme="state.selected_theme" intro class="mx-auto mb-8" />
           <p :class="[themeClasses.subText]" class="text-[11px] tracking-[0.32em] uppercase font-medium opacity-70 m-0 mb-4">{{ $t("Setup complete") }}</p>
           <h1 :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.045em] leading-[0.95] text-[clamp(3rem,9vw,6.5rem)] m-0 mb-5">{{ $t("Welcome.") }}</h1>
           <p :class="[themeClasses.subText]" class="text-base font-light opacity-85 m-0 mb-10">
@@ -62,7 +62,12 @@
         <div class="absolute left-0 bottom-0 w-full h-full pointer-events-none z-0">
           <AuroraWaves flipped />
         </div>
-        <div class="onb-splash-inner relative z-[1] text-center max-w-[640px] w-full">
+        <Transition name="onb-splash-scene">
+          <div v-if="isDocking" class="absolute inset-0 flex items-center justify-center pointer-events-none z-[2]">
+            <HomeDockLogo3D ref="splashLogoRef" :width="splashSceneWidth" :height="splashSceneHeight" :frame="splashSceneFrame" :bleed="SPLASH_SCENE_BLEED" :satellites="splashSatellites" :theme="state.selected_theme" intro />
+          </div>
+        </Transition>
+        <div class="onb-splash-inner relative z-[1] text-center max-w-[640px] w-full" :class="{ 'onb-splash-leaving': isDocking }">
           <p :class="[themeClasses.subText]" class="text-xs tracking-[0.32em] uppercase font-medium opacity-70 m-0 mb-5">{{ $t("Welcome") }}</p>
           <Transition name="greet" mode="out-in">
             <h1 :key="splashGreetingCode" :class="[themeClasses.mainText]" class="font-extralight tracking-[-0.045em] leading-[0.95] text-[clamp(3.5rem,14vw,8rem)] m-0 break-words">{{ splashGreeting }}<span class="scene-display-dot">.</span></h1>
@@ -72,7 +77,7 @@
             <span class="inline-flex items-baseline opacity-35">{{ $t("The cloud beyond dashboards.") }}</span>
           </p>
 
-          <button type="button" class="onb-splash-cta" :class="[themeClasses.scopeSelector]" @click="hasStarted = true">
+          <button type="button" class="onb-splash-cta" :class="[themeClasses.scopeSelector]" :disabled="isDocking" @click="startConfiguration">
             <span class="onb-splash-cta-orbit" aria-hidden="true"></span>
             <span class="onb-splash-cta-label">{{ $t("Configure") }}</span>
             <Icon :icon="arrowRightIcon" width="16" height="16" />
@@ -139,8 +144,8 @@
             <div class="onb-mock-window pwm-window pwm-active mt-3 mx-auto lg:mx-0 lg:mt-0" :class="[`pwm-${state.selected_appearance}`, themeClasses.windowBg]">
               <div class="pwm-window-header" :class="[themeClasses.windowTitleBarBg, themeClasses.windowTitleBarBorder]">
                 <div class="pwm-window-header-draggable">
-                  <div class="pwm-window-icon-container" :class="[themeClasses.windowTitleTextFocused, state.selected_appearance === 'cupertino' ? '' : themeClasses.windowIconContainerBgFocused]">
-                    <Icon :icon="dashboardIcon" width="14" height="14" />
+                  <div class="pwm-window-icon-container" :class="themeClasses.windowTitleTextFocused">
+                    <AppIconGraphic :icon="dashboardIcon" :color="getAppById('apphome')?.color" :size="state.selected_appearance === 'cupertino' ? 16 : 20" />
                   </div>
                   <span class="pwm-window-title" :class="[themeClasses.windowTitleTextFocused]">{{ $t("Dashboard") }}</span>
                 </div>
@@ -420,6 +425,9 @@ import AeroPlusWallpaper from "../__Components__/AeroPlusWallpaper.vue";
 import ScrollBarThemeLoader from "../__Components__/ScrollBarThemeLoader.vue";
 import TopComment from "../__Components__/TopComment.vue";
 import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
+import HomeDockLogo3D from "../__Components__/HomeDockLogo3D.vue";
+import { getAppById } from "../__Config__/WindowDefaultDetails";
 import SplashScreen from "../__Components__/SplashScreen.vue";
 import AuroraWaves from "../__Components__/AuroraWaves.vue";
 
@@ -438,6 +446,37 @@ const windowOpen = ref(onboardingData.window_open !== false);
 const stepLabels = computed(() => [t("Language"), t("Account"), t("Appearance"), t("Windows"), t("Time"), t("Done")]);
 const currentStep = ref(0);
 const hasStarted = ref(false);
+
+const SPLASH_SATELLITE_IDS = ["fileexplorer", "appstore", "packager", "controlhub", "systemlogs", "settings", "sheets", "neonrush"];
+const SPLASH_SCENE_MAX_WIDTH = 1100;
+const SPLASH_SCENE_HEIGHT_RATIO = 0.6;
+const SPLASH_SCENE_FRAME = 1.65;
+const SPLASH_SCENE_ORBIT_WIDTH = 3.4;
+const SPLASH_SCENE_BLEED = 0.2;
+const SPLASH_SCENE_HOLD = 0.4;
+
+const splashSatellites = SPLASH_SATELLITE_IDS.flatMap((id) => {
+  const app = getAppById(id);
+  return app?.icon && app.color ? [{ icon: app.icon, color: app.color }] : [];
+});
+const splashSceneWidth = Math.min(SPLASH_SCENE_MAX_WIDTH, window.innerWidth);
+const splashSceneHeight = Math.round(window.innerHeight * SPLASH_SCENE_HEIGHT_RATIO);
+const splashSceneFrame = Math.max(SPLASH_SCENE_FRAME, (SPLASH_SCENE_ORBIT_WIDTH * splashSceneHeight) / splashSceneWidth);
+const splashLogoRef = ref<InstanceType<typeof HomeDockLogo3D> | null>(null);
+const isDocking = ref(false);
+
+async function startConfiguration() {
+  if (isDocking.value) return;
+  isDocking.value = true;
+  await nextTick();
+  await splashLogoRef.value?.dock(SPLASH_SCENE_HOLD);
+  hasStarted.value = true;
+}
+
+onMounted(() => {
+  import("../__Utils__/HomeDockLogoEngine").catch(() => {});
+});
+
 const wizardBodyRef = ref<HTMLElement | null>(null);
 const ballRef = ref<HTMLElement | null>(null);
 
@@ -1272,6 +1311,26 @@ async function handleFinish() {
 
 .onb-splash-inner {
   animation: onb-splash-in 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.onb-splash-inner.onb-splash-leaving {
+  animation: onb-splash-out 0.45s ease forwards;
+  pointer-events: none;
+}
+@keyframes onb-splash-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+.onb-splash-scene-enter-active {
+  transition: opacity 0.5s ease 0.2s;
+}
+.onb-splash-scene-enter-from {
+  opacity: 0;
 }
 @keyframes onb-splash-in {
   from {

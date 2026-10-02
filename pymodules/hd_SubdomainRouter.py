@@ -16,7 +16,7 @@ from urllib.parse import quote, unquote
 from pymodules.hd_FunctionsHostSelector import docker_host
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_TrustedProxy import is_trusted_peer
-from pymodules.hd_AppSubdomains import resolve_app_for_host
+from pymodules.hd_AppSubdomains import resolve_app_for_host, build_forwarding_headers
 from pymodules.hd_AppExposure import is_directly_exposed
 from pymodules.hd_SubdomainAuth import TOKEN_COOKIE_NAME, TOKEN_QUERY_PARAM, HANDOFF_MAX_AGE, SESSION_MAX_AGE, verify_app_token
 
@@ -325,16 +325,7 @@ def _build_backend_headers(scope, backend_host, public_host, scheme):
         headers["accept-encoding"] = "identity"
 
     # HDOS00039
-    headers["host"] = public_host
-
-    client = scope.get("client")
-    if client:
-        existing = headers.get("x-forwarded-for")
-        headers["x-forwarded-for"] = f"{existing}, {client[0]}" if existing else client[0]
-
-    headers["x-forwarded-proto"] = scheme
-    headers["x-forwarded-host"] = public_host
-    headers["x-real-ip"] = client[0] if client else ""
+    headers.update(build_forwarding_headers(public_host, scheme, scope.get("client"), headers.get("x-forwarded-for")))
 
     return {name: value for name, value in headers.items() if value != ""}
 

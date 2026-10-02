@@ -142,6 +142,9 @@ def get_notifications():
         if is_docker and uptime_minutes >= 10080:
             all_notifications.append({"title": "Time to check for updates!", "message": "It's been a while! Check if there's a new version available and run docker pull to update.", "permanent": True, "allowRemove": True, "actionUrl": "https://hub.docker.com/r/bansheetech/homedock-os/tags", "actionText": "Check latest version"})
 
+        if is_docker and "/_DATA/" in os.environ.get("DATA_ROOT", ""):
+            all_notifications.append({"title": "Your data folder has a new name", "message": "The official docker-compose.yml now uses ./homedock-data instead of ./_DATA. Your current setup keeps working as it is. If you switch to the new compose file, stop HomeDock OS and rename the _DATA folder to homedock-data first, or it will start as a fresh install, back at the setup screen, until you rename it.", "permanent": True, "allowRemove": True, "actionUrl": "https://github.com/BansheeTech/HomeDockOS/blob/main/docker-compose.yml", "actionText": "See the new compose file"})
+
         all_notifications.extend(certificate_notifications())
 
         external_notifications = get_external_notifications()

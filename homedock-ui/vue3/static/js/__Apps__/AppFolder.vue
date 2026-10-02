@@ -24,34 +24,32 @@
       <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
       <TransitionGroup name="icon-appear">
         <div v-for="(app, index) in folderApps" :key="app.id" :data-app-id="app.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedApp === app.id || selectedApps.has(app.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(folderShortcuts.length + index)" @mousedown="handleMouseDown($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" @touchstart="handleTouchStart($event, app)" @touchmove="handleTouchMove" @touchend="handleTouchEnd($event, app)" :title="`${app.display_name || app.name} (${app.status})`">
-          <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected], getContainerClasses(app)]">
-            <BaseImage :src="app.image_path" class="app-image rounded-xl" alt="" draggable="false" />
-            <Transition name="loading-overlay-fade">
-              <div v-if="app.isProcessing === true" class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl pointer-events-none z-[2]">
-                <div class="w-8 h-8 rounded-full border-[3px] border-white/30 border-t-blue-500 animate-spin shadow-lg"></div>
-              </div>
+          <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
+            <AppIconGraphic :image-src="app.image_path" :size="APP_ICON_SIZE" :status="app.status" />
+            <AppBusyOverlay :visible="isBusy(app.id)" />
+            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !isBusy(app.id)" />
+            <Transition name="status-pop" type="animation">
+              <div v-if="app.status !== 'running'" :class="['status-badge', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder]"></div>
             </Transition>
-            <PortScanningOverlay :visible="app.status === 'running' && isPortScanning(app) && !app.isProcessing" />
-            <div :class="['status-badge', getStatusBadgeClass(app.status), themeClasses.desktopStatusBadgeBorder, { 'status-pulse': app.status === 'running' }]"></div>
           </div>
-          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ app.display_name || app.name }}</span>
+          <span class="app-name" :class="[themeClasses.desktopIconText]"><UpdatedDot :visible="!!app.recently_updated" />{{ app.display_name || app.name }}</span>
         </div>
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
-        <div v-for="(shortcutIcon, index) in folderShortcuts" :key="shortcutIcon.id" :data-shortcut-id="shortcutIcon.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedShortcut === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(index)" @mousedown="handleShortcutMouseDown($event, shortcutIcon)" @click="handleShortcutClick(shortcutIcon, $event)" @dblclick="handleShortcutDoubleClick(shortcutIcon)" @contextmenu="handleShortcutContextMenu($event, shortcutIcon)" @touchstart="handleShortcutTouchStart($event, shortcutIcon)" :title="shortcutIcon.name">
-          <div :class="['icon-container relative w-16 h-16 flex items-center justify-center rounded-2xl overflow-hidden pointer-events-none border', themeClasses.desktopIconContainerBg, themeClasses.desktopIconContainerScaleHover, !(selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && ['border-transparent', themeClasses.desktopIconContainerBgHover], (selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && [themeClasses.desktopIconContainerBgSelected, themeClasses.desktopIconContainerBorderSelected]]">
-            <Transition name="icon-switch" mode="out-in">
-              <BaseImage v-if="shortcutIcon.shortcut?.iconType === 'image'" :key="`image:${shortcutIcon.shortcut.iconValue}`" :src="getShortcutIconUrl(shortcutIcon.shortcut.iconValue)" class="app-image rounded-xl" alt="" draggable="false" />
-              <div v-else :key="`preset:${shortcutIcon.shortcut?.iconValue}`" :class="['w-full h-full flex items-center justify-center rounded-lg', themeClasses.iconHolder]">
-                <Icon :icon="getShortcutGlyph(shortcutIcon.shortcut)" class="w-10 h-10 pointer-events-none" :class="themeClasses.explorerItemIcon" />
+        <div v-for="(shortcutIcon, index) in folderShortcuts" :key="shortcutIcon.id" :data-shortcut-id="shortcutIcon.id" :class="['desktop-icon group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg w-[100px] z-[1] select-none outline-none border', isMobile ? 'touch-pan-y' : 'touch-none', !(selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedSystemIcon === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], isDragging && (draggedShortcut === shortcutIcon.id || selectedSystemIcons.has(shortcutIcon.id)) ? 'opacity-50 !cursor-grabbing' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(index)" @mousedown="handleShortcutMouseDown($event, shortcutIcon)" @click="handleShortcutClick(shortcutIcon, $event)" @dblclick="handleShortcutDoubleClick(shortcutIcon)" @contextmenu="handleShortcutContextMenu($event, shortcutIcon)" @touchstart="handleShortcutTouchStart($event, shortcutIcon)" :title="systemIconName(shortcutIcon)">
+          <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
+            <template v-if="shortcutIcon.shortcut">
+              <Transition name="icon-switch" mode="out-in">
+                <ShortcutGraphic :key="`${shortcutIcon.shortcut.iconType}:${shortcutIcon.shortcut.iconValue}`" :shortcut="shortcutIcon.shortcut" :size="APP_ICON_SIZE" />
+              </Transition>
+              <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
+                <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
               </div>
-            </Transition>
-            <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
-              <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
-            </div>
+            </template>
+            <AppIconGraphic v-else :icon="systemIconGlyph(shortcutIcon)" :color="getAppById(shortcutIcon.appId)?.color" :size="APP_ICON_SIZE" />
           </div>
-          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ shortcutIcon.name }}</span>
+          <span class="app-name" :class="[themeClasses.desktopIconText]">{{ systemIconName(shortcutIcon) }}</span>
         </div>
       </TransitionGroup>
     </div>
@@ -64,7 +62,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="folderOpenIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="folderOpenIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Folder") }}</h4>
           </div>
 
@@ -83,8 +81,11 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDesktopStore, DockerApp, SystemDesktopIcon } from "../__Stores__/desktopStore";
+import { getAppById } from "../__Config__/WindowDefaultDetails";
 import { useWindowStore } from "../__Stores__/windowStore";
+import { useAppQuickActions } from "../__Composables__/useAppQuickActions";
 import { useResponsive } from "../__Composables__/useResponsive";
+import { useBusyApps } from "../__Composables__/useBusyApps";
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDialog } from "../__Composables__/useDialog";
@@ -96,13 +97,17 @@ import type { GridConfig, SelectionState } from "../__Composables__/desktopDragT
 
 import DragGhost, { type DragGhostItem } from "../__Components__/DragGhost.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import ContextMenu, { type ContextMenuItem } from "../__Components__/ContextMenu.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import PortScanningOverlay from "../__Components__/PortScanningOverlay.vue";
+import AppBusyOverlay from "../__Components__/AppBusyOverlay.vue";
+import UpdatedDot from "../__Components__/UpdatedDot.vue";
 import ShortcutEditModal, { type ShortcutModalResult } from "../__Components__/ShortcutEditModal.vue";
 
 import { getShortcutGlyph, getShortcutIconUrl } from "../__Config__/ShortcutIcons";
+import ShortcutGraphic from "../__Components__/ShortcutGraphic.vue";
 
 import { startContainer, stopContainer, restartContainer, pauseContainer, unpauseContainer, uninstallContainer, updateContainer } from "../__Services__/DockerActions";
 
@@ -120,10 +125,10 @@ import pauseIcon from "@iconify-icons/mdi/cog-pause";
 import unpauseIcon from "@iconify-icons/mdi/cog-play";
 import uninstallIcon from "@iconify-icons/mdi/delete-alert";
 import updateIcon from "@iconify-icons/mdi/shape-circle-plus";
-import terminalIcon from "@iconify-icons/mdi/console";
 import refreshIcon from "@iconify-icons/mdi/refresh";
 import propertiesIcon from "@iconify-icons/mdi/information-outline";
 import exportIcon from "@iconify-icons/mdi/export";
+import monitorOffIcon from "@iconify-icons/mdi/monitor-off";
 import pencilIcon from "@iconify-icons/mdi/pencil";
 import linkOffIcon from "@iconify-icons/mdi/link-variant-off";
 import arrowTopRightIcon from "@iconify-icons/mdi/arrow-top-right";
@@ -137,7 +142,9 @@ const props = defineProps<Props>();
 
 const { t } = useI18n();
 const desktopStore = useDesktopStore();
+const { isBusy } = useBusyApps();
 const windowStore = useWindowStore();
+const { quickActionsFor } = useAppQuickActions();
 const { isMobile } = useResponsive();
 const { themeClasses } = useTheme();
 const { confirm } = useDialog();
@@ -260,8 +267,19 @@ const shortcutModalInitial = ref<{ name: string; url: string; iconType: "preset"
 
 const isHovering = ref(false);
 
+function systemIconGlyph(icon: SystemDesktopIcon) {
+  return getAppById(icon.appId)?.icon ?? icon.icon;
+}
+
+function systemIconName(icon: SystemDesktopIcon) {
+  return icon.shortcut ? icon.name : t(icon.name);
+}
+
 function shortcutToGhostItem(icon: SystemDesktopIcon): DragGhostItem {
-  if (icon.shortcut?.iconType === "image") {
+  if (!icon.shortcut) {
+    return { name: systemIconName(icon), presetIcon: systemIconGlyph(icon), color: getAppById(icon.appId)?.color };
+  }
+  if (icon.shortcut.iconType === "image") {
     return { name: icon.name, image_path: getShortcutIconUrl(icon.shortcut.iconValue) };
   }
   return { name: icon.name, presetIcon: getShortcutGlyph(icon.shortcut) };
@@ -327,9 +345,9 @@ const folderApps = computed(() => {
 
 const folderShortcuts = computed(() => {
   return desktopStore
-    .getShortcutsInFolder(props.folderId)
+    .getSystemIconsInFolder(props.folderId)
     .slice()
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => systemIconName(a).localeCompare(systemIconName(b)));
 });
 
 const totalItemCount = computed(() => folderApps.value.length + folderShortcuts.value.length);
@@ -399,16 +417,7 @@ function isPortScanning(app: DockerApp): boolean {
   return unique.size !== app.ports.length;
 }
 
-function getContainerClasses(app: DockerApp): string {
-  const statusClasses: Record<string, string> = {
-    running: "",
-    paused: "brightness-50 opacity-75",
-    exited: "grayscale brightness-50 opacity-75",
-    created: "brightness-50 sepia opacity-50",
-  };
-
-  return statusClasses[app.status] || "";
-}
+const APP_ICON_SIZE = 52;
 
 function handleClick(app: DockerApp, e?: MouseEvent) {
   if (hasMoved.value) return;
@@ -676,6 +685,13 @@ function handleShortcutContextMenu(e: MouseEvent, icon: SystemDesktopIcon) {
 
   if (!selectedSystemIcons.value.has(icon.id)) {
     selectedSystemIcons.value.clear();
+  } else {
+    const isShortcut = !!icon.shortcut;
+    for (const other of folderShortcuts.value) {
+      if (selectedSystemIcons.value.has(other.id) && !!other.shortcut !== isShortcut) {
+        selectedSystemIcons.value.delete(other.id);
+      }
+    }
   }
 
   selectedApp.value = null;
@@ -832,25 +848,27 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
           desktopStore.removeAppFromFolder(app.id);
         }
         for (const icon of multiShortcuts) {
-          desktopStore.removeShortcutFromFolder(icon.id);
+          desktopStore.removeSystemIconFromFolder(icon.id);
         }
         clearSelection();
       },
     });
 
-    if (multiShortcuts.length > 0) {
+    const deletableShortcuts = multiShortcuts.filter((icon) => icon.shortcut);
+
+    if (deletableShortcuts.length > 0) {
       items.push({ divider: true });
       items.push({
-        label: t("Delete Shortcuts ({n})", { n: multiShortcuts.length }),
+        label: t("Delete Shortcuts ({n})", { n: deletableShortcuts.length }),
         icon: linkOffIcon,
         action: () => {
           confirm({
             title: t("Delete Shortcuts"),
-            content: t("Delete {n} shortcuts?", { n: multiShortcuts.length }),
+            content: t("Delete {n} shortcuts?", { n: deletableShortcuts.length }),
             okText: t("Delete"),
             cancelText: t("Cancel"),
             onOk: async () => {
-              for (const icon of multiShortcuts) {
+              for (const icon of deletableShortcuts) {
                 await desktopStore.removeShortcut(icon.shortcut!.shortcutId, csrfToken.value);
               }
             },
@@ -859,7 +877,53 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
       });
     }
 
+    const removableIcons = multiShortcuts.filter((icon) => !icon.shortcut);
+
+    if (removableIcons.length > 0) {
+      items.push({ divider: true });
+      items.push({
+        label: t("Remove from Desktop ({n})", { n: removableIcons.length }),
+        icon: monitorOffIcon,
+        action: () => {
+          for (const icon of removableIcons) {
+            desktopStore.removeSystemIconFromDesktop(icon.appId);
+          }
+          clearSelection();
+        },
+      });
+    }
+
     return items;
+  }
+
+  if (contextMenuShortcut.value && !contextMenuShortcut.value.shortcut) {
+    const icon = contextMenuShortcut.value;
+
+    return [
+      {
+        label: "Open",
+        icon: openIcon,
+        action: () => {
+          desktopStore.openSystemApp(icon.appId);
+        },
+      },
+      { divider: true },
+      {
+        label: "Remove from Folder",
+        icon: exportIcon,
+        action: () => {
+          desktopStore.removeSystemIconFromFolder(icon.id);
+        },
+      },
+      { divider: true },
+      {
+        label: "Remove from Desktop",
+        icon: monitorOffIcon,
+        action: () => {
+          desktopStore.removeSystemIconFromDesktop(icon.appId);
+        },
+      },
+    ];
   }
 
   if (contextMenuShortcut.value) {
@@ -887,7 +951,7 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
         label: "Remove from Folder",
         icon: exportIcon,
         action: () => {
-          desktopStore.removeShortcutFromFolder(icon.id);
+          desktopStore.removeSystemIconFromFolder(icon.id);
         },
       },
       { divider: true },
@@ -982,18 +1046,9 @@ const contextMenuItems = computed<ContextMenuItem[]>(() => {
 
   items.push({ divider: true });
 
-  items.push({
-    label: "View Logs",
-    icon: terminalIcon,
-    action: () => {
-      if (contextMenuApp.value) {
-        windowStore.openUniqueWindow("logs", contextMenuApp.value.name, {
-          title: `${contextMenuApp.value.display_name || contextMenuApp.value.name} - Logs`,
-          data: { appName: contextMenuApp.value.name },
-        });
-      }
-    },
-  });
+  items.push(quickActionsFor(app));
+
+  items.push({ divider: true });
 
   items.push({
     label: "Update",
@@ -1089,16 +1144,9 @@ function onGlobalMouseUp(e: MouseEvent) {
     e.preventDefault();
 
     desktopStore.draggedAppIds.forEach((itemId) => {
-      if (itemId.startsWith("shortcut-")) {
-        const icon = desktopStore.systemDesktopIcons.find((i) => i.id === itemId);
-        if (icon?.shortcut && icon.folderId !== props.folderId) {
-          desktopStore.addShortcutToFolder(itemId, props.folderId);
-        }
-      } else {
-        const app = desktopStore.dockerApps.find((a) => a.id === itemId);
-        if (app && app.folderId !== props.folderId) {
-          desktopStore.addAppToFolder(itemId, props.folderId);
-        }
+      const current = desktopStore.systemDesktopIcons.find((i) => i.id === itemId) ?? desktopStore.dockerApps.find((a) => a.id === itemId);
+      if (current && current.folderId !== props.folderId) {
+        desktopStore.addItemToFolder(itemId, props.folderId);
       }
     });
 
@@ -1288,19 +1336,6 @@ onUnmounted(() => {
   transform: translateY(-2px);
 }
 
-.icon-container {
-  transition:
-    background 0.15s ease,
-    transform 0.2s ease;
-}
-
-.app-image {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  pointer-events: none;
-}
-
 .status-badge {
   position: absolute;
   bottom: 4px;
@@ -1310,21 +1345,9 @@ onUnmounted(() => {
   border-radius: 50%;
   z-index: 3;
   pointer-events: none;
-  transition: all 0.2s ease;
-}
-
-.status-badge.status-pulse {
-  animation: pulse-badge 2s ease-in-out infinite;
-}
-
-@keyframes pulse-badge {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
-  }
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease;
 }
 
 .app-name {
@@ -1374,24 +1397,5 @@ onUnmounted(() => {
 .icon-switch-leave-to {
   opacity: 0;
   transform: scale(0.5) rotate(15deg);
-}
-
-/* Loading Overlay Fade Animation */
-.loading-overlay-fade-enter-active {
-  transition: opacity 0.3s ease-out;
-}
-
-.loading-overlay-fade-leave-active {
-  transition: opacity 0.4s ease-in;
-}
-
-.loading-overlay-fade-enter-from,
-.loading-overlay-fade-leave-to {
-  opacity: 0;
-}
-
-.loading-overlay-fade-enter-to,
-.loading-overlay-fade-leave-from {
-  opacity: 1;
 }
 </style>

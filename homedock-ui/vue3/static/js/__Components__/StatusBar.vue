@@ -4,10 +4,11 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="['flex items-center gap-2 h-7 pb-0.5 px-3 border-t', themeClasses.statusBarContainer, themeClasses.statusBarBorder]">
+  <div ref="rootRef" :class="['flex items-center gap-2 h-7 pb-0.5 px-3 border-t', themeClasses.statusBarContainer, themeClasses.statusBarBorder]">
     <div class="flex items-center gap-2 flex-1 min-w-0">
       <slot name="icon">
-        <Icon v-if="icon || iconName" :icon="icon || iconName" :class="['w-3.5 h-3.5 flex-shrink-0', themeClasses.statusBarIcon]" />
+        <WindowIcon v-if="ownWindow?.icon" :window="ownWindow" :size="16" />
+        <Icon v-else-if="icon || iconName" :icon="icon || iconName" :class="['w-3.5 h-3.5 flex-shrink-0', themeClasses.statusBarIcon]" />
       </slot>
       <span :class="['text-[10px] leading-none truncate', themeClasses.statusBarText]">
         <slot name="message">{{ message }}</slot>
@@ -64,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, useSlots, onMounted, onUnmounted } from "vue";
+import { ref, computed, provide, useSlots, onMounted, onUnmounted } from "vue";
 import { Popover } from "ant-design-vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
 
@@ -75,11 +76,26 @@ import networkStrength2Alert from "@iconify-icons/mdi/network-strength-2-alert";
 import networkStrength3Alert from "@iconify-icons/mdi/network-strength-3-alert";
 import networkStrength4Alert from "@iconify-icons/mdi/network-strength-4-alert";
 
+import { useWindowStore } from "../__Stores__/windowStore";
+import { STATUS_BAR_WINDOW } from "../__Composables__/statusBarContext";
+
 import AnimatedIcon from "./AnimatedIcon.vue";
+import WindowIcon from "./WindowIcon.vue";
 
 const { themeClasses } = useTheme();
+const windowStore = useWindowStore();
 
 const helpOpen = ref(false);
+
+const rootRef = ref<HTMLElement | null>(null);
+const windowId = ref<string | null>(null);
+const ownWindow = computed(() => (windowId.value ? windowStore.getWindowById(windowId.value) : null));
+
+provide(STATUS_BAR_WINDOW, ownWindow);
+
+onMounted(() => {
+  windowId.value = rootRef.value?.closest("[data-pwm-window]")?.getAttribute("data-pwm-window") ?? null;
+});
 
 const onWindowBlur = () => {
   setTimeout(() => {

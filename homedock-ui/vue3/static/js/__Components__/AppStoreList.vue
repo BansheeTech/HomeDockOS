@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="mt-4" ref="rootRef">
+  <div ref="rootRef">
     <Transition name="app-list-fade" mode="out-in">
       <div v-if="allApps.length" :key="listKey">
         <div :style="{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }">
@@ -20,12 +20,10 @@
               transform: `translateY(${virtualRow.start}px)`,
             }"
           >
-            <div class="virtual-row">
+            <div class="grid gap-x-6 h-full" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }">
               <template v-for="colIdx in cols" :key="colIdx">
-                <div v-if="getApp(virtualRow.index, colIdx - 1)" :class="[themeClasses.storeListSeparator]" class="grid-item border-b">
-                  <AppStoreAppCard :app="getApp(virtualRow.index, colIdx - 1)!" @install="openModal" />
-                </div>
-                <div v-else class="grid-item"></div>
+                <AppStoreAppCard v-if="getApp(virtualRow.index, colIdx - 1)" :app="getApp(virtualRow.index, colIdx - 1)!" />
+                <div v-else></div>
               </template>
             </div>
           </div>
@@ -36,20 +34,18 @@
         </div>
       </div>
 
-      <Empty v-else :class="[themeClasses.storeEmptyText]" :description="$t('No applications available under this search term')"></Empty>
+      <Empty v-else :class="[themeClasses.storeEmptyText]" class="py-10" :description="emptyText || $t('No applications available under this search term')"></Empty>
     </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { useI18n } from "vue-i18n";
 import { useVirtualizer } from "@tanstack/vue-virtual";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 
 import { useAppStore } from "../__Stores__/useAppStore";
-import { useWindowStore } from "../__Stores__/windowStore";
 
 import { App } from "../__Types__/AppStoreApp";
 
@@ -60,11 +56,13 @@ import loadingIcon from "@iconify-icons/mdi/loading";
 
 import AppStoreAppCard from "../__Components__/AppStoreAppCard.vue";
 
+defineProps<{
+  emptyText?: string;
+}>();
+
 const { themeClasses } = useTheme();
-const { t } = useI18n();
 
 const appStore = useAppStore();
-const windowStore = useWindowStore();
 
 const rootRef = ref<HTMLElement | null>(null);
 const scrollRef = ref<HTMLElement | null>(null);
@@ -74,10 +72,10 @@ const cols = ref(1);
 let resizeObserver: ResizeObserver | null = null;
 let sentinelObserver: IntersectionObserver | null = null;
 
-const ROW_HEIGHT = 88;
+const ROW_HEIGHT = 76;
 
 const allApps = computed(() => appStore.infiniteApps);
-const listKey = computed(() => `${appStore.searchQuery}-${appStore.selectedCategory}`);
+const listKey = computed(() => [appStore.searchQuery, appStore.selectedCategory, appStore.installedOnly, appStore.sortMode].join("|"));
 const rowCount = computed(() => Math.ceil(allApps.value.length / cols.value));
 
 const virtualizer = useVirtualizer(
@@ -118,8 +116,8 @@ function findScrollParent(el: HTMLElement | null): HTMLElement | null {
 function updateCols() {
   if (!rootRef.value) return;
   const width = rootRef.value.clientWidth;
-  if (width >= 1200) cols.value = 3;
-  else if (width >= 800) cols.value = 2;
+  if (width >= 900) cols.value = 3;
+  else if (width >= 560) cols.value = 2;
   else cols.value = 1;
 }
 
@@ -164,31 +162,9 @@ onUnmounted(() => {
   resizeObserver?.disconnect();
   sentinelObserver?.disconnect();
 });
-
-const openModal = (app: App) => {
-  const selectedAppFromStore = appStore.apps.find((a) => a.name === app.name) || app;
-
-  const existingWindow = windowStore.windows.find((w) => w.appId === "installconfig" && w.data?.app?.name === selectedAppFromStore.name);
-
-  if (existingWindow) {
-    windowStore.focusWindow(existingWindow.id);
-    if (existingWindow.isMinimized) {
-      existingWindow.isMinimized = false;
-    }
-    return;
-  }
-
-  const displayName = selectedAppFromStore.display_name || selectedAppFromStore.name;
-
-  windowStore.openUniqueWindow("installconfig", selectedAppFromStore.name, {
-    title: t("Install {name}", { name: displayName }),
-    data: { app: selectedAppFromStore },
-  });
-};
 </script>
 
 <style scoped>
-/* Transition > List fade on filter change */
 .app-list-fade-enter-active,
 .app-list-fade-leave-active {
   transition: opacity 0.15s ease;
@@ -197,28 +173,5 @@ const openModal = (app: App) => {
 .app-list-fade-enter-from,
 .app-list-fade-leave-to {
   opacity: 0;
-}
-
-.virtual-row {
-  display: grid;
-  gap: 0;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  height: 100%;
-}
-
-@container window (min-width: 800px) {
-  .virtual-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@container window (min-width: 1200px) {
-  .virtual-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.grid-item {
-  min-width: 0;
 }
 </style>

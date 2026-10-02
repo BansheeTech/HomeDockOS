@@ -29,11 +29,17 @@ export interface DiskInfo {
   internal: boolean;
 }
 
+export interface AppUnlockSession {
+  remaining_seconds: number;
+  granted_zones: string[];
+}
+
 export interface DisksPlusSession {
   unlocked: boolean;
   remaining_seconds: number;
   ttl_seconds: number;
   granted_zones: string[];
+  apps: Record<string, AppUnlockSession>;
   docker_limited: boolean;
   protected_paths_enforced: boolean;
 }
@@ -119,6 +125,7 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
     remaining_seconds: 0,
     ttl_seconds: 600,
     granted_zones: [],
+    apps: {},
     docker_limited: false,
     protected_paths_enforced: true,
   });
@@ -129,6 +136,7 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
 
   const unlocked = computed(() => session.value.unlocked);
   const grantedZones = computed(() => session.value.granted_zones);
+  const hasAppSessions = computed(() => Object.keys(session.value.apps).length > 0);
   const dockerLimited = computed(() => session.value.docker_limited);
   const selectedDiskInfo = computed(() => disks.value.find((d) => d.id === selectedDisk.value) || null);
 
@@ -144,13 +152,49 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
     }
   }
 
+  function isAppUnlocked(scope: string | null | undefined) {
+    return !!scope && scope in session.value.apps;
+  }
+
+  function appSession(scope: string | null | undefined): AppUnlockSession | null {
+    return scope ? session.value.apps[scope] || null : null;
+  }
+
+  function slideAppSession(scope: string | null | undefined) {
+    const app = appSession(scope);
+    if (app && session.value.ttl_seconds > 0) app.remaining_seconds = session.value.ttl_seconds;
+  }
+
+  function stopTimersIfIdle() {
+    if (session.value.unlocked || hasAppSessions.value) return;
+    stopClientTick();
+    stopStatusSync();
+  }
+
+  function clearGlobalState() {
+    session.value = { ...session.value, unlocked: false, remaining_seconds: 0, granted_zones: [] };
+    disks.value = [];
+    selectedDisk.value = null;
+    stopEventStream();
+    stopTimersIfIdle();
+  }
+
   function clearLocalState() {
-    session.value = { unlocked: false, remaining_seconds: 0, ttl_seconds: session.value.ttl_seconds, granted_zones: [], docker_limited: session.value.docker_limited, protected_paths_enforced: session.value.protected_paths_enforced };
+    session.value = { unlocked: false, remaining_seconds: 0, ttl_seconds: session.value.ttl_seconds, granted_zones: [], apps: {}, docker_limited: session.value.docker_limited, protected_paths_enforced: session.value.protected_paths_enforced };
     disks.value = [];
     selectedDisk.value = null;
     stopClientTick();
     stopStatusSync();
     stopEventStream();
+  }
+
+  function parseApps(raw: any): Record<string, AppUnlockSession> {
+    const apps: Record<string, AppUnlockSession> = {};
+    if (!raw || typeof raw !== "object") return apps;
+    for (const [scope, value] of Object.entries(raw as Record<string, any>)) {
+      apps[scope] = { remaining_seconds: Number(value?.remaining_seconds ?? 0), granted_zones: Array.isArray(value?.granted_zones) ? value.granted_zones : [] };
+    }
+    return apps;
   }
 
   function applySessionPayload(payload: any) {
@@ -160,6 +204,7 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
       remaining_seconds: Number(payload.remaining_seconds ?? 0),
       ttl_seconds: Number(payload.ttl_seconds ?? session.value.ttl_seconds),
       granted_zones: Array.isArray(payload.granted_zones) ? payload.granted_zones : [],
+      apps: parseApps(payload.apps),
       docker_limited: !!payload.docker_limited,
       protected_paths_enforced: payload.protected_paths_enforced ?? session.value.protected_paths_enforced,
     };
@@ -170,16 +215,29 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
     }
   }
 
+  function startTimers() {
+    startClientTick();
+    startStatusSync();
+  }
+
   function startClientTick() {
     if (clientTickTimer !== null) return;
     clientTickTimer = setInterval(() => {
       if (session.value.ttl_seconds === 0) return;
+
+      for (const [scope, app] of Object.entries(session.value.apps)) {
+        app.remaining_seconds = Math.max(0, app.remaining_seconds - 1);
+        if (app.remaining_seconds === 0) delete session.value.apps[scope];
+      }
+
       if (session.value.remaining_seconds > 0) {
         session.value.remaining_seconds = Math.max(0, session.value.remaining_seconds - 1);
       }
       if (session.value.remaining_seconds === 0 && session.value.unlocked) {
-        clearLocalState();
+        clearGlobalState();
       }
+
+      stopTimersIfIdle();
     }, CLIENT_TICK_INTERVAL_MS);
   }
 
@@ -193,7 +251,7 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
   function startStatusSync() {
     if (statusSyncTimer !== null) return;
     statusSyncTimer = setInterval(() => {
-      if (session.value.unlocked) fetchStatus();
+      if (session.value.unlocked || hasAppSessions.value) fetchStatus();
     }, STATUS_SYNC_INTERVAL_MS);
   }
 
@@ -210,14 +268,13 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
       });
       applySessionPayload(response.data);
-      if (session.value.unlocked) {
-        startClientTick();
-        startStatusSync();
+      if (session.value.unlocked || hasAppSessions.value) {
+        startTimers();
       } else {
         stopClientTick();
       }
     } catch {
-      applySessionPayload({ unlocked: false, remaining_seconds: 0, ttl_seconds: session.value.ttl_seconds, granted_zones: [] });
+      applySessionPayload({ unlocked: false, remaining_seconds: 0, ttl_seconds: session.value.ttl_seconds, granted_zones: [], apps: {} });
     }
   }
 
@@ -232,14 +289,16 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
     }
   }
 
-  async function unlock(password: string): Promise<{ ok: boolean; error?: string; remaining_attempts?: number; retry_after?: number }> {
+  async function unlock(password: string, app?: string): Promise<{ ok: boolean; error?: string; remaining_attempts?: number; retry_after?: number }> {
     try {
-      const encrypted = await encryptForServer({ password }, csrfToken.value);
+      const encrypted = await encryptForServer(app ? { password, app } : { password }, csrfToken.value);
       const response = await axios.post("/api/disksplus/unlock", { encrypted_data: encrypted }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
       applySessionPayload(response.data);
-      if (session.value.unlocked) {
-        startClientTick();
-        startStatusSync();
+      if (app) {
+        startTimers();
+        await fetchDangerZones();
+      } else if (session.value.unlocked) {
+        startTimers();
         await Promise.all([fetchDangerZones(), fetchDisks()]);
         startEventStream();
       }
@@ -295,16 +354,16 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
     } catch (err: any) {
       disks.value = [];
       if (err?.response?.status === 401) {
-        clearLocalState();
+        clearGlobalState();
       }
     } finally {
       isLoadingDisks.value = false;
     }
   }
 
-  async function authorizeDangerZone(password: string, path: string): Promise<{ ok: boolean; error?: string; remaining_attempts?: number; retry_after?: number; granted_zone?: string }> {
+  async function authorizeDangerZone(password: string, path: string, app?: string): Promise<{ ok: boolean; error?: string; remaining_attempts?: number; retry_after?: number; granted_zone?: string }> {
     try {
-      const encrypted = await encryptForServer({ password, path }, csrfToken.value);
+      const encrypted = await encryptForServer(app ? { password, path, app } : { password, path }, csrfToken.value);
       const response = await axios.post("/api/disksplus/danger-auth", { encrypted_data: encrypted }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
       applySessionPayload(response.data);
       return { ok: true, granted_zone: response.data?.granted_zone };
@@ -418,8 +477,13 @@ export const useDisksPlusStore = defineStore("DisksPlusStore", () => {
 
     unlocked,
     grantedZones,
+    hasAppSessions,
     dockerLimited,
     selectedDiskInfo,
+
+    isAppUnlocked,
+    appSession,
+    slideAppSession,
 
     fetchStatus,
     unlock,

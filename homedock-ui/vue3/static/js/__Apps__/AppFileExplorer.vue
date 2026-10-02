@@ -28,20 +28,20 @@
 
           <div class="storage-section">
             <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-              <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
+              <AppIconGraphic :icon="folderIcon" :color="SIDEBAR_COLORS.storage" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">{{ $t("Storage") }}</span>
               <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
             </button>
 
             <div :class="['expand-wrapper', !isStorageExpanded && 'collapsed']">
               <div class="expand-content">
-                <div class="pl-4 mt-0.5 space-y-0.5 max-h-52 overflow-y-auto">
+                <div class="pl-4 mt-0.5 space-y-0.5 max-h-[17rem] overflow-y-auto">
                   <button @click="setLocation('storage')" :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
-                    <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
+                    <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
                   <button v-for="folder in defaultStorageFolders" :key="folder" @click="selectStorageFolder(folder)" :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
-                    <Icon :icon="specialFolderIcons[folder] || folderIcon" class="w-4 h-4 flex-shrink-0" />
+                    <FolderGraphic :emblem="specialFolderIcons[folder]" :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t(folder) }}</span>
                   </button>
                 </div>
@@ -51,7 +51,7 @@
 
           <div class="dropzone-section">
             <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-              <Icon :icon="cubeIcon" class="w-4 h-4 flex-shrink-0" />
+              <AppIconGraphic :icon="cubeIcon" :color="SIDEBAR_COLORS.dropzone" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">Drop Zone</span>
               <Icon :icon="lockIcon" class="w-3 h-3 opacity-50" />
               <Icon :icon="isDropZoneExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -61,11 +61,11 @@
               <div class="expand-content">
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
                   <button @click="setLocation('dropzone')" :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
-                    <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
+                    <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
                   <button v-for="folder in dropZoneFolders" :key="folder" @click="selectDropZoneFolder(folder)" :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
-                    <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
+                    <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ folder }}</span>
                   </button>
                 </div>
@@ -75,7 +75,7 @@
 
           <div class="appdrive-section">
             <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-              <Icon :icon="cubeScanIcon" class="w-4 h-4 flex-shrink-0" />
+              <AppIconGraphic :icon="cubeScanIcon" :color="SIDEBAR_COLORS.appdrive" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">App Drive</span>
               <Icon :icon="dockerIcon" class="w-3 h-3 opacity-50" />
               <Icon :icon="isAppDriveExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -83,15 +83,27 @@
 
             <div :class="['expand-wrapper', !isAppDriveExpanded && 'collapsed']">
               <div class="expand-content">
-                <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
-                  <button v-for="container in mainContainers" :key="container.name" @click="selectAppDriveContainer(container.name)" :class="[selectedContainer === container.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
-                    <div class="relative flex-shrink-0">
-                      <BaseImage :src="getAppInfo(container.name).iconPath" :alt="getAppInfo(container.name).displayName" class="w-4 h-4 rounded" draggable="false" />
-                      <span :class="[container.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
-                    </div>
-                    <span class="truncate">{{ getAppInfo(container.name).displayName }}</span>
-                  </button>
-                  <div v-if="mainContainers.length === 0 && !isLoadingContainers" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No apps available</div>
+                <div class="pl-4 mt-0.5 space-y-0.5 max-h-60 overflow-y-auto">
+                  <template v-for="entry in appDriveEntries" :key="entry.name">
+                    <component :is="entry.selectable ? 'button' : 'div'" @click="entry.selectable && selectAppDriveContainer(entry.name)" :class="[selectedContainer === entry.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem, !entry.selectable && 'opacity-50 cursor-default pointer-events-none']" class="relative overflow-hidden w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                      <div class="relative flex-shrink-0">
+                        <AppIconGraphic :image-src="getAppInfo(entry.name).iconPath" :size="16" />
+                        <span :class="[entry.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
+                      </div>
+                      <span class="truncate flex-1">{{ getAppInfo(entry.name).displayName }}</span>
+                      <DisksPlusSessionIndicator v-if="entry.lockable" v-bind="appSessionIndicator(entry.scope)" />
+                    </component>
+                    <button v-for="dependency in entry.dependencies" :key="dependency.name" @click="selectAppDriveContainer(dependency.name)" :title="$t('Dependency of {name}', { name: getAppInfo(entry.name).displayName })" :class="[selectedContainer === dependency.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs">
+                      <Icon :icon="dependencyIcon" class="w-3 h-3 flex-shrink-0 opacity-50" />
+                      <div class="relative flex-shrink-0">
+                        <AppIconGraphic :image-src="getAppInfo(dependency.name).iconPath" :size="16" />
+                        <Icon :icon="dependencyBadgeIcon" :class="[themeClasses.hubDependencyBadge]" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full p-px ring-1" />
+                        <span :class="[dependency.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
+                      </div>
+                      <span class="truncate flex-1">{{ dependency.name }}</span>
+                    </button>
+                  </template>
+                  <div v-if="appDriveEntries.length === 0 && !isLoadingContainers" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No apps available</div>
                 </div>
               </div>
             </div>
@@ -99,7 +111,7 @@
 
           <div class="disksplus-section">
             <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
-              <Icon :icon="harddiskIcon" class="w-4 h-4 flex-shrink-0" />
+              <AppIconGraphic :icon="harddiskIcon" :color="SIDEBAR_COLORS.disksplus" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">Disks+</span>
               <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
               <Icon :icon="isDisksPlusExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -119,25 +131,7 @@
                     <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                       <Icon :icon="lockIcon" class="w-3 h-3" />
                       <span class="flex-1">{{ $t("Lock Disks+") }}</span>
-                      <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
-                        <circle
-                          cx="8"
-                          cy="8"
-                          r="6"
-                          fill="none"
-                          :class="disksPlusSessionStrokeColor"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          :stroke-dasharray="37.7"
-                          :stroke-dashoffset="37.7 * (1 - disksPlusSessionPercent / 100)"
-                          style="
-                            transition:
-                              stroke-dashoffset 500ms linear,
-                              stroke 500ms linear;
-                          "
-                        />
-                      </svg>
+                      <DisksPlusSessionRing v-if="disksPlusCountdown" :percent="disksPlusSessionPercent" :stroke-class="disksPlusSessionStrokeColor" />
                     </button>
                   </template>
                   <template v-else>
@@ -158,15 +152,21 @@
           <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("System Apps") }}</div>
 
           <button @click="setLocation('systemapps')" :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-            <Icon :icon="appsIcon" class="w-4 h-4 flex-shrink-0" />
+            <AppIconGraphic :icon="appsIcon" :color="SIDEBAR_COLORS.applications" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Applications") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ systemApps.length }}</span>
           </button>
 
           <button @click="setLocation('utilities')" :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-            <Icon :icon="toolboxOutlineIcon" class="w-4 h-4 flex-shrink-0" />
+            <AppIconGraphic :icon="toolboxOutlineIcon" :color="SIDEBAR_COLORS.utilities" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Utilities") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ utilitiesApps.length }}</span>
+          </button>
+
+          <button @click="setLocation('games')" :class="[currentLocation === 'games' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+            <AppIconGraphic :icon="gamepadIcon" :color="SIDEBAR_COLORS.games" :size="SIDEBAR_TILE_SIZE" />
+            <span class="truncate">{{ $t("Games") }}</span>
+            <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ gamesApps.length }}</span>
           </button>
         </div>
 
@@ -176,13 +176,13 @@
           <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Quick Access") }}</div>
 
           <button @click="setLocation('favorites')" :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-            <Icon :icon="starIcon" class="w-4 h-4 flex-shrink-0" />
+            <AppIconGraphic :icon="starIcon" :color="SIDEBAR_COLORS.favorites" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Favorites") }}</span>
             <span v-if="fileExplorerStore.favoritesCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.favoritesCount }}</span>
           </button>
 
           <button @click="setLocation('recents')" :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-            <Icon :icon="historyIcon" class="w-4 h-4 flex-shrink-0" />
+            <AppIconGraphic :icon="historyIcon" :color="SIDEBAR_COLORS.recents" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Recents") }}</span>
             <span v-if="fileExplorerStore.recentsCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.recentsCount }}</span>
           </button>
@@ -209,14 +209,14 @@
 
                 <div class="storage-section">
                   <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-                    <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="folderIcon" :color="SIDEBAR_COLORS.storage" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">{{ $t("Storage") }}</span>
                     <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
                   </button>
 
                   <div :class="['expand-wrapper', !isStorageExpanded && 'collapsed']">
                     <div class="expand-content">
-                      <div class="pl-4 mt-0.5 space-y-0.5 max-h-52 overflow-y-auto">
+                      <div class="pl-4 mt-0.5 space-y-0.5 max-h-[17rem] overflow-y-auto">
                         <button
                           @click="
                             setLocation('storage');
@@ -225,7 +225,7 @@
                           :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
-                          <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
+                          <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t("All Files") }}</span>
                         </button>
                         <button
@@ -238,7 +238,7 @@
                           :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
-                          <Icon :icon="specialFolderIcons[folder] || folderIcon" class="w-4 h-4 flex-shrink-0" />
+                          <FolderGraphic :emblem="specialFolderIcons[folder]" :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t(folder) }}</span>
                         </button>
                       </div>
@@ -248,7 +248,7 @@
 
                 <div class="dropzone-section">
                   <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-                    <Icon :icon="cubeIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="cubeIcon" :color="SIDEBAR_COLORS.dropzone" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">Drop Zone</span>
                     <Icon :icon="lockIcon" class="w-3 h-3 opacity-50" />
                     <Icon :icon="isDropZoneExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -265,7 +265,7 @@
                           :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
-                          <Icon :icon="folderOpenIcon" class="w-4 h-4 flex-shrink-0" />
+                          <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t("All Files") }}</span>
                         </button>
                         <button
@@ -278,7 +278,7 @@
                           :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                           class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
                         >
-                          <Icon :icon="folderIcon" class="w-4 h-4 flex-shrink-0" />
+                          <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ folder }}</span>
                         </button>
                       </div>
@@ -288,7 +288,7 @@
 
                 <div class="appdrive-section">
                   <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
-                    <Icon :icon="cubeScanIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="cubeScanIcon" :color="SIDEBAR_COLORS.appdrive" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">App Drive</span>
                     <Icon :icon="dockerIcon" class="w-3 h-3 opacity-50" />
                     <Icon :icon="isAppDriveExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -296,24 +296,47 @@
 
                   <div :class="['expand-wrapper', !isAppDriveExpanded && 'collapsed']">
                     <div class="expand-content">
-                      <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
-                        <button
-                          v-for="container in mainContainers"
-                          :key="container.name"
-                          @click="
-                            selectAppDriveContainer(container.name);
-                            isNavPopoverOpen = false;
-                          "
-                          :class="[selectedContainer === container.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
-                        >
-                          <div class="relative flex-shrink-0">
-                            <BaseImage :src="getAppInfo(container.name).iconPath" :alt="getAppInfo(container.name).displayName" class="w-4 h-4 rounded" draggable="false" />
-                            <span :class="[container.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
-                          </div>
-                          <span class="truncate">{{ getAppInfo(container.name).displayName }}</span>
-                        </button>
-                        <div v-if="mainContainers.length === 0 && !isLoadingContainers" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No apps available</div>
+                      <div class="pl-4 mt-0.5 space-y-0.5 max-h-60 overflow-y-auto">
+                        <template v-for="entry in appDriveEntries" :key="entry.name">
+                          <component
+                            :is="entry.selectable ? 'button' : 'div'"
+                            @click="
+                              if (entry.selectable) {
+                                selectAppDriveContainer(entry.name);
+                                isNavPopoverOpen = false;
+                              }
+                            "
+                            :class="[selectedContainer === entry.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem, !entry.selectable && 'opacity-50 cursor-default pointer-events-none']"
+                            class="relative overflow-hidden w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                          >
+                            <div class="relative flex-shrink-0">
+                              <AppIconGraphic :image-src="getAppInfo(entry.name).iconPath" :size="16" />
+                              <span :class="[entry.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
+                            </div>
+                            <span class="truncate flex-1">{{ getAppInfo(entry.name).displayName }}</span>
+                            <DisksPlusSessionIndicator v-if="entry.lockable" v-bind="appSessionIndicator(entry.scope)" />
+                          </component>
+                          <button
+                            v-for="dependency in entry.dependencies"
+                            :key="dependency.name"
+                            @click="
+                              selectAppDriveContainer(dependency.name);
+                              isNavPopoverOpen = false;
+                            "
+                            :title="$t('Dependency of {name}', { name: getAppInfo(entry.name).displayName })"
+                            :class="[selectedContainer === dependency.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
+                            class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs"
+                          >
+                            <Icon :icon="dependencyIcon" class="w-3 h-3 flex-shrink-0 opacity-50" />
+                            <div class="relative flex-shrink-0">
+                              <AppIconGraphic :image-src="getAppInfo(dependency.name).iconPath" :size="16" />
+                              <Icon :icon="dependencyBadgeIcon" :class="[themeClasses.hubDependencyBadge]" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full p-px ring-1" />
+                              <span :class="[dependency.status === 'running' ? 'bg-green-500' : 'bg-gray-400']" class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-black/20"></span>
+                            </div>
+                            <span class="truncate flex-1">{{ dependency.name }}</span>
+                          </button>
+                        </template>
+                        <div v-if="appDriveEntries.length === 0 && !isLoadingContainers" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">No apps available</div>
                       </div>
                     </div>
                   </div>
@@ -321,7 +344,7 @@
 
                 <div class="disksplus-section">
                   <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
-                    <Icon :icon="harddiskIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="harddiskIcon" :color="SIDEBAR_COLORS.disksplus" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">Disks+</span>
                     <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
                     <Icon :icon="isDisksPlusExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -351,25 +374,7 @@
                           <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                             <Icon :icon="lockIcon" class="w-3 h-3" />
                             <span class="flex-1">{{ $t("Lock Disks+") }}</span>
-                            <svg v-if="disksPlusCountdown" class="w-3.5 h-3.5 flex-shrink-0 -rotate-90" viewBox="0 0 16 16" aria-hidden="true">
-                              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20" />
-                              <circle
-                                cx="8"
-                                cy="8"
-                                r="6"
-                                fill="none"
-                                :class="disksPlusSessionStrokeColor"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                :stroke-dasharray="37.7"
-                                :stroke-dashoffset="37.7 * (1 - disksPlusSessionPercent / 100)"
-                                style="
-                                  transition:
-                                    stroke-dashoffset 500ms linear,
-                                    stroke 500ms linear;
-                                "
-                              />
-                            </svg>
+                            <DisksPlusSessionRing v-if="disksPlusCountdown" :percent="disksPlusSessionPercent" :stroke-class="disksPlusSessionStrokeColor" />
                           </button>
                         </template>
                         <template v-else>
@@ -396,7 +401,7 @@
                     :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
-                    <Icon :icon="appsIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="appsIcon" :color="SIDEBAR_COLORS.applications" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Applications") }}</span>
                     <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ systemApps.length }}</span>
                   </button>
@@ -409,9 +414,22 @@
                     :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
-                    <Icon :icon="toolboxOutlineIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="toolboxOutlineIcon" :color="SIDEBAR_COLORS.utilities" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Utilities") }}</span>
                     <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ utilitiesApps.length }}</span>
+                  </button>
+
+                  <button
+                    @click="
+                      setLocation('games');
+                      isNavPopoverOpen = false;
+                    "
+                    :class="[currentLocation === 'games' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                  >
+                    <AppIconGraphic :icon="gamepadIcon" :color="SIDEBAR_COLORS.games" :size="SIDEBAR_TILE_SIZE" />
+                    <span class="truncate">{{ $t("Games") }}</span>
+                    <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ gamesApps.length }}</span>
                   </button>
                 </div>
 
@@ -428,7 +446,7 @@
                     :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
-                    <Icon :icon="starIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="starIcon" :color="SIDEBAR_COLORS.favorites" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Favorites") }}</span>
                     <span v-if="fileExplorerStore.favoritesCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.favoritesCount }}</span>
                   </button>
@@ -441,7 +459,7 @@
                     :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                     class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                   >
-                    <Icon :icon="historyIcon" class="w-4 h-4 flex-shrink-0" />
+                    <AppIconGraphic :icon="historyIcon" :color="SIDEBAR_COLORS.recents" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Recents") }}</span>
                     <span v-if="fileExplorerStore.recentsCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.recentsCount }}</span>
                   </button>
@@ -493,9 +511,10 @@
               <Icon :icon="dockerIcon" class="w-3 h-3" />
             </template>
             <SelectOption v-for="(mount, index) in mounts" :key="index" :value="index">
-              <div class="flex items-center gap-2 text-xs">
-                <Icon :icon="mount.read_only ? lockIcon : folderIcon" class="w-3 h-3 flex-shrink-0" />
-                <span class="truncate">{{ mount.container_path }}</span>
+              <div class="flex items-center gap-2 text-xs" :title="mount.external ? `${$t('Outside HomeDock OS')} · ${mount.host_path}` : undefined">
+                <Icon :icon="mount.external ? harddiskIcon : mount.read_only ? lockIcon : folderIcon" class="w-3 h-3 flex-shrink-0" />
+                <span class="truncate flex-1">{{ mount.container_path }}</span>
+                <Icon v-if="mount.external && !disksPlusStore.isAppUnlocked(mount.scope)" :icon="shieldLockIcon" class="w-3 h-3 flex-shrink-0 opacity-60" />
               </div>
             </SelectOption>
           </Select>
@@ -523,8 +542,9 @@
                   :class="[selectedMountIndex === index ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
                   class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
                 >
-                  <Icon :icon="mount.read_only ? lockIcon : folderIcon" class="w-4 h-4 flex-shrink-0" />
+                  <Icon :icon="mount.external ? harddiskIcon : mount.read_only ? lockIcon : folderIcon" class="w-4 h-4 flex-shrink-0" />
                   <span class="truncate flex-1">{{ mount.container_path }}</span>
+                  <Icon v-if="mount.external && !disksPlusStore.isAppUnlocked(mount.scope)" :icon="shieldLockIcon" class="w-3.5 h-3.5 flex-shrink-0 opacity-60" />
                   <Icon v-if="selectedMountIndex === index" :icon="checkIcon" class="w-3 h-3 flex-shrink-0 opacity-70" />
                 </button>
               </div>
@@ -536,7 +556,7 @@
 
         <transition name="mobile-controls-fade">
           <div v-if="!isSearchExpanded" class="flex items-center gap-2 flex-shrink-0">
-            <template v-if="currentLocation !== 'systemapps' && currentLocation !== 'utilities'">
+            <template v-if="currentLocation !== 'systemapps' && !isLauncherLocation">
               <Select v-model:value="sortBy" :class="[themeClasses.scopeSelector, themeClasses.dropZoneSortSelect]" class="w-24 rounded text-xs [&_.ant-select-selector]:!min-h-0 [&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!py-0 [&_.ant-select-selector]:!leading-7 [&_.ant-select-selection-item]:!leading-7" :popup-class-name="`${themeClasses.scopeSelector}`" :show-search="false" size="small">
                 <SelectOption value="name">{{ $t("Name") }}</SelectOption>
                 <SelectOption value="size">{{ $t("Size") }}</SelectOption>
@@ -552,7 +572,7 @@
               <Icon :icon="viewMode === 'grid' ? viewListIcon : viewGridIcon" class="w-4 h-4" />
             </button>
 
-            <button v-if="currentLocation !== 'systemapps' && currentLocation !== 'utilities'" @click="refreshFiles" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" title="Refresh">
+            <button v-if="currentLocation !== 'systemapps' && !isLauncherLocation" @click="refreshFiles" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" title="Refresh">
               <Icon :icon="refreshIcon" :class="{ 'animate-spin': isLoading }" class="w-4 h-4" />
             </button>
           </div>
@@ -575,13 +595,14 @@
       <div :class="[themeClasses.fileExplorerInfoBar]" class="flex items-center gap-2 px-3 py-1 text-[10px] border-b flex-shrink-0">
         <span :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5">
           <template v-if="currentLocation === 'systemapps'"> {{ systemAppsAsFiles.length }} {{ systemAppsAsFiles.length === 1 ? $t("app") : $t("apps") }} </template>
-          <template v-else-if="currentLocation === 'utilities'"> {{ utilitiesAsFiles.length }} {{ utilitiesAsFiles.length === 1 ? $t("utility") : $t("utilities") }} </template>
+          <template v-else-if="isLauncherLocation"> {{ utilitiesAsFiles.length }} {{ utilitiesAsFiles.length === 1 ? $t("utility") : $t("utilities") }} </template>
+          <template v-else-if="currentLocation === 'games'"> {{ utilitiesAsFiles.length }} {{ utilitiesAsFiles.length === 1 ? $t("game") : $t("games") }} </template>
           <template v-else>
             {{ displayFiles.length }} {{ displayFiles.length === 1 ? $t("item") : $t("items") }}
             <span v-if="isSearchMode" class="ml-0.5">{{ $t("(global search)") }}</span>
           </template>
         </span>
-        <span v-if="totalSize !== '0 B' && displayFiles.length > 0 && !isSpecialLocation && currentLocation !== 'systemapps' && currentLocation !== 'utilities'" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5"> {{ totalSize }} total </span>
+        <span v-if="totalSize !== '0 B' && displayFiles.length > 0 && !isSpecialLocation && currentLocation !== 'systemapps' && !isLauncherLocation" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5"> {{ totalSize }} total </span>
         <span v-if="isReadOnly" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 flex items-center gap-1">
           <Icon :icon="lockIcon" class="w-3 h-3" />
           Read-only
@@ -589,6 +610,10 @@
         <span v-if="currentLocation === 'dropzone'" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 flex items-center gap-1">
           <Icon :icon="shieldLockIcon" class="w-3 h-3" />
           {{ $t("Encrypted") }}
+        </span>
+        <span v-if="isExternalMount" :class="[themeClasses.dropZoneTotalSizeScope]" class="rounded-full px-2 py-0.5 flex items-center gap-1 min-w-0" :title="currentMount?.host_path">
+          <Icon :icon="harddiskIcon" class="w-3 h-3 flex-shrink-0" />
+          <span class="truncate">{{ $t("Outside HomeDock OS") }}</span>
         </span>
       </div>
 
@@ -602,7 +627,17 @@
               <p :class="[themeClasses.dropZoneEmptyText]" class="text-sm">Loading...</p>
             </div>
 
-            <div v-else-if="sortedFiles.length === 0 && currentLocation !== 'systemapps' && currentLocation !== 'utilities'" class="flex flex-col items-center justify-center h-full text-center py-12">
+            <div v-else-if="appDriveLocked" class="flex flex-col items-center justify-center h-full text-center py-12 px-6">
+              <Icon :icon="shieldLockIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-16 h-16 opacity-30 mb-4" />
+              <p :class="[themeClasses.dropZoneEmptyText]" class="text-sm font-semibold mb-1">{{ $t("This volume is outside HomeDock OS") }}</p>
+              <p :class="[themeClasses.dropZoneEmptyText]" class="text-xs opacity-80 max-w-sm w-full mb-4 [overflow-wrap:anywhere]">{{ $t("It points to {path} on the host. For your security, unlock it with your HomeDock OS password to browse it.", { path: currentMount?.host_path || "" }) }}</p>
+              <button :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" @click="requestAppDriveUnlock">
+                <Icon :icon="shieldLockIcon" class="w-3.5 h-3.5" />
+                <span>{{ $t("Unlock") }}</span>
+              </button>
+            </div>
+
+            <div v-else-if="sortedFiles.length === 0 && currentLocation !== 'systemapps' && !isLauncherLocation" class="flex flex-col items-center justify-center h-full text-center py-12">
               <Icon :icon="emptyIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-16 h-16 opacity-30 mb-4" />
               <p :class="[themeClasses.dropZoneEmptyText]" class="text-sm">{{ emptyMessage }}</p>
             </div>
@@ -611,8 +646,8 @@
                 <template v-if="currentLocation === 'systemapps'">
                   <div class="fileexplorer-grid" :style="{ height: `${systemAppsGridHeight}px` }">
                     <div v-for="app in positionedSystemApps" :key="app.name" :data-filename="app.name" :style="{ position: 'absolute', left: `${app.x}px`, top: `${app.y}px` }" :class="['inline-flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] select-none', isFileSelected(app) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected] : ['border-transparent', themeClasses.desktopIconBg]]" @click="handleFileClick(app, $event)" @dblclick="handleFileDoubleClick(app)" @touchstart="handleFileTouchStart(app, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(app, $event)">
-                      <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(app) && themeClasses.desktopIconContainerBgSelected]">
-                        <Icon :icon="getFileIcon(app)" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10" />
+                      <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                        <AppIconGraphic :icon="getFileIcon(app)" :color="appIconColor(app)" :size="52" />
                       </div>
                       <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="app.display_name">
                         {{ app.display_name }}
@@ -620,11 +655,11 @@
                     </div>
                   </div>
                 </template>
-                <template v-else-if="currentLocation === 'utilities'">
+                <template v-else-if="isLauncherLocation">
                   <div class="fileexplorer-grid" :style="{ height: `${utilitiesGridHeight}px` }">
                     <div v-for="util in positionedUtilities" :key="util.name" :data-filename="util.name" :style="{ position: 'absolute', left: `${util.x}px`, top: `${util.y}px` }" :class="['inline-flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] select-none', isFileSelected(util) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected] : ['border-transparent', themeClasses.desktopIconBg]]" @click="handleFileClick(util, $event)" @dblclick="handleFileDoubleClick(util)" @touchstart="handleFileTouchStart(util, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(util, $event)">
-                      <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(util) && themeClasses.desktopIconContainerBgSelected]">
-                        <Icon :icon="getFileIcon(util)" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10" />
+                      <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                        <AppIconGraphic :icon="getFileIcon(util)" :color="appIconColor(util)" :size="52" />
                       </div>
                       <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="util.display_name">
                         {{ util.display_name }}
@@ -641,12 +676,11 @@
                     </div>
                     <div class="fileexplorer-grid" :style="{ height: `${group.gridHeight}px` }">
                       <div v-for="file in group.positionedFiles" :key="`${group.key}-${file.name}`" :data-filename="file.name" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" :class="['inline-flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] select-none', isFileSelected(file) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected] : ['border-transparent', themeClasses.desktopIconBg]]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                        <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(file) && themeClasses.desktopIconContainerBgSelected]">
-                          <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon]" class="h-10 w-10" />
+                        <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                          <FolderGraphic v-if="file.is_directory" :emblem="getFolderEmblem(file)" />
+                          <FileGraphic v-else :name="file.name" />
                         </div>
-                        <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
-                          {{ getDisplayName(file) }}
-                        </span>
+                        <FileNameLabel :name="getDisplayName(file)" :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" />
                       </div>
                     </div>
                   </div>
@@ -663,7 +697,7 @@
                     <div class="fileexplorer-grid" :style="{ height: `${group.gridHeight}px` }">
                       <TransitionGroup name="file-item">
                         <div v-for="file in group.positionedFiles" :key="file.name" :data-filename="file.name" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" :class="['inline-flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border', 'transition-[background,transform,border] duration-150', 'w-[100px] h-[120px] select-none', isFileSelected(file) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected] : ['border-transparent', themeClasses.desktopIconBg]]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                          <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(file) && themeClasses.desktopIconContainerBgSelected]">
+                          <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
                             <div v-if="!file.is_directory && file.size > 0" :class="[themeClasses.dropZoneFileSize]" class="absolute -left-1 -top-1 text-[8px] font-medium px-1 py-0.5 rounded whitespace-nowrap z-10">
                               {{ formatSizeCompact(file.size) }}
                             </div>
@@ -676,25 +710,24 @@
                               <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-3 w-3" />
                               <Icon v-else :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-3 w-3" />
                             </div>
-                            <div v-if="compressingFolders.has(file.name)" class="absolute -right-1 -top-1 z-20">
+                            <div v-if="isBusy(file)" class="absolute -right-1 -top-1 z-20">
                               <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4" />
                             </div>
                             <div v-if="isFileFavorited(file)" class="absolute -right-1 -bottom-1 z-10 text-yellow-400 drop-shadow">
                               <Icon :icon="starIcon" class="h-3.5 w-3.5" />
                             </div>
 
-                            <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
+                            <FolderGraphic v-if="file.is_directory" :emblem="getFolderEmblem(file)" :class="isBusy(file) && 'opacity-40'" />
+                            <FileThumbnail v-else :request="thumbnailRequest(file)" :class="isBusy(file) && 'opacity-40'" class="w-14 h-14"><FileGraphic :name="file.name" /></FileThumbnail>
 
-                            <div v-if="compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center z-10">
-                              <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-7 w-7 animate-spin" />
+                            <div v-if="isBusy(file)" class="absolute inset-0 flex items-center justify-center z-10">
+                              <Icon :icon="loadingIcon" class="h-7 w-7 animate-spin text-blue-500" />
                             </div>
                           </div>
 
-                          <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
-                            {{ getDisplayName(file) }}
-                          </span>
-                          <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute -bottom-1 left-2 right-2">
-                            <Progress :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector]" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
+                          <FileNameLabel :name="getDisplayName(file)" :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" />
+                          <div v-if="showProgress(file)" class="absolute -bottom-1 left-2 right-2">
+                            <Progress :percent="fileProgress(file)" :class="[themeClasses.scopeSelector]" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
                           </div>
                         </div>
                       </TransitionGroup>
@@ -704,7 +737,7 @@
                 <div v-else class="fileexplorer-grid" :style="{ height: `${gridContainerHeight}px` }">
                   <TransitionGroup name="file-item">
                     <div v-for="file in positionedFiles" :key="file.name" :data-filename="file.name" :style="{ position: 'absolute', left: `${file.x}px`, top: `${file.y}px` }" :class="['inline-flex flex-col items-center gap-1 cursor-pointer p-2 rounded-lg border', 'transition-[background,border] duration-150', 'w-[100px] h-[120px] select-none', isFileSelected(file) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected] : ['border-transparent', themeClasses.desktopIconBg]]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                      <div :class="['relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-2xl', themeClasses.desktopIconContainerBg, isFileSelected(file) && themeClasses.desktopIconContainerBgSelected]">
+                      <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
                         <div v-if="!file.is_directory && file.size > 0" :class="[themeClasses.dropZoneFileSize]" class="absolute -left-1 -top-1 text-[8px] font-medium px-1 py-0.5 rounded whitespace-nowrap z-10">
                           {{ formatSizeCompact(file.size) }}
                         </div>
@@ -717,25 +750,24 @@
                           <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-3 w-3" />
                           <Icon v-else :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-3 w-3" />
                         </div>
-                        <div v-if="compressingFolders.has(file.name)" class="absolute -right-1 -top-1 z-20">
+                        <div v-if="isBusy(file)" class="absolute -right-1 -top-1 z-20">
                           <Icon :icon="zipFileIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4" />
                         </div>
                         <div v-if="isFileFavorited(file)" class="absolute -right-1 -bottom-1 z-10 text-yellow-400 drop-shadow">
                           <Icon :icon="starIcon" class="h-3.5 w-3.5" />
                         </div>
 
-                        <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-10 w-10 transition duration-300 group-hover:scale-110" />
+                        <FolderGraphic v-if="file.is_directory" :emblem="getFolderEmblem(file)" :class="isBusy(file) && 'opacity-40'" />
+                        <FileThumbnail v-else :request="thumbnailRequest(file)" :class="isBusy(file) && 'opacity-40'" class="w-14 h-14"><FileGraphic :name="file.name" /></FileThumbnail>
 
-                        <div v-if="compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center z-10">
-                          <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-7 w-7 animate-spin" />
+                        <div v-if="isBusy(file)" class="absolute inset-0 flex items-center justify-center z-10">
+                          <Icon :icon="loadingIcon" class="h-7 w-7 animate-spin text-blue-500" />
                         </div>
                       </div>
 
-                      <span :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" :title="getDisplayName(file)">
-                        {{ getDisplayName(file) }}
-                      </span>
-                      <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute -bottom-1 left-2 right-2">
-                        <Progress :percent="downloadProgresses[file.name]" :class="[themeClasses.scopeSelector]" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
+                      <FileNameLabel :name="getDisplayName(file)" :class="[themeClasses.dropZoneFileText]" class="text-[11px] leading-tight text-center line-clamp-2 w-full px-1 break-words" />
+                      <div v-if="showProgress(file)" class="absolute -bottom-1 left-2 right-2">
+                        <Progress :percent="fileProgress(file)" :class="[themeClasses.scopeSelector]" :show-info="false" :size="2" status="active" class="h-1 rounded-full" />
                       </div>
                     </div>
                   </TransitionGroup>
@@ -745,7 +777,7 @@
                 <template v-if="currentLocation === 'systemapps'">
                   <div v-for="app in systemAppsAsFiles" :key="app.name" :data-filename="app.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors overflow-hidden', isFileSelected(app) ? themeClasses.desktopIconBgSelected : themeClasses.desktopIconBg]" @click="handleFileClick(app, $event)" @dblclick="handleFileDoubleClick(app)" @touchstart="handleFileTouchStart(app, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(app, $event)">
                     <div class="relative flex-shrink-0 z-[1]">
-                      <Icon :icon="getFileIcon(app)" :class="[themeClasses.dropZoneFileIcon]" class="h-5 w-5" />
+                      <AppIconGraphic :icon="getFileIcon(app)" :color="appIconColor(app)" :size="20" />
                     </div>
                     <div class="flex-1 overflow-hidden z-[1]">
                       <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="(app as any)._appDescription">
@@ -755,10 +787,10 @@
                     <div :class="[themeClasses.dropZoneFileSize]" class="text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0 z-[1]">{{ $t("App") }}</div>
                   </div>
                 </template>
-                <template v-else-if="currentLocation === 'utilities'">
+                <template v-else-if="isLauncherLocation">
                   <div v-for="util in utilitiesAsFiles" :key="util.name" :data-filename="util.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors overflow-hidden', isFileSelected(util) ? themeClasses.desktopIconBgSelected : themeClasses.desktopIconBg]" @click="handleFileClick(util, $event)" @dblclick="handleFileDoubleClick(util)" @touchstart="handleFileTouchStart(util, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(util, $event)">
                     <div class="relative flex-shrink-0 z-[1]">
-                      <Icon :icon="getFileIcon(util)" :class="[themeClasses.dropZoneFileIcon]" class="h-5 w-5" />
+                      <AppIconGraphic :icon="getFileIcon(util)" :color="appIconColor(util)" :size="20" />
                     </div>
                     <div class="flex-1 overflow-hidden z-[1]">
                       <span :class="[themeClasses.dropZoneFileText]" class="text-xs truncate block" :title="(util as any)._appDescription">
@@ -776,13 +808,14 @@
                       <span class="opacity-50 font-normal">({{ group.files.length }})</span>
                     </div>
                     <div v-for="file in group.files" :key="`${group.key}-${file.name}`" :data-filename="file.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors overflow-hidden', isFileSelected(file) ? themeClasses.desktopIconBgSelected : themeClasses.desktopIconBg]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                      <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[file.name]}%` }" />
+                      <div v-if="showProgress(file)" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${fileProgress(file)}%` }" />
 
                       <div class="relative flex-shrink-0 z-[1]">
-                        <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-5 w-5" />
+                        <FolderGraphic v-if="file.is_directory" :size="20" :emblem="getFolderEmblem(file)" :class="isBusy(file) && 'opacity-40'" />
+                        <FileGraphic v-else :name="file.name" :size="20" :class="isBusy(file) && 'opacity-40'" />
 
-                        <div v-if="compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center">
-                          <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4 animate-spin" />
+                        <div v-if="isBusy(file)" class="absolute inset-0 flex items-center justify-center">
+                          <Icon :icon="loadingIcon" class="h-4 w-4 animate-spin text-blue-500" />
                         </div>
                       </div>
 
@@ -810,17 +843,18 @@
 
                     <TransitionGroup name="file-item-list">
                       <div v-for="file in group.files" :key="file.name" :data-filename="file.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors overflow-hidden ml-4', isFileSelected(file) ? themeClasses.desktopIconBgSelected : themeClasses.desktopIconBg]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                        <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[file.name]}%` }" />
+                        <div v-if="showProgress(file)" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${fileProgress(file)}%` }" />
 
                         <div class="relative flex-shrink-0 z-[1]">
-                          <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-5 w-5" />
+                          <FolderGraphic v-if="file.is_directory" :size="20" :emblem="getFolderEmblem(file)" :class="isBusy(file) && 'opacity-40'" />
+                          <FileGraphic v-else :name="file.name" :size="20" :class="isBusy(file) && 'opacity-40'" />
                           <div v-if="currentLocation === 'dropzone' && !file.is_directory" class="absolute -right-1 -bottom-1">
                             <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-2 w-2" />
                             <Icon v-else :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-2 w-2" />
                           </div>
 
-                          <div v-if="compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center">
-                            <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4 animate-spin" />
+                          <div v-if="isBusy(file)" class="absolute inset-0 flex items-center justify-center">
+                            <Icon :icon="loadingIcon" class="h-4 w-4 animate-spin text-blue-500" />
                           </div>
                         </div>
 
@@ -845,17 +879,18 @@
                 </template>
                 <TransitionGroup v-else name="file-item-list">
                   <div v-for="file in sortedFiles" :key="file.name" :data-filename="file.name" :class="['group relative flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded transition-colors overflow-hidden', isFileSelected(file) ? themeClasses.desktopIconBgSelected : themeClasses.desktopIconBg]" @click="handleFileClick(file, $event)" @dblclick="handleFileDoubleClick(file)" @contextmenu.stop="showContextMenu($event, file)" @touchstart="handleFileTouchStart(file, $event)" @touchmove="handleFileTouchMove" @touchend="handleFileTouchEnd(file, $event)">
-                    <div v-if="downloadProgresses[file.name] !== undefined && downloadProgresses[file.name] < 100" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${downloadProgresses[file.name]}%` }" />
+                    <div v-if="showProgress(file)" class="absolute inset-0 bg-blue-500/20 transition-all duration-300 ease-out" :style="{ width: `${fileProgress(file)}%` }" />
 
                     <div class="relative flex-shrink-0 z-[1]">
-                      <Icon :icon="getFileIcon(file)" :class="[themeClasses.dropZoneFileIcon, compressingFolders.has(file.name) ? 'opacity-40' : '']" class="h-5 w-5" />
+                      <FolderGraphic v-if="file.is_directory" :size="20" :emblem="getFolderEmblem(file)" :class="isBusy(file) && 'opacity-40'" />
+                      <FileGraphic v-else :name="file.name" :size="20" :class="isBusy(file) && 'opacity-40'" />
                       <div v-if="currentLocation === 'dropzone' && !file.is_directory" class="absolute -right-1 -bottom-1">
                         <Icon v-if="loadingStates[file.name]" :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="animate-spin h-2 w-2" />
                         <Icon v-else :icon="fileStates[file.name] ? lockOpenIcon : lockIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-2 w-2" />
                       </div>
 
-                      <div v-if="compressingFolders.has(file.name)" class="absolute inset-0 flex items-center justify-center">
-                        <Icon :icon="loadingIcon" :class="[themeClasses.dropZoneLockIcon]" class="h-4 w-4 animate-spin" />
+                      <div v-if="isBusy(file)" class="absolute inset-0 flex items-center justify-center">
+                        <Icon :icon="loadingIcon" class="h-4 w-4 animate-spin text-blue-500" />
                       </div>
                     </div>
 
@@ -932,7 +967,7 @@
         <template #help>
           <div class="space-y-2.5 max-w-sm">
             <div class="flex items-center gap-2">
-              <Icon :icon="folderMultipleIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+              <StatusBarHelpIcon :icon="folderMultipleIcon" />
               <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("File Explorer") }}</h4>
             </div>
 
@@ -995,12 +1030,30 @@
     <StatusBubble :visible="showUploadStatus" :message="uploadStatusMessage" position="bottom-left" />
 
     <DisksPlusUnlockModal v-model:visible="disksPlusUnlockVisible" @unlocked="onDisksPlusUnlocked" />
+    <AppDriveUnlockModal v-model:visible="appDriveUnlockVisible" :app-name="getAppInfo(appDriveUnlockApp).displayName" :icon-path="appDriveIconPath" :container-path="currentMount?.container_path || ''" :host-path="currentMount?.host_path || ''" :scope="appDriveScope" :includes-dependencies="(appDriveScopeEntry?.dependencies.length ?? 0) > 0" />
     <DisksPlusDangerAuthModal />
+
+    <AppDialog v-model:visible="compressDialogVisible" type="info" title="Compress with Password" ok-text="Compress" cancel-text="Cancel" :ok-disabled="!canConfirmCompress" :icon="lockPlusIcon" @ok="confirmCompressWithPassword" @cancel="compressDialogVisible = false">
+      <div class="space-y-3">
+        <p :class="[themeClasses.notTextDown]" class="m-0 text-sm leading-relaxed">{{ compressTargets.length === 1 ? $t("“{name}” will be compressed into an encrypted ZIP file.", { name: compressTargets[0] ? getDisplayName(compressTargets[0]) : "" }) : $t("{n} items will be compressed into an encrypted ZIP file.", { n: compressTargets.length }) }}</p>
+        <InputPassword v-model:value="compressPassword" :placeholder="$t('Password')" :maxlength="MAX_ARCHIVE_PASSWORD_LENGTH" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus>
+          <template #prefix>
+            <Icon :icon="lockIcon" :class="[themeClasses.formIcon]" class="mr-0.5" width="16" height="16" />
+          </template>
+        </InputPassword>
+        <InputPassword v-model:value="compressPasswordConfirm" :placeholder="$t('Confirm Password')" :maxlength="MAX_ARCHIVE_PASSWORD_LENGTH" autocomplete="new-password" :status="compressPasswordMismatch ? 'error' : undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" @pressEnter="confirmCompressWithPassword">
+          <template #prefix>
+            <Icon :icon="lockIcon" :class="[themeClasses.formIcon]" class="mr-0.5" width="16" height="16" />
+          </template>
+        </InputPassword>
+        <p :class="compressPasswordMismatch ? 'text-red-500' : [themeClasses.notTextDown, 'opacity-60']" class="m-0 text-xs leading-relaxed">{{ compressPasswordMismatch ? $t("The passwords don't match.") : $t("Without the password the files can't be opened, and it can't be recovered.") }}</p>
+      </div>
+    </AppDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -1008,6 +1061,7 @@ import { storeToRefs } from "pinia";
 
 import { useTheme } from "../__Themes__/ThemeSelector";
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
+import { BROWSER_IMAGE_EXTENSIONS, EXTENDED_IMAGE_EXTENSIONS, THUMBNAIL_EXTENSIONS, thumbnailExtension, type ThumbnailRequest } from "../__Composables__/useThumbnails";
 import { useDesktopStore, isShortcutLocation, type FileShortcutPayload } from "../__Stores__/desktopStore";
 import { useFileExplorerStore, type FileExplorerLocation } from "../__Stores__/useFileExplorerStore";
 import { useUploadingStore, type UploadLocation } from "../__Stores__/useUploadingStore";
@@ -1016,37 +1070,38 @@ import { useWindowStore } from "../__Stores__/windowStore";
 import { useDisksPlusStore, type DiskInfo } from "../__Stores__/useDisksPlusStore";
 import { useDangerAuth } from "../__Composables__/useDangerAuth";
 import DisksPlusUnlockModal from "../__Components__/DisksPlusUnlockModal.vue";
+import AppDriveUnlockModal from "../__Components__/AppDriveUnlockModal.vue";
 import DisksPlusDangerAuthModal from "../__Components__/DisksPlusDangerAuthModal.vue";
-import { getStartMenuApps } from "../__Config__/WindowDefaultDetails";
+import DisksPlusSessionRing from "../__Components__/DisksPlusSessionRing.vue";
+import DisksPlusSessionIndicator from "../__Components__/DisksPlusSessionIndicator.vue";
+import { getStartMenuApps, getAppById, ENTERPRISE_APP_COLOR } from "../__Config__/WindowDefaultDetails";
 import { UTILITIES_APPS } from "../__Config__/UtilitiesDefaultDetails";
+import { GAMES_APPS } from "../__Config__/GamesDefaultDetails";
 
-import { message, Upload, AutoComplete, InputSearch, Progress, Select, SelectOption, Input } from "ant-design-vue";
+import { message, Upload, AutoComplete, InputSearch, Progress, Select, SelectOption, Input, InputPassword } from "ant-design-vue";
 import { useDialog } from "../__Composables__/useDialog";
 
 import { Icon } from "@iconify/vue";
-import { FILE_ICONS as fileIconsMap } from "../__Config__/FileIcons";
+import { FILE_ICONS as fileIconsMap, SPECIAL_FOLDER_ICONS as specialFolderIcons } from "../__Config__/FileIcons";
+import { TEXT_EXTENSIONS, CODE_EXTENSIONS, IMAGE_EXTENSIONS, MEDIA_EXTENSIONS, PDF_EXTENSIONS, SHEETS_EXTENSIONS, WRITER_EXTENSIONS } from "../__Config__/FileAssociations";
+import { useArchiveJobsStore, type FilesChangedDetail } from "../__Stores__/useArchiveJobsStore";
+import { MAX_ARCHIVE_PASSWORD_LENGTH, isArchiveName, sameLocation, startCompress, startExtract, type ArchiveFileRef, type ArchiveGuard, type ArchiveLocation } from "../__Utils__/ArchiveClient";
+import { UploadRejectedError, uploadChunked } from "../__Utils__/StorageUpload";
+import extractIcon from "@iconify-icons/mdi/archive-arrow-up-outline";
+import compressIcon from "@iconify-icons/mdi/folder-zip-outline";
+import lockPlusIcon from "@iconify-icons/mdi/lock-plus-outline";
 import folderIcon from "@iconify-icons/mdi/folder";
-import folderOpenIcon from "@iconify-icons/mdi/folder-open";
 import folderArrowLeftIcon from "@iconify-icons/mdi/folder-arrow-left";
 import folderPlusIcon from "@iconify-icons/mdi/folder-plus";
 import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
-import notebookIcon from "@iconify-icons/mdi/notebook";
-import fileDocumentMultipleIcon from "@iconify-icons/mdi/file-document-multiple";
-import imageMultipleIcon from "@iconify-icons/mdi/image-multiple";
-import videoBoxIcon from "@iconify-icons/mdi/video-box";
-import musicBoxMultipleIcon from "@iconify-icons/mdi/music-box-multiple";
-import downloadBoxIcon from "@iconify-icons/mdi/download-box";
 import textFileIcon from "@iconify-icons/mdi/file-document";
 import pdfFileIcon from "@iconify-icons/mdi/file-pdf-box";
 import imageFileIcon from "@iconify-icons/mdi/file-image";
 import videoFileIcon from "@iconify-icons/mdi/file-video";
-import audioFileIcon from "@iconify-icons/mdi/file-music";
 import zipFileIcon from "@iconify-icons/mdi/zip-box";
 import excelFileIcon from "@iconify-icons/mdi/file-excel";
-import powerpointFileIcon from "@iconify-icons/mdi/file-powerpoint";
 import wordFileIcon from "@iconify-icons/mdi/file-word";
 import codeFileIcon from "@iconify-icons/mdi/file-code";
-import codeJsonIcon from "@iconify-icons/mdi/code-json";
 import unknownFileIcon from "@iconify-icons/mdi/file";
 import monitorIcon from "@iconify-icons/mdi/monitor";
 import cloudUploadIcon from "@iconify-icons/mdi/cloud-upload";
@@ -1066,6 +1121,8 @@ import viewGridIcon from "@iconify-icons/mdi/view-grid";
 import viewListIcon from "@iconify-icons/mdi/view-list";
 import refreshIcon from "@iconify-icons/mdi/refresh";
 import dockerIcon from "@iconify-icons/mdi/docker";
+import dependencyIcon from "@iconify-icons/mdi/subdirectory-arrow-right";
+import dependencyBadgeIcon from "@iconify-icons/mdi/cube-outline";
 import starIcon from "@iconify-icons/mdi/star";
 import starOutlineIcon from "@iconify-icons/mdi/star-outline";
 import historyIcon from "@iconify-icons/mdi/history";
@@ -1079,6 +1136,7 @@ import magnifyIcon from "@iconify-icons/mdi/magnify";
 import crosshairsGpsIcon from "@iconify-icons/mdi/crosshairs-gps";
 import appsIcon from "@iconify-icons/mdi/apps";
 import toolboxOutlineIcon from "@iconify-icons/mdi/toolbox-outline";
+import gamepadIcon from "@iconify-icons/mdi/gamepad-variant-outline";
 import informationOutlineIcon from "@iconify-icons/mdi/information-outline";
 import harddiskIcon from "@iconify-icons/mdi/harddisk";
 
@@ -1086,8 +1144,13 @@ import ContextMenu from "../__Components__/ContextMenu.vue";
 import SelectionBox from "../__Components__/SelectionBox.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import StatusBubble from "../__Components__/StatusBubble.vue";
-import BaseImage from "../__Components__/BaseImage.vue";
+import FileThumbnail from "../__Components__/FileThumbnail.vue";
+import FolderGraphic from "../__Components__/FolderGraphic.vue";
+import FileGraphic from "../__Components__/FileGraphic.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
+import FileNameLabel from "../__Components__/FileNameLabel.vue";
 
 interface FileEntry {
   name: string;
@@ -1107,6 +1170,25 @@ interface ContainerInfo {
   sanitized_name: string;
   status: string;
   mounts_count: number;
+  has_external?: boolean;
+  scope?: string;
+}
+
+interface ShortcutTargetData {
+  initialShortcutId?: string;
+  initialFileName?: string;
+  initialPath?: string;
+  initialLocation?: string;
+}
+
+interface AppDriveEntry {
+  name: string;
+  status: string;
+  selectable: boolean;
+  external: boolean;
+  scope: string;
+  lockable: boolean;
+  dependencies: { name: string; status: string; external: boolean }[];
 }
 
 interface MountInfo {
@@ -1114,6 +1196,9 @@ interface MountInfo {
   container_path: string;
   type: string;
   read_only: boolean;
+  external?: boolean;
+  danger_zone?: string | null;
+  scope?: string;
 }
 
 interface GroupedFiles {
@@ -1159,36 +1244,44 @@ function currentDiskInfo(): DiskInfo | null {
   return disksPlusStore.selectedDiskInfo;
 }
 
-const disksPlusCountdown = computed(() => {
-  if (!disksPlusStore.unlocked || disksPlusStore.session.ttl_seconds === 0) return "";
-  const secs = disksPlusStore.session.remaining_seconds;
-  if (secs <= 0) return "";
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
+function sessionCountdown(unlocked: boolean, seconds: number) {
+  if (!unlocked || disksPlusStore.session.ttl_seconds === 0 || seconds <= 0) return "";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
   return `${m}:${s.toString().padStart(2, "0")}`;
-});
+}
 
-const disksPlusSessionPercent = computed(() => {
-  const { remaining_seconds, ttl_seconds } = disksPlusStore.session;
-  if (!disksPlusStore.unlocked || ttl_seconds <= 0) return 0;
-  return Math.max(0, Math.min(100, (remaining_seconds / ttl_seconds) * 100));
-});
+function sessionPercent(unlocked: boolean, seconds: number) {
+  const ttl = disksPlusStore.session.ttl_seconds;
+  if (!unlocked || ttl <= 0) return 0;
+  return Math.max(0, Math.min(100, (seconds / ttl) * 100));
+}
 
-const disksPlusSessionBarColor = computed(() => {
-  const p = disksPlusSessionPercent.value;
-  if (p > 60) return "bg-blue-500";
-  if (p > 35) return "bg-yellow-500";
-  if (p > 15) return "bg-orange-500";
+function sessionBarColor(percent: number) {
+  if (percent > 60) return "bg-blue-500";
+  if (percent > 35) return "bg-yellow-500";
+  if (percent > 15) return "bg-orange-500";
   return "bg-red-500";
-});
+}
 
-const disksPlusSessionStrokeColor = computed(() => {
-  const p = disksPlusSessionPercent.value;
-  if (p > 60) return "stroke-blue-500";
-  if (p > 35) return "stroke-yellow-500";
-  if (p > 15) return "stroke-orange-500";
+function sessionStrokeColor(percent: number) {
+  if (percent > 60) return "stroke-blue-500";
+  if (percent > 35) return "stroke-yellow-500";
+  if (percent > 15) return "stroke-orange-500";
   return "stroke-red-500";
-});
+}
+
+const disksPlusCountdown = computed(() => sessionCountdown(disksPlusStore.unlocked, disksPlusStore.session.remaining_seconds));
+const disksPlusSessionPercent = computed(() => sessionPercent(disksPlusStore.unlocked, disksPlusStore.session.remaining_seconds));
+const disksPlusSessionBarColor = computed(() => sessionBarColor(disksPlusSessionPercent.value));
+const disksPlusSessionStrokeColor = computed(() => sessionStrokeColor(disksPlusSessionPercent.value));
+
+function appSessionIndicator(scope: string) {
+  const unlocked = disksPlusStore.isAppUnlocked(scope);
+  const seconds = disksPlusStore.appSession(scope)?.remaining_seconds ?? 0;
+  const percent = sessionPercent(unlocked, seconds);
+  return { unlocked, countdown: sessionCountdown(unlocked, seconds), percent, strokeClass: sessionStrokeColor(percent), barClass: sessionBarColor(percent) };
+}
 const windowStore = useWindowStore();
 
 const { sortBy, sortDirection, viewMode } = storeToRefs(fileViewerPrefs);
@@ -1210,7 +1303,19 @@ const isAppDriveExpanded = ref(false);
 const isStorageExpanded = ref(false);
 const isDropZoneExpanded = ref(false);
 const isDisksPlusExpanded = ref(false);
-const defaultStorageFolders = ["Notes", "Sources", "Documents", "Photos", "Videos", "Music", "Downloads"];
+const defaultStorageFolders = ["Notes", "Sources", "Documents", "Photos", "Videos", "Music", "Downloads", "Archives"];
+const SIDEBAR_TILE_SIZE = 18;
+const SIDEBAR_COLORS = {
+  storage: "#0ea5e9",
+  dropzone: "#4f46e5",
+  appdrive: "#0d9488",
+  disksplus: "#475569",
+  applications: "#2563eb",
+  utilities: "#d97706",
+  games: "#c026d3",
+  favorites: "#eab308",
+  recents: "#16a34a",
+};
 function isProtectedFolder(file: FileEntry): boolean {
   return currentLocation.value === "storage" && !currentPath.value && file.is_directory && defaultStorageFolders.includes(file.name);
 }
@@ -1260,6 +1365,8 @@ interface QueuedUpload {
   mountIndex?: number;
   diskId?: string;
   diskAbsolutePath?: string;
+  appDriveAbsolutePath?: string;
+  appDriveScope?: string;
 }
 const uploadQueue = ref<QueuedUpload[]>([]);
 const activeUploads = ref(0);
@@ -1315,22 +1422,54 @@ function updateMobileLayout(width: number) {
 const isNavPopoverOpen = ref(false);
 const isVolumePopoverOpen = ref(false);
 const isSearchExpanded = ref(false);
-const TEXT_EXTENSIONS = new Set(["txt", "md", "markdown", "csv", "tsv", "log", "env", "tex", "latex", "sty", "cls", "bib", "bst", "dtx", "ins", "properties", "lock", "gitignore", "gitattributes", "editorconfig", "prettierrc", "eslintrc", "babelrc"]);
-const CODE_EXTENSIONS = new Set(["json", "yml", "yaml", "xml", "conf", "ini", "js", "ts", "jsx", "tsx", "mjs", "cjs", "vue", "svelte", "astro", "py", "pyw", "pyi", "sh", "bash", "zsh", "fish", "ps1", "bat", "cmd", "css", "scss", "sass", "less", "styl", "html", "htm", "xhtml", "sql", "c", "cpp", "h", "hpp", "cs", "java", "kt", "kts", "go", "rs", "rb", "php", "pl", "pm", "r", "rmd", "swift", "m", "mm", "scala", "groovy", "lua", "tcl", "dockerfile", "makefile", "cmake", "gradle", "toml", "graphql", "requirements.txt"]);
-const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "ico", "tif", "tiff"]);
-const MEDIA_EXTENSIONS = new Set(["mp4", "webm", "ogv", "ogg", "mp3", "wav", "aac", "flac", "m4a"]);
-const PDF_EXTENSIONS = new Set(["pdf"]);
-const mainContainers = computed(() => {
-  return containers.value
-    .filter((container) => {
-      const app = desktopStore.dockerApps.find((a) => a.name === container.name);
-      return !app?.HDRole || app.HDRole !== "dependency";
-    })
-    .sort((a, b) => {
-      if (a.status === "running" && b.status !== "running") return -1;
-      if (a.status !== "running" && b.status === "running") return 1;
-      return a.name.localeCompare(b.name);
-    });
+const appDriveEntries = computed<AppDriveEntry[]>(() => {
+  const entries: AppDriveEntry[] = [];
+  const byGroup = new Map<string, AppDriveEntry>();
+  const pending: { container: ContainerInfo; group: string }[] = [];
+
+  for (const container of containers.value) {
+    const app = desktopStore.dockerApps.find((a) => a.name === container.name);
+
+    if (app?.HDRole === "dependency") {
+      pending.push({ container, group: app.HDGroup });
+      continue;
+    }
+
+    const entry: AppDriveEntry = { name: container.name, status: container.status, selectable: true, external: !!container.has_external, scope: container.scope || container.name, lockable: false, dependencies: [] };
+    entries.push(entry);
+    if (app?.HDGroup) byGroup.set(app.HDGroup, entry);
+  }
+
+  for (const { container, group } of pending) {
+    let parent = group ? byGroup.get(group) : undefined;
+
+    if (!parent && group) {
+      const main = desktopStore.mainDockerApps.find((a) => a.HDGroup === group);
+
+      if (main) {
+        parent = { name: main.name, status: main.status, selectable: false, external: false, scope: container.scope || group, lockable: false, dependencies: [] };
+        entries.push(parent);
+        byGroup.set(group, parent);
+      }
+    }
+
+    if (parent) {
+      parent.dependencies.push({ name: container.name, status: container.status, external: !!container.has_external });
+    } else {
+      entries.push({ name: container.name, status: container.status, selectable: true, external: !!container.has_external, scope: container.scope || container.name, lockable: false, dependencies: [] });
+    }
+  }
+
+  for (const entry of entries) {
+    entry.dependencies.sort((a, b) => a.name.localeCompare(b.name));
+    entry.lockable = entry.external || entry.dependencies.some((dependency) => dependency.external);
+  }
+
+  return entries.sort((a, b) => {
+    if (a.status === "running" && b.status !== "running") return -1;
+    if (a.status !== "running" && b.status === "running") return 1;
+    return a.name.localeCompare(b.name);
+  });
 });
 const systemApps = computed(() => {
   return getStartMenuApps().filter((app) => app.category !== "utilities");
@@ -1338,6 +1477,11 @@ const systemApps = computed(() => {
 const utilitiesApps = computed(() => {
   return UTILITIES_APPS;
 });
+const gamesApps = computed(() => {
+  return GAMES_APPS;
+});
+const isLauncherLocation = computed(() => currentLocation.value === "utilities" || currentLocation.value === "games");
+const launcherApps = computed(() => (currentLocation.value === "games" ? gamesApps.value : utilitiesApps.value));
 const systemAppsAsFiles = computed((): FileEntry[] => {
   return systemApps.value.map(
     (app) =>
@@ -1356,7 +1500,7 @@ const systemAppsAsFiles = computed((): FileEntry[] => {
 });
 
 const utilitiesAsFiles = computed((): FileEntry[] => {
-  return utilitiesApps.value.map(
+  return launcherApps.value.map(
     (util) =>
       ({
         name: util.id,
@@ -1387,7 +1531,7 @@ const isReadOnly = computed(() => {
 });
 
 const canUpload = computed(() => {
-  if (currentLocation.value === "favorites" || currentLocation.value === "recents" || currentLocation.value === "systemapps" || currentLocation.value === "utilities") {
+  if (currentLocation.value === "favorites" || currentLocation.value === "recents" || currentLocation.value === "systemapps" || isLauncherLocation.value) {
     return false;
   }
   if (currentLocation.value === "appdrive") {
@@ -1400,7 +1544,7 @@ const canUpload = computed(() => {
 });
 
 const isSpecialLocation = computed(() => {
-  return currentLocation.value === "favorites" || currentLocation.value === "recents" || currentLocation.value === "systemapps" || currentLocation.value === "utilities";
+  return currentLocation.value === "favorites" || currentLocation.value === "recents" || currentLocation.value === "systemapps" || isLauncherLocation.value;
 });
 
 const showBreadcrumbs = computed(() => {
@@ -1421,6 +1565,8 @@ const locationLabel = computed(() => {
       return t("System Apps");
     case "utilities":
       return t("Utilities");
+    case "games":
+      return t("Games");
     case "disksplus": {
       const disk = currentDiskInfo();
       return disk ? disk.label || disk.device : "Disks+";
@@ -1442,6 +1588,8 @@ const locationIcon = computed(() => {
       return appsIcon;
     case "utilities":
       return toolboxOutlineIcon;
+    case "games":
+      return gamepadIcon;
     case "disksplus":
       return harddiskIcon;
     default:
@@ -1459,6 +1607,8 @@ const emptyIcon = computed(() => {
       return appsIcon;
     case "utilities":
       return toolboxOutlineIcon;
+    case "games":
+      return gamepadIcon;
     default:
       return folderIcon;
   }
@@ -1477,6 +1627,8 @@ const emptyMessage = computed(() => {
       return t("No system apps available.");
     case "utilities":
       return t("No utilities available.");
+    case "games":
+      return t("No games available.");
     default:
       return t("Drag and drop files to upload.");
   }
@@ -1580,7 +1732,7 @@ function calculateGridHeight(itemCount: number, width: number) {
   return rows * GRID_SIZE_Y;
 }
 const groupedDisplayFiles = computed(() => {
-  if (!isSpecialLocation.value || currentLocation.value === "systemapps" || currentLocation.value === "utilities") return [];
+  if (!isSpecialLocation.value || currentLocation.value === "systemapps" || isLauncherLocation.value) return [];
 
   const width = containerWidth.value || 400;
 
@@ -1736,10 +1888,10 @@ const systemAppsGridHeight = computed(() => {
   return rows * GRID_SIZE_Y + 16;
 });
 const utilitiesGridHeight = computed(() => {
-  if (utilitiesApps.value.length === 0) return 0;
+  if (launcherApps.value.length === 0) return 0;
   const width = containerWidth.value || 400;
   const maxCols = Math.max(1, Math.floor(width / MIN_GRID_SIZE_X));
-  const rows = Math.ceil(utilitiesApps.value.length / maxCols);
+  const rows = Math.ceil(launcherApps.value.length / maxCols);
   return rows * GRID_SIZE_Y + 16;
 });
 const groupedFilesByFolder = computed((): GroupedFiles[] => {
@@ -1942,7 +2094,7 @@ const contextMenuItems = computed(() => {
     const hasProtectedFolders = selectedFilesList.some((f) => isProtectedFolder(f));
     const onlyFiles = selectedFilesList.filter((f) => !f.is_directory);
     const shouldZip = selectedCount > 3 || hasDirectories;
-    const isNonDownloadableLocation = ["favorites", "recents", "systemapps", "utilities"].includes(currentLocation.value);
+    const isNonDownloadableLocation = ["favorites", "recents", "systemapps", "utilities", "games"].includes(currentLocation.value);
 
     items.push({ label: `Selected: ${selectedCount} items`, icon: checkIcon, disabled: true });
     items.push({ divider: true });
@@ -1970,6 +2122,10 @@ const contextMenuItems = computed(() => {
           },
         });
       }
+    }
+
+    if (canArchiveHere.value) {
+      items.push({ label: "Compress", icon: compressIcon, action: () => requestCompress(selectedFilesList, false), trailing: { label: "Compress with Password…", icon: lockPlusIcon, action: () => requestCompress(selectedFilesList, true) } });
     }
 
     if (!isReadOnly.value && !isSpecialLocation.value && !hasProtectedFolders) {
@@ -2027,7 +2183,7 @@ const contextMenuItems = computed(() => {
           }
         },
       });
-    } else if (currentLocation.value === "systemapps" || currentLocation.value === "utilities") {
+    } else if (currentLocation.value === "systemapps" || isLauncherLocation.value) {
       items.push({
         label: "Open",
         icon: folderIcon,
@@ -2055,7 +2211,9 @@ const contextMenuItems = computed(() => {
         }
         if (IMAGE_EXTENSIONS.has(extension)) {
           items.push({ label: "Open in Image Viewer", icon: imageFileIcon, action: () => openInImageViewer(file) });
-          items.push({ label: "Open in Brusher", icon: brushIcon, action: () => openInBrusher(file) });
+          if (BROWSER_IMAGE_EXTENSIONS.has(extension)) {
+            items.push({ label: "Open in Brusher", icon: brushIcon, action: () => openInBrusher(file) });
+          }
         }
         if (MEDIA_EXTENSIONS.has(extension)) {
           items.push({ label: "Open in Media Player", icon: videoFileIcon, action: () => openInMediaPlayer(file) });
@@ -2063,7 +2221,22 @@ const contextMenuItems = computed(() => {
         if (PDF_EXTENSIONS.has(extension)) {
           items.push({ label: "Open in PDF Viewer", icon: pdfFileIcon, action: () => openInPDFViewer(file) });
         }
+        if (SHEETS_EXTENSIONS.has(extension)) {
+          items.push({ label: "Open in Sheets", icon: excelFileIcon, action: () => openInSheets(file) });
+        }
+        if (WRITER_EXTENSIONS.has(extension)) {
+          items.push({ label: "Open in Writer", icon: wordFileIcon, action: () => openInWriter(file) });
+        }
+        if (isArchiveName(file.name) && currentArchiveLocation()) {
+          items.push({ label: "Open in Zipfile", icon: zipFileIcon, action: () => openInZipfile(file) });
+          if (canArchiveHere.value) items.push({ label: "Extract Here", icon: extractIcon, disabled: archiveBusy.value.has(file.name), action: () => extractHere(file) });
+        }
         items.push({ label: "Download", icon: arrowDownThickIcon, action: () => downloadFile(file) });
+      }
+
+      if (canArchiveHere.value) {
+        items.push({ divider: true });
+        items.push({ label: "Compress", icon: compressIcon, action: () => requestCompress([file], false), trailing: { label: "Compress with Password…", icon: lockPlusIcon, action: () => requestCompress([file], true) } });
       }
 
       items.push({ divider: true });
@@ -2103,19 +2276,25 @@ const contextMenuItems = computed(() => {
 function getAppInfo(containerName: string) {
   const app = desktopStore.dockerApps.find((a) => a.name === containerName);
   return {
-    displayName: app?.display_name || containerName,
-    iconPath: app?.image_path || "docker-icons/notfound.jpg",
+    displayName: app?.HDRole === "dependency" ? containerName : app?.display_name || containerName,
+    iconPath: app?.image_path,
   };
 }
-const specialFolderIcons: Record<string, any> = {
-  Notes: notebookIcon,
-  Sources: codeJsonIcon,
-  Documents: fileDocumentMultipleIcon,
-  Photos: imageMultipleIcon,
-  Videos: videoBoxIcon,
-  Music: musicBoxMultipleIcon,
-  Downloads: downloadBoxIcon,
-};
+function appIconColor(file: FileEntry) {
+  const appId = String((file as any)._appId ?? file.name);
+  return appId.startsWith("enterprise-") ? ENTERPRISE_APP_COLOR : getAppById(appId)?.color;
+}
+
+function getFolderEmblem(file: FileEntry) {
+  if (file.name === "..") {
+    return folderArrowLeftIcon;
+  }
+  const folderName = file.display_name || file.name.split("/").pop() || file.name;
+  if (currentLocation.value === "storage" && !currentPath.value && specialFolderIcons[folderName]) {
+    return specialFolderIcons[folderName];
+  }
+  return undefined;
+}
 
 function getFileIcon(file: FileEntry) {
   if ((file as any).is_app && (file as any)._appIcon) {
@@ -2123,17 +2302,36 @@ function getFileIcon(file: FileEntry) {
   }
 
   if (file.is_directory) {
-    if (file.name === "..") {
-      return folderArrowLeftIcon;
-    }
-    const folderName = file.display_name || file.name.split("/").pop() || file.name;
-    if (currentLocation.value === "storage" && !currentPath.value && specialFolderIcons[folderName]) {
-      return specialFolderIcons[folderName];
-    }
-    return folderIcon;
+    return getFolderEmblem(file) || folderIcon;
   }
   const ext = file.name.split(".").pop()?.toLowerCase() || "";
   return fileIconsMap[ext] || unknownFileIcon;
+}
+
+function thumbnailRequest(file: FileEntry): ThumbnailRequest | null {
+  if (file.is_directory || file.size <= 0 || !THUMBNAIL_EXTENSIONS.has(thumbnailExtension(file.name))) return null;
+
+  const version = `${file.modified}-${file.size}`;
+
+  if (currentLocation.value === "storage") {
+    return { key: `storage|${file.name}|${version}`, url: "/api/storage/thumbnail", params: { file: file.name, v: version } };
+  }
+
+  if (currentLocation.value === "dropzone") {
+    return { key: `dropzone|${file.name}|${version}`, url: "/api/dropzone/thumbnail", params: { file: file.name, v: version } };
+  }
+
+  if (currentLocation.value === "appdrive" && selectedContainer.value) {
+    return { key: `appdrive|${selectedContainer.value}|${selectedMountIndex.value}|${file.name}|${version}`, url: "/api/appdrive/thumbnail", params: { container: selectedContainer.value, mount: selectedMountIndex.value, file: file.name, v: version } };
+  }
+
+  if (currentLocation.value === "disksplus") {
+    const disk = currentDiskInfo();
+    if (!disk) return null;
+    return { key: `disksplus|${disk.id}|${file.name}|${version}`, url: "/api/disksplus/thumbnail", params: { disk: disk.id, file: file.name, v: version } };
+  }
+
+  return null;
 }
 
 function getDisplayName(file: FileEntry) {
@@ -2260,6 +2458,10 @@ const pendingDisksPlusTarget = ref<{ diskId: string; path: string; fileName?: st
 async function openDisksPlusTarget(diskId: string, path: string, fileName?: string) {
   isDisksPlusExpanded.value = true;
 
+  if (disksPlusStore.unlocked && disksPlusStore.disks.length === 0) {
+    await Promise.all([disksPlusStore.fetchDangerZones(), disksPlusStore.fetchDisks()]);
+  }
+
   if (!disksPlusStore.unlocked) {
     pendingDisksPlusTarget.value = { diskId, path, fileName };
     disksPlusUnlockVisible.value = true;
@@ -2299,8 +2501,7 @@ async function lockDisksPlus() {
   }
 }
 function openApp(appId: string) {
-  windowStore.openWindow(appId, {
-  });
+  windowStore.openWindow(appId, {});
 }
 
 function toggleAppDriveExpanded() {
@@ -2485,6 +2686,29 @@ async function loadFiles() {
       return;
     }
 
+    if (currentLocation.value === "appdrive") {
+      if (appDriveLocked.value) {
+        files.value = [];
+        return;
+      }
+
+      const prevPath = currentPath.value;
+      const result = await guardAppDrive(prevPath, () => axios.get(endpoint, { params, headers: { "X-HomeDock-CSRF-Token": csrfToken.value } }));
+      if ((result as any)?._canceled) {
+        appDriveAccessDenied = true;
+        if (prevPath && !appDriveLocked.value) {
+          currentPath.value = prevPath.split("/").filter(Boolean).slice(0, -1).join("/");
+          loadFiles();
+          return;
+        }
+        files.value = [];
+        return;
+      }
+      appDriveAccessDenied = false;
+      files.value = (result as any)?.data?.files || [];
+      return;
+    }
+
     const response = await axios.get(endpoint, {
       params,
       headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
@@ -2501,6 +2725,244 @@ async function loadFiles() {
   } finally {
     isLoading.value = false;
   }
+}
+
+const currentMount = computed<MountInfo | null>(() => mounts.value[selectedMountIndex.value] || null);
+const isExternalMount = computed(() => currentLocation.value === "appdrive" && !!currentMount.value?.external);
+const appDriveScope = computed(() => currentMount.value?.scope || containers.value.find((container) => container.name === selectedContainer.value)?.scope || selectedContainer.value || "");
+const appDriveScopeEntry = computed(() => appDriveEntries.value.find((entry) => entry.scope === appDriveScope.value) || null);
+const appDriveUnlocked = computed(() => disksPlusStore.isAppUnlocked(appDriveScope.value));
+const appDriveLocked = computed(() => isExternalMount.value && !appDriveUnlocked.value);
+const appDriveUnlockVisible = ref(false);
+const appDriveUnlockApp = computed(() => appDriveScopeEntry.value?.name || selectedContainer.value || "");
+const appDriveIconPath = computed(() => desktopStore.dockerApps.find((app) => app.name === appDriveUnlockApp.value)?.image_path || undefined);
+let appDriveAccessDenied = false;
+let pendingAppDriveTarget: ShortcutTargetData | null = null;
+
+function appDriveAbsolutePath(relativePath: string): string {
+  const base = currentMount.value?.host_path || "";
+  if (!relativePath) return base;
+
+  const separator = base.includes("\\") ? "\\" : "/";
+  return `${base.replace(/[\\/]+$/, "")}${separator}${relativePath.split("/").filter(Boolean).join(separator)}`;
+}
+
+watch(appDriveLocked, async (locked, wasLocked) => {
+  if (!wasLocked || locked || currentLocation.value !== "appdrive") return;
+
+  await loadFiles();
+
+  const pending = pendingAppDriveTarget;
+  pendingAppDriveTarget = null;
+
+  if (pending) {
+    selectFileInList(pending.initialFileName);
+    await checkShortcutTarget(pending);
+  }
+});
+
+watch(appDriveUnlockVisible, (visible) => {
+  if (!visible && !appDriveUnlocked.value) pendingAppDriveTarget = null;
+});
+
+function requestAppDriveUnlock() {
+  appDriveUnlockVisible.value = true;
+}
+
+function holdAppDriveTarget(data: ShortcutTargetData) {
+  if (!appDriveLocked.value) return false;
+  pendingAppDriveTarget = data;
+  requestAppDriveUnlock();
+  return true;
+}
+
+async function guardAppDrive<T>(relativePath: string, action: () => Promise<T>): Promise<T | { _canceled: true }> {
+  if (!isExternalMount.value) return await action();
+
+  const scope = appDriveScope.value;
+
+  if (!disksPlusStore.isAppUnlocked(scope)) {
+    requestAppDriveUnlock();
+    return { _canceled: true };
+  }
+
+  const normalizedAction = async () => {
+    try {
+      return await action();
+    } catch (err: any) {
+      const data = err?.response?.data;
+      try {
+        if (data instanceof Blob) err.response.data = JSON.parse(await data.text());
+        else if (data instanceof ArrayBuffer) err.response.data = JSON.parse(new TextDecoder().decode(data));
+      } catch {}
+      throw err;
+    }
+  };
+
+  try {
+    const result = await withDangerCheck(appDriveAbsolutePath(relativePath), normalizedAction, scope);
+    if (!(result as any)?._canceled) disksPlusStore.slideAppSession(scope);
+    return result;
+  } catch (err: any) {
+    if (err?.response?.status === 401 && err?.response?.data?.error === "unlock_required") {
+      await disksPlusStore.fetchStatus();
+      requestAppDriveUnlock();
+      return { _canceled: true };
+    }
+    throw err;
+  }
+}
+
+const archiveJobs = useArchiveJobsStore();
+const compressDialogVisible = ref(false);
+const compressTargets = ref<FileEntry[]>([]);
+const compressPassword = ref("");
+const compressPasswordConfirm = ref("");
+const compressPasswordMismatch = computed(() => !!compressPasswordConfirm.value && compressPassword.value !== compressPasswordConfirm.value);
+const canConfirmCompress = computed(() => compressPassword.value.length > 0 && compressPassword.value === compressPasswordConfirm.value);
+const canArchiveHere = computed(() => !isSpecialLocation.value && !isSearchMode.value && !!canUpload.value && !!currentArchiveLocation());
+
+function currentArchiveLocation(): ArchiveLocation | null {
+  if (currentLocation.value === "storage") return { source: "storage" };
+  if (currentLocation.value === "dropzone") return { source: "dropzone" };
+  if (currentLocation.value === "appdrive" && selectedContainer.value) return { source: "appdrive", container: selectedContainer.value, mount: selectedMountIndex.value };
+  if (currentLocation.value === "disksplus") {
+    const disk = currentDiskInfo();
+    return disk ? { source: "disksplus", disk: disk.id } : null;
+  }
+  return null;
+}
+
+function archiveGuardFor(relativePath: string): ArchiveGuard | undefined {
+  if (currentLocation.value === "disksplus") {
+    const disk = currentDiskInfo();
+    return disk ? { absolutePath: buildDiskAbsolutePath(disk.mountpoint, relativePath) } : undefined;
+  }
+  if (currentLocation.value === "appdrive" && isExternalMount.value) return { absolutePath: appDriveAbsolutePath(relativePath), scope: appDriveScope.value };
+  return undefined;
+}
+
+async function guardArchiveRequest<T>(relativePath: string, action: () => Promise<T>): Promise<T | { _canceled: true }> {
+  if (currentLocation.value === "appdrive") return await guardAppDrive(relativePath, action);
+  if (currentLocation.value === "disksplus") {
+    const disk = currentDiskInfo();
+    const result = await withDangerCheck(disk ? buildDiskAbsolutePath(disk.mountpoint, relativePath) : relativePath, action);
+    if (!(result as any)?._canceled) disksPlusStore.slideSession();
+    return result;
+  }
+  return await action();
+}
+
+function archiveRefFor(file: FileEntry): ArchiveFileRef | null {
+  const location = currentArchiveLocation();
+  if (!location) return null;
+  return { name: getDisplayName(file), path: file.name, location, guard: archiveGuardFor(file.name) };
+}
+
+function openInZipfile(file: FileEntry) {
+  const archive = archiveRefFor(file);
+  if (!archive) return;
+  windowStore.openFileInApp("zipfile", { data: { archiveFile: archive } });
+  fileExplorerStore.addToRecents({
+    location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
+    path: fileParentPath(file),
+    name: file.name,
+    is_directory: false,
+    container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
+    mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+    disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
+  });
+}
+
+async function extractHere(file: FileEntry) {
+  const archive = archiveRefFor(file);
+  if (!archive) return;
+  try {
+    await archiveJobs.start({
+      kind: "extract",
+      label: archive.name,
+      location: archive.location,
+      folder: fileParentPath(file),
+      archivePath: file.name,
+      csrfToken: csrfToken.value,
+      request: () => guardArchiveRequest(file.name, () => startExtract(archive, csrfToken.value)),
+      onError: (code) => {
+        if (code === "password_required") windowStore.openFileInApp("zipfile", { data: { archiveFile: archive } });
+      },
+    });
+  } catch {}
+}
+
+function requestCompress(targets: FileEntry[], withPassword: boolean) {
+  if (!withPassword) {
+    compress(targets);
+    return;
+  }
+  compressTargets.value = targets;
+  compressPassword.value = "";
+  compressPasswordConfirm.value = "";
+  compressDialogVisible.value = true;
+}
+
+function confirmCompressWithPassword() {
+  if (!canConfirmCompress.value) return;
+  const password = compressPassword.value;
+  compressDialogVisible.value = false;
+  compressPassword.value = "";
+  compressPasswordConfirm.value = "";
+  compress(compressTargets.value, password);
+}
+
+async function compress(targets: FileEntry[], password?: string) {
+  const location = currentArchiveLocation();
+  if (!location || !targets.length) return;
+  const folder = currentPath.value;
+  const names = targets.map((target) => target.name.split("/").pop() || target.name);
+  const label = targets.length === 1 ? `${getDisplayName(targets[0])}.zip` : "Archive.zip";
+  try {
+    await archiveJobs.start({
+      kind: "compress",
+      label,
+      location,
+      folder,
+      items: targets.map((target) => target.name),
+      csrfToken: csrfToken.value,
+      request: () => guardArchiveRequest(folder, () => startCompress(location, folder, names, csrfToken.value, password)),
+    });
+  } catch {}
+}
+
+const archiveBusy = computed(() => {
+  const busy = new Map<string, number | null>();
+  const location = currentArchiveLocation();
+  if (!location) return busy;
+  for (const job of archiveJobs.runningJobs) {
+    if (!sameLocation(job.location, location)) continue;
+    const percent = job.totalBytes > 0 ? Math.min(99, Math.round((job.processedBytes / job.totalBytes) * 100)) : null;
+    for (const name of job.items) busy.set(name, percent);
+  }
+  return busy;
+});
+
+function isBusy(file: FileEntry): boolean {
+  return compressingFolders.value.has(file.name) || archiveBusy.value.has(file.name);
+}
+
+function fileProgress(file: FileEntry): number | undefined {
+  return downloadProgresses.value[file.name] ?? archiveBusy.value.get(file.name) ?? undefined;
+}
+
+function showProgress(file: FileEntry): boolean {
+  const progress = fileProgress(file);
+  return progress !== undefined && progress < 100;
+}
+
+function handleFilesChanged(event: Event) {
+  const detail = (event as CustomEvent<FilesChangedDetail>).detail;
+  const location = currentArchiveLocation();
+  if (!detail || !location || !sameLocation(location, detail.location)) return;
+  if ((currentPath.value || "") !== (detail.folder || "") || isSearchMode.value) return;
+  loadFiles();
 }
 
 async function loadContainers() {
@@ -2575,12 +3037,15 @@ async function performSearch(forceSearch = false) {
       return;
     }
 
-    const response = await axios.get(endpoint, {
-      params,
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
+    const response = await guardAppDrive("", () =>
+      axios.get(endpoint, {
+        params,
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+      }),
+    );
+    if ((response as any)?._canceled) return;
     if (currentLocation.value === "disksplus") disksPlusStore.slideSession();
-    files.value = response.data.files || [];
+    files.value = (response as any).data.files || [];
     currentPath.value = "";
   } catch (error) {
     console.error("Search failed:", error);
@@ -2668,20 +3133,27 @@ async function openInNotepad(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "blob",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -2789,20 +3261,27 @@ async function openInCode(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "blob",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -2879,6 +3358,9 @@ async function openInCode(file: FileEntry) {
 }
 
 async function openInImageViewer(file: FileEntry) {
+  const extension = file.name.split(".").pop()?.toLowerCase() || "";
+  const endpoint = EXTENDED_IMAGE_EXTENSIONS.has(extension) ? "preview" : "download";
+
   try {
     downloadProgresses.value[file.name] = 0;
     if (currentLocation.value === "dropzone") {
@@ -2889,7 +3371,7 @@ async function openInImageViewer(file: FileEntry) {
     let response;
 
     if (currentLocation.value === "storage") {
-      response = await axios.get("/api/storage/download", {
+      response = await axios.get(`/api/storage/${endpoint}`, {
         params: { file: file.name },
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
         responseType: "arraybuffer",
@@ -2900,7 +3382,7 @@ async function openInImageViewer(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "dropzone") {
-      response = await axios.get(`/api/dropzone/download?file=${encodeURIComponent(file.name)}`, {
+      response = await axios.get(`/api/dropzone/${endpoint}?file=${encodeURIComponent(file.name)}`, {
         headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
         responseType: "arraybuffer",
         onDownloadProgress: (progressEvent) => {
@@ -2910,26 +3392,33 @@ async function openInImageViewer(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "arraybuffer",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get(`/api/appdrive/${endpoint}`, {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
       const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
       const res = await withDangerCheck(abs, async () => {
-        return await axios.get("/api/disksplus/download", {
+        return await axios.get(`/api/disksplus/${endpoint}`, {
           params: { disk: disk.id, file: file.name },
           headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
           responseType: "arraybuffer",
@@ -2951,13 +3440,13 @@ async function openInImageViewer(file: FileEntry) {
     }
 
     const fileName = file.display_name || file.name.split("/").pop() || file.name;
-    const extension = file.name.split(".").pop()?.toLowerCase() || "";
 
     windowStore.openFileInApp("imageviewer", {
       data: {
         imageFile: {
           name: fileName,
-          extension: extension,
+          extension: endpoint === "preview" ? "webp" : extension,
+          format: extension,
           buffer: response.data,
         },
       },
@@ -3022,20 +3511,27 @@ async function openInPDFViewer(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "arraybuffer",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -3100,6 +3596,126 @@ async function openInPDFViewer(file: FileEntry) {
   }
 }
 
+function openInSheets(file: FileEntry) {
+  return openBinaryInApp(file, "sheets", "sheetsFile", "Failed to open spreadsheet");
+}
+
+function openInWriter(file: FileEntry) {
+  return openBinaryInApp(file, "writer", "writerFile", "Failed to open document");
+}
+
+async function openBinaryInApp(file: FileEntry, appId: string, dataKey: string, failureMessage: string) {
+  try {
+    downloadProgresses.value[file.name] = 0;
+    if (currentLocation.value === "dropzone") {
+      fileStates.value[file.name] = true;
+      loadingStates.value[file.name] = true;
+    }
+
+    const onDownloadProgress = (progressEvent: AxiosProgressEvent) => {
+      if (progressEvent.total) {
+        downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      }
+    };
+
+    let response;
+
+    if (currentLocation.value === "storage") {
+      response = await axios.get("/api/storage/download", {
+        params: { file: file.name },
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "arraybuffer",
+        onDownloadProgress,
+      });
+    } else if (currentLocation.value === "dropzone") {
+      response = await axios.get(`/api/dropzone/download?file=${encodeURIComponent(file.name)}`, {
+        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+        responseType: "arraybuffer",
+        onDownloadProgress,
+      });
+    } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress,
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
+    } else if (currentLocation.value === "disksplus") {
+      const disk = currentDiskInfo();
+      if (!disk) throw new Error("No disk selected");
+      const abs = buildDiskAbsolutePath(disk.mountpoint, file.name);
+      const res = await withDangerCheck(abs, async () => {
+        return await axios.get("/api/disksplus/download", {
+          params: { disk: disk.id, file: file.name },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress,
+        });
+      });
+      if ((res as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      disksPlusStore.slideSession();
+      response = res as any;
+    } else {
+      throw new Error("Invalid location or missing container");
+    }
+
+    const fileName = file.display_name || file.name.split("/").pop() || file.name;
+
+    windowStore.openFileInApp(appId, {
+      data: {
+        [dataKey]: {
+          name: fileName,
+          buffer: response.data,
+          path: file.name,
+          source: currentLocation.value,
+          container: currentLocation.value === "appdrive" ? selectedContainer.value : undefined,
+          mountIndex: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+          disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id : undefined,
+        },
+      },
+    });
+    if (!isSpecialLocation.value) {
+      fileExplorerStore.addToRecents({
+        location: currentLocation.value as "storage" | "dropzone" | "appdrive" | "disksplus",
+        path: fileParentPath(file),
+        name: file.name,
+        is_directory: false,
+        container: currentLocation.value === "appdrive" ? selectedContainer.value || undefined : undefined,
+        mount_index: currentLocation.value === "appdrive" ? selectedMountIndex.value : undefined,
+        disk: currentLocation.value === "disksplus" ? currentDiskInfo()?.id || undefined : undefined,
+      });
+    }
+    setTimeout(() => {
+      delete downloadProgresses.value[file.name];
+      if (currentLocation.value === "dropzone") {
+        fileStates.value[file.name] = false;
+        loadingStates.value[file.name] = false;
+      }
+    }, 500);
+  } catch (error) {
+    delete downloadProgresses.value[file.name];
+    if (currentLocation.value === "dropzone") {
+      fileStates.value[file.name] = false;
+      loadingStates.value[file.name] = false;
+    }
+    message.error(t(failureMessage));
+  }
+}
+
 async function openInMediaPlayer(file: FileEntry) {
   try {
     downloadProgresses.value[file.name] = 0;
@@ -3132,20 +3748,27 @@ async function openInMediaPlayer(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "arraybuffer",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -3252,20 +3875,27 @@ async function openInBrusher(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "arraybuffer",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "arraybuffer",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -3380,7 +4010,7 @@ const favoriteKeys = computed(() => {
 function isFileFavorited(file: FileEntry): boolean {
   if (isSpecialLocation.value) return false;
   const loc = currentLocation.value;
-  if (loc === "systemapps" || loc === "utilities") return false;
+  if (loc === "systemapps" || loc === "utilities" || loc === "games") return false;
   const path = fileParentPath(file);
   const disk = loc === "disksplus" ? currentDiskInfo()?.id || "" : "";
   const container = loc === "appdrive" ? selectedContainer.value || "" : "";
@@ -3420,8 +4050,8 @@ async function verifyFileExists(source: string, path: string, fileName: string, 
 
     const filesList = response.data.files || [];
     return filesList.some((f: FileEntry) => f.name === fileName || f.display_name === fileName);
-  } catch (error) {
-    return false;
+  } catch (error: any) {
+    return source === "appdrive" && error?.response?.status === 401;
   }
 }
 
@@ -3540,6 +4170,12 @@ async function handleFileDoubleClick(file: FileEntry) {
       openInMediaPlayer(file);
     } else if (PDF_EXTENSIONS.has(extension)) {
       openInPDFViewer(file);
+    } else if (SHEETS_EXTENSIONS.has(extension)) {
+      openInSheets(file);
+    } else if (WRITER_EXTENSIONS.has(extension)) {
+      openInWriter(file);
+    } else if (isArchiveName(file.name) && currentArchiveLocation()) {
+      openInZipfile(file);
     } else {
       downloadFile(file);
     }
@@ -3590,20 +4226,27 @@ async function downloadFile(file: FileEntry) {
         },
       });
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.get("/api/appdrive/download", {
-        params: {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: file.name,
-        },
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        responseType: "blob",
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          }
-        },
-      });
+      const guarded = await guardAppDrive(file.name, () =>
+        axios.get("/api/appdrive/download", {
+          params: {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: file.name,
+          },
+          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              downloadProgresses.value[file.name] = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            }
+          },
+        }),
+      );
+      if ((guarded as any)?._canceled) {
+        delete downloadProgresses.value[file.name];
+        return;
+      }
+      response = guarded as any;
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
       if (!disk) throw new Error("No disk selected");
@@ -3725,18 +4368,25 @@ async function downloadAsZip(fileNames: string[]) {
       disksPlusStore.slideSession();
       response = res as any;
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      response = await axios.post(
-        "/api/appdrive/download-multiple",
-        {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          files: fileNames,
-        },
-        {
-          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-          responseType: "blob",
-        },
+      const guarded = await guardAppDrive(currentPath.value, () =>
+        axios.post(
+          "/api/appdrive/download-multiple",
+          {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            files: fileNames,
+          },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+            responseType: "blob",
+          },
+        ),
       );
+      if ((guarded as any)?._canceled) {
+        compressingFolders.value.clear();
+        return;
+      }
+      response = guarded as any;
     } else {
       throw new Error("Invalid location or missing container");
     }
@@ -3786,15 +4436,18 @@ async function confirmDelete() {
         } else if (currentLocation.value === "dropzone") {
           await axios.post("/api/dropzone/delete", { file: fileName }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
         } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-          await axios.post(
-            "/api/appdrive/delete",
-            {
-              container: selectedContainer.value,
-              mount: selectedMountIndex.value,
-              file: fileName,
-            },
-            { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+          const res = await guardAppDrive(fileName, () =>
+            axios.post(
+              "/api/appdrive/delete",
+              {
+                container: selectedContainer.value,
+                mount: selectedMountIndex.value,
+                file: fileName,
+              },
+              { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+            ),
           );
+          if ((res as any)?._canceled) throw new Error("canceled");
         } else if (currentLocation.value === "disksplus") {
           const disk = currentDiskInfo();
           if (!disk) throw new Error("no_disk");
@@ -3838,15 +4491,19 @@ async function confirmDelete() {
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      await axios.post(
-        "/api/appdrive/delete",
-        {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          file: fileToDelete.value.name,
-        },
-        { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+      const target = fileToDelete.value.name;
+      const res = await guardAppDrive(target, () =>
+        axios.post(
+          "/api/appdrive/delete",
+          {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            file: target,
+          },
+          { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
+        ),
       );
+      if ((res as any)?._canceled) return;
       message.success(t("Deleted {name}", { name: fileToDelete.value.display_name || fileToDelete.value.name }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
@@ -3922,18 +4579,22 @@ async function performRename() {
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      await axios.post(
-        "/api/appdrive/rename",
-        {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          old_name: fileToRename.value.name,
-          new_name: renameValue.value.trim(),
-        },
-        {
-          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        },
+      const oldName = fileToRename.value.name;
+      const res = await guardAppDrive(oldName, () =>
+        axios.post(
+          "/api/appdrive/rename",
+          {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            old_name: oldName,
+            new_name: renameValue.value.trim(),
+          },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          },
+        ),
       );
+      if ((res as any)?._canceled) return;
       message.success(t('Renamed to "{name}"', { name: renameValue.value }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
@@ -4009,18 +4670,21 @@ async function createFolder() {
         return;
       }
     } else if (currentLocation.value === "appdrive" && selectedContainer.value) {
-      await axios.post(
-        "/api/appdrive/create-folder",
-        {
-          container: selectedContainer.value,
-          mount: selectedMountIndex.value,
-          name: newFolderName.value.trim(),
-          path: currentPath.value,
-        },
-        {
-          headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-        },
+      const res = await guardAppDrive(currentPath.value, () =>
+        axios.post(
+          "/api/appdrive/create-folder",
+          {
+            container: selectedContainer.value,
+            mount: selectedMountIndex.value,
+            name: newFolderName.value.trim(),
+            path: currentPath.value,
+          },
+          {
+            headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
+          },
+        ),
       );
+      if ((res as any)?._canceled) return;
       message.success(t('Created folder "{name}"', { name: newFolderName.value }));
     } else if (currentLocation.value === "disksplus") {
       const disk = currentDiskInfo();
@@ -4274,80 +4938,34 @@ function cancelFolderUpload() {
   pendingUploadData.value = null;
 }
 
-const CHUNK_SIZE = 5 * 1024 * 1024;
-
-async function uploadChunked(apiBase: string, file: File, targetPath: string, uid: string, loc: UploadLocation, extraInitFields: Record<string, any> = {}, onChunkComplete?: () => void): Promise<{ success: boolean; error?: string; data?: any }> {
-  const totalSize = file.size;
-  const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
-
-  const initRes = await axios.post(
-    `${apiBase}/init`,
-    {
-      filename: file.name,
-      total_size: totalSize,
-      total_chunks: totalChunks,
-      target_path: targetPath || "",
-      ...extraInitFields,
-    },
-    { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } },
-  );
-  if (!initRes.data?.success || !initRes.data.upload_id) {
-    return { success: false, error: initRes.data?.error || "init_failed" };
-  }
-  const uploadId = initRes.data.upload_id as string;
-
-  let uploadedBytes = 0;
+async function uploadQueuedFile(apiBase: string, file: File, targetPath: string, uid: string, loc: UploadLocation, extraInitFields: Record<string, unknown> = {}, onChunkComplete?: () => void): Promise<{ success: boolean; error?: string; data?: any }> {
   try {
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * CHUNK_SIZE;
-      const end = Math.min(start + CHUNK_SIZE, totalSize);
-      const chunk = file.slice(start, end);
-
-      await axios.put(`${apiBase}/chunk?upload_id=${uploadId}&chunk_index=${i}`, chunk, {
-        headers: {
-          "X-HomeDock-CSRF-Token": csrfToken.value,
-          "Content-Type": "application/octet-stream",
-        },
-        onUploadProgress: (progressEvent) => {
-          const chunkLoaded = progressEvent.loaded || 0;
-          const total = uploadedBytes + chunkLoaded;
-          const percent = Math.min(99, Math.round((total / totalSize) * 100));
-          uploadStore.updateProgress(loc, uid, percent);
-        },
-      });
-      uploadedBytes += end - start;
-      onChunkComplete?.();
-    }
-
-    const finalizeRes = await axios.post(`${apiBase}/finalize`, { upload_id: uploadId }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
-    if (!finalizeRes.data?.success) {
-      return { success: false, error: finalizeRes.data?.error || "finalize_failed" };
-    }
-    return { success: true, data: finalizeRes.data };
+    const data = await uploadChunked(apiBase, file, file.name, targetPath || "", csrfToken.value, {
+      extraInitFields,
+      onChunkComplete,
+      onProgress: (loaded, total) => uploadStore.updateProgress(loc, uid, Math.min(99, Math.round((loaded / total) * 100))),
+    });
+    return { success: true, data };
   } catch (err) {
-    try {
-      await axios.delete(`${apiBase}/abort?upload_id=${encodeURIComponent(uploadId)}`, {
-        headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      });
-    } catch {}
+    if (err instanceof UploadRejectedError) return { success: false, error: err.message };
     throw err;
   }
 }
 
 async function uploadStorageChunked(file: File, targetPath: string, uid: string, loc: UploadLocation) {
-  return uploadChunked("/api/storage/upload", file, targetPath, uid, loc);
+  return uploadQueuedFile("/api/storage/upload", file, targetPath, uid, loc);
 }
 
 async function uploadAppDriveChunked(file: File, targetPath: string, uid: string, loc: UploadLocation, container: string, mountIndex: number) {
-  return uploadChunked("/api/appdrive/upload", file, targetPath, uid, loc, { container, mount: mountIndex });
+  return uploadQueuedFile("/api/appdrive/upload", file, targetPath, uid, loc, { container, mount: mountIndex });
 }
 
 async function uploadDisksPlusChunked(file: File, targetPath: string, uid: string, loc: UploadLocation, diskId: string) {
-  return uploadChunked("/api/disksplus/upload", file, targetPath, uid, loc, { disk: diskId }, () => disksPlusStore.slideSession());
+  return uploadQueuedFile("/api/disksplus/upload", file, targetPath, uid, loc, { disk: diskId }, () => disksPlusStore.slideSession());
 }
 
 async function uploadDropzoneChunked(file: File, targetPath: string, uid: string, loc: UploadLocation) {
-  return uploadChunked("/api/dropzone/upload", file, targetPath, uid, loc);
+  return uploadQueuedFile("/api/dropzone/upload", file, targetPath, uid, loc);
 }
 
 async function processUploadQueue() {
@@ -4382,7 +5000,29 @@ async function processUploadQueue() {
           }
 
           if (nextUpload.location === "appdrive" && nextUpload.container) {
-            const result = await uploadAppDriveChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc, nextUpload.container, nextUpload.mountIndex || 0);
+            const doChunkedUpload = async () => uploadAppDriveChunked(nextUpload.file, nextUpload.targetPath || "", nextUpload.uid, loc, nextUpload.container!, nextUpload.mountIndex || 0);
+            let result: { success: boolean; error?: string; data?: any };
+            if (nextUpload.appDriveAbsolutePath) {
+              try {
+                const res = await withDangerCheck(nextUpload.appDriveAbsolutePath, doChunkedUpload, nextUpload.appDriveScope);
+                if ((res as any)?._canceled) {
+                  uploadStore.cancelUpload(loc, nextUpload.uid);
+                  return;
+                }
+                disksPlusStore.slideAppSession(nextUpload.appDriveScope);
+                result = res as any;
+              } catch (err: any) {
+                if (err?.response?.status === 401 && err?.response?.data?.error === "unlock_required") {
+                  uploadStore.cancelUpload(loc, nextUpload.uid);
+                  await disksPlusStore.fetchStatus();
+                  requestAppDriveUnlock();
+                  return;
+                }
+                throw err;
+              }
+            } else {
+              result = await doChunkedUpload();
+            }
             if (!result.success) {
               uploadStore.cancelUpload(loc, nextUpload.uid);
               message.error(t(result.error || "Upload failed"));
@@ -4466,6 +5106,12 @@ async function handleFilesUpload(filesList: File[], withPaths?: Array<{ file: Fi
   const disk = location === "disksplus" ? currentDiskInfo() : null;
   if (location === "disksplus" && !disk) return;
 
+  const externalAppDrive = isExternalMount.value;
+  if (externalAppDrive && !appDriveUnlocked.value) {
+    requestAppDriveUnlock();
+    return;
+  }
+
   for (let i = 0; i < filesList.length; i++) {
     const file = filesList[i];
     const relativePath = withPaths ? withPaths[i].relativePath : file.name;
@@ -4495,6 +5141,8 @@ async function handleFilesUpload(filesList: File[], withPaths?: Array<{ file: Fi
       mountIndex,
       diskId: disk?.id,
       diskAbsolutePath: disk ? buildDiskAbsolutePath(disk.mountpoint, targetPath) : undefined,
+      appDriveAbsolutePath: externalAppDrive ? appDriveAbsolutePath(targetPath) : undefined,
+      appDriveScope: externalAppDrive ? appDriveScope.value : undefined,
     });
   }
   processUploadQueue();
@@ -4548,7 +5196,7 @@ function handleContainerMouseDown(event: MouseEvent) {
 
   const target = event.target as HTMLElement;
   if (target.closest(".fileexplorer-toolbar, .fileexplorer-sidebar, .fileexplorer-breadcrumbs, .fileexplorer-info-bar")) return;
-  const hasItems = sortedFiles.value.length > 0 || (currentLocation.value === "systemapps" && systemAppsAsFiles.value.length > 0) || (currentLocation.value === "utilities" && utilitiesAsFiles.value.length > 0);
+  const hasItems = sortedFiles.value.length > 0 || (currentLocation.value === "systemapps" && systemAppsAsFiles.value.length > 0) || (isLauncherLocation.value && utilitiesAsFiles.value.length > 0);
   if (!hasItems) return;
   if (!filesAreaRef.value) return;
 
@@ -4817,7 +5465,7 @@ onMounted(async () => {
   await fileExplorerStore.initialize();
 
   const disksPlusStatus = disksPlusStore.fetchStatus();
-  if (props.initialLocation === "disksplus") await disksPlusStatus;
+  if (props.initialLocation === "disksplus" || props.initialLocation === "appdrive") await disksPlusStatus;
 
   if (props.initialLocation === "appdrive" && props.initialContainer) {
     currentLocation.value = "appdrive";
@@ -4826,7 +5474,7 @@ onMounted(async () => {
     isAppDriveExpanded.value = true;
     await loadContainers();
     await loadMounts(props.initialContainer, props.initialMountIndex);
-    selectFileInList(props.initialFileName);
+    if (!holdAppDriveTarget(props)) selectFileInList(props.initialFileName);
   } else if (props.initialLocation === "dropzone") {
     currentLocation.value = "dropzone";
     isDropZoneExpanded.value = true;
@@ -4872,16 +5520,20 @@ onMounted(async () => {
   if (props._windowId) {
     window.addEventListener(`homedock:open-file-${props._windowId}`, handleIncomingNavigation as unknown as EventListener);
   }
+  window.addEventListener("homedock:files-changed", handleFilesChanged);
 });
 async function handleIncomingNavigation(event: CustomEvent) {
   const data = event.detail;
+  if (data?.initialLocation && searchQuery.value) {
+    searchQuery.value = "";
+  }
   if (data?.initialLocation === "appdrive" && data?.initialContainer) {
     currentLocation.value = "appdrive";
     selectedContainer.value = data.initialContainer;
     currentPath.value = data.initialPath || "";
     isAppDriveExpanded.value = true;
     await loadMounts(data.initialContainer, data.initialMountIndex);
-    selectFileInList(data.initialFileName);
+    if (!holdAppDriveTarget(data)) selectFileInList(data.initialFileName);
   } else if (data?.initialLocation === "disksplus" && data?.initialDiskId) {
     await openDisksPlusTarget(data.initialDiskId, data.initialPath || "", data.initialFileName);
   } else if (data?.initialLocation === "storage") {
@@ -4901,12 +5553,16 @@ async function handleIncomingNavigation(event: CustomEvent) {
   await checkShortcutTarget(data);
 }
 
-async function checkShortcutTarget(data: { initialShortcutId?: string; initialFileName?: string; initialPath?: string; initialLocation?: string } | undefined) {
+async function checkShortcutTarget(data: ShortcutTargetData | undefined) {
   const shortcutId = data?.initialShortcutId;
   if (!shortcutId) return;
 
   // HDOS00114
   if (data?.initialLocation === "disksplus" && !disksPlusStore.unlocked) return;
+
+  if (data?.initialLocation === "appdrive" && isExternalMount.value) {
+    if (appDriveLocked.value || appDriveAccessDenied) return;
+  }
 
   const name = data.initialFileName;
 
@@ -4950,6 +5606,7 @@ onUnmounted(() => {
   if (props._windowId) {
     window.removeEventListener(`homedock:open-file-${props._windowId}`, handleIncomingNavigation as unknown as EventListener);
   }
+  window.removeEventListener("homedock:files-changed", handleFilesChanged);
 });
 watch(currentPath, () => {
   nextTick(() => {

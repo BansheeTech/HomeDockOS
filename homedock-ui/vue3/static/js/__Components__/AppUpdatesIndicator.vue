@@ -6,7 +6,7 @@
 <template>
   <Transition name="taskbar-item">
     <div v-if="hasUpdates" class="updates-indicator-wrapper" ref="indicatorRef">
-      <div class="updates-indicator" :class="[themeClasses.installIndicatorBg, themeClasses.installIndicatorBgHover]" @click="toggleDropdown">
+      <div class="updates-indicator" :class="[themeClasses.installIndicatorBg, themeClasses.installIndicatorBgHover]" @click="toggle">
         <Badge :count="updatesCount" size="small" :overflow-count="9" color="#488c00">
           <div :class="[themeClasses.installIndicatorIcon, themeClasses.installIndicatorIconHover]">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
@@ -30,48 +30,34 @@
         </Badge>
       </div>
 
-      <Transition name="dropdown">
-        <Teleport to="body">
-          <div v-if="isExpanded" class="updates-dropdown border" :class="[themeClasses.installDropdownBg, themeClasses.installDropdownBorder, themeClasses.installDropdownShadow]">
-            <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Updates Available") }}</span>
-            </div>
+      <TrayPanel :open="isOpen" :anchor="indicatorRef" :title="$t('Updates Available')" :subtitle="$t('{n} Updates Available', { n: updatesCount })" :icon="updateIcon" icon-color="#16a34a" @close="close">
+        <TraySection>
+          <TransitionGroup :css="false" tag="div" @leave="collapseLeave">
+            <TrayRow v-for="container in visibleUpdates" :key="`update-${container.name}`" :title="container.display_name" interactive @click="updateContainer(container.name)">
+              <template #leading>
+                <AppIconGraphic :image-src="getContainerIcon(container)" :size="28" />
+              </template>
+              <template #trailing>
+                <span :class="[themeClasses.storeCardGetPill]" class="flex-shrink-0 h-6 px-3 rounded-full text-[11px] font-bold leading-6 transition-colors duration-150">{{ $t("Update") }}</span>
+              </template>
+            </TrayRow>
+          </TransitionGroup>
+          <p v-if="remainingCount > 0" :class="[themeClasses.storeCardSubtitle]" class="m-0 px-1.5 pt-1 text-[11px]">{{ $t("And {n} more...", { n: remainingCount }) }}</p>
+        </TraySection>
 
-            <div v-if="containersWithUpdates.length > 0" class="updates-section" :class="themeClasses.installSectionBorder">
-              <div class="section-label" :class="themeClasses.installSectionLabel">{{ $t("{n} Updates Available", { n: updatesCount }) }}</div>
-              <div class="app-list">
-                <TransitionGroup name="app-switch" tag="div">
-                  <div v-for="container in visibleUpdates" :key="`update-${container.name}`" class="app-item" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover]" @click="updateContainer(container.name)">
-                    <BaseImage :key="`img-update-${container.name}`" :src="getContainerIcon(container)" class="app-icon rounded-md" alt="" draggable="false" />
-                    <span class="app-name" :class="themeClasses.installAppName">{{ container.display_name }}</span>
-                    <div class="update-arrow" :class="themeClasses.installAppName">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 5v14M19 12l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </TransitionGroup>
-                <div v-if="remainingCount > 0" class="more-apps" :class="themeClasses.installMoreApps">{{ $t("And {n} more...", { n: remainingCount }) }}</div>
-              </div>
-            </div>
-
-            <div v-if="updatesCount > 1" class="px-3.5 py-3" :class="themeClasses.installSectionBorder">
-              <button class="flex items-center justify-center gap-1.5 w-full px-3 py-1.5 rounded-md border-none text-[0.72rem] font-semibold uppercase tracking-wide cursor-pointer transition-colors duration-150" :class="[themeClasses.installAppItemBg, themeClasses.installAppItemBgHover, themeClasses.installAppName]" @click="updateAll">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v14M19 12l-7 7-7-7" />
-                </svg>
-                {{ $t("Update All ({n})", { n: updatesCount }) }}
-              </button>
-            </div>
-          </div>
-        </Teleport>
-      </Transition>
+        <template v-if="updatesCount > 1" #footer>
+          <button type="button" class="flex items-center justify-center gap-1.5 w-full h-8 rounded-full border-0 bg-blue-600 text-white text-xs font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-500" @click="updateAll">
+            <Icon :icon="updateAllIcon" class="w-3.5 h-3.5" />
+            {{ $t("Update All ({n})", { n: updatesCount }) }}
+          </button>
+        </template>
+      </TrayPanel>
     </div>
   </Transition>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed } from "vue";
 
 import { Badge } from "ant-design-vue";
 
@@ -80,20 +66,25 @@ import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useDesktopStore } from "../__Stores__/desktopStore";
 import { useAppUpdateStore } from "../__Stores__/useAppUpdateStore";
 import { updateContainer as updateDockerContainer } from "../__Services__/DockerActions";
-import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useTrayPanel } from "../__Composables__/useTrayManager";
+import { collapseLeave } from "../__Utils__/collapseLeave";
 
-import BaseImage from "./BaseImage.vue";
+import { Icon } from "@iconify/vue";
+import updateIcon from "@iconify-icons/mdi/update";
+import updateAllIcon from "@iconify-icons/mdi/tray-arrow-down";
+
+import AppIconGraphic from "./AppIconGraphic.vue";
+import TrayPanel from "./TrayPanel.vue";
+import TraySection from "./TraySection.vue";
+import TrayRow from "./TrayRow.vue";
 
 const { themeClasses } = useTheme();
 const csrfToken = useCsrfToken();
 const desktopStore = useDesktopStore();
 const updateStore = useAppUpdateStore();
-const trayManager = useTrayManager();
-
-const TRAY_ID = "app-updates-indicator";
+const { isOpen, toggle, close } = useTrayPanel("app-updates-indicator");
 
 const indicatorRef = ref<HTMLElement | null>(null);
-const isExpanded = ref(false);
 
 const MAX_VISIBLE = 5;
 
@@ -127,8 +118,6 @@ function getContainerIcon(container: any): string {
 }
 
 function updateContainer(containerName: string) {
-  closeDropdown();
-
   const app = desktopStore.dockerApps.find((a) => a.name === containerName);
   if (!app) {
     console.error("Container not found:", containerName);
@@ -139,51 +128,12 @@ function updateContainer(containerName: string) {
 }
 
 function updateAll() {
-  closeDropdown();
+  close();
   for (const container of containersWithUpdates.value) {
     const app = desktopStore.dockerApps.find((a) => a.name === container.name);
     if (app) updateDockerContainer(app, csrfToken.value);
   }
 }
-
-function toggleDropdown(e: MouseEvent) {
-  e.stopPropagation();
-  if (!isExpanded.value) {
-    trayManager.openTray(TRAY_ID);
-    isExpanded.value = true;
-  } else {
-    trayManager.closeTray(TRAY_ID);
-    isExpanded.value = false;
-  }
-}
-
-function closeDropdown() {
-  trayManager.closeTray(TRAY_ID);
-  isExpanded.value = false;
-}
-
-function handleClickOutside(event: MouseEvent) {
-  if (indicatorRef.value && !indicatorRef.value.contains(event.target as Node)) {
-    closeDropdown();
-  }
-}
-
-watch(
-  () => trayManager.activeTrayId.value,
-  (newTrayId) => {
-    if (newTrayId !== TRAY_ID && isExpanded.value) {
-      isExpanded.value = false;
-    }
-  },
-);
-
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
 </script>
 
 <style scoped>
@@ -219,101 +169,6 @@ onUnmounted(() => {
   animation: blink 4s infinite;
 }
 
-.updates-dropdown {
-  position: fixed;
-  right: 1rem;
-  left: auto;
-  bottom: 4rem;
-  border-radius: 12px;
-  width: 280px;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 0.75rem 0.875rem;
-}
-
-.dropdown-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.updates-section {
-  padding: 0.75rem 0.875rem;
-}
-
-.section-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 0.5rem;
-}
-
-.app-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.app-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem;
-  border-radius: 6px;
-  transition: background 0.15s ease;
-  cursor: pointer;
-}
-
-.app-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.app-name {
-  font-size: 0.75rem;
-  font-weight: 500;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.update-arrow {
-  flex-shrink: 0;
-  opacity: 0.6;
-  transition: opacity 0.15s ease;
-}
-
-.app-item:hover .update-arrow {
-  opacity: 1;
-}
-
-.more-apps {
-  font-size: 0.7rem;
-  text-align: center;
-  padding: 0.25rem;
-  font-style: italic;
-}
-
-/* Dropdown Animation */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
 /* Taskbar item transitions */
 .taskbar-item-enter-active,
 .taskbar-item-leave-active {
@@ -328,27 +183,5 @@ onUnmounted(() => {
 .taskbar-item-leave-to {
   opacity: 0;
   transform: scale(0.8) translateY(10px);
-}
-
-/* App switch animation */
-.app-switch-move,
-.app-switch-enter-active,
-.app-switch-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app-switch-enter-from {
-  opacity: 0;
-  transform: translateX(15px);
-}
-
-.app-switch-leave-to {
-  opacity: 0;
-  transform: translateX(-15px);
-}
-
-.app-switch-leave-active {
-  position: absolute;
-  width: 100%;
 }
 </style>

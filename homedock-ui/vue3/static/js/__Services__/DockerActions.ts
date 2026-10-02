@@ -39,7 +39,7 @@ export async function startContainer(app: DockerApp, csrfToken: string, themeCla
   }
 }
 
-export async function stopContainer(app: DockerApp, csrfToken: string, themeClass?: string) {
+export async function stopContainer(app: DockerApp, csrfToken: string, themeClass?: string, force = false) {
   const desktopStore = useDesktopStore();
   const selectedAppsStore = useSelectedAppsStore();
 
@@ -47,7 +47,7 @@ export async function stopContainer(app: DockerApp, csrfToken: string, themeClas
     desktopStore.updateDockerApp(app.id, { isProcessing: true });
     selectedAppsStore.setProcessing(app.name, true);
 
-    await stopContainers(selectedAppsStore.applications, app.name, csrfToken);
+    await stopContainers(selectedAppsStore.applications, app.name, csrfToken, force);
   } catch (error) {
     if (error instanceof AxiosError && themeClass) {
       notifyError(error, themeClass);

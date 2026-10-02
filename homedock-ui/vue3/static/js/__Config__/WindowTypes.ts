@@ -10,6 +10,8 @@ export interface SystemApp {
   name: string;
   description: string;
   icon: any;
+  color?: string;
+  iconOverlay?: boolean;
   component: Component;
   defaultWidth: number;
   defaultHeight: number;
@@ -21,7 +23,7 @@ export interface SystemApp {
   maximizable: boolean;
   minimizable: boolean;
   closeable: boolean;
-  category: "system" | "tools" | "settings" | "media" | "utilities";
+  category: "system" | "tools" | "settings" | "media" | "utilities" | "games";
   showInStartMenu?: boolean;
   showInFinderApp?: boolean;
   showInMyHomeApp?: boolean;

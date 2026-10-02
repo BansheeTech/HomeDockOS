@@ -6,7 +6,7 @@
 <template>
   <Transition name="taskbar-item">
     <div v-if="sessionExpired" class="session-expired-wrapper" ref="indicatorRef">
-      <div class="session-expired-indicator" :class="[themeClasses.networkIndicatorBg, themeClasses.networkIndicatorIcon, themeClasses.networkIndicatorBgHover, themeClasses.networkIndicatorIconHover]" @click="toggleDropdown">
+      <div class="session-expired-indicator" :class="[themeClasses.networkIndicatorBg, themeClasses.networkIndicatorIcon, themeClasses.networkIndicatorBgHover, themeClasses.networkIndicatorIconHover]" @click="toggle">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
           <rect width="24" height="24" fill="none" />
           <mask id="sessionExpiredIcon">
@@ -52,46 +52,23 @@
         </svg>
       </div>
 
-      <Transition name="dropdown">
-        <Teleport to="body">
-          <div v-if="isExpanded" class="session-dropdown border" :class="[themeClasses.networkDropdownBg, themeClasses.networkDropdownBorder, themeClasses.networkDropdownShadow]">
-            <div class="dropdown-header px-6 py-4 rounded-t-lg text-sm font-medium flex items-center space-x-3" :class="themeClasses.topBack">
-              <span class="dropdown-title" :class="themeClasses.notTextUp">{{ $t("Session Status") }}</span>
-            </div>
-
-            <div class="session-section" :class="themeClasses.networkSectionBorder">
-              <div class="status-item" :class="themeClasses.networkStatusItem">
-                <Icon :icon="shieldIcon" class="status-icon" :class="themeClasses.networkStatusIconOffline" width="20" height="20" />
-                <div class="status-info">
-                  <span class="status-label" :class="themeClasses.networkStatusLabel">{{ $t("Authentication") }}</span>
-                  <span class="status-value offline" :class="themeClasses.networkStatusOffline">{{ $t("Session Expired") }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="session-section" :class="themeClasses.networkSectionBorder">
-              <div class="help-text" :class="themeClasses.networkHelpText">
-                <Icon :icon="infoIcon" class="help-icon" width="16" height="16" />
-                <span>{{ $t("For security purposes, your session has expired. Please log in again to continue.") }}</span>
-              </div>
-            </div>
-
-            <div class="session-section">
-              <button class="login-button" :class="[themeClasses.startButtonBg, themeClasses.startButtonText, themeClasses.startButtonBgHover]" @click="redirectToLogin">
-                <Icon :icon="loginIcon" width="16" height="16" />
-                <span>{{ $t("Log in again") }}</span>
-              </button>
-            </div>
-
-            <div v-if="expiredTime" class="session-section">
-              <div class="time-info" :class="themeClasses.networkTimeInfo">
-                <Icon :icon="clockIcon" class="time-icon" width="14" height="14" />
-                <span class="time-text">{{ $t("Expired") }}: {{ formatTime(expiredTime) }}</span>
-              </div>
-            </div>
+      <TrayPanel :open="isOpen" :anchor="indicatorRef" :title="$t('Session Status')" :subtitle="expiredTime ? `${$t('Expired')}: ${formatTime(expiredTime)}` : undefined" :icon="shieldIcon" icon-color="#f59e0b" @close="close">
+        <div class="px-1.5 pt-1 space-y-2.5">
+          <div :class="[themeClasses.storeInfoBar]" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+            <span :class="[themeClasses.storeCardSubtitle]" class="flex-1 min-w-0 text-xs truncate">{{ $t("Authentication") }}</span>
+            <span class="flex-shrink-0 text-xs font-semibold text-amber-500">{{ $t("Session Expired") }}</span>
           </div>
-        </Teleport>
-      </Transition>
+          <p :class="[themeClasses.storeCardSubtitle]" class="m-0 px-1 text-xs leading-relaxed">{{ $t("For security purposes, your session has expired. Please log in again to continue.") }}</p>
+        </div>
+
+        <template #footer>
+          <button type="button" class="flex items-center justify-center gap-1.5 w-full h-8 rounded-full border-0 bg-blue-600 text-white text-xs font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-500" @click="redirectToLogin">
+            <Icon :icon="loginIcon" class="w-3.5 h-3.5" />
+            {{ $t("Log in again") }}
+          </button>
+        </template>
+      </TrayPanel>
     </div>
   </Transition>
 </template>
@@ -99,23 +76,20 @@
 <script lang="ts" setup>
 import axios, { AxiosError } from "axios";
 
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useTrayManager } from "../__Composables__/useTrayManager";
+import { useTrayPanel } from "../__Composables__/useTrayManager";
 
 import { Icon } from "@iconify/vue";
 import shieldIcon from "@iconify-icons/mdi/shield-alert";
-import infoIcon from "@iconify-icons/mdi/information-outline";
-import clockIcon from "@iconify-icons/mdi/clock-outline";
 import loginIcon from "@iconify-icons/mdi/login";
 
-const { themeClasses } = useTheme();
-const trayManager = useTrayManager();
+import TrayPanel from "./TrayPanel.vue";
 
-const TRAY_ID = "session-expired-tray";
+const { themeClasses } = useTheme();
+const { isOpen, toggle, close } = useTrayPanel("session-expired-tray");
 
 const indicatorRef = ref<HTMLElement | null>(null);
-const isExpanded = ref(false);
 const sessionExpired = ref(false);
 const expiredTime = ref<Date | null>(null);
 
@@ -130,37 +104,6 @@ function formatTime(date: Date): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return date.toLocaleTimeString();
 }
-
-function toggleDropdown(e: MouseEvent) {
-  e.stopPropagation();
-  if (!isExpanded.value) {
-    trayManager.openTray(TRAY_ID);
-    isExpanded.value = true;
-  } else {
-    trayManager.closeTray(TRAY_ID);
-    isExpanded.value = false;
-  }
-}
-
-function closeDropdown() {
-  trayManager.closeTray(TRAY_ID);
-  isExpanded.value = false;
-}
-
-function handleClickOutside(event: MouseEvent) {
-  if (indicatorRef.value && !indicatorRef.value.contains(event.target as Node)) {
-    closeDropdown();
-  }
-}
-
-watch(
-  () => trayManager.activeTrayId.value,
-  (newTrayId) => {
-    if (newTrayId !== TRAY_ID && isExpanded.value) {
-      isExpanded.value = false;
-    }
-  },
-);
 
 function redirectToLogin() {
   window.location.href = "/";
@@ -189,7 +132,7 @@ onMounted(() => {
         if (successfulRequests >= RECOVERY_THRESHOLD) {
           sessionExpired.value = false;
           expiredTime.value = null;
-          isExpanded.value = false;
+          close();
           successfulRequests = 0;
         }
       }
@@ -299,15 +242,12 @@ onMounted(() => {
       return Promise.reject(error);
     },
   );
-
-  document.addEventListener("click", handleClickOutside);
 });
 
 onUnmounted(() => {
   if (interceptorDecepticonId !== null) {
     axios.interceptors.response.eject(interceptorDecepticonId);
   }
-  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -326,128 +266,6 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: all 0.15s ease;
   cursor: pointer;
-}
-
-.session-dropdown {
-  position: fixed;
-  right: 1rem;
-  left: auto;
-  bottom: 4rem;
-  border-radius: 12px;
-  width: 320px;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 0.75rem 0.875rem;
-}
-
-.dropdown-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.session-section {
-  padding: 0.75rem 0.875rem;
-}
-
-.session-section:last-child {
-  border-bottom: none;
-}
-
-.status-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  border-radius: 6px;
-}
-
-.status-icon {
-  flex-shrink: 0;
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  flex: 1;
-}
-
-.status-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.7;
-}
-
-.status-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.help-text {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  padding: 0.5rem;
-  border-radius: 6px;
-}
-
-.help-icon {
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-  opacity: 0.7;
-}
-
-.login-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.time-info {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.625rem;
-  opacity: 0.6;
-  padding: 0.25rem 0.5rem;
-}
-
-.time-icon {
-  flex-shrink: 0;
-}
-
-.time-text {
-  font-style: italic;
-}
-
-/* Dropdown Animation */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 
 /* Taskbar item transitions */

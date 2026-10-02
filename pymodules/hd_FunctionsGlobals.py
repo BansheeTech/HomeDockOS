@@ -11,7 +11,7 @@ import hashlib
 
 from datetime import datetime
 
-version = "2.4.2.120"
+version = "2.6.2.88"
 version_hash = hashlib.md5(version.encode("utf-8")).hexdigest()
 running_OS = platform.system()
 running_ARCH = platform.machine()
@@ -33,10 +33,14 @@ user_packages_shortcuts_folder = os.path.join(user_packages_folder, "_shortcuts"
 
 user_packages_app_open_folder = os.path.join(user_packages_folder, "_app_default_open")
 user_packages_exposure_file = os.path.join(user_packages_folder, "_app_exposure.json")
+user_packages_app_updates_folder = os.path.join(user_packages_folder, "_app_updates")
 user_packages_desktop_widgets_folder = os.path.join(user_packages_folder, "_desktop_widgets")
+user_packages_desktop_state_folder = os.path.join(user_packages_folder, "_desktop_state")
 user_packages_whats_new_folder = os.path.join(user_packages_folder, "_whats_new")
 user_packages_acme_folder = os.path.join(user_packages_folder, "_acme")
 user_packages_acme_staging_folder = os.path.join(user_packages_acme_folder, "_staging")
+user_packages_thumbnails_folder = os.path.join(user_packages_folder, "_thumbnails")
+user_packages_games_folder = os.path.join(user_packages_folder, "_games")
 
 user_storage_folder = os.path.join(user_packages_folder, "_storage")
 dropzone_folder = os.path.join(user_storage_folder, "_dropzone")

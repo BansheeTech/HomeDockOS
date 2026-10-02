@@ -331,7 +331,7 @@ const statusDescription = computed(() => {
 
 async function refresh() {
   try {
-    const { data } = await axios.get<AcmeStatus>("/api/acme/status");
+    const { data } = await axios.get<AcmeStatus>("/api/acme/status", { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
     status.value = data;
 
     if (!provider.value) provider.value = data.provider || data.providers[0] || "";

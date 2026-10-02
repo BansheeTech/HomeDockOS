@@ -90,6 +90,80 @@ def get_disk_usage():
         return None
 
 
+_prev_disk_io = {"read": 0, "write": 0, "at": 0.0}
+_disk_io_error_shown = False
+
+
+def get_disk_io():
+    global _prev_disk_io, _disk_io_error_shown
+    try:
+        counters = psutil.disk_io_counters()
+        if counters is None:
+            return "0*0"
+
+        now = time.monotonic()
+        previous = _prev_disk_io
+        elapsed = now - previous["at"]
+        _prev_disk_io = {"read": counters.read_bytes, "write": counters.write_bytes, "at": now}
+
+        if previous["at"] == 0 or elapsed <= 0:
+            return "0*0"
+
+        read_rate = max(0.0, (counters.read_bytes - previous["read"]) / elapsed)
+        write_rate = max(0.0, (counters.write_bytes - previous["write"]) / elapsed)
+        return f"{read_rate:.0f}*{write_rate:.0f}"
+    except Exception:
+        if not _disk_io_error_shown:
+            print(" * Error obtaining disk I/O counters, not available on this platform")
+            _disk_io_error_shown = True
+        return "0*0"
+
+
+_prev_net_io = {"recv": 0, "sent": 0, "at": 0.0}
+_net_io_error_shown = False
+
+
+def get_net_io(interface_name):
+    global _prev_net_io, _net_io_error_shown
+    try:
+        psutil.net_io_counters.cache_clear()
+        counters = psutil.net_io_counters(pernic=True).get(interface_name)
+        if counters is None:
+            return "0*0"
+
+        now = time.monotonic()
+        previous = _prev_net_io
+        elapsed = now - previous["at"]
+        _prev_net_io = {"recv": counters.bytes_recv, "sent": counters.bytes_sent, "at": now}
+
+        if previous["at"] == 0 or elapsed <= 0:
+            return "0*0"
+
+        recv_rate = max(0.0, (counters.bytes_recv - previous["recv"]) / elapsed)
+        sent_rate = max(0.0, (counters.bytes_sent - previous["sent"]) / elapsed)
+        return f"{recv_rate:.0f}*{sent_rate:.0f}"
+    except Exception:
+        if not _net_io_error_shown:
+            print(" * Error obtaining network I/O counters for the active interface")
+            _net_io_error_shown = True
+        return "0*0"
+
+
+_load_error_shown = False
+
+
+def get_load_average():
+    global _load_error_shown
+    try:
+        one, five, fifteen = psutil.getloadavg()
+        return f"{one:.2f}*{five:.2f}*{fifteen:.2f}"
+    except Exception:
+        if not _load_error_shown:
+            print(" * Error obtaining load average, not available on this platform")
+            _load_error_shown = True
+        return "0.00*0.00*0.00"
+
+
 def get_external_disk_usage():
     configured = get_configured_external_drives()
     if configured == "disabled":
@@ -162,6 +236,9 @@ _start_cache_thread("cpu_temp", get_cpu_temp, 2)
 _start_cache_thread("cpu_usage", get_cpu_usage, 2)
 _start_cache_thread("ram_usage", get_ram_usage, 3)
 _start_cache_thread("disk_usage", get_disk_usage, 15)
+_start_cache_thread("disk_io", get_disk_io, 2)
+_start_cache_thread("net_io", lambda: get_net_io(_interface_name), 2)
+_start_cache_thread("load_average", get_load_average, 2)
 _start_cache_thread("external_disk_usage", get_external_disk_usage, 15)
 _start_cache_thread("download_data", lambda: get_download_data(_interface_name)["received"], 3)
 _start_cache_thread("upload_data", lambda: get_upload_data(_interface_name)["sent"], 3)

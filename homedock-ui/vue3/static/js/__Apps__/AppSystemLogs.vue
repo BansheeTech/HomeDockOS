@@ -51,7 +51,7 @@
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="chartTimelineVariantIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="chartTimelineVariantIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("System Logs") }}</h4>
           </div>
 
@@ -75,6 +75,7 @@ import SectionHeader from "../__Components__/SectionHeader.vue";
 import LoginAttempts from "../__Components__/LoginAttempts.vue";
 import ChartDetails from "../__Components__/ChartDetails.vue";
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import EnterpriseSlotRenderer from "../__Components__/EnterpriseSlotRenderer.vue";
 
 import { Icon } from "@iconify/vue";

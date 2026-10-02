@@ -30,7 +30,6 @@ from pymodules.hd_DockerAPIContainerData import invalidate_external_apps_cache
 from pymodules.hd_ClassDockerClientManager import DockerClientManager
 from pymodules.hd_MIMETypeValidation import validate_file_mime
 
-
 MAX_HDSTORE_PACKAGES = 999  # Items
 MAX_HDS_PACKAGE_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_COMPOSE_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
@@ -1334,10 +1333,23 @@ def _map_project01_category(raw_category: str) -> str:
     return _PROJECT01_CATEGORY_MAP.get(key, "Files & Productivity")
 
 
-def _fetch_url_bytes(url: str, max_bytes: int = MAX_ICON_FILE_SIZE) -> bytes:
+def _fetch_url_bytes(url: str, max_bytes: int = MAX_ICON_FILE_SIZE, on_progress=None) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": "HomeDockOS-Packager/1.0"})
     with urllib.request.urlopen(req, timeout=15) as resp:
-        data = resp.read(max_bytes + 1)
+        if on_progress is None:
+            data = resp.read(max_bytes + 1)
+        else:
+            total = int(resp.headers.get("Content-Length") or 0)
+            chunks = []
+            received = 0
+            while received <= max_bytes:
+                chunk = resp.read(64 * 1024)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                received += len(chunk)
+                on_progress(received, total)
+            data = b"".join(chunks)
     if len(data) > max_bytes:
         raise ValueError(f"Remote file exceeds {max_bytes // (1024 * 1024)} MB limit")
     return data
@@ -1436,7 +1448,7 @@ def _clean_project01_compose(compose_content: str, app_slug: str) -> str:
         return compose_content
 
 
-def _build_hds_buffer(app_slug: str, display_name: str, category: str, description: str, docker_image: str, image_tag: str, author: str, compose_content: str, icon_bytes: bytes, icon_ext: str, suggested_port: Optional[int] = None, suggested_trail: Optional[str] = None):
+def _build_hds_buffer(app_slug: str, display_name: str, category: str, description: str, docker_image: str, image_tag: str, author: str, compose_content: str, icon_bytes: bytes, icon_ext: str, suggested_port: Optional[int] = None, suggested_trail: Optional[str] = None, source: Optional[str] = None):
     dep_names: list = []
     try:
         safe = compose_content.replace("[[", "__DBLBRK__").replace("]]", "__DBLBRK_END__")
@@ -1469,6 +1481,8 @@ def _build_hds_buffer(app_slug: str, display_name: str, category: str, descripti
         manifest["suggested_port"] = suggested_port
     if suggested_trail:
         manifest["suggested_trail"] = suggested_trail
+    if source:
+        manifest["source"] = source
     compose_content = _inject_hd_group_labels(compose_content, app_slug)
     manifest_content = json.dumps(manifest, indent=2)
     signature = calculate_content_hash(manifest_content, icon_bytes, compose_content)
@@ -1597,13 +1611,21 @@ def _evict_third_party_cache():
         _third_party_cache.pop(k, None)
 
 
-def _fetch_third_party_apps(url: str) -> List[dict]:
+_third_party_progress: Dict[str, dict] = {}
+_PROGRESS_ID_PATTERN = re.compile(r"^[a-z0-9-]{8,64}$")
+
+
+def _fetch_third_party_apps(url: str, progress: Optional[dict] = None) -> List[dict]:
     apps = []
 
     if not url.lower().endswith(".zip"):
         raise ValueError("URL must point to a .zip archive")
 
-    zip_bytes = _fetch_url_bytes(url, MAX_STORE_ZIP_SIZE)
+    def on_download(received: int, total: int):
+        if progress is not None:
+            progress.update({"phase": "download", "done": received, "total": total})
+
+    zip_bytes = _fetch_url_bytes(url, MAX_STORE_ZIP_SIZE, on_download if progress is not None else None)
     if not zipfile.is_zipfile(io.BytesIO(zip_bytes)):
         raise ValueError("URL did not return a valid ZIP file")
 
@@ -1613,7 +1635,10 @@ def _fetch_third_party_apps(url: str) -> List[dict]:
         all_names = set(store_zip.namelist())
         compose_entries = [name for name in all_names if name.endswith("docker-compose.yml") and not name.startswith("__MACOSX")]
 
-        for compose_entry in compose_entries:
+        for index, compose_entry in enumerate(compose_entries):
+            if progress is not None:
+                progress.update({"phase": "apps", "done": index, "total": len(compose_entries)})
+
             if len(apps) >= MAX_HDSTORE_PACKAGES:
                 break
 
@@ -1687,7 +1712,17 @@ def preview_third_party_url():
 
         _evict_third_party_cache()
 
-        apps = _fetch_third_party_apps(url)
+        progress_id = str(body.get("progress_id") or "")
+        progress = None
+        if _PROGRESS_ID_PATTERN.match(progress_id):
+            progress = {"phase": "download", "done": 0, "total": 0}
+            _third_party_progress[progress_id] = progress
+
+        try:
+            apps = _fetch_third_party_apps(url, progress)
+        finally:
+            _third_party_progress.pop(progress_id, None)
+
         if not apps:
             return jsonify({"success": False, "message": "No valid apps found at this URL"}), 400
 
@@ -1698,7 +1733,7 @@ def preview_third_party_url():
                     existing_files.add(f.replace(".yml", ""))
 
         cache_id = hashlib.sha256(f"{url}:{datetime.datetime.now(datetime.timezone.utc).isoformat()}".encode()).hexdigest()[:16]
-        _third_party_cache[cache_id] = {"apps": apps, "ts": datetime.datetime.now(datetime.timezone.utc).timestamp()}
+        _third_party_cache[cache_id] = {"apps": apps, "url": url, "ts": datetime.datetime.now(datetime.timezone.utc).timestamp()}
 
         packages = []
         for app in apps:
@@ -1725,6 +1760,14 @@ def preview_third_party_url():
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+
+@login_required
+def third_party_progress():
+    progress_id = request.args.get("id", "")
+    if not _PROGRESS_ID_PATTERN.match(progress_id):
+        return jsonify({"success": False, "message": "Invalid progress id"}), 400
+    return jsonify({"success": True, "progress": _third_party_progress.get(progress_id)})
 
 
 @login_required
@@ -1765,6 +1808,7 @@ def import_third_party_selected():
                     icon_bytes=app["icon_bytes"],
                     icon_ext=app["icon_ext"],
                     suggested_port=app.get("suggested_port"),
+                    source=cached.get("url"),
                 )
                 result = _install_hds_from_buffer(hds_buf.read(), f"{slug}.hds")
                 if result["ok"]:

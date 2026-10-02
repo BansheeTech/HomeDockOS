@@ -43,7 +43,7 @@ services:
       HDRole: "dependency"
     restart: unless-stopped
   postgres15:
-    image: tensorchord/pgvecto-rs:pg15-v0.2.0
+    image: ghcr.io/immich-app/postgres:15-vectorchord0.4.3-pgvectors0.2.0
     ports:
       - 5432:5432
     container_name: immich_postgres15

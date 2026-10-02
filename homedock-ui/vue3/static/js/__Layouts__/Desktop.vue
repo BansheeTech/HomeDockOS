@@ -42,7 +42,7 @@ import { useSSEStore } from "../__Stores__/useSSEStore";
 import { useSystemStatsStore } from "../__Stores__/useSystemStatsStore";
 import { useWhatsNewStore } from "../__Stores__/useWhatsNewStore";
 
-import { releaseNotes } from "../__Data__/WhatsNewData";
+import { latestRelease } from "../__Data__/WhatsNewData";
 
 import { useCsrfToken } from "../__Composables__/useCsrfToken";
 import { useResponsive } from "../__Composables__/useResponsive";
@@ -90,10 +90,10 @@ onMounted(async () => {
   desktopStore.initialize();
   sseStore.startPolling();
 
-  if (releaseNotes.entries.length > 0) {
+  if (latestRelease.entries.length > 0) {
     await whatsNewStore.load(csrfToken.value);
 
-    if (whatsNewStore.isUnseen(releaseNotes.id)) {
+    if (whatsNewStore.isUnseen(latestRelease.id)) {
       whatsNewStore.open();
     }
   }

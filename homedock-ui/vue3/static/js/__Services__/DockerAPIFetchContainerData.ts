@@ -8,6 +8,10 @@ import axios from "axios";
 import { useSelectedAppsStore } from "../__Stores__/selectedAppsStore";
 
 let pollIntervalRef: ReturnType<typeof setInterval> | null = null;
+let pollInFlight = false;
+
+let lastRequestId = 0;
+let lastAppliedRequestId = 0;
 
 let csrfTokenGetter: (() => string) | null = null;
 
@@ -18,12 +22,18 @@ export function setCsrfTokenGetter(getter: () => string) {
 export async function fetchContainers(csrfToken: string): Promise<any[]> {
   const selectedAppsStore = useSelectedAppsStore();
   const token = csrfTokenGetter ? csrfTokenGetter() : csrfToken;
+  const requestId = ++lastRequestId;
   try {
     const response = await axios.get("/api/containers", {
       headers: { "X-HomeDock-CSRF-Token": token },
     });
 
+    if (requestId < lastAppliedRequestId) {
+      return selectedAppsStore.applications;
+    }
+
     if (response.status === 200) {
+      lastAppliedRequestId = requestId;
       const backendApps = response.data;
       const orderedApps = restoreOrder(backendApps);
 
@@ -32,6 +42,7 @@ export async function fetchContainers(csrfToken: string): Promise<any[]> {
     }
     return [];
   } catch (error) {
+    selectedAppsStore.setFetchFailed(true);
     console.error("Error fetching containers:", error);
     throw error;
   }
@@ -56,8 +67,14 @@ function restoreOrder(apps: any[]) {
 export function startContainerPolling(csrfToken: string, interval = 3000) {
   stopContainerPolling();
   pollIntervalRef = setInterval(() => {
+    if (pollInFlight) return;
+    pollInFlight = true;
     const token = csrfTokenGetter ? csrfTokenGetter() : csrfToken;
-    fetchContainers(token);
+    fetchContainers(token)
+      .catch(() => {})
+      .finally(() => {
+        pollInFlight = false;
+      });
   }, interval);
 }
 

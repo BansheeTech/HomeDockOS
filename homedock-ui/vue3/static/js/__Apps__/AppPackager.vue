@@ -4,727 +4,88 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="app-packager flex flex-col h-full overflow-hidden">
-    <div ref="segmentedContainerRef" class="packager-segmented-container" @mousedown="onSegmentedDrag">
-      <Segmented v-model:value="activeTab" :options="segmentedOptions" :class="themeClasses.scopeSelector" class="packager-segmented">
-        <template #label="{ payload }">
-          <div class="flex items-center justify-center gap-1.5 px-1 py-1">
-            <Icon :icon="payload.icon" class="w-4 h-4 flex-shrink-0" />
-            <span>{{ $t(payload.label) }}</span>
-          </div>
-        </template>
-      </Segmented>
+  <div ref="rootRef" class="app-packager flex flex-col h-full overflow-hidden" @dragover.prevent @drop.prevent="onWindowDrop">
+    <div class="flex flex-1 min-h-0">
+      <PackagerSidebar v-if="!isMobileLayout" :view="view" :counts="sidebarCounts" :busy="busySections" @select="selectView" />
+
+      <main ref="scrollRef" class="flex-1 min-w-0 min-h-0 overflow-y-auto">
+        <div :class="isMobileLayout ? 'px-4 pt-3' : 'px-6 pt-5'" class="packager-content pb-8">
+          <Transition name="view-fade" mode="out-in">
+            <PackagerPackages v-if="view === 'packages'" key="packages" :large="isMobileLayout" />
+            <PackagerStores v-else-if="view === 'stores'" key="stores" :large="isMobileLayout" />
+            <PackagerCreate v-else-if="view === 'create'" key="create" :large="isMobileLayout" />
+            <PackagerTransfer v-else key="transfer" :large="isMobileLayout" />
+          </Transition>
+        </div>
+      </main>
     </div>
 
-    <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/15 packager-content">
-      <Transition enter-active-class="transition-opacity duration-200 ease-out" leave-active-class="transition-opacity duration-200 ease-in" enter-from-class="opacity-0" leave-to-class="opacity-0" mode="out-in">
-        <div v-if="activeTab === 'generator'" key="generator" class="px-4 py-4 space-y-4">
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-            <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
-              <Icon :icon="fileCodeIcon" class="w-3 h-3 text-white" />
-            </div>
-            <span>{{ $t("Source Files") }}</span>
-          </h3>
+    <PackagerTabBar v-if="isMobileLayout" :view="view" :busy="busySections" @select="selectView" />
 
-          <div class="space-y-2">
-            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="composeFileList" name="compose" accept=".yml,.yaml" :multiple="false" :customRequest="handleComposeUpload" @change="handleComposeChange" :showUploadList="false" :maxCount="1" class="compact-dragger-pkg mb-4">
-              <div>
-                <div class="flex items-center gap-3 px-4 py-3">
-                  <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="composeFile ? themeClasses.settingsIconBgGreen : themeClasses.iconHolder">
-                    <Icon :icon="composeFile ? checkIcon : fileCodeIcon" :class="['w-5 h-5', composeFile ? 'text-white' : themeClasses.explorerItemIcon]" />
-                  </div>
-                  <div class="flex-1 min-w-0 text-left">
-                    <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
-                      {{ composeFile ? composeFile.name : $t("Docker Compose *") }}
-                    </p>
-                    <p :class="[composeFile && parsedData.image ? themeClasses.packagerSuccessText : themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">
-                      {{ composeFile && parsedData.image ? `${$t("Detected")}: ${parsedData.image}` : $t("Click or drag .yml/.yaml file here") }}
-                    </p>
-                  </div>
-                  <div class="flex-shrink-0">
-                    <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-                  </div>
-                </div>
-                <div v-if="composeFile" class="px-4 pb-3">
-                  <button @click.stop="openComposeEditor" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-                    <Icon :icon="editIcon" class="w-3.5 h-3.5" />
-                    <span>{{ $t("Edit Compose") }}</span>
-                  </button>
-                </div>
-              </div>
-            </UploadDragger>
-
-            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="iconFileList" name="icon" accept=".jpg,.jpeg,.png" :multiple="false" :customRequest="handleIconUpload" @change="handleIconChange" :showUploadList="false" :maxCount="1" :beforeUpload="beforeIconUpload" class="compact-dragger-pkg">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden" :class="iconPreview ? '' : themeClasses.iconHolder">
-                  <img v-if="iconPreview" :src="iconPreview" class="w-9 h-9 rounded-lg object-cover" />
-                  <Icon v-else :icon="imageIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" />
-                </div>
-                <div class="flex-1 min-w-0 text-left">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
-                    {{ iconFile ? iconFile.name : $t("App Icon *") }}
-                  </p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ iconFile ? $t(".jpg or .png") : $t("Click or drag image here (.jpg, .png)") }}
-                  </p>
-                </div>
-                <div class="flex-shrink-0">
-                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-                </div>
-              </div>
-            </UploadDragger>
-          </div>
-
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-2" :class="themeClasses.explorerGroupHeader">
-            <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgPurple">
-              <Icon :icon="shapeIcon" class="w-3 h-3 text-white" />
-            </div>
-            <span>{{ $t("Package Metadata") }}</span>
-          </h3>
-
-          <div class="grid packager-grid gap-2">
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("App Slug *") }}</label>
-                <Input v-model:value="newPackage.slug" placeholder="e.g., my-awesome-app" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                <p v-if="newPackage.slug && !isValidSlug(newPackage.slug)" :class="['text-[10px] mt-0.5', themeClasses.packagerErrorText]">{{ $t("Only lowercase letters, numbers and dashes. Cannot start or end with a dash.") }}</p>
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("App Name *") }}</label>
-                <Input v-model:value="newPackage.display_name" placeholder="e.g., My Awesome App" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Category *") }}</label>
-                <Select v-model:value="newPackage.category" :placeholder="$t('Select Category')" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'w-full']" :popup-class-name="`${themeClasses.scopeSelector}`">
-                  <SelectOption value="AI">{{ $t("AI") }}</SelectOption>
-                  <SelectOption value="Developer Tools">{{ $t("Developer Tools") }}</SelectOption>
-                  <SelectOption value="Files & Productivity">{{ $t("Files & Productivity") }}</SelectOption>
-                  <SelectOption value="Gaming">{{ $t("Gaming") }}</SelectOption>
-                  <SelectOption value="Home & Automation">{{ $t("Home & Automation") }}</SelectOption>
-                  <SelectOption value="Media">{{ $t("Media") }}</SelectOption>
-                  <SelectOption value="Networking">{{ $t("Networking") }}</SelectOption>
-                  <SelectOption value="Social">{{ $t("Social") }}</SelectOption>
-                  <SelectOption value="Web Development">{{ $t("Web Development") }}</SelectOption>
-                </Select>
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Type *") }}</label>
-                <Input v-model:value="newPackage.type" placeholder="e.g., Media Server" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Docker Image *") }}</label>
-                <div class="flex gap-2">
-                  <Input v-model:value="newPackage.docker_image" placeholder="e.g., myuser/myapp" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
-                  <button v-if="parsedData.image" @click="newPackage.docker_image = parsedData.image.split(':')[0]" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" :title="$t('Use detected image')">
-                    <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Version *") }}</label>
-                <div class="flex gap-2">
-                  <Input v-model:value="newPackage.version" placeholder="e.g., latest" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'flex-1']" />
-                  <button v-if="parsedData.tag" @click="newPackage.version = parsedData.tag" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center justify-center px-2 py-1 rounded-lg border transition-all duration-150" :title="$t('Use detected version')">
-                    <Icon :icon="refreshIcon" class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Creator (you) *") }}</label>
-                <Input v-model:value="newPackage.author" :placeholder="$t('Your name or organization')" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-              </div>
-            </div>
-
-            <div :class="['rounded-lg border overflow-hidden packager-grid-full', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-              <div class="px-3 py-3">
-                <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Description *") }}</label>
-                <Input v-model:value="newPackage.description" :placeholder="$t('Describe what this application does...')" :maxlength="130" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                <p :class="['text-[10px] mt-0.5 text-right', themeClasses.packagerTextMuted]">{{ newPackage.description.length }}/130</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between pt-2">
-            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgOrange">
-                <Icon :icon="accountKeyIcon" class="w-3 h-3 text-white" />
-              </div>
-              <span>{{ $t("Add Default Credentials") }}</span>
-            </span>
-            <Switch v-model:checked="hasDefaultCredentials" :class="themeClasses.scopeSelector" />
-          </div>
-
-          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
-            <div v-if="hasDefaultCredentials" class="space-y-2">
-              <div class="grid packager-grid gap-2">
-                <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-                  <div class="px-3 py-3">
-                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Username") }}</label>
-                    <Input v-model:value="newPackage.default_username" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                  </div>
-                </div>
-                <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-                  <div class="px-3 py-3">
-                    <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Password") }}</label>
-                    <Input v-model:value="newPackage.default_password" placeholder="e.g., admin123" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                  </div>
-                </div>
-              </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("If this app ships with hardcoded login credentials, specify them here so users know how to sign in.") }}</p>
-            </div>
-          </Transition>
-
-          <div class="flex items-center justify-between pt-2">
-            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
-                <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
-              </div>
-              <span>{{ $t("Add Suggested Port") }}</span>
-            </span>
-            <Switch v-model:checked="hasSuggestedPort" :class="themeClasses.scopeSelector" />
-          </div>
-
-          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
-            <div v-if="hasSuggestedPort" class="space-y-2">
-              <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-                <div class="px-3 py-3">
-                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("Port") }}</label>
-                  <Input v-model:value="newPackage.suggested_port" placeholder="e.g., 8080" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                </div>
-              </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("For apps using network_mode: host that don't expose ports explicitly. HomeDock OS will use this port for the access button when no port mappings are detected.") }}</p>
-            </div>
-          </Transition>
-
-          <div class="flex items-center justify-between pt-2">
-            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-              <div class="w-5 h-5 flex items-center justify-center rounded-md" :class="themeClasses.settingsIconBgBlue">
-                <Icon :icon="linkIcon" class="w-3 h-3 text-white" />
-              </div>
-              <span>{{ $t("Add Suggested Trail") }}</span>
-            </span>
-            <Switch v-model:checked="hasSuggestedTrail" :class="themeClasses.scopeSelector" />
-          </div>
-
-          <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
-            <div v-if="hasSuggestedTrail" class="space-y-2">
-              <div :class="['rounded-lg border overflow-hidden', themeClasses.windowBorder, themeClasses.explorerResultItem]">
-                <div class="px-3 py-3">
-                  <label :class="['text-[10px] font-medium uppercase tracking-wider block mb-1.5', themeClasses.windowPlaceholderText]">{{ $t("URL Trail") }}</label>
-                  <Input v-model:value="newPackage.suggested_trail" placeholder="e.g., admin" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" />
-                </div>
-              </div>
-              <p :class="['text-[10px]', themeClasses.packagerTextMuted]">{{ $t("Path suffix appended after the port in the access URL. For apps that don't serve their UI at root.") }}</p>
-            </div>
-          </Transition>
-
-          <button @click="createPackage" :disabled="!canCreate || isCreating" :class="['w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center gap-2', canCreate && !isCreating ? `${themeClasses.packagerSuccessButtonBg} ${themeClasses.packagerSuccessButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer` : `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed`]">
-            <Icon :icon="isCreating ? loadingIcon : downloadIcon" :class="['w-4 h-4', isCreating ? 'animate-spin' : '']" />
-            {{ isCreating ? $t("Creating Package...") : $t("Create & Download .hds Package") }}
-          </button>
-        </div>
-
-        <div v-else-if="activeTab === 'stores'" key="stores" class="px-4 py-4 space-y-4">
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="storePlusIcon" class="w-4 h-4" />
-            <span>{{ $t("Known Stores") }}</span>
-            <div :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border">
-              <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("External") }}</span>
-            </div>
-          </h3>
-
-          <div class="space-y-2">
-            <div v-for="store in predefinedStores" :key="store.url" @click="!isImportingThirdPartyUrl && ((thirdPartyUrl = store.url), importFromThirdParty())" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, isImportingThirdPartyUrl ? 'opacity-50' : themeClasses.explorerResultItemHover + ' cursor-pointer']" class="rounded-lg border overflow-hidden transition-all duration-200">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.settingsIconBgPurple">
-                  <Icon :icon="storePlusIcon" class="w-5 h-5 text-white" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ store.name }}</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-[10px] mt-0.5 font-mono truncate opacity-60">{{ store.url }}</p>
-                </div>
-                <div class="flex-shrink-0">
-                  <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-                </div>
-              </div>
-            </div>
-
-            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="isImportingThirdPartyUrl ? themeClasses.settingsIconBgPurple : themeClasses.iconHolder">
-                  <Icon :icon="isImportingThirdPartyUrl ? loadingIcon : importIcon" :class="['w-5 h-5', isImportingThirdPartyUrl ? 'text-white animate-spin' : themeClasses.explorerItemIcon]" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <input v-model="thirdPartyUrl" :disabled="isImportingThirdPartyUrl" type="url" placeholder="https://github.com/…/archive/refs/heads/master.zip" :class="[themeClasses.windowTitleTextFocused]" class="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-40 disabled:opacity-50" @keydown.enter="importFromThirdParty" />
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    <template v-if="thirdPartyProgress">{{ thirdPartyProgress }}</template>
-                    <template v-else>{{ $t("Paste any compatible Casa store ZIP URL") }}</template>
-                  </p>
-                </div>
-                <button v-if="thirdPartyUrl.trim() && !isImportingThirdPartyUrl" @click="importFromThirdParty" :class="[themeClasses.settingsIconBgPurple, 'hover:opacity-90']" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-opacity">
-                  <span>{{ $t("Import") }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="fileCodeIcon" class="w-4 h-4" />
-            <span>{{ $t("Migrate Compose") }}</span>
-          </h3>
-
-          <div>
-            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="migrateFileList" name="migrate" accept=".yml,.yaml" :multiple="false" :customRequest="handleMigrateUpload" @change="handleMigrateChange" :showUploadList="false" :maxCount="1" class="compact-dragger-pkg">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                  <Icon :icon="isMigratingSingle ? loadingIcon : fileCodeIcon" :class="['w-5 h-5', isMigratingSingle ? 'animate-spin' : '', themeClasses.explorerItemIcon]" />
-                </div>
-                <div class="flex-1 min-w-0 text-left">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
-                    {{ isMigratingSingle ? $t("Migrating compose...") : $t("Migrate Casa Compose") }}
-                  </p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ isMigratingSingle ? migrateProgress || $t("Please wait") : $t("Drop a compatible .yml compose file here or click to browse") }}
-                  </p>
-                </div>
-                <div class="flex-shrink-0">
-                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-                </div>
-              </div>
-            </UploadDragger>
-          </div>
-
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider pt-1" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="shapeIcon" class="w-4 h-4" />
-            <span>{{ $t("How it works") }}</span>
-          </h3>
-
-          <div class="space-y-2">
-            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #3b82f6, #0f172a)">
-                  <Icon :icon="checkIcon" class="w-5 h-5 text-white" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Automatic Conversion") }}</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Metadata, icons, volumes, networks, and ports are automatically adapted for HomeDock OS. You preview and select which apps to import before anything is installed. Compose files are sanitized to remove fingerprinting and platform-specific extensions.") }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #22c55e, #0f172a)">
-                  <Icon :icon="packageIcon" class="w-5 h-5 text-white" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Package Manager") }}</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Imported apps land in the Package Manager as .hds packages. From there you can install them from the App Store, export individually, or bundle them into .hdstore files to share entire collections with other users or across devices.") }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" style="background: linear-gradient(135deg, #ec4899, #0f172a)">
-                  <Icon :icon="shieldCheckIcon" class="w-5 h-5 text-white" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Open Format") }}</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Both .hds and .hdstore files are standard ZIP archives signed with SHA-256 hashes to prevent tampering. They are not proprietary, you can always unzip them to inspect their contents or recover the original compose files.") }}</p>
-                </div>
-              </div>
-            </div>
+    <AppDialog v-model:visible="showDetails" type="info" :title="$t('Package Details')" :ok-text="$t('Close')" :ok-cancel="false" :width="480" @ok="showDetails = false">
+      <div v-if="detailsApp" class="space-y-4">
+        <div class="flex items-center gap-3.5">
+          <AppIconGraphic v-if="detailsApp.manifest?.icon" :image-src="packageIconPath(detailsApp)" :size="56" />
+          <AppIconGraphic v-else :icon="packageIcon" :size="56" />
+          <div class="min-w-0">
+            <p :class="[themeClasses.storeModalAppName]" class="m-0 text-base font-bold truncate">{{ detailsApp.manifest?.display_name || detailsApp.manifest?.name || detailsApp.filename }}</p>
+            <p :class="[themeClasses.storeCardSubtitle]" class="m-0 text-xs truncate">{{ $t("Packed by") }} {{ detailsApp.manifest?.author || $t("Unknown author") }} · {{ formatFileSize(detailsApp.size) }}</p>
           </div>
         </div>
 
-        <div v-else key="manager" class="px-4 py-4 space-y-4">
-          <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-4" :class="themeClasses.explorerGroupHeader">
-            <Icon :icon="packageIcon" class="w-4 h-4" />
-            <span>{{ $t("Available Packages") }}</span>
-            <span class="opacity-50 font-normal">{{ packageSearch && filteredExternalApps.length !== externalApps.length ? `(${filteredExternalApps.length}/${externalApps.length})` : `(${externalApps.length})` }}</span>
-          </h3>
+        <p v-if="detailsApp.manifest?.description" :class="[themeClasses.storeCardSubtitle]" class="m-0 text-xs leading-relaxed">{{ detailsApp.manifest.description }}</p>
 
-          <div v-if="!isLoadingExternal && externalApps.length === 0" @click="activeTab = 'generator'" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]" class="rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer">
-            <div class="flex items-center gap-3 px-4 py-3">
-              <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.settingsIconBgGreen">
-                <Icon :icon="sparklesIcon" class="w-5 h-5 text-white" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Create your first .hds application package") }}</p>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Use the Package Generator to get started") }}</p>
-              </div>
-              <div class="flex-shrink-0">
-                <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <UploadDragger :class="[themeClasses.dropZoneDragHolder, themeClasses.scopeSelector]" v-model:file-list="packageFileList" name="package" accept=".hds" :multiple="true" :customRequest="handlePackageUploadRequest" @change="handlePackageChange" :showUploadList="false" class="compact-dragger-pkg">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                  <Icon :icon="isUploading ? loadingIcon : importIcon" :class="['w-5 h-5', isUploading ? 'animate-spin' : '', themeClasses.explorerItemIcon]" />
-                </div>
-                <div class="flex-1 min-w-0 text-left">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">
-                    {{ isUploading ? $t("Importing package...") : $t("Import .hds Package") }}
-                  </p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">
-                    {{ isUploading ? $t("Please wait") : $t("Drop .hds files here or click to browse") }}
-                  </p>
-                </div>
-                <div class="flex-shrink-0">
-                  <Icon :icon="uploadIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-                </div>
-              </div>
-            </UploadDragger>
-          </div>
-
-          <div v-if="externalApps.length > 5" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden flex items-center gap-2 px-3 py-2">
-            <Icon :icon="magnifyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-4 h-4 flex-shrink-0" />
-            <input v-model="packageSearch" type="text" :placeholder="$t('Search packages by name, author or category...')" :class="[themeClasses.windowTitleTextFocused]" class="flex-1 bg-transparent text-xs outline-none placeholder:opacity-50" />
-            <button v-if="packageSearch" @click="packageSearch = ''" class="flex-shrink-0">
-              <Icon :icon="closeCircleIcon" :class="[themeClasses.windowPlaceholderText]" class="w-3.5 h-3.5 opacity-50 hover:opacity-100 transition-opacity" />
-            </button>
-          </div>
-
-          <div @click="openAppStore" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]" class="rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer">
-            <div class="flex items-center gap-3 px-4 py-3">
-              <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.settingsIconBgBlue">
-                <Icon :icon="storeIcon" class="w-5 h-5 text-white" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("Browse App Store") }}</p>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Find your apps on the App Store") }}</p>
-              </div>
-              <div class="flex-shrink-0">
-                <Icon :icon="chevronRightIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5" />
-              </div>
-            </div>
-          </div>
-
-          <div v-if="isLoadingExternal" class="flex justify-center items-center h-48">
-            <Icon :icon="loadingIcon" :class="[themeClasses.windowPlaceholderText]" class="w-10 h-10 animate-spin opacity-50" />
-          </div>
-
-          <div v-else-if="externalApps.length === 0" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-            <div class="flex items-center gap-3 px-4 py-3">
-              <div class="flex-shrink-0">
-                <div class="w-2 h-2 rounded-full bg-neutral-400 opacity-50" />
-              </div>
-              <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                <Icon :icon="packageIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" class="opacity-50" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("No packages available") }}</h4>
-                <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Drop a .hds file above to import your first package") }}</p>
-              </div>
-            </div>
-          </div>
-
-          <template v-else>
-            <div v-if="filteredExternalApps.length === 0 && packageSearch" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                  <Icon :icon="magnifyIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" class="opacity-50" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">{{ $t("No packages match \"{search}\"", { search: packageSearch }) }}</h4>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Try a different search term") }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="space-y-4">
-              <TransitionGroup appear enter-active-class="transition-all duration-250 ease-out" leave-active-class="transition-all duration-250 ease-in absolute w-full pointer-events-none" enter-from-class="opacity-0 translate-y-2" leave-to-class="opacity-0 -translate-y-2" move-class="transition-transform duration-250 ease-out">
-                <div v-for="app in filteredExternalApps" :key="app.filename" :class="[themeClasses.windowBorder, themeClasses.explorerResultItem, themeClasses.explorerResultItemHover]" class="rounded-lg border overflow-hidden transition-all duration-200">
-                  <div @click="togglePackageExpand(app.filename)" class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-150">
-                    <div class="flex-shrink-0">
-                      <div class="w-2 h-2 rounded-full" :class="app.is_valid ? 'bg-green-500' : 'bg-red-500'" />
-                    </div>
-
-                    <BaseImage v-if="app.manifest?.name && app.manifest?.icon" draggable="false" :src="`user-images/${app.manifest.name}${app.manifest.icon.substring(app.manifest.icon.lastIndexOf('.'))}`" :alt="app.manifest?.display_name || app.manifest?.name || ''" :class="[themeClasses.storeCardImageBack]" class="flex-shrink-0 w-9 h-9 rounded-lg object-cover drop-shadow-sm ring-[1px]" />
-                    <div v-else class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg" :class="themeClasses.iconHolder">
-                      <Icon :icon="app.is_valid ? packageIcon : alertIcon" :class="['w-5 h-5', themeClasses.explorerItemIcon]" />
-                    </div>
-
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
-                        <h4 :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium truncate">
-                          {{ app.manifest?.display_name || app.manifest?.name || app.filename }}
-                        </h4>
-                        <div v-if="app.is_installed" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                          <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Installed") }}</span>
-                        </div>
-                      </div>
-                      <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5 truncate">{{ $t("Packed by") }} {{ app.manifest?.author || $t("Unknown author") }} &middot; {{ formatFileSize(app.size) }}</p>
-                    </div>
-
-                    <div class="flex-shrink-0">
-                      <Icon :icon="expandedPackages.has(app.filename) ? chevronUpIcon : chevronDownIcon" :class="[themeClasses.windowPlaceholderText]" class="w-5 h-5 transition-transform duration-200" />
-                    </div>
-                  </div>
-
-                  <Transition enter-active-class="transition-all duration-200 ease-out" leave-active-class="transition-all duration-200 ease-in" enter-from-class="max-h-0 opacity-0" enter-to-class="max-h-[500px] opacity-100" leave-from-class="max-h-[500px] opacity-100" leave-to-class="max-h-0 opacity-0">
-                    <div v-if="expandedPackages.has(app.filename)" class="overflow-hidden">
-                      <div class="px-4 pb-4 space-y-3">
-                        <p v-if="app.manifest?.description" :class="['text-xs', themeClasses.windowPlaceholderText]">
-                          {{ app.manifest.description }}
-                        </p>
-
-                        <div :class="['rounded-lg px-3 py-2.5 space-y-1.5', themeClasses.explorerResultItem, themeClasses.windowBorder]" class="border">
-                          <div v-if="app.manifest?.docker_image" class="flex items-center gap-2 text-xs">
-                            <Icon :icon="dockerIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Image") }}</span>
-                            <span :class="themeClasses.windowTitleTextFocused" class="font-mono truncate">{{ app.manifest.docker_image }}</span>
-                          </div>
-                          <div v-if="app.manifest?.version" class="flex items-center gap-2 text-xs">
-                            <Icon :icon="tagIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Version") }}</span>
-                            <span :class="themeClasses.windowTitleTextFocused">{{ app.manifest.version }}</span>
-                          </div>
-                          <div v-if="app.manifest?.category" class="flex items-center gap-2 text-xs">
-                            <Icon :icon="shapeIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Category") }}</span>
-                            <span :class="themeClasses.windowTitleTextFocused">{{ app.manifest.category }}</span>
-                          </div>
-                          <div class="flex items-center gap-2 text-xs">
-                            <Icon :icon="fileIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("File") }}</span>
-                            <span :class="themeClasses.windowTitleTextFocused" class="truncate">{{ app.filename }}</span>
-                          </div>
-                          <div v-if="app.hash" class="flex items-center gap-2 text-xs">
-                            <Icon :icon="fingerprintIcon" :class="[themeClasses.explorerItemIcon]" class="w-3.5 h-3.5 flex-shrink-0" />
-                            <span :class="themeClasses.windowPlaceholderText" class="font-medium w-16 flex-shrink-0">{{ $t("Hash") }}</span>
-                            <span :class="themeClasses.windowTitleTextFocused" class="font-mono truncate text-[10px]">{{ app.hash }}</span>
-                          </div>
-                        </div>
-
-                        <p v-if="!app.is_valid" :class="themeClasses.packagerErrorText" class="flex items-center gap-1.5 text-xs">
-                          <Icon :icon="alertIcon" class="w-3.5 h-3.5" />
-                          {{ app.validation_message }}
-                        </p>
-
-                        <div class="grid grid-cols-2 gap-1.5">
-                          <button
-                            v-if="importedApps.find((a) => a.name === app.manifest?.name)"
-                            @click.stop="
-                              selectedImportedApp = app.manifest?.name;
-                              exportImported();
-                            "
-                            :disabled="isExporting"
-                            :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]"
-                            class="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs"
-                          >
-                            <Icon :icon="isExporting ? loadingIcon : downloadIcon" :class="['w-3.5 h-3.5', isExporting ? 'animate-spin' : '']" />
-                            <span>{{ isExporting ? $t("Exporting...") : $t("Download .hds") }}</span>
-                          </button>
-                          <button @click.stop="deletePackage(app.filename)" :disabled="app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename" :class="['flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs', app.is_installed || isPackageBeingInstalled(app.manifest?.name) || deletingApp === app.filename ? `${themeClasses.packagerButtonDisabledBg} ${themeClasses.packagerButtonDisabledText} cursor-not-allowed border-transparent` : `${themeClasses.packagerDangerButtonBg} ${themeClasses.packagerDangerButtonBgHover} ${themeClasses.packagerPrimaryButtonText} cursor-pointer border-transparent`]" :title="app.is_installed ? $t('Cannot delete: App is installed. Uninstall it from App Store first.') : isPackageBeingInstalled(app.manifest?.name) ? $t('Cannot delete: App is currently installing') : deletingApp === app.filename ? $t('Deleting...') : $t('Delete package')">
-                            <Icon :icon="deletingApp === app.filename ? loadingIcon : deleteIcon" :class="['w-3.5 h-3.5', deletingApp === app.filename ? 'animate-spin' : '']" />
-                            <span>{{ deletingApp === app.filename ? $t("Deleting...") : $t("Delete .hds") }}</span>
-                          </button>
-                          <button v-if="app.is_valid" @click.stop="openBadgeDialog(app)" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="col-span-2 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-                            <Icon :icon="shareIcon" class="w-3.5 h-3.5" />
-                            <span>{{ $t("Share your .hds Package") }}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </Transition>
-                </div>
-              </TransitionGroup>
+        <div :class="[themeClasses.storeInfoBar]" class="rounded-xl border overflow-hidden">
+          <template v-for="(row, index) in detailRows" :key="row.label">
+            <div v-if="index > 0" :class="[themeClasses.storeInfoBarDivider]" class="h-px ml-3"></div>
+            <div class="flex items-center gap-3 px-3 py-2 text-xs">
+              <span :class="[themeClasses.storeCardSubtitle]" class="w-20 flex-shrink-0">{{ $t(row.label) }}</span>
+              <span :class="[themeClasses.storeModalAppName, row.mono ? 'font-mono text-[11px]' : '']" class="flex-1 min-w-0 truncate select-text" :title="row.value">{{ row.value }}</span>
             </div>
           </template>
-
-          <div class="pt-2">
-            <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-4" :class="themeClasses.explorerGroupHeader">
-              <Icon :icon="storePlusIcon" class="w-4 h-4" />
-              <span>{{ $t("Full App Store Bundle") }}</span>
-            </h3>
-
-            <div :class="[themeClasses.windowBorder, themeClasses.explorerResultItem]" class="hdstore-card rounded-lg border overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3">
-                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
-                  <Icon :icon="storePlusIcon" class="w-5 h-5 text-white" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p :class="[themeClasses.windowTitleTextFocused]" class="text-sm font-medium">HomeDock OS App Store</p>
-                  <p :class="[themeClasses.windowPlaceholderText]" class="text-xs mt-0.5">{{ $t("Bundle all your packages into a single file") }}</p>
-                </div>
-              </div>
-              <p :class="[themeClasses.windowPlaceholderText]" class="px-4 pb-1.5 text-[10px] font-semibold uppercase tracking-wider">{{ $t("Useful for:") }}</p>
-              <div :class="[themeClasses.windowPlaceholderText]" class="px-4 pb-3 grid hdstore-features gap-x-3 gap-y-1 text-[10px]">
-                <div class="flex items-center gap-1.5"><Icon :icon="exportIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Export all your .hds packages") }}</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="importIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Import them on any instance") }}</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="downloadIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Back up your curated App Store") }}</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="refreshIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Migrate apps between your devices") }}</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="shareIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Share with any other user") }}</span></div>
-                <div class="flex items-center gap-1.5"><Icon :icon="packageIcon" class="w-3 h-3 flex-shrink-0" /><span>{{ $t("Up to 999 packages per .hdstore file") }}</span></div>
-              </div>
-              <div class="px-4 pb-3 flex gap-2">
-                <label :class="[isPreviewingStore || isImportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
-                  <Icon :icon="isPreviewingStore || isImportingStore ? loadingIcon : importIcon" :class="['w-3.5 h-3.5', isPreviewingStore || isImportingStore ? 'animate-spin' : '']" />
-                  <span>{{ isPreviewingStore ? $t("Reading...") : isImportingStore ? $t("Importing...") : $t("Import .hdstore") }}</span>
-                  <input
-                    type="file"
-                    accept=".hdstore"
-                    class="hidden"
-                    :disabled="isPreviewingStore || isImportingStore"
-                    @change="
-                      (e: Event) => {
-                        const f = (e.target as HTMLInputElement).files?.[0];
-                        if (f) importStore(f);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    "
-                  />
-                </label>
-                <button v-if="externalApps.filter((a) => a.is_valid).length > 0" @click="showExportStoreDialog = true" :disabled="isExportingStore" :class="[isExportingStore ? [themeClasses.packagerButtonDisabledBg, themeClasses.packagerButtonDisabledText, 'cursor-not-allowed border-transparent'] : [themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover, 'cursor-pointer border']]" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 text-xs">
-                  <Icon :icon="isExportingStore ? loadingIcon : exportIcon" :class="['w-3.5 h-3.5', isExportingStore ? 'animate-spin' : '']" />
-                  <span>{{ isExportingStore ? $t("Exporting...") : $t("Export .hdstore") }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </div>
-
-    <AppDialog v-model:visible="isEditingCompose" type="info" :title="$t('Edit Docker Compose')" :ok-text="$t('Save & Re-parse')" :cancel-text="$t('Cancel')" :ok-cancel="true" :width="1200" @ok="saveComposeEdit" @cancel="cancelComposeEdit">
-      <div class="hidden lg:grid lg:grid-cols-2 gap-4" style="height: 480px">
-        <div class="flex flex-col">
-          <div class="flex items-center gap-2 mb-2">
-            <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("Docker Compose Content") }}</label>
-          </div>
-          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full flex-1 rounded-lg font-mono text-xs resize-none p-3']" :placeholder="$t('Paste your docker-compose.yml content here...')" spellcheck="false"></textarea>
         </div>
 
-        <div class="flex flex-col overflow-hidden">
-          <div class="flex items-center gap-2 mb-2">
-            <Icon :icon="codeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("DevHooks Reference") }}</label>
-            <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} {{ $t("available") }}</span>
-          </div>
-          <div class="flex-1 overflow-y-auto pr-2">
-            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">{{ $t("Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.") }}</p>
-            <div class="space-y-3">
-              <div v-for="hook in devHooks" :key="hook.placeholder" :class="['p-3 rounded-lg border', usedDevHooks.includes(hook.placeholder) ? 'border-green-600/50' : themeClasses.packagerCardBorder, themeClasses.packagerHookItemBg]">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex-1 space-y-2">
-                    <div class="flex items-center gap-2">
-                      <code :class="['text-xs font-mono px-2 py-0.5 rounded font-semibold', themeClasses.packagerCodeBg, themeClasses.packagerCodeText]">
-                        {{ hook.placeholder }}
-                      </code>
-                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("Used") }}</span>
-                    </div>
-                    <p :class="['text-xs', themeClasses.packagerTextMuted]">
-                      {{ $t(hook.description) }}
-                    </p>
-                    <div :class="['text-xs font-mono p-2 rounded border', themeClasses.packagerExampleBg, themeClasses.packagerExampleBorder]">
-                      <p :class="['leading-relaxed', themeClasses.packagerExampleText]" style="white-space: pre-line">{{ hook.example }}</p>
-                    </div>
-                  </div>
-                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" :title="$t('Copy to clipboard')">
-                    <Icon :icon="copyIcon" :class="['w-4 h-4', themeClasses.packagerCopyIcon]" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <p v-if="!detailsApp.is_valid" :class="[themeClasses.packagerErrorText]" class="m-0 flex items-center gap-1.5 text-xs">
+          <Icon :icon="alertIcon" class="w-3.5 h-3.5 flex-shrink-0" />
+          {{ detailsApp.validation_message }}
+        </p>
 
-      <div class="lg:hidden flex flex-col space-y-4">
-        <div class="flex flex-col">
-          <div class="flex items-center gap-2 mb-2">
-            <Icon :icon="fileCodeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-            <label :class="['block text-sm font-medium', themeClasses.packagerText]">{{ $t("Docker Compose Content") }}</label>
-          </div>
-          <textarea v-model="composeContent" :class="[themeClasses.hubTextArea, 'compose-editor w-full rounded-lg font-mono text-xs resize-none p-3']" :placeholder="$t('Paste your docker-compose.yml content here...')" spellcheck="false" rows="15"></textarea>
-        </div>
-
-        <div :class="['rounded-lg border', themeClasses.packagerCardBorder]">
-          <button @click="showDevHooks = !showDevHooks" :class="['w-full px-4 py-3 flex items-center justify-between text-left transition-colors rounded-t-lg', 'hover:opacity-80']">
-            <div class="flex items-center gap-2">
-              <Icon :icon="codeIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
-              <span :class="['font-medium text-sm', themeClasses.packagerText]">{{ $t("DevHooks Reference") }}</span>
-              <span :class="['text-xs px-2 py-0.5 rounded', themeClasses.packagerBadgeBg, themeClasses.packagerBadgeText]">{{ devHooks.length }} {{ $t("available") }}</span>
-            </div>
-            <Icon :icon="showDevHooks ? chevronUpIcon : chevronDownIcon" :class="['w-5 h-5', themeClasses.packagerText]" />
+        <div class="flex flex-wrap gap-2">
+          <button v-if="isImported(detailsApp)" type="button" :disabled="exportingApp === detailsApp.manifest?.name" :class="[themeClasses.storeCardGetPill]" class="flex items-center gap-1.5 h-7 px-3.5 rounded-full text-xs font-semibold cursor-pointer disabled:opacity-50" @click="exportPackage(detailsApp.manifest?.name)">
+            <Icon :icon="exportingApp === detailsApp.manifest?.name ? loadingIcon : exportIcon" :class="exportingApp === detailsApp.manifest?.name ? 'animate-spin' : ''" class="w-3.5 h-3.5" />
+            <span>{{ $t("Download .hds") }}</span>
           </button>
-
-          <div v-if="showDevHooks" :class="['p-4 border-t max-h-96 overflow-y-auto', themeClasses.packagerCardBorder]">
-            <p :class="['text-xs mb-3 pb-3 border-b', themeClasses.packagerTextMuted, themeClasses.packagerCardBorder]">{{ $t("Use these placeholders in your Docker Compose file. They will be automatically replaced when installing the package.") }}</p>
-            <div class="space-y-3">
-              <div v-for="hook in devHooks" :key="hook.placeholder" :class="['p-3 rounded-lg border', usedDevHooks.includes(hook.placeholder) ? 'border-green-600/50' : themeClasses.packagerCardBorder, themeClasses.packagerHookItemBg]">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex-1 space-y-2">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <code :class="['text-xs font-mono px-2 py-0.5 rounded-xl', themeClasses.packagerCodeBg, themeClasses.packagerCodeText]">
-                        {{ hook.placeholder }}
-                      </code>
-                      <span v-if="usedDevHooks.includes(hook.placeholder)" :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("Used") }}</span>
-                    </div>
-                    <p :class="['text-xs', themeClasses.packagerTextMuted]">
-                      {{ $t(hook.description) }}
-                    </p>
-                    <div :class="['text-xs font-mono p-2 rounded border', themeClasses.packagerExampleBg, themeClasses.packagerExampleBorder]">
-                      <p :class="['leading-relaxed', themeClasses.packagerExampleText]" style="white-space: pre-line">{{ hook.example }}</p>
-                    </div>
-                  </div>
-                  <button @click="copyToClipboard(hook.placeholder)" :class="['p-1.5 rounded transition-colors flex-shrink-0', themeClasses.packagerCopyHover]" :title="$t('Copy to clipboard')">
-                    <Icon :icon="copyIcon" :class="['w-4 h-4', themeClasses.packagerCopyIcon]" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <button v-if="detailsApp.is_valid" type="button" :class="[themeClasses.storeCardGetPill]" class="flex items-center gap-1.5 h-7 px-3.5 rounded-full text-xs font-semibold cursor-pointer" @click="openBadgeDialog(detailsApp)">
+            <Icon :icon="shareIcon" class="w-3.5 h-3.5" />
+            <span>{{ $t("Share your .hds Package") }}</span>
+          </button>
+          <button type="button" :disabled="detailsLocked || deletingApp === detailsApp.filename" :title="detailsApp.is_installed ? $t('Cannot delete: App is installed. Uninstall it from App Store first.') : undefined" class="flex items-center gap-1.5 h-7 px-3.5 rounded-full text-xs font-semibold cursor-pointer bg-red-500/10 text-red-500 transition-colors duration-150 hover:bg-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed" @click="deleteFromDetails">
+            <Icon :icon="deletingApp === detailsApp.filename ? loadingIcon : deleteIcon" :class="deletingApp === detailsApp.filename ? 'animate-spin' : ''" class="w-3.5 h-3.5" />
+            <span>{{ deletingApp === detailsApp.filename ? $t("Deleting...") : $t("Delete .hds") }}</span>
+          </button>
         </div>
       </div>
     </AppDialog>
 
+    <PackagerComposeDialog />
+
     <AppDialog v-model:visible="showOverwriteDialog" type="error" :title="$t('Package Already Exists')" :ok-text="$t('Close')" :ok-cancel="false" @ok="closeConflictDialog">
-      <div class="space-y-4">
-        <div class="flex items-start gap-3">
-          <Icon :icon="alertIcon" :class="['w-6 h-6', themeClasses.packagerErrorText]" />
-          <div class="flex-1">
-            <p :class="['font-semibold mb-2', themeClasses.packagerText]">{{ $t("Cannot import package") }}</p>
-            <p :class="['text-sm mb-2', themeClasses.packagerTextMuted]">
-              {{ $t("The package {name} ({slug}) is already installed and has the following files:", { name: overwriteData?.displayName, slug: overwriteData?.appSlug }) }}
+      <div class="flex items-start gap-3">
+        <Icon :icon="alertIcon" :class="['w-6 h-6 flex-shrink-0', themeClasses.packagerErrorText]" />
+        <div class="flex-1">
+          <p :class="['font-semibold mb-2', themeClasses.packagerText]">{{ $t("Cannot import package") }}</p>
+          <p :class="['text-sm mb-2', themeClasses.packagerTextMuted]">{{ $t("The package {name} ({slug}) is already installed and has the following files:", { name: overwriteData?.displayName, slug: overwriteData?.appSlug }) }}</p>
+          <ul :class="['text-sm -space-y-1 mb-2', themeClasses.packageConflictFileList]">
+            <li v-for="file in overwriteData?.existingFiles" :key="file" class="flex items-start gap-1">
+              <span>•</span>
+              <code class="text-xs font-mono">{{ file }}</code>
+            </li>
+          </ul>
+          <div :class="[themeClasses.packageConflictInstructionBorder]">
+            <p :class="['text-sm font-semibold mb-1', themeClasses.packageConflictInstructionTitle]">{{ $t("To upload a new version:") }}</p>
+            <p :class="['text-xs', themeClasses.packageConflictInstructionText]">
+              {{ $t("Delete the existing package from My Packages, then import the new version.") }}
             </p>
-            <ul :class="['text-sm -space-y-1 mb-2', themeClasses.packageConflictFileList]">
-              <li v-for="file in overwriteData?.existingFiles" :key="file" class="flex items-start gap-1">
-                <span>•</span>
-                <code class="text-xs font-mono">{{ file }}</code>
-              </li>
-            </ul>
-            <div :class="[themeClasses.packageConflictInstructionBorder]">
-              <p :class="['text-sm font-semibold mb-1', themeClasses.packageConflictInstructionTitle]">{{ $t("To upload a new version:") }}</p>
-              <p :class="['text-xs', themeClasses.packageConflictInstructionText]">
-                {{ $t("1. Go to the \"Imported Packages\" section below") }}<br />
-                {{ $t("2. Delete the existing package completely") }}<br />
-                {{ $t("3. Then upload the new version") }}
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -732,180 +93,45 @@
 
     <PackagerBadgeDialog v-model:visible="showBadgeDialog" :app="badgeApp" />
 
-    <AppDialog
-      v-model:visible="showExportStoreDialog"
-      type="info"
-      :title="$t('Export .hdstore App Store Bundle')"
-      :ok-text="isExportingStore ? $t('Exporting...') : $t('Export Selected')"
-      :cancel-text="$t('Cancel')"
-      :ok-cancel="true"
-      :width="500"
-      :ok-disabled="isExportingStore || selectedStoreApps.size === 0"
-      :loading="isExportingStore"
-      @ok="exportStore"
-      @cancel="
-        showExportStoreDialog = false;
-        selectedStoreApps = new Set();
-      "
-      :mask-closable="!isExportingStore"
-    >
+    <AppDialog v-model:visible="showExportStoreDialog" type="info" :title="$t('Export .hdstore App Store Bundle')" :ok-text="isExportingStore ? $t('Exporting...') : $t('Export Selected')" :cancel-text="$t('Cancel')" :ok-cancel="true" :width="500" :ok-disabled="isExportingStore || selectedStoreApps.size === 0" :loading="isExportingStore" :mask-closable="!isExportingStore" @ok="exportStore" @cancel="closeExportStoreDialog">
       <div class="space-y-3">
         <p :class="['text-xs', themeClasses.packagerTextMuted]">{{ $t("Select packages to include in the .hdstore bundle (max 999).") }}</p>
-
-        <button @click="selectAllStoreApps" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ selectedStoreApps.size === externalApps.filter((a) => a.is_valid).length ? $t("Deselect All") : $t("Select All") }}
-        </button>
-
-        <div class="max-h-64 overflow-y-auto space-y-1.5">
-          <div v-for="app in externalApps.filter((a) => a.is_valid && a.manifest?.name)" :key="app.manifest.name" @click="toggleStoreAppSelection(app.manifest.name)" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border cursor-pointer transition-all duration-150', selectedStoreApps.has(app.manifest.name) ? 'border-blue-500/50 bg-blue-500/10' : [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
-            <div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0" :class="selectedStoreApps.has(app.manifest.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder">
+        <button type="button" :class="[themeClasses.storeCardGetPill]" class="h-7 px-3.5 rounded-full text-xs font-semibold cursor-pointer" @click="selectAllStoreApps">{{ selectedStoreApps.size === validApps.length ? $t("Deselect All") : $t("Select All") }}</button>
+        <div class="max-h-64 overflow-y-auto space-y-0.5">
+          <div v-for="app in validApps" :key="app.manifest.name" :class="selectedStoreApps.has(app.manifest.name) ? 'bg-blue-500/10' : themeClasses.storeRowHover" class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl cursor-pointer transition-colors duration-150" @click="toggleStoreAppSelection(app.manifest.name)">
+            <span :class="selectedStoreApps.has(app.manifest.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder" class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0">
               <Icon v-if="selectedStoreApps.has(app.manifest.name)" :icon="checkIcon" class="w-3 h-3 text-white" />
-            </div>
-            <BaseImage v-if="app.manifest?.icon" draggable="false" :src="`user-images/${app.manifest.name}${app.manifest.icon.substring(app.manifest.icon.lastIndexOf('.'))}`" :alt="app.manifest.display_name || app.manifest.name" :class="[themeClasses.storeCardImageBack]" class="flex-shrink-0 w-7 h-7 rounded-md object-cover ring-[1px]" />
+            </span>
+            <AppIconGraphic :image-src="packageIconPath(app)" :size="28" />
             <div class="flex-1 min-w-0">
-              <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ app.manifest.display_name || app.manifest.name }}</p>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ $t("Packed by") }} {{ app.manifest.author || $t("Unknown") }} &middot; {{ app.manifest.docker_image || "latest" }}</p>
+              <p :class="[themeClasses.storeModalAppName]" class="m-0 text-xs font-medium truncate">{{ app.manifest.display_name || app.manifest.name }}</p>
+              <p :class="[themeClasses.storeCardSubtitle]" class="m-0 text-[10px] truncate">{{ app.manifest.author || $t("Unknown") }}</p>
             </div>
-            <span :class="themeClasses.packagerTextMuted" class="text-[10px] flex-shrink-0">{{ formatStoreSize(app.size) }}</span>
+            <span :class="[themeClasses.storeCardSubtitle]" class="text-[10px] flex-shrink-0 tabular-nums">{{ formatFileSize(app.size) }}</span>
           </div>
         </div>
-
-        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: selectedStoreApps.size > 0 ? '1fr' : '0fr' }">
-          <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} package(s) selected", { n: selectedStoreApps.size }) }}</p>
-          </div>
-        </div>
+        <p v-if="selectedStoreApps.size > 0" :class="['m-0 text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} package(s) selected", { n: selectedStoreApps.size }) }}</p>
       </div>
     </AppDialog>
 
-    <AppDialog
-      v-model:visible="showImportStoreDialog"
-      type="info"
-      :title="$t('Import .hdstore App Store Bundle')"
-      :ok-text="isImportingStore ? $t('Importing...') : $t('Import {n} Package(s)', { n: importStoreSelectedSlugs.size })"
-      :cancel-text="$t('Cancel')"
-      :ok-cancel="true"
-      :ok-disabled="isImportingStore || importStoreSelectedSlugs.size === 0"
-      :loading="isImportingStore"
-      :width="500"
-      :close-on-ok="false"
-      :mask-closable="!isImportingStore"
-      @ok="confirmImportStore"
-      @cancel="
-        showImportStoreDialog = false;
-        importStorePreview = null;
-        pendingImportFile = null;
-        importStoreSelectedSlugs = new Set();
-      "
-    >
-      <div v-if="importStorePreview" class="space-y-3">
-        <p :class="['text-xs', themeClasses.packagerTextMuted]">
-          {{ $t("{n} package(s) found in this bundle.", { n: importStorePreview.package_count }) }}
-          <template v-if="importStorePreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ $t("{n} already imported and cannot be selected.", { n: importStorePreview.packages.filter((p: any) => p.already_exists).length }) }}</template>
-        </p>
-
-        <button @click="importStoreToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ importStoreSelectedSlugs.size === importStorePreview.packages.filter((p: any) => !p.already_exists).length ? $t("Deselect All") : $t("Select All") }}
-        </button>
-
-        <div class="max-h-64 overflow-y-auto space-y-1.5">
-          <div v-for="pkg in importStorePreview.packages" :key="pkg.filename" @click="!pkg.already_exists && toggleImportStorePkg(pkg.name)" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border transition-all duration-150', pkg.already_exists ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer', importStoreSelectedSlugs.has(pkg.name) && !pkg.already_exists ? 'border-blue-500/50 bg-blue-500/10' : [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
-            <div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0" :class="pkg.already_exists ? 'opacity-30' : importStoreSelectedSlugs.has(pkg.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder">
-              <Icon v-if="importStoreSelectedSlugs.has(pkg.name)" :icon="checkIcon" class="w-3 h-3 text-white" />
-            </div>
-            <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md" :class="themeClasses.iconHolder">
-              <Icon :icon="packageIcon" :class="['w-4 h-4', themeClasses.explorerItemIcon]" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5">
-                <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ pkg.display_name || pkg.name || pkg.filename }}</p>
-                <div v-if="pkg.already_exists" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Exists") }}</span>
-                </div>
-              </div>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || $t("Unknown") }} &middot; {{ pkg.category || $t("Uncategorized") }} &middot; {{ pkg.version || "latest" }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: importStoreSelectedSlugs.size > 0 ? '1fr' : '0fr' }">
-          <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} package(s) selected", { n: importStoreSelectedSlugs.size }) }}</p>
-          </div>
-        </div>
-      </div>
+    <AppDialog v-model:visible="showImportStoreDialog" type="info" :title="$t('Import .hdstore App Store Bundle')" :ok-text="isImportingStore ? $t('Importing...') : $t('Import {n} Package(s)', { n: importStoreSelectedSlugs.size })" :cancel-text="$t('Cancel')" :ok-cancel="true" :ok-disabled="isImportingStore || importStoreSelectedSlugs.size === 0" :loading="isImportingStore" :width="500" :close-on-ok="false" :mask-closable="!isImportingStore" @ok="confirmImportStore" @cancel="closeImportStoreDialog">
+      <PackageSelectionList v-if="importStorePreview" :packages="importStorePreview.packages" :selected="importStoreSelectedSlugs" :summary="$t('{n} package(s) found in this bundle.', { n: importStorePreview.package_count })" :selected-label="$t('{n} package(s) selected', { n: importStoreSelectedSlugs.size })" @toggle="toggleImportStorePkg" @toggle-all="importStoreToggleAll" />
     </AppDialog>
 
-    <AppDialog
-      v-model:visible="showThirdPartyDialog"
-      type="info"
-      :title="$t('Import from Third-Party Store')"
-      :ok-text="isImportingThirdParty ? $t('Importing...') : $t('Import {n} App(s)', { n: thirdPartySelectedSlugs.size })"
-      :cancel-text="$t('Cancel')"
-      :ok-cancel="true"
-      :ok-disabled="isImportingThirdParty || thirdPartySelectedSlugs.size === 0"
-      :loading="isImportingThirdParty"
-      :width="500"
-      :close-on-ok="false"
-      :mask-closable="!isImportingThirdParty"
-      @ok="confirmThirdPartyImport"
-      @cancel="
-        showThirdPartyDialog = false;
-        thirdPartyPreview = null;
-        thirdPartyCacheId = '';
-        thirdPartyProgress = '';
-        thirdPartySelectedSlugs = new Set();
-      "
-    >
-      <div v-if="thirdPartyPreview" class="space-y-3">
-        <p :class="['text-xs', themeClasses.packagerTextMuted]">
-          {{ $t("{n} app(s) found.", { n: thirdPartyPreview.package_count }) }}
-          <template v-if="thirdPartyPreview.packages.filter((p: any) => p.already_exists).length > 0"> {{ $t("{n} already imported and cannot be selected.", { n: thirdPartyPreview.packages.filter((p: any) => p.already_exists).length }) }}</template>
-        </p>
-
-        <button @click="thirdPartyToggleAll" :class="[themeClasses.windowBorder, themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150 text-xs">
-          {{ thirdPartySelectedSlugs.size === thirdPartyPreview.packages.filter((p: any) => !p.already_exists).length ? $t("Deselect All") : $t("Select All") }}
-        </button>
-
-        <div class="max-h-64 overflow-y-auto space-y-1.5">
-          <div v-for="pkg in thirdPartyPreview.packages" :key="pkg.name" @click="!pkg.already_exists && toggleThirdPartyPkg(pkg.name)" :class="['flex items-center gap-3 px-3 py-2 rounded-lg border transition-all duration-150', pkg.already_exists ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer', thirdPartySelectedSlugs.has(pkg.name) && !pkg.already_exists ? 'border-blue-500/50 bg-blue-500/10' : [themeClasses.windowBorder, themeClasses.explorerResultItem]]">
-            <div class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0" :class="pkg.already_exists ? 'opacity-30' : thirdPartySelectedSlugs.has(pkg.name) ? 'bg-blue-500 border-blue-500' : themeClasses.windowBorder">
-              <Icon v-if="thirdPartySelectedSlugs.has(pkg.name)" :icon="checkIcon" class="w-3 h-3 text-white" />
-            </div>
-            <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md" :class="themeClasses.iconHolder">
-              <Icon :icon="packageIcon" :class="['w-4 h-4', themeClasses.explorerItemIcon]" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5">
-                <p :class="themeClasses.windowTitleTextFocused" class="text-xs font-medium truncate">{{ pkg.display_name || pkg.name }}</p>
-                <div v-if="pkg.already_exists" :class="[themeClasses.appPropsUpdateBadgeBg, themeClasses.appPropsUpdateBadgeBorder]" class="flex items-center px-1.5 py-0.5 rounded-md border flex-shrink-0">
-                  <span :class="[themeClasses.appPropsUpdateBadgeText]" class="text-[9px] font-semibold">{{ $t("Exists") }}</span>
-                </div>
-              </div>
-              <p :class="themeClasses.packagerTextMuted" class="text-[10px] truncate">{{ pkg.author || $t("Unknown") }} &middot; {{ pkg.category || $t("Uncategorized") }} &middot; {{ pkg.version || "latest" }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid transition-all duration-200 ease-in-out" :style="{ gridTemplateRows: thirdPartySelectedSlugs.size > 0 ? '1fr' : '0fr' }">
-          <div class="overflow-hidden">
-            <p :class="['text-xs', themeClasses.packagerSuccessText]">{{ $t("{n} app(s) selected", { n: thirdPartySelectedSlugs.size }) }}</p>
-          </div>
-        </div>
-      </div>
+    <AppDialog v-model:visible="showThirdPartyDialog" type="info" :title="$t('Import from Third-Party Store')" :ok-text="isImportingThirdParty ? $t('Importing...') : $t('Import {n} App(s)', { n: thirdPartySelectedSlugs.size })" :cancel-text="$t('Cancel')" :ok-cancel="true" :ok-disabled="isImportingThirdParty || thirdPartySelectedSlugs.size === 0" :loading="isImportingThirdParty" :width="500" :close-on-ok="false" :mask-closable="!isImportingThirdParty" @ok="confirmThirdPartyImport" @cancel="closeThirdPartyDialog">
+      <PackageSelectionList v-if="thirdPartyPreview" :packages="thirdPartyPreview.packages" :selected="thirdPartySelectedSlugs" :summary="$t('{n} app(s) found.', { n: thirdPartyPreview.package_count })" :selected-label="$t('{n} app(s) selected', { n: thirdPartySelectedSlugs.size })" @toggle="toggleThirdPartyPkg" @toggle-all="thirdPartyToggleAll" />
     </AppDialog>
 
-    <StatusBar :icon="packageIcon" :message="activeTab === 'generator' ? $t('Packager') : activeTab === 'stores' ? $t('Third-Party Stores') : $t('{n} {unit} available', { n: externalApps.length, unit: externalApps.length === 1 ? $t('package') : $t('packages') })" :info="activeTab === 'generator' ? (usedDevHooks.length ? $t('{n} DevHooks detected', { n: usedDevHooks.length }) : $t('Ready to create')) : activeTab === 'stores' ? $t('Casa and Zima Stores') : $t('{n} imported apps', { n: importedApps.length })" :showHelp="true">
+    <StatusBar :icon="packageIcon" :message="statusMessage" :info="statusInfo" :showHelp="true">
       <template #help>
         <div class="space-y-2.5 max-w-sm">
           <div class="flex items-center gap-2">
-            <Icon :icon="packageIcon" :class="['w-5 h-5', themeClasses.statusBarIcon]" />
+            <StatusBarHelpIcon :icon="packageIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Packager") }}</h4>
           </div>
-
           <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
-            <p v-if="activeTab === 'generator'">{{ $t("Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.") }}</p>
-            <p v-else-if="activeTab === 'stores'">{{ $t("Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.") }}</p>
+            <p v-if="view === 'create'">{{ $t("Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.") }}</p>
+            <p v-else-if="view === 'stores'">{{ $t("Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.") }}</p>
             <p v-else>{{ $t("Import packages from others or export your already imported apps, share them, keep them private or publish your own .hds files on GitHub. Once exported, all packages are verified with SHA256 hashes to ensure integrity and avoid third party modifications.") }}</p>
           </div>
         </div>
@@ -915,1218 +141,147 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
-
-import { ref, onMounted, computed, watch, nextTick } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+
 import { useTheme } from "../__Themes__/ThemeSelector";
-import { useCsrfToken } from "../__Composables__/useCsrfToken";
-import { useDialog } from "../__Composables__/useDialog";
-import { useAppStore } from "../__Stores__/useAppStore";
-import { useInstallationStore } from "../__Stores__/useInstallationStore";
-import { useDesktopStore } from "../__Stores__/desktopStore";
+import { useWindowStore } from "../__Stores__/windowStore";
+import { providePackager, packageIconPath, formatFileSize, PREDEFINED_STORES } from "../__Composables__/usePackager";
+import type { PackagerView } from "../__Composables__/usePackager";
+
 import { Icon } from "@iconify/vue";
-import { Input, Select, SelectOption, Switch, UploadDragger, Segmented, message } from "ant-design-vue";
+import packageIcon from "@iconify-icons/mdi/package-variant";
+import loadingIcon from "@iconify-icons/mdi/loading";
+import alertIcon from "@iconify-icons/mdi/alert-circle";
+import exportIcon from "@iconify-icons/mdi/tray-arrow-up";
+import shareIcon from "@iconify-icons/mdi/share-variant-outline";
+import deleteIcon from "@iconify-icons/mdi/delete-outline";
+import checkIcon from "@iconify-icons/mdi/check";
 
 import StatusBar from "../__Components__/StatusBar.vue";
+import StatusBarHelpIcon from "../__Components__/StatusBarHelpIcon.vue";
 import AppDialog from "../__Components__/AppDialog.vue";
-import BaseImage from "../__Components__/BaseImage.vue";
+import AppIconGraphic from "../__Components__/AppIconGraphic.vue";
 import PackagerBadgeDialog from "../__Components__/PackagerBadgeDialog.vue";
+import PackagerSidebar from "../__Components__/PackagerSidebar.vue";
+import PackagerTabBar from "../__Components__/PackagerTabBar.vue";
+import PackagerPackages from "../__Components__/PackagerPackages.vue";
+import PackagerStores from "../__Components__/PackagerStores.vue";
+import PackagerCreate from "../__Components__/PackagerCreate.vue";
+import PackagerTransfer from "../__Components__/PackagerTransfer.vue";
+import PackageSelectionList from "../__Components__/PackageSelectionList.vue";
+import PackagerComposeDialog from "../__Components__/PackagerComposeDialog.vue";
 
-import packageIcon from "@iconify-icons/mdi/package-variant";
-import importIcon from "@iconify-icons/mdi/import";
-import downloadIcon from "@iconify-icons/mdi/download";
-import uploadIcon from "@iconify-icons/mdi/upload";
-import refreshIcon from "@iconify-icons/mdi/refresh";
-import loadingIcon from "@iconify-icons/mdi/loading";
-import checkIcon from "@iconify-icons/mdi/check-circle";
-import alertIcon from "@iconify-icons/mdi/alert-circle";
-import deleteIcon from "@iconify-icons/mdi/delete";
-import fileCodeIcon from "@iconify-icons/mdi/file-code";
-import imageIcon from "@iconify-icons/mdi/image";
-import codeIcon from "@iconify-icons/mdi/code-braces";
-import copyIcon from "@iconify-icons/mdi/content-copy";
-import chevronDownIcon from "@iconify-icons/mdi/chevron-down";
-import chevronUpIcon from "@iconify-icons/mdi/chevron-up";
-import sparklesIcon from "@iconify-icons/mdi/sparkles";
-import folderMultipleIcon from "@iconify-icons/mdi/folder-multiple";
-import editIcon from "@iconify-icons/mdi/pencil";
-import tagIcon from "@iconify-icons/mdi/tag";
-import dockerIcon from "@iconify-icons/mdi/docker";
-import fileIcon from "@iconify-icons/mdi/file-outline";
-import shapeIcon from "@iconify-icons/mdi/shape-outline";
-import fingerprintIcon from "@iconify-icons/mdi/fingerprint";
-import storeIcon from "@iconify-icons/mdi/widgets-outline";
-import chevronRightIcon from "@iconify-icons/mdi/chevron-right";
-import shareIcon from "@iconify-icons/mdi/share-variant-outline";
-import exportIcon from "@iconify-icons/mdi/export-variant";
-import storePlusIcon from "@iconify-icons/mdi/store-plus";
-import magnifyIcon from "@iconify-icons/mdi/magnify";
-import closeCircleIcon from "@iconify-icons/mdi/close-circle";
-import accountKeyIcon from "@iconify-icons/mdi/account-key";
-import linkIcon from "@iconify-icons/mdi/link-variant";
-import shieldCheckIcon from "@iconify-icons/mdi/shield-check";
+const LEGACY_TABS: Record<string, PackagerView> = { manager: "packages", generator: "create", stores: "stores" };
+const MOBILE_ENTER_THRESHOLD = 600;
+const MOBILE_EXIT_THRESHOLD = 680;
 
-const { themeClasses } = useTheme();
+const props = defineProps<{
+  tab?: string;
+  _windowId?: string;
+}>();
+
 const { t } = useI18n();
-const csrfToken = useCsrfToken();
-const { confirm } = useDialog();
-const appStore = useAppStore();
-const installationStore = useInstallationStore();
-const desktopStore = useDesktopStore();
+const { themeClasses } = useTheme();
+const windowStore = useWindowStore();
 
-const activeTab = ref<"generator" | "manager" | "stores">("manager");
-const segmentedOptions = [
-  { value: "manager", payload: { label: "Package Manager", icon: folderMultipleIcon } },
-  { value: "generator", payload: { label: "Package Generator", icon: sparklesIcon } },
-  { value: "stores", payload: { label: "Third-Party Stores", icon: linkIcon } },
-];
+const packager = providePackager();
+const { view, busySections, externalApps, importedApps, validApps, deletingApp, exportingApp, isPackageBeingInstalled, isImported, detailsApp, showDetails, exportPackage, deletePackage, badgeApp, showBadgeDialog, openBadgeDialog, showOverwriteDialog, overwriteData, closeConflictDialog, handleFiles, usedDevHooks, showThirdPartyDialog, thirdPartyPreview, isImportingThirdParty, thirdPartySelectedSlugs, importedFromStore, toggleThirdPartyPkg, thirdPartyToggleAll, closeThirdPartyDialog, confirmThirdPartyImport, showExportStoreDialog, selectedStoreApps, isExportingStore, toggleStoreAppSelection, selectAllStoreApps, closeExportStoreDialog, exportStore, showImportStoreDialog, importStorePreview, importStoreSelectedSlugs, isImportingStore, toggleImportStorePkg, importStoreToggleAll, closeImportStoreDialog, confirmImportStore } = packager;
 
-const segmentedContainerRef = ref<HTMLElement | null>(null);
-const onSegmentedDrag = (e: MouseEvent) => {
-  const el = segmentedContainerRef.value;
-  if (!el || el.scrollWidth <= el.clientWidth) return;
-  const startX = e.pageX;
-  const startScroll = el.scrollLeft;
-  const onMove = (ev: MouseEvent) => {
-    el.scrollLeft = startScroll - (ev.pageX - startX);
-  };
-  const onUp = () => {
-    document.removeEventListener("mousemove", onMove);
-    document.removeEventListener("mouseup", onUp);
-  };
-  document.addEventListener("mousemove", onMove);
-  document.addEventListener("mouseup", onUp);
-};
+const rootRef = ref<HTMLElement | null>(null);
+const scrollRef = ref<HTMLElement | null>(null);
+const isMobileLayout = ref(false);
 
-watch(activeTab, (val) => {
-  nextTick(() => {
-    const container = segmentedContainerRef.value;
-    if (!container || container.scrollWidth <= container.clientWidth) return;
-    const items = container.querySelectorAll<HTMLElement>(".ant-segmented-item");
-    const idx = segmentedOptions.findIndex((o) => o.value === val);
-    const target = items[idx];
+let resizeObserver: ResizeObserver | null = null;
+
+watch(
+  () => props.tab,
+  (tab) => {
+    const target = tab ? (LEGACY_TABS[tab] ?? (tab as PackagerView)) : undefined;
     if (!target) return;
-    const left = target.offsetLeft - (container.clientWidth - target.offsetWidth) / 2;
-    container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-  });
+    view.value = target;
+    if (props._windowId) windowStore.updateWindowData(props._windowId, { tab: undefined });
+  },
+  { immediate: true },
+);
+
+const sidebarCounts = computed<Partial<Record<PackagerView, number>>>(() => ({
+  packages: externalApps.value.length,
+  stores: PREDEFINED_STORES.filter((store) => importedFromStore(store).length > 0).length,
+}));
+
+const statusMessage = computed(() => {
+  if (view.value === "create") return t("Packager");
+  if (view.value === "stores") return t("Third-Party Stores");
+  if (view.value === "transfer") return t("Import & Export");
+  return t("{n} {unit} available", { n: externalApps.value.length, unit: externalApps.value.length === 1 ? t("package") : t("packages") });
 });
 
-const MAX_HDS_PACKAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-const MAX_COMPOSE_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_ICON_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-const showDevHooks = ref(false);
-const expandedPackages = ref<Set<string>>(new Set());
-
-const togglePackageExpand = (filename: string) => {
-  const next = new Set(expandedPackages.value);
-  if (next.has(filename)) {
-    next.delete(filename);
-  } else {
-    next.add(filename);
-  }
-  expandedPackages.value = next;
-};
-
-const devHooks = [
-  {
-    placeholder: "[[HD_LOCAL_IP]]",
-    description: "Local IP address of the system",
-    example: "192.168.1.100",
-  },
-  {
-    placeholder: "[[HD_INTERNET_IP]]",
-    description: "Public internet IP address",
-    example: "203.0.113.45",
-  },
-  {
-    placeholder: "[[HD_USER_NAME]]",
-    description: "HomeDock OS Username",
-    example: "admin",
-  },
-  {
-    placeholder: "[[HD_PASSWORD]]",
-    description: "Auto-generated simple password",
-    example: "apple_banana_1234",
-  },
-  {
-    placeholder: "[[HD_SYSTEM_PASSWORD]]",
-    description: "Auto-generated secure password (20 chars)",
-    example: "aB3dE5fG7hI9jK1lM3nO",
-  },
-  {
-    placeholder: "[[HD_RND_STR]]",
-    description: "Random string (16 chars)",
-    example: "xY4zW9qR2sT7vU1p",
-  },
-  {
-    placeholder: "[[INSTALL_PATH]]",
-    description: "App configuration storage path",
-    example: "Linux: /DATA/HomeDock/AppData/\nmacOS: /Users/{username}/HomeDock/AppData/\nWindows: /mnt/c/HomeDock/AppData/",
-  },
-  {
-    placeholder: "[[APP_MOUNT_POINT]]",
-    description: "App data storage path",
-    example: "Linux: /DATA/HomeDock/AppFolders/\nmacOS: /Users/{username}/HomeDock/AppFolders/\nWindows: /mnt/c/HomeDock/AppFolders/",
-  },
-  {
-    placeholder: "[[SSL_CERT_PATH]]",
-    description: "SSL certificates directory path",
-    example: "Linux: /DATA/SSLCerts\nmacOS: /Users/{username}/HomeDock/SSLCerts\nWindows: /mnt/c/HomeDock/SSLCerts\n\nMake sure to mount them as :ro (read-only) in your Docker Compose.",
-  },
-];
-
-const composeFile = ref<File | null>(null);
-const composeFileList = ref<any[]>([]);
-const composeContent = ref<string>("");
-const composeContentBackup = ref<string>("");
-const isEditingCompose = ref(false);
-const iconFile = ref<File | null>(null);
-const iconFileList = ref<any[]>([]);
-const iconPreview = ref<string | null>(null);
-const isCreating = ref(false);
-const hasDefaultCredentials = ref(false);
-const hasSuggestedPort = ref(false);
-const hasSuggestedTrail = ref(false);
-const parsedData = ref<any>({});
-
-const usedDevHooks = computed(() => {
-  const content = composeContent.value;
-  if (!content) return [];
-
-  return devHooks.map((hook) => hook.placeholder).filter((placeholder) => content.includes(placeholder));
+const statusInfo = computed(() => {
+  if (view.value === "create") return usedDevHooks.value.length ? t("{n} DevHooks detected", { n: usedDevHooks.value.length }) : t("Ready to create");
+  if (view.value === "stores") return t("Casa and Zima Stores");
+  return t("{n} imported apps", { n: importedApps.value.length });
 });
 
-const newPackage = ref({
-  slug: "",
-  display_name: "",
-  category: "Media",
-  type: "",
-  description: "",
-  docker_image: "",
-  author: "",
-  version: "latest",
-  default_username: "",
-  default_password: "",
-  suggested_port: "",
-  suggested_trail: "",
+const detailsLocked = computed(() => Boolean(detailsApp.value && (detailsApp.value.is_installed || isPackageBeingInstalled(detailsApp.value.manifest?.name))));
+
+const detailRows = computed(() => {
+  const app = detailsApp.value;
+  if (!app) return [];
+  const manifest = app.manifest || {};
+  return [manifest.docker_image && { label: "Image", value: manifest.docker_image, mono: true }, manifest.version && { label: "Version", value: manifest.version, mono: true }, manifest.category && { label: "Category", value: t(manifest.category) }, { label: "File", value: app.filename, mono: true }, app.hash && { label: "Hash", value: app.hash, mono: true }].filter(Boolean) as { label: string; value: string; mono?: boolean }[];
 });
 
-const isValidSlug = (slug: string): boolean => {
-  if (!slug) return false;
-  if (!/^[a-z0-9\-]+$/.test(slug)) return false;
-  if (slug[0] === "-" || slug[slug.length - 1] === "-") return false;
-  return true;
-};
+function deleteFromDetails() {
+  if (!detailsApp.value) return;
+  showDetails.value = false;
+  deletePackage(detailsApp.value);
+}
 
-const canCreate = computed(() => {
-  return composeFile.value && iconFile.value && newPackage.value.slug && isValidSlug(newPackage.value.slug) && newPackage.value.display_name && newPackage.value.category && newPackage.value.type && newPackage.value.description && newPackage.value.docker_image && newPackage.value.author;
-});
+function selectView(next: PackagerView) {
+  view.value = next;
+  if (scrollRef.value) scrollRef.value.scrollTop = 0;
+}
 
-const importedApps = ref<any[]>([]);
-const selectedImportedApp = ref("");
-const isExporting = ref(false);
+function onWindowDrop(event: DragEvent) {
+  const files = Array.from(event.dataTransfer?.files ?? []).filter((file) => file.name.endsWith(".hds") || file.name.endsWith(".hdstore"));
+  if (files.length) handleFiles(files);
+}
 
-const selectedPackage = ref<File | null>(null);
-const packageFileList = ref<any[]>([]);
-const isUploading = ref(false);
-
-const showOverwriteDialog = ref(false);
-const overwriteData = ref<{
-  displayName: string;
-  appSlug: string;
-  existingFiles: string[];
-} | null>(null);
-
-const externalApps = ref<any[]>([]);
-const packageSearch = ref("");
-const filteredExternalApps = computed(() => {
-  const q = packageSearch.value.trim().toLowerCase();
-  if (!q) return externalApps.value;
-  return externalApps.value.filter((app: any) => {
-    const name = (app.manifest?.display_name || app.manifest?.name || app.filename || "").toLowerCase();
-    const author = (app.manifest?.author || "").toLowerCase();
-    const category = (app.manifest?.category || "").toLowerCase();
-    return name.includes(q) || author.includes(q) || category.includes(q);
-  });
-});
-const isLoadingExternal = ref(false);
-const deletingApp = ref<string | null>(null);
+function updateMobileLayout(width: number) {
+  if (width <= 0) return;
+  if (!isMobileLayout.value && width < MOBILE_ENTER_THRESHOLD) isMobileLayout.value = true;
+  else if (isMobileLayout.value && width > MOBILE_EXIT_THRESHOLD) isMobileLayout.value = false;
+}
 
 onMounted(() => {
-  loadData();
+  packager.refreshAll(false);
+
+  if (rootRef.value) {
+    updateMobileLayout(rootRef.value.clientWidth);
+    resizeObserver = new ResizeObserver((entries) => updateMobileLayout(entries[0]?.contentRect.width ?? 0));
+    resizeObserver.observe(rootRef.value);
+  }
 });
 
-watch(
-  () => appStore.apps,
-  () => {
-    externalApps.value = externalApps.value.map((pkg) => {
-      const appInStore = appStore.apps.find((app) => app.name === pkg.manifest?.name);
-      return {
-        ...pkg,
-        is_installed: appInStore?.is_installed || false,
-      };
-    });
-  },
-  { deep: true },
-);
-
-const loadData = async () => {
-  await Promise.all([loadImportedApps(), loadExternalApps()]);
-};
-
-const loadImportedApps = async () => {
-  try {
-    const response = await axios.get("/api/pkg/imported", {
-      headers: {
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-    });
-
-    if (response.data.success) {
-      importedApps.value = response.data.apps;
-
-      if (importedApps.value.length > 0) {
-        selectedImportedApp.value = importedApps.value[0].name;
-      } else {
-        selectedImportedApp.value = "";
-      }
-    }
-  } catch (error) {
-    console.error("Error loading imported apps:", error);
-  }
-};
-
-const loadExternalApps = async () => {
-  expandedPackages.value = new Set();
-
-  const isFirstLoad = externalApps.value.length === 0 && !isLoadingExternal.value;
-  if (isFirstLoad) {
-    isLoadingExternal.value = true;
-  }
-
-  try {
-    const response = await axios.get("/api/pkg/list", {
-      headers: {
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-    });
-
-    if (response.data.success) {
-      externalApps.value = response.data.apps;
-    }
-  } catch (error) {
-    console.error("Error loading external apps:", error);
-  } finally {
-    isLoadingExternal.value = false;
-  }
-};
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(2) + " MB";
-};
-
-const isPackageBeingInstalled = (appSlug: string): boolean => {
-  return installationStore.currentlyInstalling === appSlug || installationStore.queue.includes(appSlug);
-};
-
-const handleComposeUpload = async ({ file }: any) => {
-  return false;
-};
-
-const handleComposeChange = async (info: any) => {
-  const { fileList } = info;
-  if (fileList.length > 0) {
-    const file = fileList[0].originFileObj;
-
-    if (file.size > MAX_COMPOSE_FILE_SIZE) {
-      message.error(t("Compose file is too large. Maximum size: {size}", { size: formatFileSize(MAX_COMPOSE_FILE_SIZE) }));
-      composeFileList.value = [];
-      return;
-    }
-
-    composeFile.value = file;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const content = e.target?.result as string;
-
-      if (!content || content.trim().length === 0) {
-        message.error(t("File is empty. Please upload a valid Docker Compose file."));
-        composeFileList.value = [];
-        composeFile.value = null;
-        return;
-      }
-
-      if (/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/.test(content.slice(0, 1024))) {
-        message.error(t("Binary file detected. Docker Compose must be a plain text YML file."));
-        composeFileList.value = [];
-        composeFile.value = null;
-        composeContent.value = "";
-        return;
-      }
-
-      if (!/:\s*\S/.test(content)) {
-        message.error(t("Invalid YML format. File must contain YML key-value pairs (key: value)."));
-        composeFileList.value = [];
-        composeFile.value = null;
-        composeContent.value = "";
-        return;
-      }
-
-      const dangerousPatterns = ["<?php", "<script", "eval(", "exec(", "__import__"];
-      for (const pattern of dangerousPatterns) {
-        if (content.includes(pattern)) {
-          message.error(t("Dangerous content detected: {pattern}", { pattern }));
-          composeFileList.value = [];
-          composeFile.value = null;
-          composeContent.value = "";
-          return;
-        }
-      }
-
-      composeContent.value = content;
-      await parseComposeFromContent();
-    };
-    reader.readAsText(file, "UTF-8");
-  } else {
-    composeFile.value = null;
-    composeContent.value = "";
-  }
-};
-
-const parseComposeFromContent = async () => {
-  if (!composeContent.value) return;
-
-  try {
-    const blob = new Blob([composeContent.value], { type: "text/yaml" });
-    const file = new File([blob], composeFile.value?.name || "docker-compose.yml", { type: "text/yaml" });
-
-    const formData = new FormData();
-    formData.append("compose", file);
-
-    const response = await axios.post("/api/pkg/parse-compose", formData, {
-      headers: {
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-    });
-
-    if (response.status === 200) {
-      parsedData.value = response.data.data || {};
-
-      if (parsedData.value.image) {
-        const parts = parsedData.value.image.split(":");
-        newPackage.value.docker_image = parts[0];
-        if (parts[1]) {
-          newPackage.value.version = parts[1];
-        }
-      }
-
-      if (parsedData.value.container_name) {
-        const containerName = parsedData.value.container_name;
-
-        newPackage.value.slug = containerName.toLowerCase();
-
-        newPackage.value.display_name = containerName.charAt(0).toUpperCase() + containerName.slice(1);
-      }
-    }
-  } catch (error) {
-    console.error("Error parsing compose:", error);
-  }
-};
-
-const openComposeEditor = () => {
-  composeContentBackup.value = composeContent.value;
-  isEditingCompose.value = true;
-};
-
-const saveComposeEdit = async () => {
-  await parseComposeFromContent();
-};
-
-const cancelComposeEdit = () => {
-  composeContent.value = composeContentBackup.value;
-  isEditingCompose.value = false;
-};
-
-const beforeIconUpload = (file: any) => {
-  const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-  const isValidType = validTypes.includes(file.type);
-
-  if (!isValidType) {
-    message.error(t("Please upload a .jpg, .jpeg, or .png file"));
-    return false;
-  }
-
-  const isValidSize = file.size <= MAX_ICON_FILE_SIZE;
-  if (!isValidSize) {
-    message.error(t("Icon file is too large. Maximum size: {size}", { size: formatFileSize(MAX_ICON_FILE_SIZE) }));
-    return false;
-  }
-
-  return true;
-};
-
-const handleIconUpload = async ({ file }: any) => {
-  return false;
-};
-
-const handleIconChange = (info: any) => {
-  const { fileList } = info;
-  if (fileList.length > 0) {
-    const file = fileList[0].originFileObj;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const arrayBuffer = e.target?.result as ArrayBuffer;
-      const bytes = new Uint8Array(arrayBuffer);
-
-      const isJPEG = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-      const isPNG = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-
-      if (!isJPEG && !isPNG) {
-        message.error(t("Invalid image format. Only JPG and PNG images are allowed."));
-        iconFileList.value = [];
-        iconFile.value = null;
-        iconPreview.value = null;
-        return;
-      }
-
-      iconFile.value = file;
-
-      const previewReader = new FileReader();
-      previewReader.onload = (e) => {
-        iconPreview.value = e.target?.result as string;
-      };
-      previewReader.readAsDataURL(file);
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    iconFile.value = null;
-    iconPreview.value = null;
-  }
-};
-
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text);
-  message.success(t("Copied: {text}", { text }));
-};
-
-const predefinedStores = [
-  { name: "BigBearTechWorld", url: "https://github.com/bigbeartechworld/big-bear-casaos/archive/refs/heads/master.zip" },
-  { name: "TMC Store", url: "https://github.com/mariosemes/CasaOS-TMCstore/archive/refs/heads/main.zip" },
-  { name: "Zima App Store", url: "https://github.com/justserdar/ZimaOS-AppStore/archive/refs/tags/latest-v0.0.8.zip" },
-];
-
-const migrateFileList = ref<any[]>([]);
-const isMigratingSingle = ref(false);
-const migrateProgress = ref("");
-
-const handleMigrateUpload = () => {};
-const handleMigrateChange = (info: any) => {
-  const file = info.file?.originFileObj || info.file;
-  if (!file || isMigratingSingle.value) return;
-
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const content = reader.result as string;
-    isMigratingSingle.value = true;
-    migrateProgress.value = t("Converting...");
-    try {
-      const response = await axios.post("/api/pkg/migrate-compose", { compose_content: content }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
-      const data = response.data;
-      if (data.success) {
-        message.success(t("Migrated: {app}", { app: data.app }));
-        loadExternalApps();
-        loadImportedApps();
-        activeTab.value = "manager";
-      } else {
-        message.error(data.message || t("Migration failed"));
-      }
-    } catch (error: any) {
-      message.error(error?.response?.data?.message || error?.message || t("Migration failed"));
-    } finally {
-      isMigratingSingle.value = false;
-      migrateProgress.value = "";
-      migrateFileList.value = [];
-    }
-  };
-  reader.readAsText(file);
-};
-
-const thirdPartyUrl = ref("");
-const isImportingThirdPartyUrl = ref(false);
-const thirdPartyProgress = ref("");
-const showThirdPartyDialog = ref(false);
-const thirdPartyPreview = ref<any>(null);
-const thirdPartyCacheId = ref("");
-const isImportingThirdParty = ref(false);
-const thirdPartySelectedSlugs = ref<Set<string>>(new Set());
-
-const toggleThirdPartyPkg = (slug: string) => {
-  const s = new Set(thirdPartySelectedSlugs.value);
-  if (s.has(slug)) s.delete(slug);
-  else s.add(slug);
-  thirdPartySelectedSlugs.value = s;
-};
-
-const thirdPartyToggleAll = () => {
-  if (!thirdPartyPreview.value) return;
-  const available = thirdPartyPreview.value.packages.filter((p: any) => !p.already_exists);
-  if (thirdPartySelectedSlugs.value.size === available.length) {
-    thirdPartySelectedSlugs.value = new Set();
-  } else {
-    thirdPartySelectedSlugs.value = new Set(available.map((p: any) => p.name));
-  }
-};
-
-const importFromThirdParty = async () => {
-  const url = thirdPartyUrl.value.trim();
-  if (!url || isImportingThirdPartyUrl.value) return;
-
-  if (!url.toLowerCase().endsWith(".zip")) {
-    message.error(t("URL must point to a .zip archive. For individual compose files, use the Package Generator."));
-    return;
-  }
-
-  isImportingThirdPartyUrl.value = true;
-  thirdPartyProgress.value = t("Downloading store archive...");
-  try {
-    const response = await axios.post("/api/pkg/preview-third-party", { url }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
-
-    const data = response.data;
-    if (!data.success) {
-      message.error(data.message || t("Failed to fetch store"));
-      return;
-    }
-
-    thirdPartyProgress.value = t("Found {n} app(s). Select which ones to import.", { n: data.package_count });
-    thirdPartyCacheId.value = data.cache_id;
-    thirdPartyPreview.value = data;
-    thirdPartySelectedSlugs.value = new Set(data.packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
-    showThirdPartyDialog.value = true;
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || error?.message || t("Failed to fetch store"));
-    thirdPartyProgress.value = "";
-  } finally {
-    isImportingThirdPartyUrl.value = false;
-  }
-};
-
-const confirmThirdPartyImport = async () => {
-  if (!thirdPartyPreview.value || !thirdPartyCacheId.value) return;
-
-  const slugs = [...thirdPartySelectedSlugs.value];
-  if (slugs.length === 0) return;
-
-  isImportingThirdParty.value = true;
-  try {
-    const response = await axios.post("/api/pkg/import-third-party", { cache_id: thirdPartyCacheId.value, slugs }, { headers: { "X-HomeDock-CSRF-Token": csrfToken.value } });
-
-    const data = response.data;
-    if (data.success) {
-      message.success(t("Imported {n} app(s)", { n: data.imported }) + (data.skipped > 0 ? `, ${t("{n} skipped", { n: data.skipped })}` : ""));
-      thirdPartyUrl.value = "";
-      thirdPartyProgress.value = "";
-      showThirdPartyDialog.value = false;
-      thirdPartyPreview.value = null;
-      thirdPartyCacheId.value = "";
-      loadExternalApps();
-      loadImportedApps();
-      activeTab.value = "manager";
-    } else {
-      message.error(data.message || t("Import failed"));
-    }
-  } catch (error: any) {
-    message.error(error?.response?.data?.message || t("Import failed"));
-  } finally {
-    isImportingThirdParty.value = false;
-  }
-};
-
-const createPackage = async () => {
-  if (!canCreate.value) return;
-
-  isCreating.value = true;
-
-  try {
-    const formData = new FormData();
-
-    if (composeContent.value) {
-      const blob = new Blob([composeContent.value], { type: "text/yaml" });
-      const file = new File([blob], composeFile.value?.name || "docker-compose.yml", { type: "text/yaml" });
-      formData.append("compose", file);
-    } else {
-      formData.append("compose", composeFile.value!);
-    }
-
-    formData.append("icon", iconFile.value!);
-    formData.append("slug", newPackage.value.slug);
-    formData.append("display_name", newPackage.value.display_name);
-    formData.append("category", newPackage.value.category);
-    formData.append("type", newPackage.value.type);
-    formData.append("description", newPackage.value.description);
-    formData.append("docker_image", newPackage.value.docker_image);
-    formData.append("author", newPackage.value.author);
-    formData.append("version", newPackage.value.version);
-    if (hasDefaultCredentials.value && newPackage.value.default_username && newPackage.value.default_password) {
-      formData.append("default_username", newPackage.value.default_username);
-      formData.append("default_password", newPackage.value.default_password);
-    }
-    if (hasSuggestedPort.value && newPackage.value.suggested_port) {
-      formData.append("suggested_port", newPackage.value.suggested_port);
-    }
-    if (hasSuggestedTrail.value && newPackage.value.suggested_trail) {
-      formData.append("suggested_trail", newPackage.value.suggested_trail);
-    }
-
-    const response = await axios.post("/api/pkg/create", formData, {
-      headers: {
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-      responseType: "blob",
-    });
-
-    const blob = new Blob([response.data]);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${newPackage.value.slug}.hds`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    message.success(t("Successfully created {name}.hds", { name: newPackage.value.slug }));
-
-    composeFile.value = null;
-    composeFileList.value = [];
-    composeContent.value = "";
-    iconFile.value = null;
-    iconFileList.value = [];
-    iconPreview.value = null;
-    parsedData.value = {};
-    newPackage.value = {
-      slug: "",
-      display_name: "",
-      category: "Media",
-      type: "",
-      description: "",
-      docker_image: "",
-      author: "",
-      version: "latest",
-      default_username: "",
-      default_password: "",
-      suggested_port: "",
-      suggested_trail: "",
-    };
-    hasDefaultCredentials.value = false;
-    hasSuggestedPort.value = false;
-    hasSuggestedTrail.value = false;
-  } catch (error) {
-    console.error("Creation error:", error);
-    message.error(t("Creation failed. Please try again."));
-  } finally {
-    isCreating.value = false;
-  }
-};
-
-const exportImported = async () => {
-  if (!selectedImportedApp.value) return;
-
-  isExporting.value = true;
-
-  try {
-    const response = await axios.get(`/api/pkg/export-imported?app_name=${selectedImportedApp.value}`, {
-      headers: {
-        "X-HomeDock-CSRF-Token": csrfToken.value,
-      },
-      responseType: "blob",
-    });
-
-    const blob = new Blob([response.data]);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${selectedImportedApp.value}.hds`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    message.success(t("Successfully exported {name}.hds", { name: selectedImportedApp.value }));
-  } catch (error) {
-    console.error("Export error:", error);
-    message.error(t("Export failed. Please try again."));
-  } finally {
-    isExporting.value = false;
-  }
-};
-
-const handlePackageUploadRequest = async ({ file }: any) => {
-  return false;
-};
-
-const uploadQueue: File[] = [];
-let processingQueue = false;
-
-const validateHdsFile = (file: File): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if (!file.name.endsWith(".hds")) {
-      message.error(t('"{name}" is not a .hds file', { name: file.name }));
-      return resolve(false);
-    }
-    if (file.size > MAX_HDS_PACKAGE_SIZE) {
-      message.error(t('"{name}" is too large. Maximum size: {size}', { name: file.name, size: formatFileSize(MAX_HDS_PACKAGE_SIZE) }));
-      return resolve(false);
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const bytes = new Uint8Array(e.target?.result as ArrayBuffer);
-      const isZIP = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
-      if (!isZIP) {
-        message.error(t('"{name}" is not a valid HDS package', { name: file.name }));
-        return resolve(false);
-      }
-      resolve(true);
-    };
-    reader.readAsArrayBuffer(file.slice(0, 4));
-  });
-};
-
-const uploadSinglePackage = async (file: File) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await axios.post("/api/pkg/upload", formData, {
-    headers: {
-      "X-HomeDock-CSRF-Token": csrfToken.value,
-    },
-  });
-
-  if (!response.data.success) {
-    message.error(t("Upload failed: {msg}", { msg: response.data.message }));
-    return;
-  }
-
-  const displayName = response.data.display_name || file.name;
-  message.success(t("Successfully imported {name}!", { name: displayName }));
-};
-
-const processUploadQueue = async () => {
-  if (processingQueue) return;
-  processingQueue = true;
-  isUploading.value = true;
-
-  try {
-    while (uploadQueue.length > 0) {
-      const file = uploadQueue.shift()!;
-      const valid = await validateHdsFile(file);
-      if (!valid) continue;
-
-      try {
-        await uploadSinglePackage(file);
-      } catch (error: any) {
-        console.error("Upload error:", error);
-        if (error.response?.status === 409 && error.response?.data?.code === "PACKAGE_EXISTS") {
-          selectedPackage.value = file;
-          overwriteData.value = {
-            displayName: error.response.data.display_name,
-            appSlug: error.response.data.app_slug,
-            existingFiles: error.response.data.existing_files,
-          };
-          showOverwriteDialog.value = true;
-        } else {
-          message.error(t('Failed to import "{name}".', { name: file.name }));
-        }
-      }
-    }
-
-    loadExternalApps();
-    loadImportedApps();
-    await appStore.loadApps(csrfToken.value);
-  } finally {
-    processingQueue = false;
-    isUploading.value = false;
-    selectedPackage.value = null;
-    packageFileList.value = [];
-  }
-};
-
-const handlePackageChange = (info: any) => {
-  const file = info.file?.originFileObj;
-  if (!file) return;
-
-  if (!uploadQueue.some((f) => f.name === file.name && f.size === file.size)) {
-    uploadQueue.push(file);
-  }
-  packageFileList.value = [];
-  processUploadQueue();
-};
-
-const uploadPackage = async () => {
-  if (!selectedPackage.value) return;
-  isUploading.value = true;
-  try {
-    await uploadSinglePackage(selectedPackage.value);
-    selectedPackage.value = null;
-    packageFileList.value = [];
-    loadExternalApps();
-    loadImportedApps();
-    await appStore.loadApps(csrfToken.value);
-  } catch (error: any) {
-    console.error("Upload error:", error);
-    if (error.response?.status === 409 && error.response?.data?.code === "PACKAGE_EXISTS") {
-      overwriteData.value = {
-        displayName: error.response.data.display_name,
-        appSlug: error.response.data.app_slug,
-        existingFiles: error.response.data.existing_files,
-      };
-      showOverwriteDialog.value = true;
-    } else {
-      message.error(t("Upload failed. Please try again."));
-    }
-  } finally {
-    isUploading.value = false;
-  }
-};
-
-const openAppStore = () => {
-  desktopStore.openSystemApp("appstore");
-};
-
-const badgeApp = ref<any>(null);
-const showBadgeDialog = ref(false);
-
-const openBadgeDialog = (app: any) => {
-  badgeApp.value = app;
-  showBadgeDialog.value = true;
-};
-
-const showExportStoreDialog = ref(false);
-const selectedStoreApps = ref<Set<string>>(new Set());
-const isExportingStore = ref(false);
-const isImportingStore = ref(false);
-const isPreviewingStore = ref(false);
-
-const showImportStoreDialog = ref(false);
-const importStorePreview = ref<any>(null);
-const pendingImportFile = ref<File | null>(null);
-const importStoreSelectedSlugs = ref<Set<string>>(new Set());
-
-const toggleImportStorePkg = (slug: string) => {
-  const s = new Set(importStoreSelectedSlugs.value);
-  if (s.has(slug)) s.delete(slug);
-  else s.add(slug);
-  importStoreSelectedSlugs.value = s;
-};
-
-const importStoreToggleAll = () => {
-  if (!importStorePreview.value) return;
-  const available = importStorePreview.value.packages.filter((p: any) => !p.already_exists);
-  if (importStoreSelectedSlugs.value.size === available.length) {
-    importStoreSelectedSlugs.value = new Set();
-  } else {
-    importStoreSelectedSlugs.value = new Set(available.map((p: any) => p.name));
-  }
-};
-
-const MAX_HDSTORE_PACKAGES = 999;
-
-const toggleStoreAppSelection = (slug: string) => {
-  const next = new Set(selectedStoreApps.value);
-  if (next.has(slug)) next.delete(slug);
-  else if (next.size < MAX_HDSTORE_PACKAGES) next.add(slug);
-  selectedStoreApps.value = next;
-};
-
-const selectAllStoreApps = () => {
-  const validApps = externalApps.value.filter((a) => a.is_valid && a.manifest?.name);
-  if (selectedStoreApps.value.size === validApps.length) {
-    selectedStoreApps.value = new Set();
-  } else {
-    selectedStoreApps.value = new Set(validApps.slice(0, MAX_HDSTORE_PACKAGES).map((a) => a.manifest.name));
-  }
-};
-
-const formatStoreSize = (bytes: number) => {
-  if (!bytes) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
-const exportStore = async () => {
-  if (selectedStoreApps.value.size === 0) return;
-  isExportingStore.value = true;
-
-  try {
-    const apps = Array.from(selectedStoreApps.value).join(",");
-    const response = await axios.get(`/api/pkg/export-hdstore?apps=${encodeURIComponent(apps)}`, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-      responseType: "blob",
-    });
-
-    const disposition = response.headers["content-disposition"] || "";
-    const filenameMatch = disposition.match(/filename="?([^";\s]+)"?/);
-    const filename = filenameMatch ? filenameMatch[1] : "HomeDockOSAppStore.hdstore";
-
-    const blob = new Blob([response.data]);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    message.success(t("Exported {n} package(s)", { n: selectedStoreApps.value.size }));
-    showExportStoreDialog.value = false;
-    selectedStoreApps.value = new Set();
-  } catch {
-    message.error(t("Export failed. Please try again."));
-  } finally {
-    isExportingStore.value = false;
-  }
-};
-
-const importStore = async (file: File) => {
-  if (!file.name.endsWith(".hdstore")) {
-    message.error(t("File must be a .hdstore package"));
-    return;
-  }
-  isPreviewingStore.value = true;
-
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await axios.post("/api/pkg/preview-hdstore", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    if (response.data.success) {
-      const existingNames = new Set(externalApps.value.map((a: any) => a.manifest?.name).filter(Boolean));
-
-      const packages = (response.data.packages || []).map((pkg: any) => ({
-        ...pkg,
-        already_exists: existingNames.has(pkg.name),
-      }));
-
-      importStorePreview.value = { ...response.data, packages };
-      pendingImportFile.value = file;
-      importStoreSelectedSlugs.value = new Set(packages.filter((p: any) => !p.already_exists).map((p: any) => p.name));
-      showImportStoreDialog.value = true;
-    } else {
-      message.error(t(response.data.message || "Preview failed"));
-    }
-  } catch (error: any) {
-    message.error(error.response?.data?.message || t("Failed to read .hdstore file."));
-  } finally {
-    isPreviewingStore.value = false;
-  }
-};
-
-const confirmImportStore = async () => {
-  if (!pendingImportFile.value || importStoreSelectedSlugs.value.size === 0) return;
-  isImportingStore.value = true;
-
-  try {
-    const formData = new FormData();
-    formData.append("file", pendingImportFile.value);
-    formData.append("selected_slugs", JSON.stringify([...importStoreSelectedSlugs.value]));
-
-    const response = await axios.post("/api/pkg/import-hdstore", formData, {
-      headers: { "X-HomeDock-CSRF-Token": csrfToken.value },
-    });
-
-    if (response.data.success) {
-      const { imported, skipped } = response.data;
-      message.success(t("Imported {n} package(s)", { n: imported.length }));
-      if (skipped.length > 0) {
-        message.warning(t("{n} package(s) skipped", { n: skipped.length }));
-      }
-      loadExternalApps();
-      loadImportedApps();
-      await appStore.loadApps(csrfToken.value);
-    } else {
-      message.error(t(response.data.message || "Import failed"));
-    }
-  } catch (error: any) {
-    message.error(error.response?.data?.message || t("Import failed. Please try again."));
-  } finally {
-    isImportingStore.value = false;
-    showImportStoreDialog.value = false;
-    importStorePreview.value = null;
-    pendingImportFile.value = null;
-    importStoreSelectedSlugs.value = new Set();
-  }
-};
-
-const closeConflictDialog = () => {
-  showOverwriteDialog.value = false;
-  overwriteData.value = null;
-  selectedPackage.value = null;
-  packageFileList.value = [];
-};
-
-const deletePackage = async (filename: string) => {
-  const app = externalApps.value.find((a) => a.filename === filename);
-  const appSlug = app?.manifest?.name;
-
-  if (app?.is_installed) {
-    message.error(t("Cannot delete this package: The app is currently installed. Please uninstall it from the App Store first."));
-    return;
-  }
-
-  if (appSlug && isPackageBeingInstalled(appSlug)) {
-    message.error(t("Cannot delete this package: The app is currently installing. Please wait for the installation to complete."));
-    return;
-  }
-
-  confirm({
-    title: t("Confirm Deletion"),
-    content: t("Are you sure you want to completely delete {filename}? This will remove it from the App Store.", { filename }),
-    okText: t("Delete"),
-    cancelText: t("Cancel"),
-    onOk: async () => {
-      await performDelete(filename);
-    },
-  });
-};
-
-const performDelete = async (filename: string) => {
-  deletingApp.value = filename;
-
-  try {
-    const response = await axios.post(
-      "/api/pkg/delete",
-      { filename },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "X-HomeDock-CSRF-Token": csrfToken.value,
-        },
-      },
-    );
-
-    if (!response.data.success) {
-      message.error(t("Deletion failed: {msg}", { msg: response.data.message }));
-      return;
-    }
-
-    message.success(t("Package and all associated files deleted successfully"));
-
-    loadExternalApps();
-    loadImportedApps();
-
-    await appStore.loadApps(csrfToken.value);
-  } catch (error: any) {
-    console.error("Deletion error:", error);
-
-    if (error.response?.status === 409) {
-      message.error(t(error.response.data.message || "Cannot delete: App is currently installed"));
-    } else {
-      message.error(t("Deletion failed. Please try again."));
-    }
-  } finally {
-    deletingApp.value = null;
-  }
-};
-
-watch(
-  () => newPackage.value.slug,
-  (newSlug, oldSlug) => {
-    if (!composeContent.value || !oldSlug || !newSlug) return;
-    if (newSlug === oldSlug) return;
-
-    try {
-      const containerNameRegex = new RegExp(`(\\s*container_name:\\s*)${oldSlug}\\b`, "g");
-
-      if (containerNameRegex.test(composeContent.value)) {
-        composeContent.value = composeContent.value.replace(containerNameRegex, `$1${newSlug}`);
-      } else {
-        const serviceRegex = /(services:\s*\n\s+[\w-]+:\s*\n)/;
-        if (serviceRegex.test(composeContent.value)) {
-          composeContent.value = composeContent.value.replace(serviceRegex, `$1    container_name: ${newSlug}\n`);
-        }
-      }
-    } catch (error) {
-      console.error("Error updating container_name:", error);
-    }
-  },
-);
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+});
 </script>
 
 <style scoped>
-.packager-segmented-container {
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 1rem 1rem 0;
-}
-
-.packager-segmented-container::-webkit-scrollbar {
-  display: none;
-}
-
-:deep(.compact-dragger-pkg .ant-upload-drag) {
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-  padding: 0 !important;
-}
-
-:deep(.compact-dragger-pkg .ant-upload-drag .ant-upload) {
-  padding: 0 !important;
-  display: block !important;
-  width: 100% !important;
-}
-
-:deep(.compact-dragger-pkg .ant-upload-drag.ant-upload-drag-hover) {
-  background: rgba(59, 130, 246, 0.15) !important;
-}
-
-.compose-editor {
-  outline: 1px solid rgba(129, 129, 129, 0.281);
-}
-
-.compose-editor:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-}
-
 .packager-content {
   container-type: inline-size;
+  container-name: packager-content;
 }
 
-.packager-grid {
-  grid-template-columns: 1fr;
+.view-fade-enter-active,
+.view-fade-leave-active {
+  transition: opacity 0.15s ease;
 }
 
-@container (min-width: 550px) {
-  .packager-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .packager-grid-full {
-    grid-column: 1 / -1;
-  }
-}
-
-.hdstore-card {
-  container-type: inline-size;
-}
-
-.hdstore-features {
-  grid-template-columns: 1fr;
-}
-
-@container (min-width: 650px) {
-  .hdstore-features {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.view-fade-enter-from,
+.view-fade-leave-to {
+  opacity: 0;
 }
 </style>

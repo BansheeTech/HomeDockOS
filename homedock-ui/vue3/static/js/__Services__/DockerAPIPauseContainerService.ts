@@ -26,7 +26,9 @@ export async function pauseContainers(applications: Application[], containerName
   const store = useSelectedAppsStore();
   const group = mainContainer.HDGroup;
 
-  const dependencies = applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group);
+  const isGrouped = !!group && mainContainer.HDRole !== "dependency";
+
+  const dependencies = isGrouped ? applications.filter((app) => app.HDRole === "dependency" && app.HDGroup === group) : [];
 
   const affectedContainers = [mainContainer, ...dependencies];
 

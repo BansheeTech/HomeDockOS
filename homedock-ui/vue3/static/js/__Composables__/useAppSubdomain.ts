@@ -114,9 +114,11 @@ export interface SubdomainDiagnosis {
 }
 
 // HDOS00106
-export async function diagnoseSubdomainBlocker(): Promise<SubdomainDiagnosis> {
+export async function diagnoseSubdomainBlocker(csrfToken: string): Promise<SubdomainDiagnosis> {
   try {
-    const { data } = await axios.get<{ ssl: boolean; covers_apps: boolean; self_signed: boolean; alternative: string | null }>("/api/subdomain-diagnostics");
+    const { data } = await axios.get<{ ssl: boolean; covers_apps: boolean; self_signed: boolean; alternative: string | null }>("/api/subdomain-diagnostics", {
+      headers: { "X-HomeDock-CSRF-Token": csrfToken },
+    });
 
     if (!data) return { blocker: "unknown", alternative: null };
 

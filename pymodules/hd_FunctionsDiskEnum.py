@@ -13,7 +13,6 @@ import psutil
 from pymodules.hd_FunctionsGlobals import running_OS
 from pymodules.hd_FunctionsHostSelector import is_docker
 
-
 _PSEUDO_FSTYPES = {
     "proc",
     "sysfs",
@@ -365,6 +364,22 @@ def enumerate_disks():
 
     results.sort(key=_sort_key)
     return results
+
+
+def visible_mountpoints():
+    try:
+        partitions = psutil.disk_partitions(all=False)
+    except Exception:
+        return []
+
+    mountpoints = []
+    for partition in partitions:
+        mountpoint = partition.mountpoint or ""
+        if _should_skip(mountpoint, partition.fstype or "") or mountpoint in mountpoints:
+            continue
+        mountpoints.append(mountpoint)
+
+    return mountpoints
 
 
 def find_disk_by_id(target_id):

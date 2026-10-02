@@ -5,8 +5,6 @@
 
 import { computed, ref, type Ref } from "vue";
 import { useDesktopStore, type DockerApp, type DesktopFolder, type SystemDesktopIcon } from "../__Stores__/desktopStore";
-import { useWidgetsStore } from "../__Stores__/useWidgetsStore";
-import { getWidgetDims } from "../__Config__/WidgetDefaultDetails";
 import { useResponsive } from "./useResponsive";
 
 export type DesktopItemType = "app" | "folder" | "systemicon";
@@ -25,7 +23,6 @@ export interface DesktopItem {
 
 export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
   const desktopStore = useDesktopStore();
-  const widgetsStore = useWidgetsStore();
   const { isMobile, windowWidth, windowHeight, isPortrait } = useResponsive();
 
   const DESKTOP_PADDING = 16;
@@ -124,150 +121,6 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
     desktopStore.updateItemPosition(item.type, item.id, x, y, row, col, page);
   }
 
-  function initializeItemPositions() {
-    const items = itemsWithoutPosition.value;
-    if (items.length === 0) return;
-
-    if (isMobile.value) {
-      initializeMobilePositions(items);
-    } else {
-      initializeDesktopPositions(items);
-    }
-  }
-
-  function initializeMobilePositions(items: DesktopItem[]) {
-    const containerWidth = containerRef?.value?.clientWidth || windowWidth.value;
-    const MOBILE_PADDING = 16;
-    const cols = isPortrait.value ? 4 : 6;
-
-    const innerContainerWidth = containerWidth - MOBILE_PADDING * 2;
-    const availableWidth = innerContainerWidth - MOBILE_PADDING * 2;
-    const gx = Math.floor(availableWidth / cols);
-    const gy = gx + 15;
-    const pad = MOBILE_PADDING;
-
-    const containerHeight = containerRef?.value?.clientHeight || windowHeight.value;
-    const availableHeight = containerHeight - MOBILE_PADDING * 2 - MOBILE_PADDING * 2 - PAGE_INDICATOR_CLEARANCE;
-    const rowCount = Math.max(1, Math.floor(availableHeight / gy));
-    const ipp = cols * rowCount;
-
-    const pw = innerContainerWidth;
-
-    const occupiedPositions = new Set<string>();
-
-    widgetsStore.instances.forEach((instance) => {
-      if (instance.mobileRow === undefined || instance.mobileCol === undefined) return;
-      const dims = getWidgetDims(instance.type, instance.size);
-      const page = instance.mobilePage ?? 0;
-
-      const clampedCol = Math.max(0, Math.min(instance.mobileCol, cols - dims.cols));
-      const clampedRow = Math.max(0, Math.min(instance.mobileRow, Math.max(0, rowCount - dims.rows)));
-
-      for (const [row, col] of [
-        [instance.mobileRow, instance.mobileCol],
-        [clampedRow, clampedCol],
-      ]) {
-        for (let r = row; r < row + dims.rows; r++) {
-          for (let c = col; c < col + dims.cols; c++) {
-            occupiedPositions.add(`${page},${r},${c}`);
-          }
-        }
-      }
-    });
-
-    allDesktopItems.value.forEach((item) => {
-      if (item.x !== undefined && item.y !== undefined) {
-        const itemPageIndex = Math.floor(item.x / pw);
-        const localX = item.x % pw;
-        const itemCol = Math.round((localX - pad) / gx);
-        const itemRow = Math.round((item.y - pad) / gy);
-        occupiedPositions.add(`${itemPageIndex},${itemRow},${itemCol}`);
-      }
-    });
-
-    let searchStartIndex = 0;
-
-    items.forEach((item) => {
-      let freePos: { page: number; row: number; col: number } | null = null;
-
-      for (let globalIdx = searchStartIndex; globalIdx < 1000; globalIdx++) {
-        const page = Math.floor(globalIdx / ipp);
-        const indexInPage = globalIdx % ipp;
-        const col = indexInPage % cols;
-        const row = Math.floor(indexInPage / cols);
-
-        const posKey = `${page},${row},${col}`;
-        if (!occupiedPositions.has(posKey)) {
-          freePos = { page, row, col };
-          break;
-        }
-      }
-
-      if (!freePos) {
-        console.error(`No free position found for ${item.type} "${item.name}"`);
-        return;
-      }
-
-      const { page: pageIndex, row, col } = freePos;
-      const localX = pad + col * gx;
-      const localY = pad + row * gy;
-      const globalX = pageIndex * pw + localX;
-
-      updateItemPosition(item, globalX, localY, row, col, pageIndex);
-
-      occupiedPositions.add(`${pageIndex},${row},${col}`);
-      searchStartIndex = pageIndex * ipp + row * cols + col + 1;
-    });
-  }
-
-  function initializeDesktopPositions(items: DesktopItem[]) {
-    const gx = gridSizeX.value;
-    const gy = gridSizeY.value;
-    const pad = padding.value;
-    const containerWidth = containerRef?.value?.clientWidth || windowWidth.value;
-    const maxCols = Math.floor((containerWidth - pad * 2) / gx);
-
-    const occupiedPositions = new Set<string>(widgetsStore.occupiedCells);
-
-    allDesktopItems.value.forEach((item) => {
-      if (item.x !== undefined && item.y !== undefined) {
-        const col = Math.round((item.x - pad) / gx);
-        const row = Math.round((item.y - pad) / gy);
-        occupiedPositions.add(`${row},${col}`);
-      }
-    });
-
-    let row = 0;
-    let col = 0;
-
-    items.forEach((item) => {
-      while (occupiedPositions.has(`${row},${col}`)) {
-        col++;
-        if (col >= maxCols) {
-          col = 0;
-          row++;
-        }
-        if (row > 100) {
-          console.error(`No free position found for ${item.type} "${item.name}"`);
-          return;
-        }
-      }
-
-      const x = pad + col * gx;
-      const y = pad + row * gy;
-
-      updateItemPosition(item, x, y, row, col);
-
-      occupiedPositions.add(`${row},${col}`);
-
-      col++;
-      if (col >= maxCols) {
-        col = 0;
-        row++;
-      }
-    });
-  }
-
   return {
     gridSizeX,
     gridSizeY,
@@ -283,6 +136,5 @@ export function useDesktopGrid(containerRef?: Ref<HTMLElement | null>) {
 
     calculateMobileGridSize,
     updateItemPosition,
-    initializeItemPositions,
   };
 }

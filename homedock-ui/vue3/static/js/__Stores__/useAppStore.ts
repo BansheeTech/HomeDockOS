@@ -19,13 +19,24 @@ function generateNotHash(input: string): string {
   return (sum % 10000).toString(36).padStart(3, "1");
 }
 
+export type AppSortMode = "recommended" | "name";
+
+function appLabel(app: App): string {
+  return app.display_name || app.name;
+}
+
+function matchesQuery(app: App, lowerQuery: string): boolean {
+  if (!lowerQuery) return true;
+  return [app.name, app.display_name, app.type, app.category, app.description].some((field) => field?.toLowerCase().includes(lowerQuery));
+}
+
 export const useAppStore = defineStore("AppStore", {
   state: () => ({
     apps: [] as App[],
     searchQuery: "",
     selectedCategory: "",
-    currentPage: 1,
-    appsPerPage: 15,
+    installedOnly: false,
+    sortMode: "recommended" as AppSortMode,
     visibleCount: 20,
   }),
   actions: {
@@ -67,17 +78,18 @@ export const useAppStore = defineStore("AppStore", {
       const installationStore = useInstallationStore();
       installationStore.startTracking();
     },
-    setPage(page: number) {
-      this.currentPage = page;
-    },
     setSearchQuery(query: string) {
       this.searchQuery = query;
-      this.currentPage = 1;
       this.visibleCount = 20;
     },
-    setCategoryFilter(category: string) {
-      this.selectedCategory = category;
-      this.currentPage = 1;
+    setListFilter(filter: { category: string; installedOnly: boolean }) {
+      if (this.selectedCategory === filter.category && this.installedOnly === filter.installedOnly) return;
+      this.selectedCategory = filter.category;
+      this.installedOnly = filter.installedOnly;
+      this.visibleCount = 20;
+    },
+    setSortMode(mode: AppSortMode) {
+      this.sortMode = mode;
       this.visibleCount = 20;
     },
     loadMore() {
@@ -95,100 +107,62 @@ export const useAppStore = defineStore("AppStore", {
     },
   },
   getters: {
-    filteredApps: (state) => {
-      const lowerQuery = state.searchQuery.toLowerCase();
-      const installationStore = useInstallationStore();
-      const { currentlyInstalling, queue } = installationStore;
+    rankedApps: (state): App[] =>
+      state.apps
+        .map((app) => ({ app, hash: generateNotHash(`${app.name}-${app.description}`) }))
+        .sort((a, b) => {
+          if (a.app.is_new !== b.app.is_new) return a.app.is_new ? -1 : 1;
+          return a.hash.localeCompare(b.hash);
+        })
+        .map(({ app }) => app),
+
+    matchingApps: (state): App[] => {
+      const lowerQuery = state.searchQuery.trim().toLowerCase();
+      const { currentlyInstalling, queue } = useInstallationStore();
 
       const filtered = state.apps.filter((app) => {
-        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
-
-        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
-
-        return matchesQuery && matchesCategory;
+        if (state.selectedCategory && app.category !== state.selectedCategory) return false;
+        if (state.installedOnly && !app.is_installed) return false;
+        return matchesQuery(app, lowerQuery);
       });
 
-      const prioritized = filtered.map((app) => {
-        let priority = 4;
-        if (app.is_new) priority = 0;
-        else if (currentlyInstalling === app.name) priority = 1;
-        else if (queue.includes(app.name)) priority = 2;
-        else if (app.is_installed) priority = 3;
+      if (state.sortMode === "name") {
+        return filtered.sort((a, b) => appLabel(a).localeCompare(appLabel(b)));
+      }
 
-        const appNotHash = generateNotHash(`${app.name}-${app.description}`);
-        return { ...app, priority, appNotHash };
-      });
+      const priorityOf = (app: App) => {
+        if (app.is_new) return 0;
+        if (currentlyInstalling === app.name) return 1;
+        if (queue.includes(app.name)) return 2;
+        if (app.is_installed) return 3;
+        return 4;
+      };
 
-      prioritized.sort((a, b) => {
-        if (a.priority !== b.priority) return a.priority - b.priority;
-        return a.appNotHash.localeCompare(b.appNotHash);
-      });
-
-      const start = (state.currentPage - 1) * state.appsPerPage;
-      const end = start + state.appsPerPage;
-      return prioritized.slice(start, end);
+      return filtered
+        .map((app) => ({ app, priority: priorityOf(app), hash: generateNotHash(`${app.name}-${app.description}`) }))
+        .sort((a, b) => {
+          if (a.priority !== b.priority) return a.priority - b.priority;
+          return a.hash.localeCompare(b.hash);
+        })
+        .map(({ app }) => app);
     },
 
-    filteredAppsTotal: (state) => {
-      const lowerQuery = state.searchQuery.toLowerCase();
-      const filtered = state.apps.filter((app) => {
-        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
-
-        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
-
-        return matchesQuery && matchesCategory;
-      });
-
-      return filtered.length;
+    infiniteApps(): App[] {
+      return this.matchingApps.slice(0, this.visibleCount);
     },
 
-    infiniteApps: (state) => {
-      const lowerQuery = state.searchQuery.toLowerCase();
-      const installationStore = useInstallationStore();
-      const { currentlyInstalling, queue } = installationStore;
-
-      const filtered = state.apps.filter((app) => {
-        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
-        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
-        return matchesQuery && matchesCategory;
-      });
-
-      const prioritized = filtered.map((app) => {
-        let priority = 4;
-        if (app.is_new) priority = 0;
-        else if (currentlyInstalling === app.name) priority = 1;
-        else if (queue.includes(app.name)) priority = 2;
-        else if (app.is_installed) priority = 3;
-
-        const appNotHash = generateNotHash(`${app.name}-${app.description}`);
-        return { ...app, priority, appNotHash };
-      });
-
-      prioritized.sort((a, b) => {
-        if (a.priority !== b.priority) return a.priority - b.priority;
-        return a.appNotHash.localeCompare(b.appNotHash);
-      });
-
-      return prioritized.slice(0, state.visibleCount);
+    hasMore(): boolean {
+      return this.visibleCount < this.matchingApps.length;
     },
 
-    hasMore: (state) => {
-      const lowerQuery = state.searchQuery.toLowerCase();
-      const total = state.apps.filter((app) => {
-        const matchesQuery = app.name.toLowerCase().includes(lowerQuery) || app.type.toLowerCase().includes(lowerQuery) || app.description.toLowerCase().includes(lowerQuery);
-        const matchesCategory = state.selectedCategory ? app.category === state.selectedCategory : true;
-        return matchesQuery && matchesCategory;
-      }).length;
-      return state.visibleCount < total;
+    categoryCounts: (state): { name: string; count: number }[] => {
+      const counts = new Map<string, number>();
+      for (const app of state.apps) {
+        if (app.category) counts.set(app.category, (counts.get(app.category) ?? 0) + 1);
+      }
+      return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     },
 
-    sortedApps: (state) =>
-      [...state.apps].sort((a, b) => {
-        if (a.is_installed === b.is_installed) {
-          if (a.is_new === b.is_new) return a.name.localeCompare(b.name);
-          return b.is_new ? 1 : -1;
-        }
-        return b.is_installed ? -1 : 1;
-      }),
+    installedCount: (state): number => state.apps.filter((app) => app.is_installed).length,
   },
 });

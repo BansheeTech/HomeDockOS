@@ -18,10 +18,10 @@ from pymodules.hd_FunctionsHostSelector import is_docker
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_CryptoServer import decrypt_json_from_client
 
-
 DEFAULT_SESSION_TTL_SECONDS = 600
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_WINDOW_SECONDS = 300
+MAX_SCOPE_LENGTH = 128
 
 
 def _session_ttl_seconds():
@@ -104,6 +104,8 @@ DANGER_ZONES_WINDOWS = (
 _sessions_lock = threading.Lock()
 _unlock_sessions = {}
 _danger_grants = {}
+_app_sessions = {}
+_app_grants = {}
 _failed_attempts = {}
 _lockouts = {}
 
@@ -239,6 +241,40 @@ def is_unlock_session_valid(uid):
     return _session_remaining(uid) > 0
 
 
+def _app_remaining(uid, scope):
+    with _sessions_lock:
+        expires_at = _app_sessions.get(uid, {}).get(scope)
+        if expires_at is None:
+            return None
+        if expires_at == float("inf"):
+            return float("inf")
+        remaining = int(expires_at - time.time())
+        if remaining <= 0:
+            _app_sessions.get(uid, {}).pop(scope, None)
+            _app_grants.get(uid, {}).pop(scope, None)
+            return None
+        return remaining
+
+
+def _is_app_session_valid(uid, scope):
+    return _app_remaining(uid, scope) is not None
+
+
+def _app_sessions_info(uid):
+    with _sessions_lock:
+        scopes = list(_app_sessions.get(uid, {}))
+
+    apps = {}
+    for scope in scopes:
+        remaining = _app_remaining(uid, scope)
+        if remaining is None:
+            continue
+        with _sessions_lock:
+            grants = sorted(_app_grants.get(uid, {}).get(scope, set()))
+        apps[scope] = {"remaining_seconds": 0 if remaining == float("inf") else remaining, "granted_zones": grants}
+    return apps
+
+
 def get_session_info(uid):
     ttl = _session_ttl_seconds()
     remaining = _session_remaining(uid)
@@ -250,6 +286,7 @@ def get_session_info(uid):
         "remaining_seconds": remaining,
         "ttl_seconds": ttl,
         "granted_zones": grants,
+        "apps": _app_sessions_info(uid),
         "docker_limited": is_docker,
         "protected_paths_enforced": _require_protected_paths_password(),
     }
@@ -278,35 +315,62 @@ def _revoke_session(uid):
     with _sessions_lock:
         _unlock_sessions.pop(uid, None)
         _danger_grants.pop(uid, None)
+        _app_sessions.pop(uid, None)
+        _app_grants.pop(uid, None)
 
 
-def _grant_zone(uid, zone):
+def _create_app_session(uid, scope):
+    ttl = _session_ttl_seconds()
     with _sessions_lock:
-        grants = _danger_grants.setdefault(uid, set())
-        grants.add(zone)
+        _app_sessions.setdefault(uid, {})[scope] = float("inf") if ttl == 0 else time.time() + ttl
+        _app_grants.setdefault(uid, {}).setdefault(scope, set())
 
 
-def _has_grant(uid, zone):
+def _touch_app_session(uid, scope):
+    ttl = _session_ttl_seconds()
     with _sessions_lock:
-        grants = _danger_grants.get(uid, set())
-        return zone in grants
+        sessions = _app_sessions.get(uid, {})
+        if scope in sessions:
+            sessions[scope] = float("inf") if ttl == 0 else time.time() + ttl
 
 
-def authorize_request(path=None):
+def _grant_zone(uid, zone, scope=None):
+    with _sessions_lock:
+        if scope is None:
+            _danger_grants.setdefault(uid, set()).add(zone)
+        else:
+            _app_grants.setdefault(uid, {}).setdefault(scope, set()).add(zone)
+
+
+def _has_grant(uid, zone, scope=None):
+    with _sessions_lock:
+        if scope is None:
+            return zone in _danger_grants.get(uid, set())
+        return zone in _app_grants.get(uid, {}).get(scope, set())
+
+
+def _valid_scope(value):
+    return isinstance(value, str) and 0 < len(value) <= MAX_SCOPE_LENGTH
+
+
+def authorize_request(path=None, scope=None):
     uid = _user_key()
 
-    if not is_unlock_session_valid(uid):
+    session_valid = is_unlock_session_valid(uid) if scope is None else _is_app_session_valid(uid, scope)
+    if not session_valid:
         return (False, "unlock_required", 401)
+
+    touch = (lambda: _touch_session(uid)) if scope is None else (lambda: _touch_app_session(uid, scope))
 
     if path and _require_protected_paths_password():
         zone = matching_danger_zone(path)
         if zone is not None:
-            if _has_grant(uid, zone):
-                _touch_session(uid)
+            if _has_grant(uid, zone, scope):
+                touch()
                 return (True, None, None)
             return (False, "danger_zone_reauth_required", 401)
 
-    _touch_session(uid)
+    touch()
     return (True, None, None)
 
 
@@ -369,6 +433,10 @@ def disksplus_unlock():
     if not password or not isinstance(password, str):
         return jsonify({"error": "invalid_payload"}), 400
 
+    scope = payload.get("app")
+    if scope is not None and not _valid_scope(scope):
+        return jsonify({"error": "invalid_payload"}), 400
+
     if not _verify_password(password):
         locked = _register_failed_attempt(uid)
         if locked:
@@ -377,7 +445,10 @@ def disksplus_unlock():
         return jsonify({"error": "invalid_password", "remaining_attempts": remaining}), 401
 
     _reset_failed(uid)
-    _create_session(uid)
+    if scope is None:
+        _create_session(uid)
+    else:
+        _create_app_session(uid, scope)
     return jsonify({"status": "ok", **get_session_info(uid)})
 
 
@@ -391,9 +462,6 @@ def disksplus_lock():
 @login_required
 def disksplus_danger_auth():
     uid = _user_key()
-
-    if not is_unlock_session_valid(uid):
-        return jsonify({"error": "unlock_required"}), 401
 
     if _using_default_password():
         return jsonify({"error": "default_password"}), 403
@@ -415,11 +483,18 @@ def disksplus_danger_auth():
 
     password = payload.get("password")
     path = payload.get("path")
+    scope = payload.get("app")
 
     if not isinstance(password, str) or not password:
         return jsonify({"error": "invalid_payload"}), 400
     if not isinstance(path, str) or not path:
         return jsonify({"error": "invalid_payload"}), 400
+    if scope is not None and not _valid_scope(scope):
+        return jsonify({"error": "invalid_payload"}), 400
+
+    session_valid = is_unlock_session_valid(uid) if scope is None else _is_app_session_valid(uid, scope)
+    if not session_valid:
+        return jsonify({"error": "unlock_required"}), 401
 
     zone = matching_danger_zone(path)
     if zone is None:
@@ -433,5 +508,5 @@ def disksplus_danger_auth():
         return jsonify({"error": "invalid_password", "remaining_attempts": remaining}), 401
 
     _reset_failed(uid)
-    _grant_zone(uid, zone)
+    _grant_zone(uid, zone, scope)
     return jsonify({"status": "ok", "granted_zone": zone, **get_session_info(uid)})
