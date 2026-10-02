@@ -1,6 +1,6 @@
 {
   "name": "homedock_os",
-  "version": "2.6.2.88",
+  "version": "2.6.2.102",
   "description": "The Cloud OS to simplify your life: 800+ self-hosted apps, a real desktop in your browser, and every file you own a double-click away.",
   "type": "module",
   "scripts": {
@@ -61,9 +61,9 @@
     "@xterm/xterm": "^6.0.0",
     "@zip.js/zip.js": "2.18.2",
     "ant-design-vue": "^4.2.6",
-    "axios": "1.18.0",
+    "axios": "1.20.0",
     "dayjs": "^1.11.19",
-    "dompurify": "^3.4.1",
+    "dompurify": "^3.4.16",
     "highlight.js": "^11.11.1",
     "marked": "^18.0.2",
     "music-metadata": "^11.12.3",
@@ -87,7 +87,8 @@
     "lodash": "^4.17.22",
     "lodash-es": "^4.17.23",
     "rollup": "^4.59.0",
-    "postcss": "^8.5.10"
+    "postcss": "^8.5.10",
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@types/dompurify": "^3.0.5",
