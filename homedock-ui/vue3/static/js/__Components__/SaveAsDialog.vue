@@ -6,7 +6,7 @@
 <template>
   <AppDialog v-model:visible="visible" title="Save As" ok-text="Save" cancel-text="Cancel" @ok="emit('confirm')" @cancel="emit('cancel')">
     <div class="space-y-2">
-      <input v-model="name" type="text" :placeholder="$t('File name...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" @keyup.enter="emit('confirm')" />
+      <input v-model="name" type="text" :placeholder="$t('File name...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" @keyup.enter="emit('confirm')" />
       <div class="flex items-center gap-1.5">
         <Icon :icon="folderIcon" :class="['w-3 h-3 opacity-40', themeClasses.windowText]" />
         <span :class="['text-[11px] opacity-40', themeClasses.windowText]">{{ $t("Saving in Storage/{folder}", { folder }) }}</span>

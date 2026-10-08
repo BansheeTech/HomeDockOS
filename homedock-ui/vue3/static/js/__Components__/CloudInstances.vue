@@ -7,7 +7,7 @@
   <transition name="slide-down-fade">
     <div v-show="isBannerVisible" class="relative z-30 grid grid-rows-[1fr] w-full">
       <div class="overflow-hidden">
-        <div class="relative text-xs w-full min-h-8 text-white text-center flex items-center justify-center rounded-3xl bg-gradient-to-r from-[#6e0000] via-[#4b0092] to-[#1575bf] animate-rainbow py-2.5">
+        <div class="relative text-xs w-full min-h-8 text-white text-center flex items-center justify-center rounded-3xl bg-linear-to-r/srgb from-[#6e0000] via-[#4b0092] to-[#1575bf] animate-rainbow py-2.5">
           <span id="CloudInstancesClose" class="absolute right-4 text-white cursor-pointer" @click="closeCloudInstanceContainer">
             <Icon :icon="closeIcon" class="mr-1 text-current" width="14" height="14" />
           </span>

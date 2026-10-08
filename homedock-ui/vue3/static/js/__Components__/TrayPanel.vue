@@ -81,13 +81,21 @@ function onKeyDown(event: KeyboardEvent) {
   if (event.key === "Escape") emit("close");
 }
 
+function onWindowBlur() {
+  setTimeout(() => {
+    if (document.activeElement?.tagName === "IFRAME") emit("close");
+  });
+}
+
 function listen(active: boolean) {
   if (active) {
     document.addEventListener("pointerdown", onPointerDown, true);
     document.addEventListener("keydown", onKeyDown);
+    window.addEventListener("blur", onWindowBlur);
   } else {
     document.removeEventListener("pointerdown", onPointerDown, true);
     document.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("blur", onWindowBlur);
   }
 }
 

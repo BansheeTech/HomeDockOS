@@ -29,15 +29,15 @@
                   <WelcomeMessage class="!inline" />
                 </div>
               </div>
-              <button class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-0 transition-transform duration-150 active:scale-90" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" @click="handleLogout" :title="$t('Logout')">
+              <button class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-0 transition-transform duration-150 active:scale-90 cursor-pointer" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" @click="handleLogout" :title="$t('Logout')">
                 <Icon :icon="logoutIcon" width="20" height="20" />
               </button>
             </div>
 
             <div class="hd-stagger relative mt-3 flex items-center" style="--hd-delay: 40ms">
               <Icon :icon="searchIcon" :class="themeClasses.startMenuSearchIcon" class="pointer-events-none absolute left-4 h-5 w-5" />
-              <input v-model="searchQuery" type="text" enterkeyhint="search" :placeholder="$t('Search apps...')" class="w-full rounded-lg border py-2.5 pl-12 pr-11 text-sm outline-none transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
-              <button v-if="searchQuery" @click="clearSearch" class="absolute right-2 rounded-lg border-none bg-transparent p-2 transition-transform duration-150 active:scale-90" :class="[themeClasses.startMenuClearButton, themeClasses.startMenuClearButtonHover]">
+              <input v-model="searchQuery" type="text" enterkeyhint="search" :placeholder="$t('Search apps...')" class="w-full rounded-lg border py-2.5 pl-12 pr-11 text-sm outline-hidden transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
+              <button v-if="searchQuery" @click="clearSearch" class="absolute right-2 rounded-lg border-none bg-transparent p-2 transition-transform duration-150 active:scale-90 cursor-pointer" :class="[themeClasses.startMenuClearButton, themeClasses.startMenuClearButtonHover]">
                 <Icon :icon="closeIcon" class="h-4 w-4" />
               </button>
             </div>
@@ -50,7 +50,7 @@
               <h3 class="m-0 mb-2 px-2 text-[0.6875rem] font-semibold uppercase tracking-wide" :class="themeClasses.startMenuSectionTitle">{{ $t("Pinned") }}</h3>
               <TransitionGroup tag="div" name="pin" class="hd-app-grid relative grid grid-cols-4 gap-1" @enter="onPinEnter" @leave="onPinLeave">
                 <div v-for="app in pinnedApps" :key="app.key" :data-pin-key="app.key" class="hd-app-tile flex cursor-pointer flex-col items-center gap-2 rounded-lg p-2 transition-transform duration-150 active:scale-90" :class="themeClasses.startMenuAppItemBg" @click="openApp(app)" @contextmenu.stop.prevent="openAppMenu($event, app)" @touchstart.passive="handleAppTouchStart($event, app)" @touchend="cancelLongPress" @touchmove="cancelLongPress">
-                  <StartMenuAppIcon :app="app" :size="48" />
+                  <StartMenuAppIcon :app="app" :size="48" class="pointer-events-none" />
                   <span class="hd-app-label" :class="themeClasses.startMenuAppNameText">{{ appName(app) }}</span>
                 </div>
               </TransitionGroup>
@@ -64,7 +64,7 @@
                 </template>
 
                 <div v-for="app in section.apps" :key="app.key" class="hd-app-tile flex cursor-pointer flex-col items-center gap-2 rounded-lg p-2 transition-transform duration-150 active:scale-90" :class="themeClasses.startMenuAppItemBg" @click="openApp(app)" @contextmenu.stop.prevent="openAppMenu($event, app)" @touchstart.passive="handleAppTouchStart($event, app)" @touchend="cancelLongPress" @touchmove="cancelLongPress">
-                  <StartMenuAppIcon :app="app" :size="48" />
+                  <StartMenuAppIcon :app="app" :size="48" class="pointer-events-none" />
                   <span class="hd-app-label" :class="themeClasses.startMenuAppNameText">{{ appName(app) }}</span>
                 </div>
               </div>
@@ -91,7 +91,7 @@
         <div class="shrink-0 px-6 pb-3 pt-5">
           <div class="relative flex items-center">
             <Icon :icon="searchIcon" :class="themeClasses.startMenuSearchIcon" class="pointer-events-none absolute left-4 h-5 w-5" />
-            <input ref="searchInputRef" v-model="searchQuery" type="text" :placeholder="$t('Search apps and files...')" class="flex-1 rounded-lg border py-3 pl-12 pr-11 text-sm outline-none transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
+            <input ref="searchInputRef" v-model="searchQuery" type="text" :placeholder="$t('Search apps and files...')" class="flex-1 rounded-lg border py-3 pl-12 pr-11 text-sm outline-hidden transition-all duration-200" :class="[themeClasses.startMenuSearchInput, themeClasses.startMenuSearchInputText, themeClasses.startMenuSearchInputFocusRing]" />
             <button v-if="searchQuery" @click="clearSearch" class="absolute right-2 cursor-pointer rounded border-none bg-transparent p-2 transition-all duration-150" :class="[themeClasses.startMenuClearButton, themeClasses.startMenuClearButtonHover]">
               <Icon :icon="closeIcon" class="h-4 w-4" />
             </button>
@@ -141,7 +141,7 @@
             <div v-else-if="view === 'all'" key="all">
               <div class="mb-2 flex items-center justify-between">
                 <h3 class="m-0 px-1 text-[0.6875rem] font-semibold uppercase tracking-wide" :class="themeClasses.startMenuSectionTitle">{{ $t("All apps") }}</h3>
-                <button type="button" class="start-link" :class="[themeClasses.startMenuViewAllText, themeClasses.startMenuViewAllTextHover, themeClasses.startMenuItemBgHover]" @click="view = 'home'">
+                <button type="button" class="start-link cursor-pointer" :class="[themeClasses.startMenuViewAllText, themeClasses.startMenuViewAllTextHover, themeClasses.startMenuItemBgHover]" @click="view = 'home'">
                   <Icon :icon="chevronLeftIcon" class="h-4 w-4" />
                   {{ $t("Back") }}
                 </button>
@@ -165,7 +165,7 @@
             <div v-else key="home">
               <div class="mb-2 flex items-center justify-between">
                 <h3 class="m-0 px-1 text-[0.6875rem] font-semibold uppercase tracking-wide" :class="themeClasses.startMenuSectionTitle">{{ $t("Pinned") }}</h3>
-                <button type="button" class="start-link" :class="[themeClasses.startMenuViewAllText, themeClasses.startMenuViewAllTextHover, themeClasses.startMenuItemBgHover]" @click="view = 'all'">
+                <button type="button" class="start-link cursor-pointer" :class="[themeClasses.startMenuViewAllText, themeClasses.startMenuViewAllTextHover, themeClasses.startMenuItemBgHover]" @click="view = 'all'">
                   {{ $t("All apps") }}
                   <Icon :icon="chevronRightIcon" class="h-4 w-4" />
                 </button>
@@ -220,13 +220,13 @@
             </div>
           </div>
           <div class="flex shrink-0 items-center gap-1">
-            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-colors" :class="[themeClasses.startMenuPowerButton, themeClasses.startMenuPowerButtonHover]" :title="$t('Help')" @click="openHelpMenu">
+            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-colors cursor-pointer" :class="[themeClasses.startMenuPowerButton, themeClasses.startMenuPowerButtonHover]" :title="$t('Help')" @click="openHelpMenu">
               <Icon :icon="helpIcon" width="20" height="20" />
             </button>
-            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-colors" :class="[themeClasses.startMenuPowerButton, themeClasses.startMenuPowerButtonHover]" :title="$t('Settings')" @click="openSettings">
+            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-colors cursor-pointer" :class="[themeClasses.startMenuPowerButton, themeClasses.startMenuPowerButtonHover]" :title="$t('Settings')" @click="openSettings">
               <Icon :icon="settingsIcon" width="20" height="20" />
             </button>
-            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-all" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" :title="$t('Logout')" @click="handleLogout">
+            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border-0 transition-all cursor-pointer" :class="[themeClasses.startMenuLogoutBg, themeClasses.startMenuLogoutText, themeClasses.startMenuLogoutBgHover, themeClasses.startMenuLogoutTextHover]" :title="$t('Logout')" @click="handleLogout">
               <Icon :icon="logoutIcon" width="20" height="20" />
             </button>
           </div>

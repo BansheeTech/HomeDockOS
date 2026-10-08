@@ -19,7 +19,7 @@
     <div class="flex items-center gap-2 px-3 py-1.5 border-y flex-shrink-0 flex-wrap" :class="themeClasses.utilityToolbarBorder">
       <div class="relative flex-1 min-w-[140px]">
         <Icon :icon="magnifyIcon" :class="[themeClasses.windowPlaceholderText]" class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" />
-        <input v-model="searchQuery" type="text" :placeholder="$t('Search logs...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full h-7 pl-7 pr-7 text-xs rounded-md border outline-none" spellcheck="false" @keydown.esc="searchQuery = ''" />
+        <input v-model="searchQuery" type="text" :placeholder="$t('Search logs...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full h-7 pl-7 pr-7 text-xs rounded-md border outline-hidden" spellcheck="false" @keydown.esc="searchQuery = ''" />
         <button v-if="searchQuery" :class="[themeClasses.windowPlaceholderText]" class="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded border-0 bg-transparent cursor-pointer" :title="$t('Clear')" @click="searchQuery = ''">
           <Icon :icon="closeIcon" class="w-3.5 h-3.5" />
         </button>
@@ -98,7 +98,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Logs") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Everything the container writes appears here as it happens. Scroll up to read calmly and new lines wait for you below; the button at the bottom takes you back to the latest.") }}</p>
             <p>{{ $t("Search and the level filter work on what is loaded. Download saves the last minutes, the last hours or the entire log, straight from the container.") }}</p>
           </div>

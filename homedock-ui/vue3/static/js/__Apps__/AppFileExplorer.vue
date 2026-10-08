@@ -6,7 +6,7 @@
 <template>
   <div ref="containerRef" class="app-fileexplorer flex h-full overflow-hidden" @dragenter="handleDragEnter" @dragleave="handleDragLeave" @dragover.prevent @drop.prevent.stop="handleDrop">
     <transition name="dragger-fade">
-      <div v-if="isDraggingFiles && canUpload" class="absolute inset-0 z-[9999] pointer-events-none backdrop-blur-sm">
+      <div v-if="isDraggingFiles && canUpload" class="absolute inset-0 z-[9999] pointer-events-none backdrop-blur-xs">
         <div :class="[themeClasses.scopeSelector, themeClasses.dropZoneDragHolder]" class="fullscreen-dragger h-full border-2 border-dashed rounded-lg flex items-center justify-center">
           <div class="flex items-center align-center justify-center flex-col h-full">
             <p class="ant-upload-drag-icon">
@@ -27,7 +27,7 @@
           <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Locations") }}</div>
 
           <div class="storage-section">
-            <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+            <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
               <AppIconGraphic :icon="folderIcon" :color="SIDEBAR_COLORS.storage" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">{{ $t("Storage") }}</span>
               <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -36,11 +36,11 @@
             <div :class="['expand-wrapper', !isStorageExpanded && 'collapsed']">
               <div class="expand-content">
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-[17rem] overflow-y-auto">
-                  <button @click="setLocation('storage')" :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                  <button @click="setLocation('storage')" :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                     <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
-                  <button v-for="folder in defaultStorageFolders" :key="folder" @click="selectStorageFolder(folder)" :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                  <button v-for="folder in defaultStorageFolders" :key="folder" @click="selectStorageFolder(folder)" :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                     <FolderGraphic :emblem="specialFolderIcons[folder]" :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t(folder) }}</span>
                   </button>
@@ -50,7 +50,7 @@
           </div>
 
           <div class="dropzone-section">
-            <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+            <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
               <AppIconGraphic :icon="cubeIcon" :color="SIDEBAR_COLORS.dropzone" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">Drop Zone</span>
               <Icon :icon="lockIcon" class="w-3 h-3 opacity-50" />
@@ -60,11 +60,11 @@
             <div :class="['expand-wrapper', !isDropZoneExpanded && 'collapsed']">
               <div class="expand-content">
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
-                  <button @click="setLocation('dropzone')" :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                  <button @click="setLocation('dropzone')" :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                     <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ $t("All Files") }}</span>
                   </button>
-                  <button v-for="folder in dropZoneFolders" :key="folder" @click="selectDropZoneFolder(folder)" :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                  <button v-for="folder in dropZoneFolders" :key="folder" @click="selectDropZoneFolder(folder)" :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                     <FolderGraphic :size="16" class="flex-shrink-0" />
                     <span class="truncate">{{ folder }}</span>
                   </button>
@@ -74,7 +74,7 @@
           </div>
 
           <div class="appdrive-section">
-            <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+            <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
               <AppIconGraphic :icon="cubeScanIcon" :color="SIDEBAR_COLORS.appdrive" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">App Drive</span>
               <Icon :icon="dockerIcon" class="w-3 h-3 opacity-50" />
@@ -93,7 +93,7 @@
                       <span class="truncate flex-1">{{ getAppInfo(entry.name).displayName }}</span>
                       <DisksPlusSessionIndicator v-if="entry.lockable" v-bind="appSessionIndicator(entry.scope)" />
                     </component>
-                    <button v-for="dependency in entry.dependencies" :key="dependency.name" @click="selectAppDriveContainer(dependency.name)" :title="$t('Dependency of {name}', { name: getAppInfo(entry.name).displayName })" :class="[selectedContainer === dependency.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs">
+                    <button v-for="dependency in entry.dependencies" :key="dependency.name" @click="selectAppDriveContainer(dependency.name)" :title="$t('Dependency of {name}', { name: getAppInfo(entry.name).displayName })" :class="[selectedContainer === dependency.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                       <Icon :icon="dependencyIcon" class="w-3 h-3 flex-shrink-0 opacity-50" />
                       <div class="relative flex-shrink-0">
                         <AppIconGraphic :image-src="getAppInfo(dependency.name).iconPath" :size="16" />
@@ -110,7 +110,7 @@
           </div>
 
           <div class="disksplus-section">
-            <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
+            <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden cursor-pointer">
               <AppIconGraphic :icon="harddiskIcon" :color="SIDEBAR_COLORS.disksplus" :size="SIDEBAR_TILE_SIZE" />
               <span class="truncate flex-1">Disks+</span>
               <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
@@ -122,20 +122,20 @@
               <div class="expand-content">
                 <div class="pl-4 mt-0.5 space-y-0.5 max-h-40 overflow-y-auto">
                   <template v-if="disksPlusStore.unlocked">
-                    <button v-for="disk in disksPlusStore.disks" :key="disk.id" @click="selectDisksPlusDisk(disk.id)" :class="[currentLocation === 'disksplus' && disksPlusStore.selectedDisk === disk.id ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs" :title="disk.mountpoint">
+                    <button v-for="disk in disksPlusStore.disks" :key="disk.id" @click="selectDisksPlusDisk(disk.id)" :class="[currentLocation === 'disksplus' && disksPlusStore.selectedDisk === disk.id ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer" :title="disk.mountpoint">
                       <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 flex-shrink-0" />
                       <span class="truncate flex-1">{{ disk.label || disk.device }}</span>
                       <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
                     </button>
                     <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">{{ $t("No disks detected") }}</div>
-                    <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
+                    <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1 cursor-pointer" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                       <Icon :icon="lockIcon" class="w-3 h-3" />
                       <span class="flex-1">{{ $t("Lock Disks+") }}</span>
                       <DisksPlusSessionRing v-if="disksPlusCountdown" :percent="disksPlusSessionPercent" :stroke-class="disksPlusSessionStrokeColor" />
                     </button>
                   </template>
                   <template v-else>
-                    <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                    <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                       <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
                       <span class="truncate">{{ $t("Unlock Disks+") }}</span>
                     </button>
@@ -151,19 +151,19 @@
         <div class="sidebar-section">
           <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("System Apps") }}</div>
 
-          <button @click="setLocation('systemapps')" :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+          <button @click="setLocation('systemapps')" :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
             <AppIconGraphic :icon="appsIcon" :color="SIDEBAR_COLORS.applications" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Applications") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ systemApps.length }}</span>
           </button>
 
-          <button @click="setLocation('utilities')" :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+          <button @click="setLocation('utilities')" :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
             <AppIconGraphic :icon="toolboxOutlineIcon" :color="SIDEBAR_COLORS.utilities" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Utilities") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ utilitiesApps.length }}</span>
           </button>
 
-          <button @click="setLocation('games')" :class="[currentLocation === 'games' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+          <button @click="setLocation('games')" :class="[currentLocation === 'games' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
             <AppIconGraphic :icon="gamepadIcon" :color="SIDEBAR_COLORS.games" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Games") }}</span>
             <span :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ gamesApps.length }}</span>
@@ -175,13 +175,13 @@
         <div class="sidebar-section">
           <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Quick Access") }}</div>
 
-          <button @click="setLocation('favorites')" :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+          <button @click="setLocation('favorites')" :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
             <AppIconGraphic :icon="starIcon" :color="SIDEBAR_COLORS.favorites" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Favorites") }}</span>
             <span v-if="fileExplorerStore.favoritesCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.favoritesCount }}</span>
           </button>
 
-          <button @click="setLocation('recents')" :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+          <button @click="setLocation('recents')" :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
             <AppIconGraphic :icon="historyIcon" :color="SIDEBAR_COLORS.recents" :size="SIDEBAR_TILE_SIZE" />
             <span class="truncate">{{ $t("Recents") }}</span>
             <span v-if="fileExplorerStore.recentsCount > 0" :class="[themeClasses.fileExplorerBadge]" class="text-[9px] px-1.5 rounded-full ml-auto">{{ fileExplorerStore.recentsCount }}</span>
@@ -195,7 +195,7 @@
         <div v-if="isMobileLayout" class="relative">
           <div v-if="isNavPopoverOpen" class="fixed inset-0 z-40" @click="isNavPopoverOpen = false"></div>
 
-          <button @click="isNavPopoverOpen = !isNavPopoverOpen" :class="[themeClasses.dropZoneSortButton]" class="p-1.5 rounded transition-colors relative z-50" title="Navigation">
+          <button @click="isNavPopoverOpen = !isNavPopoverOpen" :class="[themeClasses.dropZoneSortButton]" class="p-1.5 rounded transition-colors relative z-50 cursor-pointer" title="Navigation">
             <div class="nav-burger-icon" :class="{ 'nav-burger-open': isNavPopoverOpen }">
               <Icon :icon="menuIcon" class="nav-burger-menu w-4 h-4" />
               <Icon :icon="closeIcon" class="nav-burger-close w-4 h-4" />
@@ -208,7 +208,7 @@
                 <div :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 opacity-60">{{ $t("Locations") }}</div>
 
                 <div class="storage-section">
-                  <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+                  <button @click="toggleStorageExpanded" :class="[currentLocation === 'storage' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
                     <AppIconGraphic :icon="folderIcon" :color="SIDEBAR_COLORS.storage" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">{{ $t("Storage") }}</span>
                     <Icon :icon="isStorageExpanded ? chevronDownIcon : chevronRightIcon" class="w-3 h-3 transition-transform" />
@@ -223,7 +223,7 @@
                             isNavPopoverOpen = false;
                           "
                           :class="[currentLocation === 'storage' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                         >
                           <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t("All Files") }}</span>
@@ -236,7 +236,7 @@
                             isNavPopoverOpen = false;
                           "
                           :class="[currentLocation === 'storage' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                         >
                           <FolderGraphic :emblem="specialFolderIcons[folder]" :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t(folder) }}</span>
@@ -247,7 +247,7 @@
                 </div>
 
                 <div class="dropzone-section">
-                  <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+                  <button @click="toggleDropZoneExpanded" :class="[currentLocation === 'dropzone' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
                     <AppIconGraphic :icon="cubeIcon" :color="SIDEBAR_COLORS.dropzone" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">Drop Zone</span>
                     <Icon :icon="lockIcon" class="w-3 h-3 opacity-50" />
@@ -263,7 +263,7 @@
                             isNavPopoverOpen = false;
                           "
                           :class="[currentLocation === 'dropzone' && !currentPath ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                         >
                           <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ $t("All Files") }}</span>
@@ -276,7 +276,7 @@
                             isNavPopoverOpen = false;
                           "
                           :class="[currentLocation === 'dropzone' && currentPath === folder ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                          class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                         >
                           <FolderGraphic :size="16" class="flex-shrink-0" />
                           <span class="truncate">{{ folder }}</span>
@@ -287,7 +287,7 @@
                 </div>
 
                 <div class="appdrive-section">
-                  <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm">
+                  <button @click="toggleAppDriveExpanded" :class="[currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer">
                     <AppIconGraphic :icon="cubeScanIcon" :color="SIDEBAR_COLORS.appdrive" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">App Drive</span>
                     <Icon :icon="dockerIcon" class="w-3 h-3 opacity-50" />
@@ -325,7 +325,7 @@
                             "
                             :title="$t('Dependency of {name}', { name: getAppInfo(entry.name).displayName })"
                             :class="[selectedContainer === dependency.name && currentLocation === 'appdrive' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                            class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs"
+                            class="relative overflow-hidden w-full flex items-center gap-1.5 pl-3 pr-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                           >
                             <Icon :icon="dependencyIcon" class="w-3 h-3 flex-shrink-0 opacity-50" />
                             <div class="relative flex-shrink-0">
@@ -343,7 +343,7 @@
                 </div>
 
                 <div class="disksplus-section">
-                  <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden">
+                  <button @click="toggleDisksPlusExpanded" :class="[currentLocation === 'disksplus' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]" class="relative w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm overflow-hidden cursor-pointer">
                     <AppIconGraphic :icon="harddiskIcon" :color="SIDEBAR_COLORS.disksplus" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate flex-1">Disks+</span>
                     <Icon :icon="disksPlusStore.unlocked ? lockOpenIcon : lockIcon" class="w-3 h-3 opacity-50" />
@@ -363,7 +363,7 @@
                               isNavPopoverOpen = false;
                             "
                             :class="[currentLocation === 'disksplus' && disksPlusStore.selectedDisk === disk.id ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                            class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs"
+                            class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer"
                             :title="disk.mountpoint"
                           >
                             <Icon :icon="harddiskIcon" class="w-3.5 h-3.5 flex-shrink-0" />
@@ -371,14 +371,14 @@
                             <span class="text-[9px] opacity-60">{{ disk.media_type }}</span>
                           </button>
                           <div v-if="disksPlusStore.disks.length === 0 && !disksPlusStore.isLoadingDisks" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="text-[10px] px-2 py-1 opacity-60">{{ $t("No disks detected") }}</div>
-                          <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
+                          <button @click="lockDisksPlus" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-[10px] opacity-70 hover:opacity-100 mt-1 cursor-pointer" :title="disksPlusCountdown ? $t('Auto-locks in {n}', { n: disksPlusCountdown }) : $t('Lock Disks+')">
                             <Icon :icon="lockIcon" class="w-3 h-3" />
                             <span class="flex-1">{{ $t("Lock Disks+") }}</span>
                             <DisksPlusSessionRing v-if="disksPlusCountdown" :percent="disksPlusSessionPercent" :stroke-class="disksPlusSessionStrokeColor" />
                           </button>
                         </template>
                         <template v-else>
-                          <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs">
+                          <button @click="disksPlusUnlockVisible = true" :class="[themeClasses.fileExplorerSidebarItem]" class="w-full flex items-center gap-2 px-2 py-1 rounded text-left transition-colors text-xs cursor-pointer">
                             <Icon :icon="lockIcon" class="w-3.5 h-3.5 flex-shrink-0" />
                             <span class="truncate">{{ $t("Unlock Disks+") }}</span>
                           </button>
@@ -399,7 +399,7 @@
                       isNavPopoverOpen = false;
                     "
                     :class="[currentLocation === 'systemapps' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                   >
                     <AppIconGraphic :icon="appsIcon" :color="SIDEBAR_COLORS.applications" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Applications") }}</span>
@@ -412,7 +412,7 @@
                       isNavPopoverOpen = false;
                     "
                     :class="[currentLocation === 'utilities' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                   >
                     <AppIconGraphic :icon="toolboxOutlineIcon" :color="SIDEBAR_COLORS.utilities" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Utilities") }}</span>
@@ -425,7 +425,7 @@
                       isNavPopoverOpen = false;
                     "
                     :class="[currentLocation === 'games' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                   >
                     <AppIconGraphic :icon="gamepadIcon" :color="SIDEBAR_COLORS.games" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Games") }}</span>
@@ -444,7 +444,7 @@
                       isNavPopoverOpen = false;
                     "
                     :class="[currentLocation === 'favorites' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                   >
                     <AppIconGraphic :icon="starIcon" :color="SIDEBAR_COLORS.favorites" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Favorites") }}</span>
@@ -457,7 +457,7 @@
                       isNavPopoverOpen = false;
                     "
                     :class="[currentLocation === 'recents' ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                   >
                     <AppIconGraphic :icon="historyIcon" :color="SIDEBAR_COLORS.recents" :size="SIDEBAR_TILE_SIZE" />
                     <span class="truncate">{{ $t("Recents") }}</span>
@@ -470,7 +470,7 @@
         </div>
 
         <transition name="mobile-search-icon">
-          <button v-if="!isSearchExpanded && (currentLocation === 'storage' || currentLocation === 'dropzone' || (currentLocation === 'appdrive' && selectedContainer) || (currentLocation === 'disksplus' && disksPlusStore.selectedDisk))" @click="isSearchExpanded = true" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0" title="Search">
+          <button v-if="!isSearchExpanded && (currentLocation === 'storage' || currentLocation === 'dropzone' || (currentLocation === 'appdrive' && selectedContainer) || (currentLocation === 'disksplus' && disksPlusStore.selectedDisk))" @click="isSearchExpanded = true" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer" title="Search">
             <Icon :icon="magnifyIcon" class="w-4 h-4" />
           </button>
         </transition>
@@ -497,7 +497,7 @@
                 searchQuery = '';
               "
               :class="[themeClasses.dropZoneSortButton]"
-              class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0"
+              class="h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer"
               :title="$t('Cancel')"
             >
               <Icon :icon="closeIcon" class="w-4 h-4" />
@@ -523,7 +523,7 @@
         <div v-if="isMobileLayout && currentLocation === 'appdrive' && mounts.length > 1 && !isSearchExpanded" class="relative">
           <div v-if="isVolumePopoverOpen" class="fixed inset-0 z-40" @click="isVolumePopoverOpen = false"></div>
 
-          <button @click="isVolumePopoverOpen = !isVolumePopoverOpen" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center relative z-50" :title="mounts[selectedMountIndex]?.container_path || 'Select Volume'">
+          <button @click="isVolumePopoverOpen = !isVolumePopoverOpen" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center relative z-50 cursor-pointer" :title="mounts[selectedMountIndex]?.container_path || 'Select Volume'">
             <Icon :icon="dockerIcon" class="w-4 h-4" />
           </button>
 
@@ -540,7 +540,7 @@
                     isVolumePopoverOpen = false;
                   "
                   :class="[selectedMountIndex === index ? themeClasses.fileExplorerSidebarItemActive : themeClasses.fileExplorerSidebarItem]"
-                  class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm"
+                  class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left transition-colors text-sm cursor-pointer"
                 >
                   <Icon :icon="mount.external ? harddiskIcon : mount.read_only ? lockIcon : folderIcon" class="w-4 h-4 flex-shrink-0" />
                   <span class="truncate flex-1">{{ mount.container_path }}</span>
@@ -563,16 +563,16 @@
                 <SelectOption value="date">{{ $t("Date") }}</SelectOption>
               </Select>
 
-              <button @click="toggleSortDirection" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" :title="sortDirection === 'asc' ? 'Ascending' : 'Descending'">
+              <button @click="toggleSortDirection" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center cursor-pointer" :title="sortDirection === 'asc' ? 'Ascending' : 'Descending'">
                 <Icon :icon="sortDirection === 'asc' ? sortAscIcon : sortDescIcon" class="w-4 h-4" />
               </button>
             </template>
 
-            <button @click="toggleViewMode" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" :title="viewMode === 'grid' ? 'List View' : 'Grid View'">
+            <button @click="toggleViewMode" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center cursor-pointer" :title="viewMode === 'grid' ? 'List View' : 'Grid View'">
               <Icon :icon="viewMode === 'grid' ? viewListIcon : viewGridIcon" class="w-4 h-4" />
             </button>
 
-            <button v-if="currentLocation !== 'systemapps' && !isLauncherLocation" @click="refreshFiles" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center" title="Refresh">
+            <button v-if="currentLocation !== 'systemapps' && !isLauncherLocation" @click="refreshFiles" :class="[themeClasses.dropZoneSortButton]" class="h-7 w-7 rounded transition-colors flex items-center justify-center cursor-pointer" title="Refresh">
               <Icon :icon="refreshIcon" :class="{ 'animate-spin': isLoading }" class="w-4 h-4" />
             </button>
           </div>
@@ -580,13 +580,13 @@
       </div>
 
       <div v-if="showBreadcrumbs" ref="breadcrumbsRef" :class="[themeClasses.fileExplorerBreadcrumbs]" class="flex items-center gap-1 px-3 py-1.5 text-[11px] border-b flex-shrink-0 overflow-x-scroll [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <button @click="navigateToRoot" :class="[themeClasses.dropZoneSortButton]" class="px-1.5 py-0.5 rounded hover:opacity-80 transition-opacity flex items-center gap-1 flex-shrink-0">
+        <button @click="navigateToRoot" :class="[themeClasses.dropZoneSortButton]" class="px-1.5 py-0.5 rounded hover:opacity-80 transition-opacity flex items-center gap-1 flex-shrink-0 cursor-pointer">
           <Icon :icon="locationIcon" class="w-3 h-3" />
           <span>{{ locationLabel }}</span>
         </button>
         <template v-for="(part, index) in pathParts" :key="index">
           <Icon :icon="chevronRightIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-3 h-3 opacity-50 flex-shrink-0" />
-          <button @click="navigateToPathIndex(index)" :class="[themeClasses.dropZoneSortButton]" class="px-1.5 py-0.5 rounded hover:opacity-80 transition-opacity truncate max-w-[120px] flex-shrink-0">
+          <button @click="navigateToPathIndex(index)" :class="[themeClasses.dropZoneSortButton]" class="px-1.5 py-0.5 rounded hover:opacity-80 transition-opacity truncate max-w-[120px] flex-shrink-0 cursor-pointer">
             {{ getBreadcrumbPart(part, index) }}
           </button>
         </template>
@@ -631,7 +631,7 @@
               <Icon :icon="shieldLockIcon" :class="[themeClasses.dropZoneFileIcon]" class="w-16 h-16 opacity-30 mb-4" />
               <p :class="[themeClasses.dropZoneEmptyText]" class="text-sm font-semibold mb-1">{{ $t("This volume is outside HomeDock OS") }}</p>
               <p :class="[themeClasses.dropZoneEmptyText]" class="text-xs opacity-80 max-w-sm w-full mb-4 [overflow-wrap:anywhere]">{{ $t("It points to {path} on the host. For your security, unlock it with your HomeDock OS password to browse it.", { path: currentMount?.host_path || "" }) }}</p>
-              <button :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" @click="requestAppDriveUnlock">
+              <button :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer" @click="requestAppDriveUnlock">
                 <Icon :icon="shieldLockIcon" class="w-3.5 h-3.5" />
                 <span>{{ $t("Unlock") }}</span>
               </button>
@@ -971,7 +971,7 @@
               <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("File Explorer") }}</h4>
             </div>
 
-            <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+            <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
               <p>
                 <strong>{{ $t("Storage") }}:</strong> {{ $t("Your personal file storage. Files are stored as-is without encryption.") }}
               </p>
@@ -1034,7 +1034,7 @@
     <DisksPlusDangerAuthModal />
 
     <AppDialog v-model:visible="compressDialogVisible" type="info" title="Compress with Password" ok-text="Compress" cancel-text="Cancel" :ok-disabled="!canConfirmCompress" :icon="lockPlusIcon" @ok="confirmCompressWithPassword" @cancel="compressDialogVisible = false">
-      <div class="space-y-3">
+      <div class="flex flex-col gap-3">
         <p :class="[themeClasses.notTextDown]" class="m-0 text-sm leading-relaxed">{{ compressTargets.length === 1 ? $t("“{name}” will be compressed into an encrypted ZIP file.", { name: compressTargets[0] ? getDisplayName(compressTargets[0]) : "" }) : $t("{n} items will be compressed into an encrypted ZIP file.", { n: compressTargets.length }) }}</p>
         <InputPassword v-model:value="compressPassword" :placeholder="$t('Password')" :maxlength="MAX_ARCHIVE_PASSWORD_LENGTH" autocomplete="new-password" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" class="h-10" autofocus>
           <template #prefix>

@@ -5,7 +5,7 @@
 
 <template>
   <div ref="root" class="flex items-center justify-center">
-    <img v-if="src" :src="src" alt="" draggable="false" class="file-thumbnail max-w-full max-h-full object-contain rounded-md shadow-sm ring-1 ring-black/10" />
+    <img v-if="src" :src="src" alt="" draggable="false" class="file-thumbnail max-w-full max-h-full object-contain rounded-md shadow-xs ring-1 ring-black/10" />
     <slot v-else />
   </div>
 </template>

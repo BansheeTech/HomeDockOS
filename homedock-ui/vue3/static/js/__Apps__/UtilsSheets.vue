@@ -7,7 +7,7 @@
   <div class="utils-sheets flex flex-col h-full overflow-hidden" @keydown.capture="handleKeydown">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="menuOverlayClass">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="save" :disabled="!api || saving" @click="save">
@@ -62,7 +62,7 @@
             <StatusBarHelpIcon :icon="spreadsheetIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Sheets") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Sheets opens and edits Excel spreadsheets (.xlsx). Saving writes the changes back to the same file.") }}</p>
           </div>
         </div>

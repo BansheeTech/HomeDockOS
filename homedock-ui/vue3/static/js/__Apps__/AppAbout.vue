@@ -27,6 +27,10 @@
         </div>
 
         <div :class="['relative isolate overflow-hidden rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
+          <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
+            <BaseImage src="/images/releases/fathom.svg" alt="" draggable="false" class="release-watermark !mt-0" :class="themeClasses.aboutReleaseWatermark" />
+          </EnterpriseSlotReplacer>
+
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <Icon class="w-4 h-4 max-w-4 max-h-4 min-w-4 min-h-4" :icon="tagIcon" :class="[themeClasses.aboutIcon]" />
@@ -63,10 +67,6 @@
 
           <EnterpriseSlotRenderer module="LicenseGrant" :theme-classes="themeClasses" />
           <EnterpriseSlotReplacer module="WhiteLabel" slot-name="licensedTo" :theme-classes="themeClasses" />
-
-          <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
-            <BaseImage src="/images/releases/fathom.svg" alt="" draggable="false" class="release-watermark !mt-0" :class="themeClasses.aboutReleaseWatermark" />
-          </EnterpriseSlotReplacer>
         </div>
 
         <EnterpriseSlotReplacer module="WhiteLabel" slot-name="hideForEnterprise">
@@ -117,7 +117,7 @@
           </div>
 
           <div :class="['rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2">
               <Icon :icon="shareIcon" :class="[themeClasses.aboutIcon]" size="20px" />
               <p :class="['text-base font-semibold', themeClasses.aboutDescription]">{{ $t("Help us spread the word!") }}</p>
             </div>
@@ -142,16 +142,16 @@
           </div>
 
           <div :class="['rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2">
               <Icon :icon="donateIcon" :class="[themeClasses.aboutIcon]" size="20px" />
               <p :class="['text-base font-semibold', themeClasses.aboutDescription]">{{ $t("Support HomeDock OS") }}</p>
             </div>
             <p :class="['text-sm leading-relaxed', themeClasses.aboutDescription]">{{ $t("HomeDock OS is made with care by a self-funded small team that loves building and shaping the future of the personal cloud. We don't accept donations, but by trying HomeDock OS Cloud Instances you're helping us create the next generation of features and experiences everyone deserves.") }}</p>
-            <a href="https://dashboard.homedock.cloud/" target="_blank" rel="noopener noreferrer" :class="['inline-block mt-4 px-4 py-2 rounded-lg font-semibold transition-colors', themeClasses.aboutDonateButton]"> {{ $t("Try Cloud Instances") }} </a>
+            <a href="https://dashboard.homedock.cloud/" target="_blank" rel="noopener noreferrer" :class="['inline-block px-4 py-2 rounded-lg font-semibold transition-colors', themeClasses.aboutDonateButton]"> {{ $t("Try Cloud Instances") }} </a>
           </div>
 
           <div :class="['rounded-lg p-6 space-y-3', themeClasses.aboutCard]">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2">
               <Icon :icon="GUIIcon" :class="[themeClasses.aboutIcon]" size="20px" />
               <h3 :class="['text-base font-semibold', themeClasses.aboutLabel]">{{ $t("Prism Window Manager") }}</h3>
             </div>
@@ -164,7 +164,7 @@
         </EnterpriseSlotReplacer>
 
         <div :class="['rounded-lg p-6 space-y-4', themeClasses.aboutCard]">
-          <div class="flex items-center gap-2 mb-2">
+          <div class="flex items-center gap-2">
             <Icon :icon="codeIcon" :class="[themeClasses.aboutIcon]" size="20px" />
             <h3 :class="['text-base font-semibold', themeClasses.aboutLabel]">{{ $t("Open Source Licenses") }}</h3>
           </div>
@@ -414,7 +414,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("About") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("This window displays information about HomeDock OS, including the current version, software license, open source component licenses, and useful links to documentation and resources.") }}</p>
           </div>
         </div>

@@ -6,20 +6,20 @@
 <template>
   <div class="image-viewer flex flex-col h-full overflow-hidden">
     <div class="toolbar flex items-center gap-2 px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="zoomOut" :disabled="zoom <= 0.1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom Out (-)')">
+      <button @click="zoomOut" :disabled="zoom <= 0.1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Zoom Out (-)')">
         <Icon :icon="magnifyMinusIcon" class="w-4 h-4" />
       </button>
       <span :class="['text-xs min-w-[50px] text-center', themeClasses.windowText]">{{ Math.round(zoom * 100) }}%</span>
-      <button @click="zoomIn" :disabled="zoom >= 5" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom In (+)')">
+      <button @click="zoomIn" :disabled="zoom >= 5" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Zoom In (+)')">
         <Icon :icon="magnifyPlusIcon" class="w-4 h-4" />
       </button>
 
       <div class="w-px h-4 mx-1" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="fitToWindow" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'fit' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" :title="$t('Fit to Window')">
+      <button @click="fitToWindow" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'fit' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors cursor-pointer" :title="$t('Fit to Window')">
         <Icon :icon="fitToPageIcon" class="w-4 h-4" />
       </button>
-      <button @click="actualSize" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'actual' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors" :title="$t('Actual Size (1:1)')">
+      <button @click="actualSize" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'actual' ? 'bg-blue-500/20' : '']" class="p-1.5 rounded transition-colors cursor-pointer" :title="$t('Actual Size (1:1)')">
         <Icon :icon="aspectRatioIcon" class="w-4 h-4" />
       </button>
 
@@ -110,7 +110,7 @@
             <StatusBarHelpIcon :icon="imageIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Image Viewer") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("A secure image viewer with magic bytes validation.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">

@@ -11,7 +11,7 @@
           <AuroraWaves :max-height="0.5" :amplitude-scale="0.35" :reveal-duration="1800" :speed="0.012" />
         </div>
 
-        <button v-if="!viewingLatest" type="button" :class="['absolute left-4 top-4 z-[1] inline-flex items-center gap-1 pl-1.5 pr-2.5 py-1.5 rounded-lg text-xs transition-colors', themeClasses.aboutLink]" @click="selectRelease(latestRelease.id)">
+        <button v-if="!viewingLatest" type="button" :class="['absolute left-4 top-4 z-[1] inline-flex items-center gap-1 pl-1.5 pr-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer', themeClasses.aboutLink]" @click="selectRelease(latestRelease.id)">
           <Icon :icon="chevronLeftIcon" class="w-4 h-4" />
           <span>{{ $t("Back") }}</span>
         </button>
@@ -23,7 +23,7 @@
           {{ $t("What's New") }} · {{ release.version }}
         </span>
 
-        <h1 :class="['relative text-2xl md:text-3xl font-bold mt-4 text-balance leading-tight', themeClasses.aboutTitle]">{{ text(release.title) }}</h1>
+        <h1 :class="['relative text-2xl md:text-3xl font-bold mt-4 text-balance leading-tight md:leading-9', themeClasses.aboutTitle]">{{ text(release.title) }}</h1>
         <p :class="['relative text-sm mt-3 max-w-lg mx-auto text-balance leading-relaxed opacity-80', themeClasses.aboutSubtitle]">{{ text(release.subtitle) }}</p>
       </div>
 
@@ -62,7 +62,7 @@
         <h2 :class="['px-1 mb-2 text-[11px] font-semibold uppercase tracking-wide opacity-60', themeClasses.aboutLabel]">{{ $t("Previous versions") }}</h2>
 
         <div :class="['rounded-xl overflow-hidden divide-y divide-gray-500/15', themeClasses.aboutCard]">
-          <button v-for="previous in previousReleases" :key="previous.id" type="button" :class="['flex items-center gap-3 w-full px-4 py-3 text-left transition-colors', themeClasses.aboutLink]" @click="selectRelease(previous.id)">
+          <button v-for="previous in previousReleases" :key="previous.id" type="button" :class="['flex items-center gap-3 w-full px-4 py-3 text-left transition-colors cursor-pointer', themeClasses.aboutLink]" @click="selectRelease(previous.id)">
             <div :class="['flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0', themeClasses.notInnerIcon]">
               <Icon :icon="historyIcon" class="w-4 h-4" />
             </div>
@@ -95,7 +95,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("What's New") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("This window collects the changes that came with this release. It opens by itself once, the first time you sign in after an update, and never again. You can always reopen it from About.") }}</p>
           </div>
         </div>

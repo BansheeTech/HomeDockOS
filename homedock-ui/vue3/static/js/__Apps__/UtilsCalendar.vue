@@ -7,7 +7,7 @@
   <div class="utils-calendar flex flex-col h-full overflow-hidden" style="container-type: inline-size">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="openNewEvent">
@@ -64,7 +64,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("View") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("View") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="calendar" @click="activeTab = 'calendar'">
@@ -84,7 +84,7 @@
             <MenuDivider />
             <MenuItem v-for="cal in calendars" :key="'view-' + cal.id" @click="toggleCalendarVisibility(cal.id)">
               <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-sm border flex items-center justify-center" :style="{ backgroundColor: cal.visible ? eventColor(cal.color) : 'transparent', borderColor: eventColor(cal.color) }">
+                <span class="w-3 h-3 rounded-xs border flex items-center justify-center" :style="{ backgroundColor: cal.visible ? eventColor(cal.color) : 'transparent', borderColor: eventColor(cal.color) }">
                   <span v-if="cal.visible" class="text-white text-[8px] font-bold">✓</span>
                 </span>
                 <span>{{ cal.name }}</span>
@@ -127,10 +127,10 @@
           <!-- Narrow: tab switcher header -->
           <div class="sidebar-tabs-header border-b" :class="themeClasses.utilityToolbarBorder">
             <div class="flex items-center">
-              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all" :class="sidebarTab === 'events' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'events'">
+              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer" :class="sidebarTab === 'events' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'events'">
                 {{ selectedDateFormatted }}
               </button>
-              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all" :class="sidebarTab === 'calendars' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'calendars'">{{ $t("Calendars") }}</button>
+              <button class="sidebar-tab flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all cursor-pointer" :class="sidebarTab === 'calendars' ? [themeClasses.notTextUp, 'opacity-100'] : [themeClasses.notTextDown, 'opacity-50']" @click="sidebarTab = 'calendars'">{{ $t("Calendars") }}</button>
               <button class="toolbar-btn mr-2" :class="[themeClasses.calendarNavBtnBg, themeClasses.calendarNavBtn, themeClasses.calendarNavBtnBgHover]" @click="sidebarTab === 'calendars' ? openNewCalendar() : openNewEvent()" :title="sidebarTab === 'calendars' ? $t('New Calendar') : $t('New Event')">
                 <Icon :icon="plusIcon" class="w-4 h-4" />
               </button>
@@ -199,9 +199,9 @@
           </div>
 
           <div v-if="showAddClock" class="mb-4 p-3 rounded-lg border" :class="themeClasses.windowBorder">
-            <input ref="clockSearchRef" v-model="clockSearch" type="text" :placeholder="$t('Search timezone...')" class="w-full text-xs px-2 py-1.5 rounded-md border mb-2 outline-none" :class="[themeClasses.windowBorder, themeClasses.calendarDayBg, themeClasses.notTextUp]" />
+            <input ref="clockSearchRef" v-model="clockSearch" type="text" :placeholder="$t('Search timezone...')" class="w-full text-xs px-2 py-1.5 rounded-md border mb-2 outline-hidden" :class="[themeClasses.windowBorder, themeClasses.calendarDayBg, themeClasses.notTextUp]" />
             <div class="max-h-32 overflow-y-auto">
-              <button v-for="tz in filteredTimezones" :key="tz" class="w-full text-left text-xs px-2 py-1 rounded hover:opacity-80 truncate" :class="[themeClasses.notTextDown, themeClasses.calendarDayBgHover]" @click="addWorldClock(tz)">
+              <button v-for="tz in filteredTimezones" :key="tz" class="w-full text-left text-xs px-2 py-1 rounded hover:opacity-80 truncate cursor-pointer" :class="[themeClasses.notTextDown, themeClasses.calendarDayBgHover]" @click="addWorldClock(tz)">
                 {{ tz }}
               </button>
             </div>
@@ -235,7 +235,7 @@
       <div class="space-y-3">
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Title") }}</label>
-          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Event title')" ref="eventTitleRef" />
+          <input v-model="eventForm.title" type="text" maxlength="200" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Event title')" ref="eventTitleRef" />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Date") }}</label>
@@ -254,7 +254,7 @@
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Calendar") }}</label>
           <div class="flex gap-1.5 flex-wrap">
-            <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="eventForm.calendar_id === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="eventForm.calendar_id = cal.id">
+            <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all cursor-pointer" :class="eventForm.calendar_id === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="eventForm.calendar_id = cal.id">
               <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: eventColor(cal.color) }"></span>
               {{ cal.name }}
             </button>
@@ -262,10 +262,10 @@
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Notes") }}</label>
-          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-none resize-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Optional notes...')"></textarea>
+          <textarea v-model="eventForm.notes" maxlength="2000" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden resize-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Optional notes...')"></textarea>
         </div>
         <div v-if="editingEvent?.id" class="pt-1">
-          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteEventConfirm = true">{{ $t("Delete this event") }}</button>
+          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors cursor-pointer" @click="showDeleteEventConfirm = true">{{ $t("Delete this event") }}</button>
         </div>
       </div>
     </AppDialog>
@@ -333,15 +333,15 @@
       <div class="space-y-3">
         <p class="text-sm" :class="themeClasses.windowText">{{ $t("{n} {events} found. Import to which calendar?", { n: icsPendingEvents.length, events: icsPendingEvents.length !== 1 ? $t("events") : $t("event") }) }}</p>
         <div class="flex gap-1.5 flex-wrap">
-          <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="icsImportCalendarId === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="icsImportCalendarId = cal.id">
+          <button v-for="cal in calendars" :key="cal.id" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all cursor-pointer" :class="icsImportCalendarId === cal.id ? 'border-white/40 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'" :style="{ backgroundColor: eventColor(cal.color) + '30', color: eventColor(cal.color) }" @click="icsImportCalendarId = cal.id">
             <span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: eventColor(cal.color) }"></span>
             {{ cal.name }}
           </button>
-          <button class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all" :class="[themeClasses.windowBorder, themeClasses.windowText, icsImportCalendarId === '__new__' ? 'opacity-100' : 'opacity-60 hover:opacity-80']" @click="icsImportCalendarId = '__new__'"><Icon :icon="plusIcon" class="w-3 h-3" /> {{ $t("New Calendar") }}</button>
+          <button class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border transition-all cursor-pointer" :class="[themeClasses.windowBorder, themeClasses.windowText, icsImportCalendarId === '__new__' ? 'opacity-100' : 'opacity-60 hover:opacity-80']" @click="icsImportCalendarId = '__new__'"><Icon :icon="plusIcon" class="w-3 h-3" /> {{ $t("New Calendar") }}</button>
         </div>
         <div v-if="icsImportCalendarId === '__new__'">
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Calendar name") }}</label>
-          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('e.g. Spain Holidays')" />
+          <input v-model="icsImportCalendarName" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('e.g. Spain Holidays')" />
         </div>
       </div>
     </AppDialog>
@@ -350,16 +350,16 @@
       <div class="space-y-3">
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Name") }}</label>
-          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Calendar name')" />
+          <input v-model="calendarForm.name" type="text" maxlength="100" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" :placeholder="$t('Calendar name')" />
         </div>
         <div>
           <label class="text-sm font-medium block mb-1" :class="themeClasses.windowText">{{ $t("Color") }}</label>
           <div class="flex gap-1.5">
-            <button v-for="c in EVENT_COLORS" :key="c.name" class="w-6 h-6 rounded-full border-2 transition-transform" :class="calendarForm.color === c.name ? 'scale-110 border-white/60' : 'border-transparent hover:scale-105'" :style="{ backgroundColor: c.hex }" @click="calendarForm.color = c.name" :title="c.name"></button>
+            <button v-for="c in EVENT_COLORS" :key="c.name" class="w-6 h-6 rounded-full border-2 transition-transform cursor-pointer" :class="calendarForm.color === c.name ? 'scale-110 border-white/60' : 'border-transparent hover:scale-105'" :style="{ backgroundColor: c.hex }" @click="calendarForm.color = c.name" :title="c.name"></button>
           </div>
         </div>
         <div v-if="editingCalendar?.id && calendars.length > 1" class="pt-1">
-          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors" @click="showDeleteCalendarDialog = true">{{ $t("Delete this calendar") }}</button>
+          <button class="w-full px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors cursor-pointer" @click="showDeleteCalendarDialog = true">{{ $t("Delete this calendar") }}</button>
         </div>
       </div>
     </AppDialog>
@@ -403,7 +403,7 @@
             <StatusBarHelpIcon :icon="calendarIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Calendar") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Manage events and track time across the world.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">

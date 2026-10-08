@@ -18,7 +18,7 @@
     <Transition name="fade-slide" appear>
       <div v-if="appDisplayName" :class="[themeClasses.appStatusPill]" class="flex items-center gap-2.5 z-10 mt-1 px-5 py-1.5 rounded-full backdrop-blur-xl border">
         <Transition name="icon-slide">
-          <BaseImage v-if="appIconReady" :src="appIconSrc" :alt="appDisplayName" class="w-7 h-7 rounded-full shadow-sm" draggable="false" />
+          <BaseImage v-if="appIconReady" :src="appIconSrc" :alt="appDisplayName" class="w-7 h-7 rounded-full shadow-xs" draggable="false" />
         </Transition>
         <span class="text-lg font-semibold tracking-tight">{{ appDisplayName }}</span>
       </div>

@@ -16,7 +16,7 @@
       </button>
     </div>
 
-    <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/15">
+    <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
       <div v-if="!groups.length" class="flex flex-col items-center justify-center h-full gap-2 py-10">
         <Icon :icon="emptyIcon" :class="[themeClasses.explorerEmptyIcon]" class="w-10 h-10" />
         <p :class="[themeClasses.explorerEmptySubtext]" class="text-xs">{{ $t("No matching apps") }}</p>

@@ -9,7 +9,7 @@
 
     <Transition name="corner-hint-fade">
       <div v-if="!isLoading && desktopStore.mainDockerApps.length === 0" class="absolute top-3 right-3 z-[100] pointer-events-none">
-        <button @click="openAppStore" :class="[themeClasses.desktopEmptyBg, themeClasses.desktopEmptyBorder]" class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 pointer-events-auto shadow-md backdrop-blur-sm cursor-pointer border transition-all hover:scale-105 hover:shadow-lg">
+        <button @click="openAppStore" :class="[themeClasses.desktopEmptyBg, themeClasses.desktopEmptyBorder]" class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 pointer-events-auto shadow-md backdrop-blur-xs cursor-pointer border transition-all hover:scale-105 hover:shadow-lg">
           <Icon :icon="widgetsOutlineIcon" class="w-3.5 h-3.5" :class="themeClasses.desktopEmptyIcon" />
           <span :class="[themeClasses.desktopEmptyTitle]" class="text-[10px] font-medium leading-none">{{ $t("Install apps") }}</span>
         </button>
@@ -22,7 +22,7 @@
       <SelectionBox :visible="isSelectingArea" :style="selectionBoxStyle" />
 
       <TransitionGroup name="icon-appear">
-        <div v-for="app in mainDockerApps" :key="app.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], draggedApp === app.id || (isDragging && hasMoved && selectedApps.has(app.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(app)" @mousedown="handleMouseDown($event, app)" @touchstart.passive="handleTouchStart($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" :title="appTitle(app)">
+        <div v-for="app in mainDockerApps" :key="app.id" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,translate,border,box-shadow] duration-[400ms,400ms,150ms,200ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-hidden border', !(selectedApp === app.id || selectedApps.has(app.id)) && ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], (selectedApp === app.id || selectedApps.has(app.id)) && [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected], draggedApp === app.id || (isDragging && hasMoved && selectedApps.has(app.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing']" :style="getIconStyle(app)" @mousedown="handleMouseDown($event, app)" @touchstart.passive="handleTouchStart($event, app)" @click="handleClick(app, $event)" @dblclick="handleDoubleClick(app)" @contextmenu="handleContextMenu($event, app)" :title="appTitle(app)">
           <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
             <AppIconGraphic :image-src="app.image_path" :size="APP_ICON_SIZE" :status="app.status" />
             <AppBusyOverlay :visible="isBusy(app.id)" />
@@ -41,13 +41,13 @@
       </TransitionGroup>
 
       <TransitionGroup name="icon-appear">
-        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :data-desktop-icon="sysIcon.id" :data-arriving="desktopStore.arrivingIconId === sysIcon.id || undefined" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,border,box-shadow] duration-[400ms,400ms,150ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-none border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name)">
+        <div v-for="sysIcon in systemDesktopIcons" :key="sysIcon.id" :data-desktop-icon="sysIcon.id" :data-arriving="desktopStore.arrivingIconId === sysIcon.id || undefined" :class="['group flex flex-col items-center gap-1 cursor-pointer p-3 rounded-lg transition-[left,top,background,transform,translate,border,box-shadow] duration-[400ms,400ms,150ms,200ms,200ms,0ms,0ms] ease-[ease,ease,ease,ease,ease,ease,ease] w-[100px] z-[1] touch-none select-none outline-hidden border', selectedSystemIcon === sysIcon.id || selectedSystemIcons.has(sysIcon.id) ? [themeClasses.desktopIconBgSelected, themeClasses.desktopIconBorderSelected, themeClasses.desktopIconShadowSelected] : ['border-transparent', 'shadow-[0_0_0_1px_transparent]'], draggedSystemIcon === sysIcon.id || (isDragging && hasMoved && selectedSystemIcons.has(sysIcon.id)) ? 'opacity-70 !cursor-grabbing !z-[1000] !transition-none' : 'hover:-translate-y-0.5 active:cursor-grabbing', isWiggleMode && draggedSystemIcon !== sysIcon.id ? 'icon-wiggle' : '']" :style="getSystemIconStyle(sysIcon)" @mousedown="handleSystemIconMouseDown($event, sysIcon)" @touchstart="handleSystemIconTouchStart($event, sysIcon)" @click="handleSystemIconClick($event, sysIcon)" @dblclick="handleSystemIconDoubleClick(sysIcon)" @contextmenu="handleSystemIconContextMenu($event, sysIcon)" :title="sysIcon.shortcut ? sysIcon.name : $t(sysIcon.name)">
           <div :class="['relative w-16 h-16 flex items-center justify-center transition-transform duration-200 pointer-events-none', themeClasses.desktopIconContainerScaleHover]">
             <template v-if="sysIcon.shortcut">
               <Transition name="icon-switch" mode="out-in">
                 <ShortcutGraphic :key="`${sysIcon.shortcut.iconType}:${sysIcon.shortcut.iconValue}`" :shortcut="sysIcon.shortcut" :size="APP_ICON_SIZE" />
               </Transition>
-              <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-sm flex items-center justify-center z-[3] pointer-events-none">
+              <div class="absolute bottom-1 left-1 w-4 h-4 rounded bg-white border border-black/10 shadow-xs flex items-center justify-center z-[3] pointer-events-none">
                 <Icon :icon="arrowTopRightIcon" class="w-3 h-3 text-blue-600" />
               </div>
             </template>
@@ -62,7 +62,7 @@
       </TransitionGroup>
 
       <TransitionGroup name="widget-appear" move-class="widget-move-none">
-        <div v-for="widget in widgetsStore.instances" :key="widget.instanceId" :class="['absolute z-[1] touch-none select-none outline-none', (draggedWidget === widget.instanceId && widgetHasMoved) || settlingWidget?.id === widget.instanceId ? '!cursor-grabbing !z-[1000]' : 'transition-[left,top,width,height] duration-[400ms] ease-[ease] cursor-grab active:cursor-grabbing']" :style="getWidgetStyle(widget)" @mousedown="handleWidgetMouseDown($event, widget)" @click.capture="handleWidgetClickCapture" @contextmenu="handleWidgetContextMenu($event, widget)">
+        <div v-for="widget in widgetsStore.instances" :key="widget.instanceId" :class="['absolute z-[1] touch-none select-none outline-hidden', (draggedWidget === widget.instanceId && widgetHasMoved) || settlingWidget?.id === widget.instanceId ? '!cursor-grabbing !z-[1000]' : 'transition-[left,top,width,height] duration-[400ms] ease-[ease] cursor-grab active:cursor-grabbing']" :style="getWidgetStyle(widget)" @mousedown="handleWidgetMouseDown($event, widget)" @click.capture="handleWidgetClickCapture" @contextmenu="handleWidgetContextMenu($event, widget)">
           <DesktopWidgetFrame :instance="widget" />
         </div>
       </TransitionGroup>
@@ -71,7 +71,7 @@
     <ContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y" :items="contextMenuItems" @close="closeContextMenu" />
 
     <AppDialog v-model:visible="showCreateFolderModal" type="info" title="Create New Folder" ok-text="Create" cancel-text="Cancel" @ok="handleCreateFolderOk" @cancel="handleCreateFolderCancel">
-      <input v-model="createFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
+      <input v-model="createFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-hidden transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleCreateFolderOk" />
     </AppDialog>
 
     <ShortcutEditModal v-model:visible="showShortcutModal" :mode="shortcutModalMode" :initial-name="shortcutModalInitial.name" :initial-url="shortcutModalInitial.url" :initial-icon-type="shortcutModalInitial.iconType" :initial-icon-value="shortcutModalInitial.iconValue" @save="handleShortcutSave" />
@@ -79,7 +79,7 @@
     <WidgetGalleryModal v-model:visible="showWidgetGallery" @add="handleAddWidget" />
 
     <AppDialog v-model:visible="showRenameFolderModal" type="info" title="Rename Folder" ok-text="Rename" cancel-text="Cancel" @ok="handleRenameFolderOk" @cancel="handleRenameFolderCancel">
-      <input v-model="renameFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
+      <input v-model="renameFolderName" :placeholder="$t('Folder name')" class="w-full px-3 py-2 rounded-lg text-sm border outline-hidden transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleRenameFolderOk" />
     </AppDialog>
 
     <FolderCustomizeMenu :visible="showCustomizeMenu" :x="customizeMenuPosition.x" :y="customizeMenuPosition.y" :color="customizeFolderColor" :icon="customizeFolderIcon" @update:color="handleCustomizeColorChange" @update:icon="handleCustomizeIconChange" @close="closeCustomizeMenu" />

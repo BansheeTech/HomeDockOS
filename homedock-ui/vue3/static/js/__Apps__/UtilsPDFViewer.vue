@@ -4,34 +4,34 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="pdf-viewer flex flex-col h-full overflow-hidden @container">
-    <div class="toolbar flex items-center gap-1 @[400px]:gap-2 px-2 @[400px]:px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="previousPage" :disabled="currentPage <= 1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Previous Page')">
+  <div class="pdf-viewer flex flex-col h-full overflow-hidden">
+    <div class="toolbar flex items-center gap-1 px-2 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
+      <button @click="previousPage" :disabled="currentPage <= 1" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Previous Page')">
         <Icon :icon="chevronLeftIcon" class="w-4 h-4" />
       </button>
       <span :class="['text-xs whitespace-nowrap', themeClasses.windowTextMuted]">{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage >= totalPages" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Next Page')">
+      <button @click="nextPage" :disabled="currentPage >= totalPages" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Next Page')">
         <Icon :icon="chevronRightIcon" class="w-4 h-4" />
       </button>
 
-      <div class="w-px h-4 mx-0.5 @[400px]:mx-1" :class="themeClasses.utilityDivider"></div>
+      <div class="w-px h-4 mx-0.5" :class="themeClasses.utilityDivider"></div>
 
       <div class="flex items-center gap-0">
-        <button @click="zoomOut" :disabled="zoom <= 0.25" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom Out (-)')">
+        <button @click="zoomOut" :disabled="zoom <= 0.25" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Zoom Out (-)')">
           <Icon :icon="magnifyMinusIcon" class="w-4 h-4" />
         </button>
         <span :class="['text-xs min-w-[40px] text-center', themeClasses.windowText]">{{ Math.round(zoom * 100) }}%</span>
-        <button @click="zoomIn" :disabled="zoom >= 4" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 @[400px]:p-1.5 rounded transition-colors disabled:opacity-30" :title="$t('Zoom In (+)')">
+        <button @click="zoomIn" :disabled="zoom >= 4" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-default" :title="$t('Zoom In (+)')">
           <Icon :icon="magnifyPlusIcon" class="w-4 h-4" />
         </button>
       </div>
 
-      <div class="w-px h-4 mx-0.5 @[400px]:mx-1" :class="themeClasses.utilityDivider"></div>
+      <div class="w-px h-4 mx-0.5" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="fitToWidth" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'width' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" :title="$t('Fit to Width')">
+      <button @click="fitToWidth" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'width' ? 'bg-blue-500/20' : '']" class="p-1 rounded transition-colors cursor-pointer" :title="$t('Fit to Width')">
         <Icon :icon="arrowExpandHorizontalIcon" class="w-4 h-4" />
       </button>
-      <button @click="fitToPage" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'page' ? 'bg-blue-500/20' : '']" class="p-1 @[400px]:p-1.5 rounded transition-colors" :title="$t('Fit to Page')">
+      <button @click="fitToPage" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, fitMode === 'page' ? 'bg-blue-500/20' : '']" class="p-1 rounded transition-colors cursor-pointer" :title="$t('Fit to Page')">
         <Icon :icon="fitToPageIcon" class="w-4 h-4" />
       </button>
 
@@ -44,7 +44,7 @@
         </button>
       </Transition>
 
-      <div v-if="fileSize" :class="['text-xs opacity-60 hidden @[450px]:block', themeClasses.windowText]">{{ formatFileSize(fileSize) }}</div>
+      <div v-if="fileSize" :class="['text-xs opacity-60 hidden', themeClasses.windowText]">{{ formatFileSize(fileSize) }}</div>
     </div>
 
     <div ref="containerRef" class="flex-1 overflow-auto relative pdf-container" :class="themeClasses.imageViewerBg" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchEnd" @dragenter.prevent.stop="onDragEnter" @dragover.prevent.stop="onDragOver" @dragleave.stop="onDragLeave" @drop.prevent.stop="onDrop">
@@ -91,7 +91,7 @@
         <canvas v-for="pageNum in renderedPages" :key="pageNum" :ref="(el) => setCanvasRef(el as HTMLCanvasElement, pageNum)" class="shadow-lg flex-shrink-0" :class="themeClasses.pdfCanvasBg"></canvas>
 
         <div v-if="totalPages > MAX_CONTINUOUS_PAGES && currentBatchEnd < totalPages" class="py-4">
-          <button @click="loadNextBatch" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-4 py-2 rounded-lg border transition-colors text-sm font-medium">{{ $t("Load pages") }} {{ currentBatchEnd + 1 }}-{{ Math.min(currentBatchEnd + MAX_CONTINUOUS_PAGES, totalPages) }}</button>
+          <button @click="loadNextBatch" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-4 py-2 rounded-lg border transition-colors text-sm font-medium cursor-pointer">{{ $t("Load pages") }} {{ currentBatchEnd + 1 }}-{{ Math.min(currentBatchEnd + MAX_CONTINUOUS_PAGES, totalPages) }}</button>
         </div>
       </div>
     </div>
@@ -109,7 +109,7 @@
             <StatusBarHelpIcon :icon="filePdfIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("PDF Viewer") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("A secure PDF viewer powered by PDF.js.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
@@ -694,7 +694,7 @@ function cleanup() {
   }
   activeRenderTasks.clear();
   if (pdfDocument.value) {
-    pdfDocument.value.destroy();
+    pdfDocument.value.loadingTask.destroy();
     pdfDocument.value = null;
   }
   canvasRefs.clear();

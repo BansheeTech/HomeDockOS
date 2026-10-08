@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="containerRef" class="control-hub flex flex-col h-full overflow-hidden outline-none" tabindex="-1" @keydown="handleKeydown">
+  <div ref="containerRef" class="control-hub flex flex-col h-full overflow-hidden outline-hidden" tabindex="-1" @keydown="handleKeydown">
     <div :class="[themeClasses.fileExplorerToolbar]" class="flex items-center gap-1.5 px-2 py-1.5 border-b flex-shrink-0">
       <button v-if="!isMobileLayout" @click="railExpanded = !railExpanded" :class="[themeClasses.fileExplorerSidebarItem]" class="flex items-center justify-center w-7 h-7 rounded-md border-0 bg-transparent cursor-pointer flex-shrink-0" :title="$t('Toggle navigation')">
         <Icon :icon="menuIcon" class="w-4 h-4" />
@@ -14,7 +14,7 @@
 
       <div v-if="showSearch" class="relative flex items-center min-w-0" :class="isMobileLayout ? 'flex-1' : 'w-44 ml-auto'">
         <Icon :icon="searchIcon" :class="[themeClasses.explorerSearchIcon]" class="absolute left-2 w-3.5 h-3.5 pointer-events-none" />
-        <input v-model="searchQuery" type="text" :placeholder="$t('Search apps...')" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-none transition-all duration-150" />
+        <input v-model="searchQuery" type="text" :placeholder="$t('Search apps...')" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-hidden transition-all duration-150" />
         <button v-if="searchQuery" @click="searchQuery = ''" :class="[themeClasses.explorerClearButton, themeClasses.explorerClearButtonHover]" class="absolute right-1 flex items-center justify-center w-5 h-5 rounded border-0 bg-transparent cursor-pointer">
           <Icon :icon="closeIcon" class="w-3 h-3" />
         </button>
@@ -56,7 +56,7 @@
             <Icon :icon="emptyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-16 h-16 mx-auto mb-4 opacity-50" />
             <h3 :class="[themeClasses.windowTitleTextFocused]" class="text-lg font-semibold mb-2">{{ $t("No apps installed") }}</h3>
             <p :class="[themeClasses.windowPlaceholderText]" class="text-sm mb-6">{{ $t("Get started by installing your first application") }}</p>
-            <button @click="openAppStore" :class="[themeClasses.settingsIconBgBlue]" class="px-6 py-3 rounded-xl text-white font-medium flex items-center gap-2 mx-auto hover:scale-105 transition-transform duration-200 shadow-lg">
+            <button @click="openAppStore" :class="[themeClasses.settingsIconBgBlue]" class="px-6 py-3 rounded-xl text-white font-medium flex items-center gap-2 mx-auto hover:scale-105 transition-transform duration-200 shadow-lg cursor-pointer">
               <Icon :icon="storeIcon" class="w-5 h-5" />
               <span>{{ $t("Browse App Store") }}</span>
             </button>
@@ -83,7 +83,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Control Hub") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Monitor and manage all your installed applications from a single interface. Sort by any column, right-click a row for actions, and expand an app to see its dependency containers.") }}</p>
             <p>{{ $t("Performance shows live system graphs, App history shows network totals since each container started, and Details lists every container with its technical data.") }}</p>
           </div>

@@ -278,7 +278,7 @@
 
                 <p :class="[themeClasses.subText]" class="text-[11px] tracking-[0.22em] uppercase font-medium opacity-75 m-0 mb-3">{{ $t("Theme") }}</p>
                 <div class="grid grid-cols-3 gap-2.5 mb-7">
-                  <button v-for="theme in themeOptions" :key="theme.value" type="button" @click="selectTheme(theme.value)" class="onb-theme-card relative rounded-[14px] p-4 text-left border-0 outline outline-[1.5px] outline-offset-[2px] outline-transparent cursor-pointer opacity-[0.78] transition-[transform,box-shadow,opacity] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-theme-card-active': state.selected_theme === theme.value }" :style="{ background: theme.swatch }">
+                  <button v-for="theme in themeOptions" :key="theme.value" type="button" @click="selectTheme(theme.value)" class="onb-theme-card relative rounded-[14px] p-4 text-left border-0 outline outline-[1.5px] outline-offset-[2px] outline-transparent cursor-pointer opacity-[0.78] transition-[transform,translate,box-shadow,opacity] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-theme-card-active': state.selected_theme === theme.value }" :style="{ background: theme.swatch }">
                     <span class="block text-sm font-medium" :style="{ color: theme.fg }">{{ theme.label }}</span>
                     <span class="block text-[11px] mt-1 leading-snug" :style="{ color: theme.fg, opacity: 0.7 }">{{ theme.desc }}</span>
                     <span class="onb-theme-check absolute top-2 right-2 w-4 h-4 rounded-full border flex items-center justify-center opacity-0 transition-opacity duration-200" :style="{ borderColor: theme.fg, color: theme.fg }">
@@ -291,7 +291,7 @@
                   <div v-if="state.selected_theme === 'aeroplus'" key="wp">
                     <p :class="[themeClasses.subText]" class="text-[11px] tracking-[0.22em] uppercase font-medium opacity-75 m-0 mb-3">{{ $t("Wallpaper") }}</p>
                     <div class="grid grid-cols-3 gap-2">
-                      <button v-for="back in wallpaperOptions" :key="back" type="button" @click="selectWallpaper(back)" class="onb-wp-card aspect-video rounded-lg overflow-hidden outline outline-[1.5px] outline-offset-[2px] outline-transparent opacity-70 cursor-pointer border-0 p-0 transition-[opacity,transform] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-wp-card-active': state.selected_back === back }">
+                      <button v-for="back in wallpaperOptions" :key="back" type="button" @click="selectWallpaper(back)" class="onb-wp-card aspect-video rounded-lg overflow-hidden outline outline-[1.5px] outline-offset-[2px] outline-transparent opacity-70 cursor-pointer border-0 p-0 transition-[opacity,transform,translate] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-wp-card-active': state.selected_back === back }">
                         <img :src="`/images/wallpapers/${back}`" :alt="back" class="w-full h-full object-cover" />
                       </button>
                     </div>
@@ -306,7 +306,7 @@
                 <p :class="[themeClasses.subText]" class="text-sm font-light leading-relaxed opacity-85 m-0 mb-7 max-w-[42ch]">{{ $t("Preview it on the left, and change it later in Settings.") }}</p>
 
                 <div class="grid grid-cols-2 gap-2.5">
-                  <button v-for="option in appearanceOptions" :key="option.value" type="button" @click="selectAppearance(option.value)" class="onb-theme-card onb-win-card relative rounded-[14px] p-4 text-left border-0 outline outline-[1.5px] outline-offset-[2px] outline-transparent cursor-pointer opacity-[0.78] transition-[transform,box-shadow,opacity] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-theme-card-active': state.selected_appearance === option.value }">
+                  <button v-for="option in appearanceOptions" :key="option.value" type="button" @click="selectAppearance(option.value)" class="onb-theme-card onb-win-card relative rounded-[14px] p-4 text-left border-0 outline outline-[1.5px] outline-offset-[2px] outline-transparent cursor-pointer opacity-[0.78] transition-[transform,translate,box-shadow,opacity] duration-200 hover:opacity-100 hover:-translate-y-px" :class="{ 'onb-theme-card-active': state.selected_appearance === option.value }">
                     <span class="flex items-center gap-1 mb-3" :class="[themeClasses.mainText, option.value === 'cupertino' ? 'justify-start' : 'justify-end']">
                       <i v-for="(dot, i) in option.dots" :key="i" class="onb-win-dot" :class="{ 'onb-win-dot-round': option.value === 'cupertino' }" :style="{ background: dot }"></i>
                     </span>

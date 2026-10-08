@@ -36,11 +36,11 @@
         </div>
 
         <div class="flex mt-4 gap-3">
-          <button type="button" id="cancelButton" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
+          <button type="button" id="cancelButton" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border cursor-pointer" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="handleCancel">
             <Icon :icon="arrowLeftIcon" width="15" height="15" />
             {{ $t("Cancel") }}
           </button>
-          <button :disabled="!isFormValid || savingLoading" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border" :class="isFormValid ? [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover] : 'save-btn-disabled'" type="submit">
+          <button :disabled="!isFormValid || savingLoading" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border cursor-pointer disabled:cursor-default" :class="isFormValid ? [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover, themeClasses.appPropsActionButtonPrimaryBorderHover] : 'save-btn-disabled'" type="submit">
             <Icon v-if="savingLoading" :icon="loadingIcon" width="15" height="15" class="animate-spin" />
             <Icon v-else :icon="contentSaveIcon" width="15" height="15" />
             <span>{{ $t("Save Settings") }}</span>
@@ -57,7 +57,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Settings") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Configure your HomeDock OS settings including user account, system behavior, storage preferences, and interface themes. You can customize your username and password, adjust system ports, manage external storage drives, and personalize your visual experience. All settings are encrypted before being saved, ensuring maximum security even when not using HTTPS.") }}</p>
           </div>
         </div>

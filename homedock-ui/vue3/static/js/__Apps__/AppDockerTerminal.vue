@@ -7,7 +7,7 @@
   <div class="app-docker-terminal flex flex-col h-full overflow-hidden">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector" @open-change="onMenuOpenChange">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Shell") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("Shell") }}</button>
         <template #overlay>
           <Menu class="min-w-[220px]">
             <MenuItem key="new" @click="startSession">
@@ -59,7 +59,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector" @open-change="onMenuOpenChange">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Edit") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("Edit") }}</button>
         <template #overlay>
           <Menu class="min-w-[220px]">
             <MenuItem key="copy" :disabled="!hasSelection" @click="copySelection">
@@ -102,7 +102,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector" @open-change="onMenuOpenChange">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("View") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("View") }}</button>
         <template #overlay>
           <Menu class="min-w-[200px]">
             <MenuItem key="bigger" :disabled="fontSize >= MAX_FONT_SIZE" @click="changeFontSize(1)">
@@ -147,15 +147,15 @@
     <Transition enter-active-class="transition-all duration-150 ease-out" leave-active-class="transition-all duration-100 ease-in" enter-from-class="opacity-0 -translate-y-1" leave-to-class="opacity-0 -translate-y-1">
       <div v-if="findVisible" class="flex items-center gap-2 px-3 py-2 border-b" :class="themeClasses.utilityToolbarBorder">
         <Icon :icon="magnifyIcon" :class="[themeClasses.windowPlaceholderText]" class="w-4 h-4 flex-shrink-0" />
-        <input ref="findInputRef" v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 min-w-0 px-2 py-1 text-xs rounded border outline-none" spellcheck="false" @keydown.enter.exact.prevent="findNext" @keydown.shift.enter.prevent="findPrevious" @keydown.esc.prevent="closeFind" />
+        <input ref="findInputRef" v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 min-w-0 px-2 py-1 text-xs rounded border outline-hidden" spellcheck="false" @keydown.enter.exact.prevent="findNext" @keydown.shift.enter.prevent="findPrevious" @keydown.esc.prevent="closeFind" />
         <span v-if="findText && findNoMatch" :class="[themeClasses.windowPlaceholderText]" class="text-[11px] flex-shrink-0">{{ $t("No results") }}</span>
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded" :title="$t('Previous')" @click="findPrevious">
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded cursor-pointer" :title="$t('Previous')" @click="findPrevious">
           <Icon :icon="chevronUpIcon" class="w-4 h-4" />
         </button>
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded" :title="$t('Next')" @click="findNext">
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded cursor-pointer" :title="$t('Next')" @click="findNext">
           <Icon :icon="chevronDownIcon" class="w-4 h-4" />
         </button>
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded" :title="$t('Close')" @click="closeFind">
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded cursor-pointer" :title="$t('Close')" @click="closeFind">
           <Icon :icon="closeIcon" class="w-4 h-4" />
         </button>
       </div>
@@ -171,11 +171,11 @@
             <p :class="[themeClasses.terminalStateTitle]" class="text-sm font-semibold mb-1">{{ errorState.title }}</p>
             <p :class="[themeClasses.terminalStateText]" class="text-xs leading-relaxed mb-4">{{ errorState.text }}</p>
             <div class="flex items-center gap-2">
-              <button v-if="errorState.action" :disabled="actionBusy" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors disabled:opacity-50" @click="runErrorAction">
+              <button v-if="errorState.action" :disabled="actionBusy" :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-default" @click="runErrorAction">
                 <Icon :icon="actionBusy ? spinIcon : errorState.action.icon" :class="{ 'animate-spin': actionBusy }" class="w-3.5 h-3.5" />
                 <span>{{ errorState.action.label }}</span>
               </button>
-              <button :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" @click="startSession">
+              <button :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer" @click="startSession">
                 <Icon :icon="reloadIcon" class="w-3.5 h-3.5" />
                 <span>{{ $t("Try Again") }}</span>
               </button>
@@ -188,7 +188,7 @@
         <div v-if="status === 'ended'" class="absolute bottom-3 inset-x-0 flex justify-center px-3 pointer-events-none">
           <div :class="[themeClasses.terminalEndedBar]" class="pointer-events-auto flex items-center gap-3 pl-3 pr-1.5 py-1.5 rounded-full border text-xs max-w-full">
             <span class="truncate">{{ endedMessage }}</span>
-            <button :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1 px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors" @click="startSession">
+            <button :class="[themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryText, themeClasses.appPropsActionButtonPrimaryBgHover]" class="flex items-center gap-1 px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors cursor-pointer" @click="startSession">
               <Icon :icon="reloadIcon" class="w-3.5 h-3.5" />
               <span>{{ $t("Reconnect") }}</span>
             </button>
@@ -198,7 +198,7 @@
     </div>
 
     <div v-if="keyBarVisible" :class="[themeClasses.terminalKeyBar]" class="flex items-center gap-1 px-2 py-1.5 border-t overflow-x-auto flex-shrink-0 terminal-keybar">
-      <button v-for="key in extraKeys" :key="key.id" :class="[themeClasses.terminalKey, isKeyLatched(key.id) ? themeClasses.terminalKeyActive : '']" class="h-7 min-w-[2.25rem] px-2 rounded-md border text-xs font-medium flex items-center justify-center flex-shrink-0 transition-colors select-none" @pointerdown.prevent @click="pressExtraKey(key)">
+      <button v-for="key in extraKeys" :key="key.id" :class="[themeClasses.terminalKey, isKeyLatched(key.id) ? themeClasses.terminalKeyActive : '']" class="h-7 min-w-[2.25rem] px-2 rounded-md border text-xs font-medium flex items-center justify-center flex-shrink-0 transition-colors select-none cursor-pointer" @pointerdown.prevent @click="pressExtraKey(key)">
         <Icon v-if="key.icon" :icon="key.icon" class="w-4 h-4" />
         <span v-else>{{ key.label }}</span>
       </button>
@@ -212,7 +212,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Terminal") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Opens an interactive shell inside the application's container, the same as running docker exec on the machine that hosts HomeDock OS. Commands run inside the container, not on your computer or on the host.") }}</p>
             <p>{{ $t("Pick the shell and the user from the Shell menu. Closing the window ends the session and every process started from it.") }}</p>
           </div>

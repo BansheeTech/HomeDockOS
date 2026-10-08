@@ -57,7 +57,7 @@
               <span v-if="log.isNew && isRealIP(log.ip)">
                 <Tooltip placement="bottom" trigger="click" :color="themeClasses.tooltipBackColor" :destroyTooltipOnHide="true">
                   <template #title>
-                    <div class="text-[10px] max-w-48 py-1 transition-all duration-600 ease-in-out">
+                    <div class="text-[10px] max-w-48 py-1 transition-all ease-in-out">
                       <div class="flex items-start">
                         <Icon class="h-3 w-3 min-h-3 min-w-3 mr-1 mt-0.5" :icon="shieldAlertOutlineIcon" />
                         <span>{{ $t("The login attempt from the network address {ip} has been detected for the first time.", { ip: log.ip }) }}</span>
@@ -127,13 +127,13 @@
     <div v-if="!loading && showButtons" class="mt-3 flex justify-between">
       <Button size="middle" type="primary" class="cursor-pointer shadow-none" @click="loadMore">
         <span class="px-2 flex items-center space-x-1">
-          <Icon :icon="transferDownIcon" class="mr-1 inline-block hover:text-lime-800" />
+          <Icon :icon="transferDownIcon" class="mr-2 inline-block hover:text-lime-800" />
           <span class="text-[12px] leading-none">{{ $t("Load more") }}</span>
         </span>
       </Button>
       <Button size="middle" type="dashed" class="cursor-pointer shadow-none" @click="loadAll">
         <span class="px-2 flex items-center space-x-1">
-          <Icon :icon="chevronDoubleDownIcon" :size="12" class="mr-1 inline-block" />
+          <Icon :icon="chevronDoubleDownIcon" :size="12" class="mr-2 inline-block" />
           <span class="text-[12px] leading-none">{{ $t("Load everything") }}</span>
         </span>
       </Button>

@@ -1,0 +1,1 @@
+import{pt as e}from"./hdos_Ba-0NuVjQ4fhrBl4jLjqn.js";function t(t,n,r){return e({[`${t}-status-success`]:n===`success`,[`${t}-status-warning`]:n===`warning`,[`${t}-status-error`]:n===`error`,[`${t}-status-validating`]:n===`validating`,[`${t}-has-feedback`]:r})}var n=(e,t)=>t||e;export{t as n,n as t};

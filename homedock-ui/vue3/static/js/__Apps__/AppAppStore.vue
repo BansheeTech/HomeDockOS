@@ -26,7 +26,7 @@
 
             <div v-if="showMobileSearch" class="relative flex items-center mb-5">
               <Icon :icon="searchIcon" :class="[themeClasses.explorerSearchIcon]" class="absolute left-2.5 w-[18px] h-[18px] pointer-events-none" />
-              <input :value="appStore.searchQuery" type="text" enterkeyhint="search" :placeholder="$t('Search apps...')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText]" class="w-full h-9 pl-9 pr-9 rounded-[10px] border text-[15px] outline-none" @input="appStore.setSearchQuery(($event.target as HTMLInputElement).value)" />
+              <input :value="appStore.searchQuery" type="text" enterkeyhint="search" :placeholder="$t('Search apps...')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText]" class="w-full h-9 pl-9 pr-9 rounded-[10px] border text-[15px] outline-hidden" @input="appStore.setSearchQuery(($event.target as HTMLInputElement).value)" />
               <button v-if="appStore.searchQuery" type="button" :aria-label="$t('Clear')" :class="[themeClasses.explorerClearButton]" class="absolute right-2 flex items-center justify-center w-5 h-5 cursor-pointer" @click="appStore.setSearchQuery('')">
                 <Icon :icon="closeCircleIcon" class="w-[18px] h-[18px]" />
               </button>
@@ -63,7 +63,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("App Store") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Discover and install curated applications for your HomeDock OS. Browse curated apps, search by category, and manage your installed applications. All apps are containerized and run securely within your HomeDock OS environment.") }}</p>
           </div>
         </div>

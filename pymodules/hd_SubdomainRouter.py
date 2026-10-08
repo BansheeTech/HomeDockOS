@@ -16,7 +16,7 @@ from urllib.parse import quote, unquote
 from pymodules.hd_FunctionsHostSelector import docker_host
 from pymodules.hd_FunctionsConfig import read_config
 from pymodules.hd_TrustedProxy import is_trusted_peer
-from pymodules.hd_AppSubdomains import resolve_app_for_host, build_forwarding_headers
+from pymodules.hd_AppSubdomains import resolve_app_for_host, is_app_namespace, build_forwarding_headers
 from pymodules.hd_AppExposure import is_directly_exposed
 from pymodules.hd_SubdomainAuth import TOKEN_COOKIE_NAME, TOKEN_QUERY_PARAM, HANDOFF_MAX_AGE, SESSION_MAX_AGE, verify_app_token
 
@@ -375,6 +375,11 @@ def _rewrite_location(value, backend_host, public_host, scheme):
         prefix = f"{protocol}://{bare}/"
         if value.startswith(prefix):
             return f"{scheme}://{public_host}/" + value[len(prefix) :]
+
+    # HDOS00130
+    prefix = f"http://{public_host}"
+    if scheme == "https" and value.startswith(prefix) and value[len(prefix) : len(prefix) + 1] in ("", "/", "?", "#"):
+        return f"https://{public_host}" + value[len(prefix) :]
 
     return value
 
@@ -745,6 +750,24 @@ def _public_host_and_scheme(scope):
     return host_header, scheme
 
 
+async def _reject_unknown_app(scope, receive, send):
+
+    if scope["type"] == "websocket":
+        message = await receive()
+        if message["type"] == "websocket.connect":
+            await send({"type": "websocket.close", "code": 1008})
+        return
+
+    body = b"No app at this address."
+
+    await _send_simple_response(
+        send,
+        404,
+        [(b"content-type", b"text/plain; charset=utf-8"), (b"content-length", str(len(body)).encode("latin-1")), (b"cache-control", b"no-store")],
+        body,
+    )
+
+
 def wrap_asgi_with_subdomain_router(downstream):
 
     async def router(scope, receive, send):
@@ -754,6 +777,11 @@ def wrap_asgi_with_subdomain_router(downstream):
 
         host_header, scheme = _public_host_and_scheme(scope)
         app = resolve_app_for_host(host_header)
+
+        # HDOS00131
+        if app is None and is_app_namespace(host_header):
+            await _reject_unknown_app(scope, receive, send)
+            return
 
         if app is None:
             await downstream(scope, receive, send)

@@ -255,12 +255,14 @@ onUnmounted(() => {
 .icon-pop {
   transition:
     transform 700ms cubic-bezier(0.34, 1.32, 0.5, 1),
+    scale 700ms cubic-bezier(0.34, 1.32, 0.5, 1),
     opacity 400ms ease-out;
 }
 
 .icon-implode {
   transition:
     transform 420ms cubic-bezier(0.5, 0, 0.75, 0) 220ms,
+    scale 420ms cubic-bezier(0.5, 0, 0.75, 0) 220ms,
     opacity 300ms ease-in 260ms;
 }
 

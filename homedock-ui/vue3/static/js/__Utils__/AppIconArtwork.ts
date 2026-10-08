@@ -27,8 +27,10 @@ export function measureArtwork(image: HTMLImageElement): ArtworkPlacement | null
   if (!context || !image.naturalWidth || !image.naturalHeight) return null;
 
   const fit = Math.min(SAMPLE / image.naturalWidth, SAMPLE / image.naturalHeight);
-  const width = image.naturalWidth * fit;
-  const height = image.naturalHeight * fit;
+  const fittedWidth = image.naturalWidth * fit;
+  const fittedHeight = image.naturalHeight * fit;
+  const width = SAMPLE - fittedWidth < 1 ? SAMPLE : fittedWidth;
+  const height = SAMPLE - fittedHeight < 1 ? SAMPLE : fittedHeight;
   context.drawImage(image, (SAMPLE - width) / 2, (SAMPLE - height) / 2, width, height);
   const { data } = context.getImageData(0, 0, SAMPLE, SAMPLE);
 

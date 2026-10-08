@@ -224,6 +224,29 @@ def resolve_app_for_host(host_header):
     return {"slug": slug, "host_trail": host_trail, **entry}
 
 
+# HDOS00131
+def is_app_namespace(host_header):
+
+    if not host_header:
+        return False
+
+    host = host_header.strip().lower()
+
+    if host.startswith("["):
+        return False
+
+    bare_host = host.split(":")[0].rstrip(".")
+    desktop_hosts = get_desktop_hosts()
+
+    if bare_host in desktop_hosts or _IPV4_HOST.fullmatch(bare_host):
+        return False
+
+    if bare_host.endswith(".local"):
+        return False
+
+    return any(bare_host.endswith(f".{desktop_host}") for desktop_host in desktop_hosts)
+
+
 def build_forwarding_headers(public_host, scheme, client, forwarded_for=None):
     headers = {"host": public_host}
 

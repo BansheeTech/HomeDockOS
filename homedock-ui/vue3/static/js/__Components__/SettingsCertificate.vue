@@ -53,7 +53,7 @@
         <template #badge>
           <SettingsHelpTooltip :text="issueDetail" />
         </template>
-        <button type="button" :disabled="!canIssue" class="flex items-center justify-center gap-1.5 h-9 px-5 rounded-xl text-sm font-medium border transition-all duration-200" :class="blocked ? 'issue-btn-blocked' : [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, busy ? 'issue-btn-busy' : themeClasses.appPropsActionButtonPrimaryBgHover, busy ? '' : themeClasses.appPropsActionButtonPrimaryBorderHover]" @click="issue">
+        <button type="button" :disabled="!canIssue" class="flex items-center justify-center gap-1.5 h-9 px-5 rounded-xl text-sm font-medium border transition-all duration-200 cursor-pointer disabled:cursor-default" :class="blocked ? 'issue-btn-blocked' : [themeClasses.appPropsActionButtonPrimaryBg, themeClasses.appPropsActionButtonPrimaryBorder, themeClasses.appPropsActionButtonPrimaryText, busy ? 'issue-btn-busy' : themeClasses.appPropsActionButtonPrimaryBgHover, busy ? '' : themeClasses.appPropsActionButtonPrimaryBorderHover]" @click="issue">
           <Icon :icon="busy ? loadingIcon : certIcon" width="15" height="15" :class="busy ? 'animate-spin' : ''" />
           <span>{{ busy ? $t("Working...") : $t("Issue certificate") }}</span>
         </button>

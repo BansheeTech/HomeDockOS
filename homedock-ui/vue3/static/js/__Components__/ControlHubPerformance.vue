@@ -12,7 +12,7 @@
       </button>
     </div>
 
-    <div v-else :class="[themeClasses.fileExplorerSidebar]" class="flex flex-col overflow-y-auto border-r w-[188px] flex-shrink-0 py-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+    <div v-else :class="[themeClasses.fileExplorerSidebar]" class="flex flex-col overflow-y-auto border-r w-[188px] flex-shrink-0 py-1">
       <button v-for="metric in metrics" :key="metric.key" @click="selected = metric.key" :class="[themeClasses.fileExplorerSidebarItem]" class="flex w-full items-center gap-2.5 pl-2 pr-3 py-2 border-l-2 bg-transparent cursor-pointer text-left transition-colors duration-150" :style="{ borderLeftColor: selected === metric.key ? metric.color : 'transparent', backgroundColor: selected === metric.key ? 'rgba(127,127,127,0.12)' : undefined }">
         <div class="w-11 h-8 flex-shrink-0 overflow-hidden" :style="{ backgroundColor: 'rgba(127,127,127,0.08)' }">
           <ControlHubGraph :values="history[metric.graphKey || metric.key] || []" :capacity="CAPACITY" :max="metric.graphMax" :color="metric.color" :line-width="1" />
@@ -27,7 +27,7 @@
       </button>
     </div>
 
-    <div class="flex-1 min-w-0 min-h-0 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 p-3 sm:p-4">
+    <div class="flex-1 min-w-0 min-h-0 overflow-y-auto p-3 sm:p-4">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="min-w-0">
           <h2 :class="[themeClasses.windowTitleTextFocused]" class="flex items-center gap-2 text-lg font-semibold leading-tight min-w-0">

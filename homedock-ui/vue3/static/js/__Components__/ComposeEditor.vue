@@ -12,7 +12,7 @@
     </div>
 
     <div class="relative flex-1 min-w-0">
-      <textarea ref="textareaRef" :value="modelValue" :readonly="readonly" :class="[themeClasses.windowText]" class="compose-code absolute inset-0 w-full h-full m-0 resize-none whitespace-pre overflow-auto outline-none border-0 bg-transparent" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" @input="handleInput" @scroll="syncScroll" @keydown="handleKeydown" @keyup="updateCursor" @click="updateCursor" @select="updateCursor"></textarea>
+      <textarea ref="textareaRef" :value="modelValue" :readonly="readonly" :class="[themeClasses.windowText]" class="compose-code absolute inset-0 w-full h-full m-0 resize-none whitespace-pre overflow-auto outline-hidden border-0 bg-transparent" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" @input="handleInput" @scroll="syncScroll" @keydown="handleKeydown" @keyup="updateCursor" @click="updateCursor" @select="updateCursor"></textarea>
       <div ref="overlayRef" class="compose-overlay absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <pre class="m-0 whitespace-pre"><code v-html="highlightedCode"></code></pre>
       </div>

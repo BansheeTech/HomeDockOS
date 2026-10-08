@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="root" class="packet-snake relative w-full h-full overflow-hidden select-none outline-none" tabindex="0" @keydown="onKeyDown" @pointerdown="focusGame">
+  <div ref="root" class="packet-snake relative w-full h-full overflow-hidden select-none outline-hidden" tabindex="0" @keydown="onKeyDown" @pointerdown="focusGame">
     <canvas ref="canvasRef" class="absolute inset-0 w-full h-full block" @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp" @pointercancel="onPointerUp" @contextmenu.prevent></canvas>
 
     <div v-if="state === 'playing' || state === 'paused'" class="absolute top-0 inset-x-0 flex items-start justify-between gap-3 p-3 sm:p-4 pointer-events-none">
@@ -19,10 +19,10 @@
     </div>
 
     <div class="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-      <button v-if="state === 'playing'" class="hud-icon-button" :title="$t('Pause')" @pointerdown.stop @click="pause">
+      <button v-if="state === 'playing'" class="hud-icon-button cursor-pointer" :title="$t('Pause')" @pointerdown.stop @click="pause">
         <Icon :icon="pauseIcon" class="w-4 h-4" />
       </button>
-      <button class="hud-icon-button" :title="muted ? $t('Unmute') : $t('Mute')" @pointerdown.stop @click="toggleMute">
+      <button class="hud-icon-button cursor-pointer" :title="muted ? $t('Unmute') : $t('Mute')" @pointerdown.stop @click="toggleMute">
         <Icon :icon="muted ? volumeOffIcon : volumeHighIcon" class="w-4 h-4" />
       </button>
     </div>
@@ -45,7 +45,7 @@
               </p>
             </div>
             <p v-if="best > 0" class="menu-subtitle">{{ $t("Best") }} · {{ best }}</p>
-            <button class="menu-button" @click="startGame">
+            <button class="menu-button cursor-pointer" @click="startGame">
               <Icon :icon="playIcon" class="w-5 h-5" />
               <span>{{ $t("Play") }}</span>
             </button>
@@ -69,7 +69,7 @@
 
           <template v-else-if="state === 'paused'">
             <h2 class="menu-title menu-title-small">{{ $t("Paused") }}</h2>
-            <button class="menu-button" @click="resume">
+            <button class="menu-button cursor-pointer" @click="resume">
               <Icon :icon="playIcon" class="w-5 h-5" />
               <span>{{ $t("Resume") }}</span>
             </button>
@@ -80,7 +80,7 @@
             <p class="menu-score"><Icon :icon="packageIcon" class="w-6 h-6" />{{ score }}</p>
             <p v-if="newRecord" class="menu-record">{{ $t("New record!") }}</p>
             <p v-else-if="best > 0" class="menu-subtitle">{{ $t("Best") }} · {{ best }}</p>
-            <button class="menu-button" @click="startGame">
+            <button class="menu-button cursor-pointer" @click="startGame">
               <Icon :icon="replayIcon" class="w-5 h-5" />
               <span>{{ $t("Play again") }}</span>
             </button>

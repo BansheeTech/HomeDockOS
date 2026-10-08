@@ -28,7 +28,7 @@
             <StatusBarHelpIcon :icon="documentIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Writer") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Writer opens and edits Word documents (.docx). Saving writes the changes back to the same file.") }}</p>
           </div>
         </div>

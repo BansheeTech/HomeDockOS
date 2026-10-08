@@ -46,7 +46,7 @@
     <h2 :class="[themeClasses.storeCardSubtitle]" class="m-0 mt-6 mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider">{{ $t("Other store") }}</h2>
     <div :class="[themeClasses.storeInfoBar]" class="flex items-center gap-3 rounded-xl border px-3 py-2">
       <Icon :icon="linkIcon" :class="[themeClasses.storeCardSubtitle]" class="w-4 h-4 flex-shrink-0" />
-      <input v-model="thirdPartyUrl" type="url" :disabled="!!loadingStoreUrl" :placeholder="$t('Paste any compatible Casa store ZIP URL')" :class="[themeClasses.storeModalAppName]" class="flex-1 min-w-0 h-8 bg-transparent text-[13px] outline-none placeholder:opacity-50 disabled:opacity-50" @keydown.enter="previewThirdPartyStore(thirdPartyUrl)" />
+      <input v-model="thirdPartyUrl" type="url" :disabled="!!loadingStoreUrl" :placeholder="$t('Paste any compatible Casa store ZIP URL')" :class="[themeClasses.storeModalAppName]" class="flex-1 min-w-0 h-8 bg-transparent text-[13px] outline-hidden placeholder:opacity-50 disabled:opacity-50" @keydown.enter="previewThirdPartyStore(thirdPartyUrl)" />
       <span v-if="loadingStoreUrl && loadingStoreUrl === thirdPartyUrl.trim()" :class="[themeClasses.storeCardInstallingPill]" class="flex items-center justify-center min-w-[76px] h-7 rounded-full">
         <Icon :icon="loadingIcon" class="w-3.5 h-3.5 animate-spin" />
       </span>

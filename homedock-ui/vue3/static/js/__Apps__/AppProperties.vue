@@ -35,15 +35,15 @@
         </div>
 
         <div class="flex gap-1.5 px-4 py-1.5" :class="[themeClasses.appPropsTabsContainerBg, themeClasses.appPropsTabsContainerBorder]">
-          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'general' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'general' }]" @click="activeTab = 'general'">
+          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-xs hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'general' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'general' }]" @click="activeTab = 'general'">
             <Icon :icon="infoIcon" width="15" height="15" />
             <span>{{ $t("General") }}</span>
           </button>
-          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'files' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'files' }]" @click="activeTab = 'files'">
+          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-xs hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'files' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'files' }]" @click="activeTab = 'files'">
             <Icon :icon="folderIcon" width="15" height="15" />
             <span>{{ $t("Files") }}</span>
           </button>
-          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-sm hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'actions' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'actions' }]" @click="activeTab = 'actions'">
+          <button class="flex items-center gap-2 px-4 py-2 border-none text-xs font-semibold cursor-pointer transition-all duration-300 relative rounded-lg shadow-xs hover:shadow-md" :class="[themeClasses.appPropsTabButton, themeClasses.appPropsTabButtonBg, activeTab === 'actions' ? themeClasses.appPropsTabButtonActiveBorder : themeClasses.appPropsTabButtonBorder, themeClasses.appPropsTabButtonHover, { [themeClasses.appPropsTabButtonActive]: activeTab === 'actions' }]" @click="activeTab = 'actions'">
             <Icon :icon="cogIcon" width="15" height="15" />
             <span>{{ $t("Actions") }}</span>
           </button>
@@ -137,7 +137,7 @@
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Username") }}</span>
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.username }}</span>
-                      <button @click="copyCredential(defaultCredentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                      <button @click="copyCredential(defaultCredentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150 cursor-pointer" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                         <Icon :icon="copiedField === 'username' ? checkIcon : contentCopyIcon" width="14" height="14" />
                       </button>
                     </div>
@@ -146,7 +146,7 @@
                     <span class="text-xs font-medium flex-shrink-0" :class="[themeClasses.appPropsInfoLabel]">{{ $t("Password") }}</span>
                     <div class="flex items-center gap-2">
                       <span class="text-xs font-mono font-medium" :class="[themeClasses.appPropsInfoValue]">{{ defaultCredentials.password }}</span>
-                      <button @click="copyCredential(defaultCredentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                      <button @click="copyCredential(defaultCredentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150 cursor-pointer" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                         <Icon :icon="copiedField === 'password' ? checkIcon : contentCopyIcon" width="14" height="14" />
                       </button>
                     </div>
@@ -169,13 +169,13 @@
                       <span class="text-xs font-medium break-all" :class="[themeClasses.appPropsInfoValue]">{{ address.host }}</span>
                     </span>
                     <div class="flex items-center gap-1 flex-shrink-0 -ml-1.5 sm:ml-0">
-                      <button @click="copyCredential(address.host, `address-${address.host}`)" class="p-1.5 rounded-md transition-colors" :class="[copiedField === `address-${address.host}` ? themeClasses.installConfigDefaultCredsCopied : themeClasses.appPropsInfoLink, copiedField === `address-${address.host}` ? '' : 'opacity-50 hover:opacity-100']" :title="$t('Copy')">
+                      <button @click="copyCredential(address.host, `address-${address.host}`)" class="p-1.5 rounded-md transition-colors cursor-pointer" :class="[copiedField === `address-${address.host}` ? themeClasses.installConfigDefaultCredsCopied : themeClasses.appPropsInfoLink, copiedField === `address-${address.host}` ? '' : 'opacity-50 hover:opacity-100']" :title="$t('Copy')">
                         <Icon :icon="copiedField === `address-${address.host}` ? checkIcon : contentCopyIcon" width="14" height="14" />
                       </button>
-                      <button v-if="address.current && appWindowsSupported" @click="openAddressInWindow" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a window')">
+                      <button v-if="address.current && appWindowsSupported" @click="openAddressInWindow" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100 cursor-pointer" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a window')">
                         <Icon :icon="dockWindowIcon" width="14" height="14" />
                       </button>
-                      <button @click="openAddressInTab(address.trail)" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a new tab')">
+                      <button @click="openAddressInTab(address.trail)" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100 cursor-pointer" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a new tab')">
                         <Icon :icon="openIcon" width="14" height="14" />
                       </button>
                     </div>
@@ -191,10 +191,10 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-3">
                       <span class="text-xs font-medium break-all opacity-70" :class="[themeClasses.appPropsInfoValue]">{{ route.url }}</span>
                       <div class="flex items-center gap-1 flex-shrink-0 -ml-1.5 sm:ml-0">
-                        <button @click="copyCredential(route.url, `direct-${route.url}`)" class="p-1.5 rounded-md transition-colors" :class="[copiedField === `direct-${route.url}` ? themeClasses.installConfigDefaultCredsCopied : themeClasses.appPropsInfoLink, copiedField === `direct-${route.url}` ? '' : 'opacity-50 hover:opacity-100']" :title="$t('Copy')">
+                        <button @click="copyCredential(route.url, `direct-${route.url}`)" class="p-1.5 rounded-md transition-colors cursor-pointer" :class="[copiedField === `direct-${route.url}` ? themeClasses.installConfigDefaultCredsCopied : themeClasses.appPropsInfoLink, copiedField === `direct-${route.url}` ? '' : 'opacity-50 hover:opacity-100']" :title="$t('Copy')">
                           <Icon :icon="copiedField === `direct-${route.url}` ? checkIcon : contentCopyIcon" width="14" height="14" />
                         </button>
-                        <button @click="openDirectRoute(route.url)" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a new tab')">
+                        <button @click="openDirectRoute(route.url)" class="p-1.5 rounded-md transition-colors opacity-50 hover:opacity-100 cursor-pointer" :class="[themeClasses.appPropsInfoLink]" :title="$t('Open in a new tab')">
                           <Icon :icon="openIcon" width="14" height="14" />
                         </button>
                       </div>
@@ -376,7 +376,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Properties") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("View detailed information about your application including real-time CPU and RAM usage, network traffic (sent/received data), detected port network configuration with editable ports, and grouped applications relationships. The General tab displays resource metrics and configuration details, while the Actions tab provides quick controls to start, stop, restart, pause, or unpause your application.") }}</p>
           </div>
         </div>

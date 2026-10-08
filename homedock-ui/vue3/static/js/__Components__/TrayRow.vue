@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :role="interactive ? 'button' : undefined" :tabindex="interactive ? 0 : undefined" :class="[interactive ? [themeClasses.storeRowHover, 'cursor-pointer'] : '', highlighted ? 'bg-blue-500/10' : '']" class="tray-row flex items-center gap-2.5 w-full min-h-[40px] px-1.5 py-1.5 rounded-[10px] text-left outline-none transition-colors duration-150" @keydown.enter.self="interactive && ($event.currentTarget as HTMLElement).click()">
+  <div :role="interactive ? 'button' : undefined" :tabindex="interactive ? 0 : undefined" :class="[interactive ? [themeClasses.storeRowHover, 'cursor-pointer'] : '', highlighted ? 'bg-blue-500/10' : '']" class="tray-row flex items-center gap-2.5 w-full min-h-[40px] px-1.5 py-1.5 rounded-[10px] text-left outline-hidden transition-colors duration-150" @keydown.enter.self="interactive && ($event.currentTarget as HTMLElement).click()">
     <slot name="leading" />
     <div class="flex-1 min-w-0">
       <p :class="[themeClasses.storeModalAppName]" class="m-0 text-xs font-medium leading-snug truncate">

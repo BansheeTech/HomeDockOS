@@ -214,7 +214,7 @@ const groupTitleClass = computed(() => [themeClasses.value.storeCardSubtitle, "m
 const groupClass = computed(() => [themeClasses.value.storeInfoBar, "rounded-xl border overflow-hidden"]);
 const dividerClass = computed(() => [themeClasses.value.storeInfoBarDivider, "h-px ml-3"]);
 const labelClass = computed(() => [themeClasses.value.storeCardSubtitle, "w-28 flex-shrink-0 text-[13px]"]);
-const inputClass = computed(() => [themeClasses.value.storeModalAppName, "flex-1 min-w-0 h-8 bg-transparent text-[13px] outline-none placeholder:opacity-40"]);
+const inputClass = computed(() => [themeClasses.value.storeModalAppName, "flex-1 min-w-0 h-8 bg-transparent text-[13px] outline-hidden placeholder:opacity-40"]);
 
 const previewName = computed(() => newPackage.value.display_name || "My Awesome App");
 const previewType = computed(() => newPackage.value.type || "Application");

@@ -19,16 +19,16 @@
       </div>
 
       <div class="edit-actions flex items-center gap-2 flex-shrink-0">
-        <button @click="revertChanges" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action edit-action-square h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0 disabled:opacity-40 disabled:pointer-events-none" :title="$t('Revert')">
+        <button @click="revertChanges" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action edit-action-square h-7 w-7 rounded transition-colors flex items-center justify-center flex-shrink-0 disabled:opacity-40 disabled:pointer-events-none cursor-pointer disabled:cursor-default" :title="$t('Revert')">
           <Icon :icon="undoIcon" class="w-4 h-4" />
         </button>
 
-        <button @click="saveCompose" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action h-7 px-2.5 rounded transition-colors flex items-center justify-center gap-1.5 text-xs disabled:opacity-40 disabled:pointer-events-none" :title="$t('Save')">
+        <button @click="saveCompose" :disabled="!isDirty || isBusy" :class="[themeClasses.dropZoneSortButton]" class="edit-action h-7 px-2.5 rounded transition-colors flex items-center justify-center gap-1.5 text-xs disabled:opacity-40 disabled:pointer-events-none cursor-pointer disabled:cursor-default" :title="$t('Save')">
           <Icon :icon="isSaving ? loadingIcon : contentSaveIcon" :class="{ 'animate-spin': isSaving }" class="w-4 h-4 flex-shrink-0" />
           <span class="truncate">{{ $t("Save") }}</span>
         </button>
 
-        <button @click="handleRecreateConfirm" :disabled="state !== 'ready' || isBusy" :class="[isConfirmingRecreate ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700']" class="edit-action edit-action-primary h-7 px-3 rounded text-xs font-medium text-white border-0 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none" :title="$t(recreateLabel)">
+        <button @click="handleRecreateConfirm" :disabled="state !== 'ready' || isBusy" :class="[isConfirmingRecreate ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700']" class="edit-action edit-action-primary h-7 px-3 rounded text-xs font-medium text-white border-0 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none cursor-pointer disabled:cursor-default" :title="$t(recreateLabel)">
           <Icon :icon="isRecreating ? loadingIcon : arrowURightBottomBoldIcon" :class="{ 'animate-spin': isRecreating }" class="w-3.5 h-3.5 flex-shrink-0" />
           <span class="truncate">{{ $t(recreateLabel) }}</span>
         </button>
@@ -44,7 +44,7 @@
         <template v-else>
           <Icon :icon="state === 'error' ? alertIcon : fileHiddenIcon" :class="[themeClasses.fileExplorerSidebarSectionTitle]" class="w-8 h-8 opacity-50" />
           <p :class="[themeClasses.windowText]" class="m-0 text-sm opacity-80">{{ state === "error" ? $t("Failed to fetch application information.") : $t("No content found for this application.") }}</p>
-          <button @click="fetchComposeInfo" :class="[themeClasses.dropZoneSortButton]" class="mt-1 h-7 px-3 rounded transition-colors flex items-center gap-1.5 text-xs">
+          <button @click="fetchComposeInfo" :class="[themeClasses.dropZoneSortButton]" class="mt-1 h-7 px-3 rounded transition-colors flex items-center gap-1.5 text-xs cursor-pointer">
             <Icon :icon="refreshIcon" class="w-4 h-4" />
             <span>{{ $t("Refresh") }}</span>
           </button>
@@ -62,7 +62,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Edit Config") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Modify your application's configuration directly. You can save changes to update the configuration file, or use Save and Recreate to apply changes immediately by stopping and recreating the container with the new settings. All changes are validated before being applied to ensure proper YAML formatting.") }}</p>
           </div>
         </div>

@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div ref="root" class="neon-rush relative w-full h-full overflow-hidden select-none outline-none" tabindex="0" @keydown="onKeyDown" @keyup="onKeyUp" @blur="engine?.clearInput()" @pointerdown="focusGame">
+  <div ref="root" class="neon-rush relative w-full h-full overflow-hidden select-none outline-hidden" tabindex="0" @keydown="onKeyDown" @keyup="onKeyUp" @blur="engine?.clearInput()" @pointerdown="focusGame">
     <canvas ref="canvasRef" class="absolute inset-0 w-full h-full block" @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp" @pointercancel="onPointerUp" @pointerleave="onPointerUp" @contextmenu.prevent></canvas>
 
     <div v-if="tofuFlash" :key="tofuFlashKey" class="tofu-flash pointer-events-none"></div>
@@ -69,10 +69,10 @@
     </div>
 
     <div class="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-      <button v-if="state === 'playing'" class="hud-icon-button" :title="$t('Pause')" @pointerdown.stop @click="pause">
+      <button v-if="state === 'playing'" class="hud-icon-button cursor-pointer" :title="$t('Pause')" @pointerdown.stop @click="pause">
         <Icon :icon="pauseIcon" class="w-4 h-4" />
       </button>
-      <button class="hud-icon-button" :title="muted ? $t('Unmute') : $t('Mute')" @pointerdown.stop @click="toggleMute">
+      <button class="hud-icon-button cursor-pointer" :title="muted ? $t('Unmute') : $t('Mute')" @pointerdown.stop @click="toggleMute">
         <Icon :icon="muted ? volumeOffIcon : volumeHighIcon" class="w-4 h-4" />
       </button>
     </div>
@@ -81,10 +81,10 @@
       <div class="absolute bottom-4 left-4 touch-hint pointer-events-none"><Icon :icon="chevronLeftIcon" class="w-8 h-8" /></div>
       <div class="absolute bottom-4 right-4 touch-hint pointer-events-none"><Icon :icon="chevronRightIcon" class="w-8 h-8" /></div>
       <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
-        <button class="boost-button brake-button" :class="{ 'boost-button-active': brakeHeld }" @pointerdown.stop.prevent="setBrake(true)" @pointerup.stop="setBrake(false)" @pointercancel.stop="setBrake(false)" @pointerleave="setBrake(false)">
+        <button class="boost-button brake-button cursor-pointer" :class="{ 'boost-button-active': brakeHeld }" @pointerdown.stop.prevent="setBrake(true)" @pointerup.stop="setBrake(false)" @pointercancel.stop="setBrake(false)" @pointerleave="setBrake(false)">
           <Icon :icon="brakeIcon" class="w-7 h-7" />
         </button>
-        <button class="boost-button" :class="{ 'boost-button-active': boostHeld }" @pointerdown.stop.prevent="setBoost(true)" @pointerup.stop="setBoost(false)" @pointercancel.stop="setBoost(false)" @pointerleave="setBoost(false)">
+        <button class="boost-button cursor-pointer" :class="{ 'boost-button-active': boostHeld }" @pointerdown.stop.prevent="setBoost(true)" @pointerup.stop="setBoost(false)" @pointercancel.stop="setBoost(false)" @pointerleave="setBoost(false)">
           <Icon :icon="boltIcon" class="w-7 h-7" />
         </button>
       </div>
@@ -99,7 +99,7 @@
               <p class="menu-tagline">Ultra Tofu Dealer 86</p>
             </div>
             <p v-if="best > 0" class="menu-subtitle">{{ $t("Best") }} · {{ formatDistance(best) }}</p>
-            <button class="menu-button" @click="startGame">
+            <button class="menu-button cursor-pointer" @click="startGame">
               <Icon :icon="playIcon" class="w-5 h-5" />
               <span>{{ $t("Play") }}</span>
             </button>
@@ -136,7 +136,7 @@
 
           <template v-else-if="state === 'paused'">
             <h2 class="menu-title menu-title-small">{{ $t("Paused") }}</h2>
-            <button class="menu-button" @click="resume">
+            <button class="menu-button cursor-pointer" @click="resume">
               <Icon :icon="playIcon" class="w-5 h-5" />
               <span>{{ $t("Resume") }}</span>
             </button>
@@ -147,7 +147,7 @@
             <p class="menu-score">{{ formatDistance(lastDistance) }}</p>
             <p v-if="newRecord" class="menu-record">{{ $t("New record!") }}</p>
             <p v-else-if="best > 0" class="menu-subtitle">{{ $t("Best") }} · {{ formatDistance(best) }}</p>
-            <button class="menu-button" @click="startGame">
+            <button class="menu-button cursor-pointer" @click="startGame">
               <Icon :icon="replayIcon" class="w-5 h-5" />
               <span>{{ $t("Play again") }}</span>
             </button>

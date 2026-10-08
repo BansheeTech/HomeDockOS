@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="flex flex-col h-full min-h-0 overflow-x-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+  <div class="flex flex-col h-full min-h-0 overflow-x-auto">
     <div class="flex flex-col h-full min-h-0" :style="{ minWidth: minWidth }">
       <div :class="[themeClasses.fileExplorerToolbar]" class="grid items-stretch border-b flex-shrink-0" :style="{ gridTemplateColumns: gridTemplate }">
         <button v-for="column in columns" :key="column.key" @click="toggleSort(column.key)" :class="[themeClasses.tableTextUp, sortKey === column.key ? themeClasses.appPropsTabButtonActive : '']" class="flex items-center gap-1 h-9 px-2.5 border-0 bg-transparent cursor-pointer transition-colors duration-150" :style="{ justifyContent: column.align === 'right' ? 'flex-end' : 'flex-start' }">
@@ -14,7 +14,7 @@
         </button>
       </div>
 
-      <div class="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+      <div class="flex-1 min-h-0 overflow-y-auto">
         <div v-if="!sortedRows.length" class="flex flex-col items-center justify-center h-full gap-2 py-10">
           <Icon :icon="emptyIcon" :class="[themeClasses.explorerEmptyIcon]" class="w-10 h-10" />
           <p :class="[themeClasses.explorerEmptySubtext]" class="text-xs">{{ $t(emptyLabel) }}</p>

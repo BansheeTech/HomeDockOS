@@ -23,7 +23,7 @@
               <div class="transition-transform duration-200 group-hover:scale-105">
                 <AppIconGraphic :image-src="appIconPath" :size="96" />
               </div>
-              <div v-if="sslEnabled" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1 rounded-full -top-1 -right-1 shadow-sm border">
+              <div v-if="sslEnabled" :class="[themeClasses.storePopupSSLFlag]" class="absolute flex items-center justify-center p-1 rounded-full -top-1 -right-1 shadow-xs border">
                 <Icon :icon="lockIcon" class="h-2.5 w-2.5" />
               </div>
             </div>
@@ -40,16 +40,16 @@
 
               <div class="flex items-center gap-2.5">
                 <Transition name="button-fade" mode="out-in">
-                  <button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200">{{ $t("Installed") }}</button>
-                  <button v-else-if="installationStore.currentlyInstalling === app?.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+                  <button v-if="app?.is_installed" key="installed" :class="[themeClasses.storeCardInstalledPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer">{{ $t("Installed") }}</button>
+                  <button v-else-if="installationStore.currentlyInstalling === app?.name" key="installing" :class="[themeClasses.storeCardInstallingPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
                     <Icon :icon="loadingIcon" class="w-3 h-3 animate-spin" />
                     {{ $t("Installing") }}
                   </button>
-                  <button v-else-if="app?.name && installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5">
+                  <button v-else-if="app?.name && installationStore.queue.includes(app.name)" key="queued" :class="[themeClasses.storeCardQueuedPill]" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
                     <Icon :icon="queueIcon" class="w-3 h-3" />
                     {{ $t("Queued") }}
                   </button>
-                  <button v-else :disabled="installDisabled" :class="[themeClasses.storeCardGetPill]" key="install" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-40" @click="handleInstall">{{ $t("GET") }}</button>
+                  <button v-else :disabled="installDisabled" :class="[themeClasses.storeCardGetPill]" key="install" class="install-pill px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-40 cursor-pointer disabled:cursor-default" @click="handleInstall">{{ $t("GET") }}</button>
                 </Transition>
 
                 <a :href="app?.is_external ? 'https://www.homedock.cloud' : `https://www.homedock.cloud/apps/${app?.name.toLowerCase()}`" target="_blank" :class="[themeClasses.storeCardSubtitle]" class="p-2 rounded-full transition-all duration-200 hover:opacity-70">
@@ -181,20 +181,20 @@
                 <div class="flex items-center gap-1.5">
                   <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">{{ $t("User") }}</span>
                   <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.username }}</span>
-                  <button @click="copyCredential(app.default_credentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                  <button @click="copyCredential(app.default_credentials.username, 'username')" class="p-0.5 rounded transition-colors duration-150 cursor-pointer" :class="[copiedField === 'username' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                     <Icon :icon="copiedField === 'username' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
                   </button>
                 </div>
                 <div class="flex items-center gap-1.5">
                   <span :class="[themeClasses.installConfigDefaultCredsLabel]" class="text-[10px] font-medium uppercase tracking-wide">{{ $t("Pass") }}</span>
                   <span :class="[themeClasses.installConfigDefaultCredsValue]" class="text-xs font-mono font-medium">{{ app.default_credentials.password }}</span>
-                  <button @click="copyCredential(app.default_credentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                  <button @click="copyCredential(app.default_credentials.password, 'password')" class="p-0.5 rounded transition-colors duration-150 cursor-pointer" :class="[copiedField === 'password' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                     <Icon :icon="copiedField === 'password' ? checkIcon : contentCopyIcon" class="h-3 w-3" />
                   </button>
                 </div>
               </div>
             </div>
-            <div class="overflow-hidden transition-all duration-400 ease-out" :class="defaultCredsHintVisible ? 'max-h-12 opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'">
+            <div class="overflow-hidden transition-all ease-out" :class="defaultCredsHintVisible ? 'max-h-12 opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'">
               <p :class="[themeClasses.installConfigDefaultCredsHint]" class="flex items-start gap-1.5 text-[10px] ml-1">
                 <span class="relative flex h-2 w-2 flex-shrink-0 mt-[3px]">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -234,12 +234,12 @@
                   <Icon :icon="accountKeyIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
                   <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Credentials") }}</h3>
                 </div>
-                <div class="space-y-3">
+                <div class="flex flex-col gap-3">
                   <Input v-if="userName !== undefined" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="userName" :placeholder="$t('Username')" class="w-full" />
                   <Transition name="input-swap" mode="out-in">
                     <Input v-if="userPassword !== undefined && autoGenDisplayMode" key="preview" :value="maskedPasswordPreview" :class="[themeClasses.scopeSelector, themeClasses.loginFormInput, 'autogen-preview']" :disabled="app?.is_installed" :placeholder="$t('Password')" class="w-full" readonly @click="exitAutoGenMode">
                       <template #suffix>
-                        <button @click.stop="copyCredential(originalAutoGenPassword, 'autogen')" class="p-0.5 rounded transition-colors duration-150" :class="[copiedField === 'autogen' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
+                        <button @click.stop="copyCredential(originalAutoGenPassword, 'autogen')" class="p-0.5 rounded transition-colors duration-150 cursor-pointer" :class="[copiedField === 'autogen' ? themeClasses.installConfigDefaultCredsCopied : themeClasses.installConfigDefaultCredsCopy]">
                           <Icon :icon="copiedField === 'autogen' ? checkIcon : contentCopyIcon" class="h-3.5 w-3.5" />
                         </button>
                       </template>
@@ -266,10 +266,10 @@
                     <Icon :icon="portIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
                     <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Ports") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addPort">{{ $t("+ Add") }}</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-default" @click="addPort">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="portMappings.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px]">
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Host") }}</span>
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Container") }}</span>
                     <span class="w-7"></span>
@@ -277,7 +277,7 @@
                   <div v-for="(port, index) in portMappings" :key="'port-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].host" placeholder="8080" />
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="portMappings[index].container" placeholder="80" />
-                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removePort(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30 cursor-pointer disabled:cursor-default" @click="removePort(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </button>
                   </div>
@@ -300,10 +300,10 @@
                     <Icon :icon="folderIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
                     <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Volumes") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addVolume">{{ $t("+ Add") }}</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-default" @click="addVolume">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="volumeMappings.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px]">
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Host Path") }}</span>
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Container Path") }}</span>
                     <span class="w-7"></span>
@@ -315,7 +315,7 @@
                       </template>
                     </Input>
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="volumeMappings[index].container" placeholder="/container/path" />
-                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removeVolume(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30 cursor-pointer disabled:cursor-default" @click="removeVolume(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </button>
                   </div>
@@ -356,10 +356,10 @@
                     <Icon :icon="envIcon" class="h-4 w-4" :class="[themeClasses.installConfigSectionTitle]" />
                     <h3 :class="[themeClasses.installConfigSectionTitle]" class="text-sm font-semibold">{{ $t("Environment") }}</h3>
                   </div>
-                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors" @click="addEnvVar">{{ $t("+ Add") }}</button>
+                  <button :disabled="app?.is_installed" :class="[themeClasses.installConfigSectionAddBtn]" class="text-xs font-medium disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-default" @click="addEnvVar">{{ $t("+ Add") }}</button>
                 </div>
                 <div v-if="envVars.length > 0" class="space-y-2">
-                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px] mb-1">
+                  <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[10px]">
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">Key</span>
                     <span :class="[themeClasses.installConfigLabel]" class="font-medium uppercase tracking-wide">{{ $t("Value") }}</span>
                     <span class="w-7"></span>
@@ -368,7 +368,7 @@
                   <div v-for="(envVar, index) in envVars" :key="'env-' + index" class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].key" :placeholder="$t('VARIABLE_NAME')" />
                     <Input :class="[themeClasses.scopeSelector, themeClasses.loginFormInput]" :disabled="app?.is_installed" v-model:value="envVars[index].value" :placeholder="$t('value')" />
-                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30" @click="removeEnvVar(index)">
+                    <button :class="[themeClasses.storeCardSubtitle]" :disabled="app?.is_installed" class="p-1.5 rounded-lg transition-all duration-150 hover:opacity-70 disabled:opacity-30 cursor-pointer disabled:cursor-default" @click="removeEnvVar(index)">
                       <Icon :icon="deleteIcon" class="h-4 w-4" />
                     </button>
                   </div>
@@ -473,7 +473,7 @@
               <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Install App") }}</h4>
             </div>
 
-            <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+            <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
               <p>{{ $t("Configure your application before installation using simple mode with form fields or advanced mode with direct compose editing. Set ports, volumes, credentials, and restart policies to customize how your application runs. Toggle between modes using the switch to choose your preferred configuration method.") }}</p>
             </div>
           </div>

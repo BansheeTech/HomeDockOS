@@ -16,7 +16,7 @@
           <button @click="startRescan" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, { 'cursor-not-allowed opacity-50': !canRescan }]" :disabled="!canRescan" :title="canRescan ? $t('Rescan ports') : isDisabled ? $t('Already rescanning...') : $t('Container must be running to rescan')">
             <Icon :icon="isRescanning ? loadingIcon : rescanIcon" width="14" height="14" :class="{ 'animate-spin': isRescanning }" />
           </button>
-          <button @click="startEditing" class="edit-button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :title="$t('Edit ports')">
+          <button @click="startEditing" class="edit-button cursor-pointer" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" :title="$t('Edit ports')">
             <Icon :icon="editIcon" width="14" height="14" />
           </button>
         </div>

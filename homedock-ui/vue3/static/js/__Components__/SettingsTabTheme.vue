@@ -11,7 +11,7 @@
       </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
-          <button v-for="theme in THEME_OPTIONS" :key="theme.value" @click="themeValue = theme.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, themeValue === theme.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(theme.label)">
+          <button v-for="theme in THEME_OPTIONS" :key="theme.value" @click="themeValue = theme.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-hidden', themeClasses.languageOptionSelector, themeValue === theme.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(theme.label)">
             <Icon :icon="theme.icon" class="text-xl leading-none shrink-0" aria-hidden="true" />
             <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(theme.label) }}</span>
             <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="themeValue === theme.value ? 'opacity-85' : 'opacity-0'" />
@@ -29,7 +29,7 @@
         </template>
         <div class="wallpaper-grid-wrapper">
           <div class="wallpaper-grid">
-            <button v-for="option in wallpaperOptions" :key="option.value" @click="wallValue = option.value" :class="['wallpaper-option', { 'wallpaper-selected': wallValue === option.value }, themeClasses.scopeSelector]" type="button">
+            <button v-for="option in wallpaperOptions" :key="option.value" @click="wallValue = option.value" :class="['wallpaper-option cursor-pointer', { 'wallpaper-selected': wallValue === option.value }, themeClasses.scopeSelector]" type="button">
               <img :src="option.payload.src" :alt="option.payload.alt" draggable="false" class="wallpaper-thumbnail" />
             </button>
           </div>
@@ -73,7 +73,7 @@
       </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
-          <button v-for="option in APPEARANCE_OPTIONS" :key="option.value" @click="appearanceValue = option.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, appearanceValue === option.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(option.label)">
+          <button v-for="option in APPEARANCE_OPTIONS" :key="option.value" @click="appearanceValue = option.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-hidden', themeClasses.languageOptionSelector, appearanceValue === option.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(option.label)">
             <Icon :icon="option.icon" class="text-xl leading-none shrink-0" aria-hidden="true" />
             <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(option.label) }}</span>
             <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="appearanceValue === option.value ? 'opacity-85' : 'opacity-0'" />
@@ -90,7 +90,7 @@
       </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
-          <button v-for="opt in CLOCK_FORMAT_OPTIONS" :key="opt.value" @click="clockFormatValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, clockFormatValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+          <button v-for="opt in CLOCK_FORMAT_OPTIONS" :key="opt.value" @click="clockFormatValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-hidden', themeClasses.languageOptionSelector, clockFormatValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
             <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
             <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="clockFormatValue === opt.value ? 'opacity-85' : 'opacity-0'" />
           </button>
@@ -104,7 +104,7 @@
       </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:gap-3">
-          <button v-for="opt in WEEK_START_OPTIONS" :key="opt.value" @click="weekStartValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, weekStartValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
+          <button v-for="opt in WEEK_START_OPTIONS" :key="opt.value" @click="weekStartValue = opt.value" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-hidden', themeClasses.languageOptionSelector, weekStartValue === opt.value ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="$t(opt.label)">
             <span class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ $t(opt.label) }}</span>
             <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="weekStartValue === opt.value ? 'opacity-85' : 'opacity-0'" />
           </button>
@@ -120,7 +120,7 @@
       </template>
       <div class="w-full">
         <div class="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 w-full sm:grid-cols-[repeat(auto-fit,minmax(125px,1fr))] sm:gap-2.5 [@media(min-width:900px)]:grid-cols-[repeat(auto-fit,minmax(135px,1fr))] [@media(min-width:900px)]:gap-3">
-          <button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.code" @click="onSelectLanguage(lang.code)" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-none', themeClasses.languageOptionSelector, languageValue === lang.code ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="lang.name">
+          <button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.code" @click="onSelectLanguage(lang.code)" :class="['relative flex items-center gap-2 py-[0.55rem] px-[0.7rem] border-2 rounded-lg cursor-pointer transition-colors duration-150 text-left overflow-hidden focus-visible:outline-hidden', themeClasses.languageOptionSelector, languageValue === lang.code ? themeClasses.languageOptionSelectedSelector : '', themeClasses.scopeSelector]" type="button" :title="lang.name">
             <span class="text-xl leading-none shrink-0" aria-hidden="true">{{ lang.flag }}</span>
             <span :lang="lang.code" class="text-[0.8rem] font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">{{ lang.nativeName }}</span>
             <Icon :icon="checkIcon" class="text-[0.95rem] shrink-0 transition-opacity duration-150" :class="languageValue === lang.code ? 'opacity-85' : 'opacity-0'" />

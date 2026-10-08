@@ -1,6 +1,5 @@
 // postcss.config.js
 
 export const plugins = {
-  tailwindcss: {},
-  autoprefixer: {},
+  "@tailwindcss/postcss": { optimize: false },
 };

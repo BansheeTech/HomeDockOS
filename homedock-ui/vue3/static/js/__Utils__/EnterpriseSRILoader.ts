@@ -17,6 +17,7 @@ import * as PrismCore from "@prism-wm/core";
 import * as PrismVue from "@prism-wm/vue";
 import * as WindowStore from "../__Stores__/windowStore";
 import * as WindowDefaults from "../__Config__/WindowDefaultDetails";
+import { i18n, t } from "../__Languages__";
 
 import { ref, reactive, computed, watch, onMounted, onUnmounted, h, defineComponent, createApp, type Component } from "vue";
 import { getThemeClasses } from "../__Themes__/ThemeSelector";
@@ -133,7 +134,7 @@ if (typeof window !== "undefined") {
   (window as any).__HOMEDOCK_REGISTER_MODULE__ = registerModule;
   (window as any).Vue = Vue;
   (window as any).PrismWM = { core: PrismCore, vue: PrismVue };
-  (window as any).HomeDockHost = { windowStore: WindowStore, windowDefaults: WindowDefaults };
+  (window as any).HomeDockHost = { windowStore: WindowStore, windowDefaults: WindowDefaults, i18n: { locale: i18n.global.locale, t } };
 }
 
 function hexToBase64(hexString: string): string {

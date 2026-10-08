@@ -12,7 +12,7 @@
       </div>
       <div v-if="externalApps.length > 0" :class="large ? 'w-full' : 'w-44'" class="relative flex items-center">
         <Icon :icon="searchIcon" :class="[themeClasses.explorerSearchIcon]" class="absolute left-2 w-3.5 h-3.5 pointer-events-none" />
-        <input v-model="packageSearch" type="text" :placeholder="$t('Search packages')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-6 pl-7 pr-6 rounded-md border text-xs outline-none transition-all duration-150" @keydown.esc="packageSearch = ''" />
+        <input v-model="packageSearch" type="text" :placeholder="$t('Search packages')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-6 pl-7 pr-6 rounded-md border text-xs outline-hidden transition-all duration-150" @keydown.esc="packageSearch = ''" />
         <button v-if="packageSearch" type="button" :aria-label="$t('Clear')" :class="[themeClasses.explorerClearButton, themeClasses.explorerClearButtonHover]" class="absolute right-1 flex items-center justify-center w-5 h-5 rounded cursor-pointer" @click="packageSearch = ''">
           <Icon :icon="closeIcon" class="w-3 h-3" />
         </button>

@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <span class="inline-flex items-center font-semibold uppercase tracking-wide whitespace-nowrap text-white select-none bg-gradient-to-r from-violet-600 via-blue-600 to-cyan-600" :class="[sizeClasses, glow ? 'shadow-lg shadow-violet-500/40' : '']">
+  <span class="inline-flex items-center font-semibold uppercase tracking-wide whitespace-nowrap text-white select-none bg-linear-to-r/srgb from-violet-600 via-blue-600 to-cyan-600" :class="[sizeClasses, glow ? 'shadow-lg shadow-violet-500/40' : '']">
     <svg class="flex-shrink-0 h-3 w-3 min-h-3 min-w-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="currentColor" fill-opacity="0" d="M12 3l2.35 5.76l6.21 0.46l-4.76 4.02l1.49 6.04l-5.29 -3.28l-5.29 3.28l1.49 -6.04l-4.76 -4.02l6.21 -0.46Z">
         <animate fill="freeze" attributeName="fill-opacity" begin="0.5s" dur="0.5s" values="0;1" />

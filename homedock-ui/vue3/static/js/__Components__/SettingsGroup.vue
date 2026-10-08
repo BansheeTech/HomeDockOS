@@ -9,7 +9,7 @@
       <h3 :class="[themeClasses.settingsGroupHeader, 'text-xs uppercase font-semibold tracking-wide']">{{ header }}</h3>
     </div>
 
-    <div :class="[themeClasses.settingsGroupBg, themeClasses.settingsGroupBorder, themeClasses.settingsGroupShadow, 'rounded-xl border overflow-hidden shadow-sm']">
+    <div :class="[themeClasses.settingsGroupBg, themeClasses.settingsGroupBorder, themeClasses.settingsGroupShadow, 'rounded-xl border overflow-hidden shadow-xs']">
       <slot></slot>
     </div>
 

@@ -9,7 +9,7 @@
       <div v-for="(banner, index) in banners" :key="banner.container" role="button" tabindex="0" class="banner-card relative overflow-hidden rounded-xl cursor-pointer" @click="openBanner(banner)" @keydown.enter="openBanner(banner)">
         <img class="banner-bg absolute inset-0 w-full h-full object-cover" :style="{ animationDelay: `${-index * 7}s` }" draggable="false" :src="banner.src" alt="" />
         <div class="banner-front absolute inset-0">
-          <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent"></div>
+          <div class="absolute inset-0 bg-linear-to-r/srgb from-black/60 via-black/25 to-transparent"></div>
           <div :class="[appearance === 'cupertino' ? 'desk-cupertino' : 'desk-redmond']" class="banner-desk absolute">
             <div :class="[themeClasses.screenshotThumb, themeClasses.screenshotImageBg]" class="desk-window relative w-full h-full flex flex-col overflow-hidden border shadow-xl">
               <div v-if="appearance === 'cupertino'" :class="[themeClasses.screenshotWindowBar]" class="desk-bar relative flex-shrink-0 flex items-center border-b">

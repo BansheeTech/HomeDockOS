@@ -8,12 +8,12 @@
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1.5">
         <span class="section-label" :class="[themeClasses.contextMenuText]">{{ $t("Name") }}</span>
-        <input v-model="name" :placeholder="$t('Shortcut name')" maxlength="32" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleOk" />
+        <input v-model="name" :placeholder="$t('Shortcut name')" maxlength="32" class="w-full px-3 py-2 rounded-lg text-sm border outline-hidden transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleOk" />
       </div>
 
       <div class="flex flex-col gap-1.5">
         <span class="section-label" :class="[themeClasses.contextMenuText]">{{ $t("URL") }}</span>
-        <input v-model="url" placeholder="https://example.com" maxlength="2048" spellcheck="false" autocapitalize="off" autocomplete="off" class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleOk" />
+        <input v-model="url" placeholder="https://example.com" maxlength="2048" spellcheck="false" autocapitalize="off" autocomplete="off" class="w-full px-3 py-2 rounded-lg text-sm border outline-hidden transition-colors" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, themeClasses.windowBorderFocused]" @keyup.enter="handleOk" />
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -24,7 +24,7 @@
           </div>
         </div>
 
-        <button type="button" class="upload-icon-button w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm border outline-none transition-colors cursor-pointer" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, { 'upload-selected': iconType === 'image', 'drop-active': isDropActive }]" @click="fileInputRef?.click()" @dragover.prevent="isDropActive = true" @dragleave.prevent="isDropActive = false" @drop.prevent="handleDrop">
+        <button type="button" class="upload-icon-button w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm border outline-hidden transition-colors cursor-pointer" :class="[themeClasses.windowInputBg, themeClasses.windowBorder, themeClasses.windowText, { 'upload-selected': iconType === 'image', 'drop-active': isDropActive }]" @click="fileInputRef?.click()" @dragover.prevent="isDropActive = true" @dragleave.prevent="isDropActive = false" @drop.prevent="handleDrop">
           <div v-if="isUploading" class="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin opacity-70"></div>
           <img v-else-if="iconType === 'image' && iconValue" :src="getShortcutIconUrl(iconValue)" class="w-5 h-5 object-contain rounded pointer-events-none" alt="" />
           <Icon v-else :icon="uploadIcon" class="w-4 h-4 opacity-80" />

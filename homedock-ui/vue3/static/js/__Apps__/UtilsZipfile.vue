@@ -8,7 +8,7 @@
     <div v-if="listing || loading" class="zipfile-toolbar flex items-center gap-2 px-3 h-12 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
       <div class="relative flex items-center flex-1 min-w-0 max-w-[260px]">
         <Icon :icon="searchIcon" :class="[themeClasses.explorerSearchIcon]" class="absolute left-2 w-3.5 h-3.5 pointer-events-none" />
-        <input v-model="query" type="text" :disabled="!listing" :placeholder="$t('Search in archive')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-none transition-all duration-150 disabled:opacity-50" @keydown.esc="onSearchEscape" />
+        <input v-model="query" type="text" :disabled="!listing" :placeholder="$t('Search in archive')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-hidden transition-all duration-150 disabled:opacity-50" @keydown.esc="onSearchEscape" />
         <button v-if="query" type="button" :aria-label="$t('Clear')" :class="[themeClasses.explorerClearButton, themeClasses.explorerClearButtonHover]" class="absolute right-1 flex items-center justify-center w-5 h-5 rounded border-0 bg-transparent cursor-pointer" @click="query = ''">
           <Icon :icon="closeIcon" class="w-3 h-3" />
         </button>
@@ -58,7 +58,7 @@
           </div>
         </div>
         <div class="zipfile-password-fields flex items-center gap-2 ml-auto">
-          <input ref="passwordInputRef" v-model="passwordDraft" type="password" :maxlength="MAX_UNLOCK_PASSWORD_LENGTH" autocomplete="off" :placeholder="$t('Password')" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing, shakePassword && 'zipfile-shake']" class="zipfile-password-input w-44 h-7 px-2.5 rounded-md border text-xs outline-none transition-all duration-150" @animationend="shakePassword = false" />
+          <input ref="passwordInputRef" v-model="passwordDraft" type="password" :maxlength="MAX_UNLOCK_PASSWORD_LENGTH" autocomplete="off" :placeholder="$t('Password')" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing, shakePassword && 'zipfile-shake']" class="zipfile-password-input w-44 h-7 px-2.5 rounded-md border text-xs outline-hidden transition-all duration-150" @animationend="shakePassword = false" />
           <button type="submit" :disabled="!passwordDraft || unlocking" :class="[themeClasses.storeCardGetPill]" class="flex items-center justify-center gap-1.5 h-7 px-3.5 rounded-full border-0 text-xs font-semibold cursor-pointer flex-shrink-0 transition-colors duration-150 disabled:cursor-default disabled:opacity-50">
             <Icon v-if="unlocking" :icon="loadingIcon" class="w-3.5 h-3.5 animate-spin" />
             <span>{{ $t("Unlock") }}</span>
@@ -131,7 +131,7 @@
           </button>
         </div>
 
-        <div ref="scrollRef" tabindex="0" class="zipfile-scroll flex-1 min-h-0 overflow-y-auto outline-none" @keydown="onListKeydown" @click.self="clearSelection" @contextmenu.prevent.self="openBlankMenu">
+        <div ref="scrollRef" tabindex="0" class="zipfile-scroll flex-1 min-h-0 overflow-y-auto outline-hidden" @keydown="onListKeydown" @click.self="clearSelection" @contextmenu.prevent.self="openBlankMenu">
           <div v-if="rows.length" :style="{ height: `${virtualizer.getTotalSize()}px` }" class="relative w-full" @click.self="clearSelection" @contextmenu.prevent.self="openBlankMenu">
             <div v-for="virtualRow in virtualizer.getVirtualItems()" :key="rows[virtualRow.index].entry.path" :class="[selection.has(rows[virtualRow.index].entry.path) ? themeClasses.desktopIconBgSelected : themeClasses.storeRowHover, rows[virtualRow.index].entry.skip && 'opacity-50']" class="zipfile-row absolute left-1.5 right-1.5 flex items-center pl-1.5 pr-1.5 rounded-md cursor-default" :style="{ top: 0, height: `${ROW_HEIGHT}px`, transform: `translateY(${virtualRow.start}px)` }" @click="onRowClick(rows[virtualRow.index], $event)" @dblclick="onRowDoubleClick(rows[virtualRow.index])" @touchstart.passive="onRowTouchStart" @touchmove.passive="onRowTouchMove" @touchend="onRowTouchEnd(rows[virtualRow.index], $event)" @contextmenu.prevent.stop="openRowMenu(rows[virtualRow.index], $event)">
               <div class="zipfile-col-name flex items-center gap-1.5 flex-1 min-w-0 h-full" :style="{ paddingLeft: `${rows[virtualRow.index].depth * INDENT}px` }">
@@ -187,7 +187,7 @@
             <StatusBarHelpIcon :icon="zipIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Zipfile") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Zipfile opens ZIP and TAR archives so you can look inside, open single files and extract them next to the archive.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">

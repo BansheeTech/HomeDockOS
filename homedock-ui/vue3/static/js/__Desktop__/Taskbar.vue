@@ -13,7 +13,7 @@
 
       <div class="w-px h-[60%]" :class="themeClasses.taskbarDivider"></div>
 
-      <div ref="taskbarApps" class="flex-shrink min-w-0 md:flex-1 overflow-x-auto overflow-y-hidden scrollbar-none scroll-smooth [-webkit-overflow-scrolling:touch] cursor-default">
+      <div ref="taskbarApps" class="flex-shrink min-w-0 md:flex-1 overflow-x-auto overflow-y-hidden scroll-smooth [-webkit-overflow-scrolling:touch] cursor-default">
         <TransitionGroup name="taskbar-item" tag="div" class="flex items-center gap-1">
           <button v-for="window in openWindows" :key="window.id" class="relative flex items-center gap-[0.3rem] px-3 py-2 rounded-lg bg-transparent border-0 cursor-pointer transition-all duration-150 text-sm whitespace-nowrap flex-shrink-0 select-none" :class="[themeClasses.taskbarIconText, themeClasses.taskbarIconBgHover, window.id === activeWindowId && !window.isMinimized && themeClasses.taskbarAppActive, window.isMinimized && themeClasses.taskbarAppMinimized]" @click.stop="handleWindowClick(window.id)" @contextmenu="handleWindowContextMenu($event, window)" @touchstart="handleWindowTouchStart($event, window)" @touchmove="handleWindowTouchMove" @touchend="handleWindowTouchEnd($event, window)" :title="window.title">
             <WindowIcon :window="window" :size="20" :fallback="defaultAppIcon" />

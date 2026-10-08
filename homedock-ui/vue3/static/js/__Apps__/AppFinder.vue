@@ -8,7 +8,7 @@
     <div class="shrink-0 border-b px-4 pb-3 pt-4" :class="themeClasses.explorerHeaderBorder">
       <div class="relative flex items-center">
         <Icon :icon="searchIcon" :class="themeClasses.explorerSearchIcon" class="pointer-events-none absolute left-4 h-5 w-5" />
-        <input ref="searchInputRef" v-model="searchQuery" type="text" :placeholder="$t('Search apps, files, and more...')" class="flex-1 rounded-lg border py-3 pl-12 pr-11 text-sm outline-none transition-all duration-200" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" />
+        <input ref="searchInputRef" v-model="searchQuery" type="text" :placeholder="$t('Search apps, files, and more...')" class="flex-1 rounded-lg border py-3 pl-12 pr-11 text-sm outline-hidden transition-all duration-200" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" />
         <button v-if="searchQuery" type="button" class="absolute right-2 cursor-pointer rounded border-none bg-transparent p-2 transition-all duration-150" :class="[themeClasses.explorerClearButton, themeClasses.explorerClearButtonHover]" @click="clearSearch">
           <Icon :icon="closeIcon" class="h-4 w-4" />
         </button>
@@ -108,7 +108,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Finder") }}</h4>
           </div>
 
-          <div :class="['space-y-2 text-[10px] leading-relaxed md:text-xs', themeClasses.statusBarInfo]">
+          <div :class="['space-y-2 text-[10px] leading-relaxed md:text-xs md:leading-4', themeClasses.statusBarInfo]">
             <p>{{ $t("Search across all available content in HomeDock OS including system applications, installed applications, available software from the App Store, and encrypted files stored in Drop Zone. Use filters to narrow results by category or search by name to quickly find what you need.") }}</p>
           </div>
         </div>

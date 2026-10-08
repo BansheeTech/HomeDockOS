@@ -7,7 +7,7 @@
   <div class="utils-notepad flex flex-col h-full overflow-hidden">
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="handleNewTab">
@@ -58,7 +58,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Edit") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("Edit") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="find" @click="toggleFindReplace">
@@ -81,7 +81,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("View") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("View") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="zoomin" @click="zoomIn">
@@ -146,24 +146,24 @@
         <div v-for="tab in tabs" :key="tab.id" @click="activeTabId = tab.id" @auxclick.middle.prevent="tabs.length > 1 && closeTab(tab.id)" :class="['group flex items-center gap-1 px-2 py-1.5 text-xs cursor-pointer border-r transition-colors min-w-0 max-w-[160px] overflow-hidden', themeClasses.utilityToolbarBorder, activeTabId === tab.id ? 'bg-blue-500/20 border-blue-500/30' : 'hover:bg-white/5 border-transparent']" :title="getTabTooltip(tab)">
           <Icon :icon="getStorageIcon(tab)" :class="['w-3 h-3 flex-shrink-0', getStorageIconColor(tab)]" :title="getStorageLabel(tab)" />
           <span :class="[themeClasses.windowText]" class="truncate flex-1 min-w-0">{{ $t(tab.title) }}{{ tab.isModified ? " *" : "" }}</span>
-          <button v-if="tabs.length > 1" @click.stop="closeTab(tab.id)" :class="[themeClasses.windowButtonBgHover]" class="p-0.5 rounded opacity-0 group-hover:opacity-60 hover:!opacity-100 flex-shrink-0 transition-opacity">
+          <button v-if="tabs.length > 1" @click.stop="closeTab(tab.id)" :class="[themeClasses.windowButtonBgHover]" class="p-0.5 rounded opacity-0 group-hover:opacity-60 hover:!opacity-100 flex-shrink-0 transition-opacity cursor-pointer">
             <Icon :icon="closeIcon" :class="['w-2.5 h-2.5', themeClasses.windowText]" />
           </button>
         </div>
       </div>
-      <button @click="handleNewTab" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 mx-1 rounded transition-colors flex-shrink-0" title="New Tab (Ctrl+N)">
+      <button @click="handleNewTab" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 mx-1 rounded transition-colors flex-shrink-0 cursor-pointer" title="New Tab (Ctrl+N)">
         <Icon :icon="plusIcon" :class="['w-4 h-4 opacity-60', themeClasses.windowText]" />
       </button>
     </div>
 
     <Transition name="slide-down">
       <div v-if="showFindReplace" class="flex items-center gap-2 px-3 py-2 border-b" :class="themeClasses.utilityToolbarBorder">
-        <input v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" @keyup.enter="findNext" />
-        <input v-model="replaceText" type="text" :placeholder="$t('Replace...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-none" />
-        <button @click="findNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Find") }}</button>
-        <button @click="replaceNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace") }}</button>
-        <button @click="replaceAllInTab" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30">{{ $t("Replace All") }}</button>
-        <button @click="showFindReplace = false" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded">
+        <input v-model="findText" type="text" :placeholder="$t('Find...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-hidden" @keyup.enter="findNext" />
+        <input v-model="replaceText" type="text" :placeholder="$t('Replace...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="flex-1 px-2 py-1 text-xs rounded border outline-hidden" />
+        <button @click="findNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30 cursor-pointer">{{ $t("Find") }}</button>
+        <button @click="replaceNext" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30 cursor-pointer">{{ $t("Replace") }}</button>
+        <button @click="replaceAllInTab" :class="[themeClasses.windowText]" class="px-2 py-1 text-xs rounded bg-blue-500/20 hover:bg-blue-500/30 cursor-pointer">{{ $t("Replace All") }}</button>
+        <button @click="showFindReplace = false" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1 rounded cursor-pointer">
           <Icon :icon="closeIcon" class="w-4 h-4" />
         </button>
       </div>
@@ -205,7 +205,7 @@
             <StatusBarHelpIcon :icon="textFileIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Notepad") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("A text editor with Markdown preview.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">
@@ -273,7 +273,7 @@
 
     <AppDialog v-model:visible="showSaveAsDialog" title="Save Note As" ok-text="Save" cancel-text="Cancel" @ok="handleSaveAs" @cancel="showSaveAsDialog = false">
       <div class="space-y-2">
-        <input v-model="saveAsTitle" type="text" :placeholder="$t('Note title...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" @keyup.enter="handleSaveAs" />
+        <input v-model="saveAsTitle" type="text" :placeholder="$t('Note title...')" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" @keyup.enter="handleSaveAs" />
         <div class="flex items-center gap-1.5">
           <Icon :icon="folderIcon" :class="['w-3 h-3', themeClasses.windowText, 'opacity-40']" />
           <span :class="['text-[11px]', themeClasses.windowText, 'opacity-40']">{{ $t("Saving in Storage/Notes") }}</span>

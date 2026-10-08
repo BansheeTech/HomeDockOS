@@ -8,7 +8,7 @@
     <div class="px-2.5 pt-2.5 pb-2">
       <div class="relative flex items-center">
         <Icon :icon="searchIcon" :class="[themeClasses.explorerSearchIcon]" class="absolute left-2 w-3.5 h-3.5 pointer-events-none" />
-        <input :value="query" type="text" :placeholder="$t('Search apps...')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-none transition-all duration-150" @input="emit('update:query', ($event.target as HTMLInputElement).value)" @keydown.esc="emit('update:query', '')" />
+        <input :value="query" type="text" :placeholder="$t('Search apps...')" autocomplete="off" spellcheck="false" :class="[themeClasses.explorerSearchInput, themeClasses.explorerSearchInputText, themeClasses.explorerSearchInputFocusRing]" class="w-full h-7 pl-7 pr-6 rounded-md border text-xs outline-hidden transition-all duration-150" @input="emit('update:query', ($event.target as HTMLInputElement).value)" @keydown.esc="emit('update:query', '')" />
         <button v-if="query" type="button" :aria-label="$t('Clear')" :class="[themeClasses.explorerClearButton, themeClasses.explorerClearButtonHover]" class="absolute right-1 flex items-center justify-center w-5 h-5 rounded border-0 bg-transparent cursor-pointer" @click="emit('update:query', '')">
           <Icon :icon="closeIcon" class="w-3 h-3" />
         </button>

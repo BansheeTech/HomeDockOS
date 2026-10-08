@@ -13,7 +13,7 @@
           {{ title }}
           <slot name="badge"></slot>
         </div>
-        <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs leading-2']">
+        <div v-if="description" :class="[themeClasses.settingsItemDescription, 'text-xs']">
           {{ description }}
         </div>
         <div v-if="$slots['after-description']" class="flex flex-wrap items-center gap-x-2 gap-y-[10px] mt-0.5">

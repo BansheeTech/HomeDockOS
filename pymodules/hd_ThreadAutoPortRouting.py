@@ -184,8 +184,8 @@ def update_container_ports_config():
 
                     last_config_dict[container.name] = None
 
-        except docker.errors.NotFound as e:
-            print(f"Error: {e}")
+        except (docker.errors.DockerException, requests.exceptions.RequestException) as e:
+            print(f" + THREAD: Docker did not respond while routing ports, retrying in 10s: {e}")
 
         config_lines = [f"{container_name}*{ports}\n" for container_name, ports in config_dict.items()]
 

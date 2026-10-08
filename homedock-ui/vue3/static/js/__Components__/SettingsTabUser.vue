@@ -81,7 +81,7 @@
       <template #badge>
         <SettingsHelpTooltip :text="$t('Backup codes are what gets you in when you lose the authenticator. Generating a new set kills the previous one immediately, so save these before closing the window: they are not shown again.')" />
       </template>
-      <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="openRegenerateModal">
+      <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border cursor-pointer" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover, themeClasses.appPropsActionButtonBorderHover]" @click="openRegenerateModal">
         <Icon :icon="refreshIcon" width="14" height="14" />
         {{ $t("Regenerate") }}
       </button>

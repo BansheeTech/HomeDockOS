@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div :class="[themeClasses.hubContMainer]" class="relative flex-1 border rounded-2xl p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
+  <div :class="[themeClasses.hubContMainer]" class="relative flex-1 border rounded-2xl p-3 shadow-xs transition-shadow duration-300 hover:shadow-lg">
     <div class="app-header flex items-center space-x-4">
       <AppIconGraphic :image-src="app.image_path" :size="48" class="hub-app-icon" />
 

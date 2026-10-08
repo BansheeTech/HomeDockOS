@@ -13,13 +13,13 @@
           <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-md leading-relaxed">{{ blockerBody }}</p>
         </div>
         <div class="flex items-center gap-2">
-          <button v-if="blocker === 'wrong_host' && blockerAlternative" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="goToAlternative">
+          <button v-if="blocker === 'wrong_host' && blockerAlternative" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer" @click="goToAlternative">
             {{ $t("Go to {domain}", { domain: blockerAlternative }) }}
           </button>
-          <button v-else :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker = null">
+          <button v-else :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer" @click="blocker = null">
             {{ $t("Try anyway") }}
           </button>
-          <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="blocker === 'untrusted' ? openInNewTab() : openPortInNewTab()">
+          <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer" @click="blocker === 'untrusted' ? openInNewTab() : openPortInNewTab()">
             {{ $t("Open in a new tab") }}
           </button>
           <a href="https://docs.homedock.cloud/homedock-os/desktop/#on-screen-apps" target="_blank" rel="noopener noreferrer" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors">
@@ -36,7 +36,7 @@
           <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ displayName }}</p>
           <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-sm">{{ errorMessage }}</p>
         </div>
-        <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="openInNewTab">
+        <button v-if="serviceUrl" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer" @click="openInNewTab">
           {{ $t("Open in a new tab") }}
         </button>
       </div>
@@ -78,7 +78,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ displayName }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("This application is served at its own address. HomeDock OS matches that name to the port the container listens on and forwards the connection untouched, so the app behaves exactly as it would on its own port.") }}</p>
             <p>{{ $t("Its port stays closed to the outside: every request passes through HomeDock OS and requires your session.") }}</p>
             <p v-if="serviceUrl" class="flex items-start gap-1.5">

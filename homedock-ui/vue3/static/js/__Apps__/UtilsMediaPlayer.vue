@@ -6,7 +6,7 @@
 <template>
   <div class="media-player flex flex-col h-full overflow-hidden">
     <div class="toolbar flex items-center gap-2 px-3 py-2 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
-      <button @click="toggleMute" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors" :title="isMuted ? $t('Unmute') : $t('Mute')">
+      <button @click="toggleMute" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-1.5 rounded transition-colors cursor-pointer" :title="isMuted ? $t('Unmute') : $t('Mute')">
         <Icon :icon="volumeIcon" class="w-4 h-4" />
       </button>
       <input type="range" v-model.number="volume" min="0" max="100" class="volume-slider h-1.5 rounded-lg appearance-none cursor-pointer accent-blue-500" :class="themeClasses.sliderBg" @input="onVolumeChange" />
@@ -14,8 +14,8 @@
 
       <div class="w-px h-4 mx-1 flex-shrink-0" :class="themeClasses.utilityDivider"></div>
 
-      <button @click="cyclePlaybackSpeed" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium" :title="$t('Playback Speed')">{{ playbackSpeed }}x</button>
-      <button v-if="isAudio" @click="toggleVisualizer" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium">{{ visualizer === "terrain" ? "3D" : "2D" }}</button>
+      <button @click="cyclePlaybackSpeed" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium cursor-pointer" :title="$t('Playback Speed')">{{ playbackSpeed }}x</button>
+      <button v-if="isAudio" @click="toggleVisualizer" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-2 py-1 rounded transition-colors text-xs font-medium cursor-pointer">{{ visualizer === "terrain" ? "3D" : "2D" }}</button>
 
       <div class="flex-1"></div>
 
@@ -99,7 +99,7 @@
 
       <div v-if="mediaSrc && isVideo" class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="togglePlay" @dblclick="!isMobile && toggleFullscreen()">
         <Transition name="fade">
-          <div v-if="showPlayOverlay" class="w-20 h-20 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
+          <div v-if="showPlayOverlay" class="w-20 h-20 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-xs">
             <Icon :icon="isPlaying ? pauseIcon : playIcon" class="w-10 h-10 text-white" />
           </div>
         </Transition>
@@ -114,19 +114,19 @@
       </div>
 
       <div class="flex items-center justify-center gap-2">
-        <button @click="skipBackward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Back 10s')">
+        <button @click="skipBackward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors cursor-pointer" :title="$t('Back 10s')">
           <Icon :icon="rewindIcon" class="w-5 h-5" />
         </button>
-        <button @click="togglePlay" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-3 rounded-full transition-colors bg-blue-500/20 hover:bg-blue-500/30" :title="isPlaying ? $t('Pause') : $t('Play')">
+        <button @click="togglePlay" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-3 rounded-full transition-colors bg-blue-500/20 hover:bg-blue-500/30 cursor-pointer" :title="isPlaying ? $t('Pause') : $t('Play')">
           <Icon :icon="isPlaying ? pauseIcon : playIcon" class="w-6 h-6" />
         </button>
-        <button @click="skipForward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Forward 10s')">
+        <button @click="skipForward" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors cursor-pointer" :title="$t('Forward 10s')">
           <Icon :icon="fastForwardIcon" class="w-5 h-5" />
         </button>
 
         <div v-if="isVideo && !isMobile" class="w-px h-6 mx-2 flex-shrink-0" :class="themeClasses.utilityDivider"></div>
 
-        <button v-if="isVideo && !isMobile" @click="toggleFullscreen" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors" :title="$t('Fullscreen')">
+        <button v-if="isVideo && !isMobile" @click="toggleFullscreen" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="p-2 rounded-full transition-colors cursor-pointer" :title="$t('Fullscreen')">
           <Icon :icon="fullscreenIcon" class="w-5 h-5" />
         </button>
       </div>
@@ -145,7 +145,7 @@
             <StatusBarHelpIcon :icon="movieIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Media Player") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Play video and audio files with magic bytes validation.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">

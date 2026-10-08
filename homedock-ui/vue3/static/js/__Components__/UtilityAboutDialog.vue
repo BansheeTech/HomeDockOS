@@ -28,7 +28,7 @@
 
     <p :class="[themeClasses.windowText]" class="text-xs opacity-60 leading-relaxed mt-0 mb-3">{{ $t("{app} exists thanks to these open source projects and the people who build them.", { app: $t(appName) }) }}</p>
 
-    <button type="button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors" @click="openLicenses">
+    <button type="button" :class="[themeClasses.appPropsActionButtonBg, themeClasses.appPropsActionButtonBorder, themeClasses.appPropsActionButtonText, themeClasses.appPropsActionButtonBgHover]" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors cursor-pointer" @click="openLicenses">
       <Icon :icon="licenseIcon" class="w-4 h-4" />
       {{ $t("View Open Source Licenses") }}
     </button>

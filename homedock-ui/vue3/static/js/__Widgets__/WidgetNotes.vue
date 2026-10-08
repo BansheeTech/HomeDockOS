@@ -10,14 +10,14 @@
       <span class="text-[10px] font-semibold uppercase tracking-[0.12em]" :class="themeClasses.desktopWidgetMeta">{{ $t("Notes") }}</span>
     </div>
 
-    <textarea v-if="!isListMode" v-model="text" class="notes-area flex-1 w-full resize-none bg-transparent border-none outline-none p-0 text-sm leading-relaxed" :class="themeClasses.desktopWidgetText" :placeholder="$t('Write something...')" spellcheck="false" @mousedown.stop @touchstart.stop @dblclick.stop @contextmenu.stop @keydown.stop @input="scheduleSave" @blur="flush"></textarea>
+    <textarea v-if="!isListMode" v-model="text" class="notes-area flex-1 w-full resize-none bg-transparent border-none outline-hidden p-0 text-sm leading-relaxed" :class="themeClasses.desktopWidgetText" :placeholder="$t('Write something...')" spellcheck="false" @mousedown.stop @touchstart.stop @dblclick.stop @contextmenu.stop @keydown.stop @input="scheduleSave" @blur="flush"></textarea>
 
     <div v-else class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1" @mousedown.stop @touchstart.stop @dblclick.stop @contextmenu.stop>
       <div v-for="(item, index) in items" :key="index" class="flex items-center gap-2 shrink-0">
         <button type="button" class="shrink-0 w-3.5 h-3.5 rounded-full flex items-center justify-center cursor-pointer transition-colors" :class="item.done ? ['text-white', themeClasses.statsWidgetProgressFill] : ['border border-current', themeClasses.desktopWidgetMeta]" @mousedown.stop @click.stop="toggleItem(index)">
           <Icon v-if="item.done" :icon="checkIcon" class="w-2.5 h-2.5" />
         </button>
-        <input :ref="(el) => setItemRef(el, index)" v-model="item.text" type="text" class="notes-area flex-1 min-w-0 bg-transparent border-none outline-none p-0 text-sm leading-relaxed" :class="item.done ? ['line-through', themeClasses.desktopWidgetMeta] : themeClasses.desktopWidgetText" :placeholder="index === 0 && items.length === 1 ? $t('Write something...') : ''" spellcheck="false" @mousedown.stop @touchstart.stop @dblclick.stop @contextmenu.stop @keydown.stop="handleItemKeydown($event, index)" @input="syncTextFromItems" @blur="flush" />
+        <input :ref="(el) => setItemRef(el, index)" v-model="item.text" type="text" class="notes-area flex-1 min-w-0 bg-transparent border-none outline-hidden p-0 text-sm leading-relaxed" :class="item.done ? ['line-through', themeClasses.desktopWidgetMeta] : themeClasses.desktopWidgetText" :placeholder="index === 0 && items.length === 1 ? $t('Write something...') : ''" spellcheck="false" @mousedown.stop @touchstart.stop @dblclick.stop @contextmenu.stop @keydown.stop="handleItemKeydown($event, index)" @input="syncTextFromItems" @blur="flush" />
       </div>
 
       <button v-if="showAddRow" type="button" class="flex items-center gap-2 shrink-0 cursor-pointer text-left group" @mousedown.stop @click.stop="addItem">

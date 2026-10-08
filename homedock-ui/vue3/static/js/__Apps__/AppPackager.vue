@@ -33,7 +33,7 @@
           </div>
         </div>
 
-        <p v-if="detailsApp.manifest?.description" :class="[themeClasses.storeCardSubtitle]" class="m-0 text-xs leading-relaxed">{{ detailsApp.manifest.description }}</p>
+        <p v-if="detailsApp.manifest?.description" :class="[themeClasses.storeCardSubtitle]" class="text-xs leading-relaxed">{{ detailsApp.manifest.description }}</p>
 
         <div :class="[themeClasses.storeInfoBar]" class="rounded-xl border overflow-hidden">
           <template v-for="(row, index) in detailRows" :key="row.label">
@@ -45,7 +45,7 @@
           </template>
         </div>
 
-        <p v-if="!detailsApp.is_valid" :class="[themeClasses.packagerErrorText]" class="m-0 flex items-center gap-1.5 text-xs">
+        <p v-if="!detailsApp.is_valid" :class="[themeClasses.packagerErrorText]" class="flex items-center gap-1.5 text-xs">
           <Icon :icon="alertIcon" class="w-3.5 h-3.5 flex-shrink-0" />
           {{ detailsApp.validation_message }}
         </p>
@@ -129,7 +129,7 @@
             <StatusBarHelpIcon :icon="packageIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Packager") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p v-if="view === 'create'">{{ $t("Create custom .hds packages with your docker-compose files to be able to import any application into the HomeDock OS App Store. Use DevHooks to make your packages dynamic and compatible with different environments such as Windows, macOS and Linux.") }}</p>
             <p v-else-if="view === 'stores'">{{ $t("Import apps directly from third-party stores like Casa or Zima. Paste a link to a store ZIP archive and select which apps to import. Metadata, icons, and volumes are adapted automatically.") }}</p>
             <p v-else>{{ $t("Import packages from others or export your already imported apps, share them, keep them private or publish your own .hds files on GitHub. Once exported, all packages are verified with SHA256 hashes to ensure integrity and avoid third party modifications.") }}</p>

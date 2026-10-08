@@ -15,31 +15,31 @@
     </div>
 
     <div class="buttons flex-1 grid grid-cols-4 gap-[1px] p-[1px]" :class="themeClasses.calculatorGrid">
-      <button @click="clear" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">
+      <button @click="clear" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn cursor-pointer">
         {{ currentValue === "0" && !expression ? $t("AC") : $t("C") }}
       </button>
-      <button @click="toggleSign" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">±</button>
-      <button @click="percentage" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn">%</button>
-      <button @click="setOperator('/')" :class="[themeClasses.calculatorBtnOperator, operator === '/' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn">÷</button>
+      <button @click="toggleSign" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn cursor-pointer">±</button>
+      <button @click="percentage" :class="[themeClasses.calculatorBtnFunction]" class="calc-btn cursor-pointer">%</button>
+      <button @click="setOperator('/')" :class="[themeClasses.calculatorBtnOperator, operator === '/' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn cursor-pointer">÷</button>
 
-      <button @click="appendNumber('7')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">7</button>
-      <button @click="appendNumber('8')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">8</button>
-      <button @click="appendNumber('9')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">9</button>
-      <button @click="setOperator('*')" :class="[themeClasses.calculatorBtnOperator, operator === '*' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn">×</button>
+      <button @click="appendNumber('7')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">7</button>
+      <button @click="appendNumber('8')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">8</button>
+      <button @click="appendNumber('9')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">9</button>
+      <button @click="setOperator('*')" :class="[themeClasses.calculatorBtnOperator, operator === '*' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn cursor-pointer">×</button>
 
-      <button @click="appendNumber('4')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">4</button>
-      <button @click="appendNumber('5')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">5</button>
-      <button @click="appendNumber('6')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">6</button>
-      <button @click="setOperator('-')" :class="[themeClasses.calculatorBtnOperator, operator === '-' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn">−</button>
+      <button @click="appendNumber('4')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">4</button>
+      <button @click="appendNumber('5')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">5</button>
+      <button @click="appendNumber('6')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">6</button>
+      <button @click="setOperator('-')" :class="[themeClasses.calculatorBtnOperator, operator === '-' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn cursor-pointer">−</button>
 
-      <button @click="appendNumber('1')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">1</button>
-      <button @click="appendNumber('2')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">2</button>
-      <button @click="appendNumber('3')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">3</button>
-      <button @click="setOperator('+')" :class="[themeClasses.calculatorBtnOperator, operator === '+' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn">+</button>
+      <button @click="appendNumber('1')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">1</button>
+      <button @click="appendNumber('2')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">2</button>
+      <button @click="appendNumber('3')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">3</button>
+      <button @click="setOperator('+')" :class="[themeClasses.calculatorBtnOperator, operator === '+' ? themeClasses.calculatorBtnOperatorActive : '']" class="calc-btn cursor-pointer">+</button>
 
-      <button @click="appendNumber('0')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn col-span-2">0</button>
-      <button @click="appendDecimal" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn">.</button>
-      <button @click="calculate" :class="[themeClasses.calculatorBtnEquals]" class="calc-btn">=</button>
+      <button @click="appendNumber('0')" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn col-span-2 cursor-pointer">0</button>
+      <button @click="appendDecimal" :class="[themeClasses.calculatorBtnNumber]" class="calc-btn cursor-pointer">.</button>
+      <button @click="calculate" :class="[themeClasses.calculatorBtnEquals]" class="calc-btn cursor-pointer">=</button>
     </div>
   </div>
 </template>

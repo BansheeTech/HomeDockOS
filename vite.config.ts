@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "tailwindcss";
+import tailwindcss from "@tailwindcss/postcss";
 import fortuneSheetNoEval from "./homedock-ui/vite-plugins/fortuneSheetNoEval.ts";
 
 export default defineConfig(({ mode }) => ({
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
   },
   css: {
     postcss: {
-      plugins: [tailwindcss()],
+      plugins: [tailwindcss({ optimize: false })],
     },
   },
   server: {

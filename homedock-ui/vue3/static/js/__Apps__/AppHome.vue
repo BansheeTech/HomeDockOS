@@ -92,7 +92,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("My Home") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("My Home is the front door to your server: your folders, your drives and every app, one click away.") }}</p>
             <p>
               <strong>{{ $t("Devices and drives") }}:</strong> {{ $t("Every disk HomeDock OS can see and how much room it has left. The bar turns red once a disk is 90% full.") }}

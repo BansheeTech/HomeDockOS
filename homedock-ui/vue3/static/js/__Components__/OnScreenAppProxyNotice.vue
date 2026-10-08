@@ -10,7 +10,7 @@
       <p :class="[themeClasses.hubCardTextAppName]" class="font-bold text-sm">{{ displayName }}</p>
       <p :class="[themeClasses.hubCardTextRepo]" class="text-xs max-w-sm">{{ $t("This app doesn't seem to work under a proxy and may require manual configuration.") }}</p>
     </div>
-    <button v-if="canOpenExternally" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors" @click="emit('openExternal')">
+    <button v-if="canOpenExternally" :class="[themeClasses.explorerActionButton, themeClasses.explorerActionButtonHover]" class="rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer" @click="emit('openExternal')">
       {{ $t("Open in a new tab") }}
     </button>
   </div>

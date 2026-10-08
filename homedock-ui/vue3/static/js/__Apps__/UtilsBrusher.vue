@@ -12,11 +12,11 @@
         <div class="flex items-center gap-4">
           <div class="flex-1">
             <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Width (px)") }}</label>
-            <input v-model.number="resizeWidth" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
+            <input v-model.number="resizeWidth" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" />
           </div>
           <div class="flex-1">
             <label :class="['text-xs block mb-1', themeClasses.windowTextMuted]">{{ $t("Height (px)") }}</label>
-            <input v-model.number="resizeHeight" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-none" />
+            <input v-model.number="resizeHeight" type="number" min="100" max="4000" :class="[themeClasses.windowInputBg, themeClasses.windowText, themeClasses.windowBorder]" class="w-full px-3 py-2 text-sm rounded-lg border outline-hidden" />
           </div>
         </div>
         <p :class="['text-xs', themeClasses.windowTextMuted]">{{ $t("Current") }}: {{ canvasWidth }} × {{ canvasHeight }}. {{ $t("Existing content will be preserved in the top-left corner.") }}</p>
@@ -25,7 +25,7 @@
 
     <div class="flex items-center gap-1 px-2 py-1.5 border-b" :class="themeClasses.utilityToolbarBorder">
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("File") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("File") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="new" @click="newCanvas">
@@ -55,7 +55,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Edit") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("Edit") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="undo" @click="undo" :disabled="historyIndex <= 0">
@@ -84,7 +84,7 @@
       </Dropdown>
 
       <Dropdown :trigger="['click']" placement="bottomLeft" :overlay-class-name="themeClasses.scopeSelector">
-        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors">{{ $t("Image") }}</button>
+        <button :class="[themeClasses.windowText, themeClasses.windowButtonBgHover]" class="px-3 py-1 text-xs rounded transition-colors cursor-pointer">{{ $t("Image") }}</button>
         <template #overlay>
           <Menu>
             <MenuItem key="resize" @click="openResizeDialog">
@@ -100,7 +100,7 @@
 
     <div class="toolbar flex items-center gap-2 px-2 py-1.5 border-b flex-shrink-0" :class="themeClasses.utilityToolbarBorder">
       <div class="flex items-center gap-0.5">
-        <button v-for="tool in tools" :key="tool.id" @click="currentTool = tool.id" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, currentTool === tool.id ? 'ring-2 ring-blue-500 bg-blue-500/20' : '']" class="tool-btn p-1.5 rounded transition-colors" :title="$t(tool.name)">
+        <button v-for="tool in tools" :key="tool.id" @click="currentTool = tool.id" :class="[themeClasses.windowText, themeClasses.windowButtonBgHover, currentTool === tool.id ? 'ring-2 ring-blue-500 bg-blue-500/20' : '']" class="tool-btn p-1.5 rounded transition-colors cursor-pointer" :title="$t(tool.name)">
           <Icon :icon="tool.icon" class="tool-icon" />
         </button>
       </div>
@@ -113,7 +113,7 @@
           <input type="color" v-model="currentColor" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
         </label>
         <div class="quick-colors gap-0.5">
-          <button v-for="color in quickColors" :key="color" @click="currentColor = color" class="w-4 h-4 rounded border border-gray-400/50 hover:scale-110 transition-transform" :style="{ backgroundColor: color }" :title="color"></button>
+          <button v-for="color in quickColors" :key="color" @click="currentColor = color" class="w-4 h-4 rounded border border-gray-400/50 hover:scale-110 transition-transform cursor-pointer" :style="{ backgroundColor: color }" :title="color"></button>
         </div>
       </div>
 
@@ -139,7 +139,7 @@
             <StatusBarHelpIcon :icon="brushIcon" />
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("Brusher") }}</h4>
           </div>
-          <div :class="['text-[10px] md:text-xs space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2.5 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("A simple drawing application for quick sketches and annotations.") }}</p>
             <div class="space-y-1.5">
               <div class="flex items-start gap-2">

@@ -55,7 +55,7 @@
             <h4 :class="['text-base font-semibold', themeClasses.statusBarText]">{{ $t("System Logs") }}</h4>
           </div>
 
-          <div :class="['text-[10px] md:text-xs space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
+          <div :class="['text-[10px] md:text-xs md:leading-4 space-y-2 leading-relaxed', themeClasses.statusBarInfo]">
             <p>{{ $t("Track login attempts and system performance metrics over time. Login logs are fully relational and searchable by IP, username, or status. HomeDock OS includes Shield Mode, a proprietary security feature that detects coordinated attacks and activates progressive lockout measures to prevent brute-force attempts while keeping legitimate access available.") }}</p>
           </div>
         </div>

@@ -5,7 +5,7 @@
 
 <template>
   <div class="space-y-3">
-    <p :class="[themeClasses.packagerTextMuted]" class="m-0 text-xs">
+    <p :class="[themeClasses.packagerTextMuted]" class="text-xs">
       {{ summary }}
       <template v-if="existingCount > 0"> {{ $t("{n} already imported and cannot be selected.", { n: existingCount }) }}</template>
     </p>

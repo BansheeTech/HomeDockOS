@@ -4,7 +4,7 @@
 <!-- https://www.banshee.pro -->
 
 <template>
-  <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+  <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
     <div v-if="!cards.length" class="flex flex-col items-center justify-center h-full gap-2 py-10">
       <Icon :icon="emptyIcon" :class="[themeClasses.explorerEmptyIcon]" class="w-10 h-10" />
       <p :class="[themeClasses.explorerEmptySubtext]" class="text-xs">{{ $t(emptyLabel) }}</p>
@@ -59,7 +59,7 @@
           <div class="flex flex-col gap-0.5 min-w-0">
             <dt :class="[themeClasses.appPropsInfoLabel]" class="text-[10px]">{{ $t("Container ID") }}</dt>
             <dd class="m-0 min-w-0">
-              <button @click.stop="copyId(app)" :class="[themeClasses.appPropsInfoValue]" class="copy-value flex items-center gap-1 max-w-full border-0 bg-transparent p-0 cursor-pointer text-xs font-medium tabular-nums outline-none rounded focus-visible:ring-2 focus-visible:ring-blue-500/60" :title="$t('Copy')">
+              <button @click.stop="copyId(app)" :class="[themeClasses.appPropsInfoValue]" class="copy-value flex items-center gap-1 max-w-full border-0 bg-transparent p-0 cursor-pointer text-xs font-medium tabular-nums outline-hidden rounded focus-visible:ring-2 focus-visible:ring-blue-500/60" :title="$t('Copy')">
                 <span class="truncate">{{ app.id || "—" }}</span>
                 <Icon :icon="copiedName === app.name ? checkIcon : copyIcon" class="copy-icon w-3 h-3 flex-shrink-0" :class="copiedName === app.name ? 'text-green-500' : ''" />
               </button>

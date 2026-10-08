@@ -158,6 +158,10 @@ function onImageLoad(event: Event) {
   -webkit-user-drag: none;
 }
 
+.app-icon-image:not(.app-icon-image-inset) {
+  transform: scale(1.03);
+}
+
 .app-icon-backdrop {
   position: absolute;
   inset: 0;
